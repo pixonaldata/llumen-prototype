@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crimson App Feed</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="crimson-app" class="bg-gray-900">
+        <header class="bg-gray-800 py-4 px-4 md:px-8 flex items-center justify-between shadow-lg sticky top-0 z-30">
+            <!-- Left-aligned group: Logo, divider, client logo, and navigation -->
+            <div class="flex items-center">
+                <div class="w-8 h-8 flex items-center justify-center rounded-md overflow-hidden">
+                    <svg viewBox="0 0 32 32" class="w-full h-full">
+                        <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" /> </svg>
+                </div>
+                <div class="h-6 border-l border-gray-600 ml-4"></div> <!-- Added ml-4 for spacing -->
+                <div class="flex items-center justify-center px-3 py-1 rounded-md bg-[#1a1a1a] text-white text-sm font-semibold h-8 ml-4"> <!-- Added ml-4 for spacing -->
+                    <span>Client Logo</span>
+                </div>
+                <!-- New Navigation Menu - now directly next to client logo with controlled spacing -->
+                <nav class="flex items-center ml-4"> <!-- Added ml-4 for spacing from client logo -->
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-bold text-white transition duration-200">My Workspaces</a>
+                    <a href="explore.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">Explore</a>
+                </nav>
+            </div>
+
+            <!-- Right-aligned group of icons and user dropdown -->
+            <div class="flex items-center">
+                <!-- Replaced original search button with the search container -->
+                <div id="search-container" class="relative flex items-center">
+                    <button id="search-icon-button" class="text-gray-300 hover:text-red-400 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                    <div id="search-input-wrapper" class="absolute right-0 flex items-center bg-gray-700 rounded-full overflow-hidden transition-all duration-300 ease-in-out">
+                        <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" id="header-search-input" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
+                    </div>
+                </div>
+
+                <!-- Notification Icon Button with margin-left for spacing from search -->
+                <button class="text-gray-300 hover:text-red-400 p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 ml-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </button>
+                <!-- User Dropdown with specific margins -->
+                <div class="relative ml-4">
+                    <button id="user-dropdown-button" class="flex items-center text-gray-300 hover:text-red-400 transition duration-200 focus:outline-none">
+                        <img src="https://placehold.co/32x32/555/fff?text=J" alt="User Avatar" class="rounded-full">
+                    </button>
+                    <div id="user-dropdown-menu" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden options-dropdown-menu">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Account Settings</a>
+                        <a href="platform-settings/overview.html" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Platform Settings</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Help</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav id="workspace-nav-bar" class="bg-gray-800 py-3 px-4 md:px-8 shadow-md sticky-nav flex items-center justify-center">
+            <div id="workspace-left-gradient-overlay" class="scroll-gradient-overlay left workspace-gradient-overlay">
+                <button id="scroll-left-button" class="workspace-scroll-button p-2 rounded-full text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+            </div>
+
+            <div id="workspace-buttons-container" class="flex-grow flex overflow-x-auto whitespace-nowrap space-x-2 sm:space-x-4 scrollbar-hide py-1">
+                <!-- New "Create Workspace" Button -->
+                <button class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 relative group"
+                        id="create-workspace-button" data-tooltip="Create Workspace">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                </button>
+                <div class="h-8 border-l border-gray-600 mx-2"></div> <!-- Separator before All (h-7 for 1.75rem, to match button height) -->
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 active text-sm">
+                    <span>All</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Private">
+                    <span>Private</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Shared with Me">
+                    <span>Shared with Me</span>
+                </button>
+                <div class="h-8 border-l border-gray-600 mx-2"></div> <!-- Separator after Shared with Me (h-7 for 1.75rem, to match button height) -->
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Finance">
+                    <span>Finance</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Operations">
+                    <span>Operations</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="HR">
+                    <span>HR</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Sales">
+                    <span>Sales</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Marketing">
+                    <span>Marketing</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="IT">
+                    <span>IT</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Product">
+                    <span>Product</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Engineering">
+                    <span>Engineering</span>
+                </button>
+                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Customer Success">
+                    <span>Customer Success</span>
+                </button>
+            </div>
+
+            <div id="workspace-right-gradient-overlay" class="scroll-gradient-overlay right workspace-gradient-overlay">
+                <button id="scroll-right-button" class="workspace-scroll-button p-2 rounded-full text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </nav>
+
+        <main class="flex-grow p-4 md:p-8 z-10"> <!-- Removed overflow-y-auto here -->
+            <section class="mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-white">Latest Briefings</h2>
+                <div class="relative"> <div id="briefings-left-gradient-overlay" class="scroll-gradient-overlay left">
+                        <button id="briefings-scroll-left-button" class="briefings-scroll-button p-2 rounded-full text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                    </div>
+                    <div id="briefings-scroll-container" class="flex overflow-x-auto space-x-4 scrollbar-hide">
+                        <!-- New "Create Briefing" Card -->
+                        <div class="briefings-card-outer flex-shrink-0 w-48 h-64 cursor-pointer" onclick="alertMessage('Creating a new briefing (simulated)...', 'info')">
+                            <div class="absolute inset-0 rounded-lg shadow-lg bg-gray-700 flex flex-col items-center justify-center text-white p-4 hover:bg-gray-600 transition duration-300">
+                                <svg class="w-14 h-14 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path></svg>
+                                <p class="text-sm text-gray-300 text-center">Create Briefing</p>
+                            </div>
+                        </div>
+                        <!-- Briefing Card 1 - Alert -->
+                        <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Supply Chain Alert: Critical Component Shortage...', 'info')">
+                            <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-red-800 to-red-950">
+                                <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                <!-- Tag for Briefing Card 1 -->
+                                <div class="absolute top-3 left-3 bg-transparent border border-red-600 text-red-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                    <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    Alert
+                                </div>
+                                <div class="relative p-4 flex flex-col justify-end h-full">
+                                    <p class="text-sm text-gray-300 mb-1">Operations</p>
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Supply Chain Alert: Critical Component Shortage</h3>
+                                    <p class="text-xs text-gray-300 mt-1">2 hours ago</p>
+                                    <!-- Options Dropdown -->
+                                    <div class="absolute top-2 right-2 z-20">
+                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                        </button>
+                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Briefing Card 2 - Report (Finance) -->
+                        <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Market Volatility Impact on Q3 Forecasts...', 'info')">
+                            <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-yellow-800 to-yellow-950">
+                                <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                <!-- Tag for Briefing Card 2 -->
+                                <div class="absolute top-3 left-3 bg-transparent border border-yellow-600 text-yellow-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                    <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    Report
+                                </div>
+                                <div class="relative p-4 flex flex-col justify-end h-full">
+                                    <p class="text-sm text-gray-300 mb-1">Finance</p>
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Market Volatility Impact on Q3 Forecasts</h3>
+                                    <p class="text-xs text-gray-300 mt-1">Yesterday</p>
+                                    <!-- Options Dropdown -->
+                                    <div class="absolute top-2 right-2 z-20">
+                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                        </button>
+                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Briefing Card 3 - Feedback -->
+                        <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Employee Feedback: Key Takeaways & Action Plans...', 'info')">
+                            <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-emerald-800 to-green-950">
+                                <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                <!-- Tag for Briefing Card 3 -->
+                                <div class="absolute top-3 left-3 bg-transparent border border-green-600 text-green-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                    <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                                    Feedback
+                                </div>
+                                <div class="relative p-4 flex flex-col justify-end h-full">
+                                    <p class="text-sm text-gray-300 mb-1">HR</p>
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Employee Feedback: Key Takeaways & Action Plans</h3>
+                                    <p class="text-xs text-gray-300 mt-1">3 days ago</p>
+                                    <!-- Options Dropdown -->
+                                    <div class="absolute top-2 right-2 z-20">
+                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                        </button>
+                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Briefing Card 4 - Report (Sales) -->
+                        <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Q1 Lead Generation: Performance & Strategy...', 'info')">
+                            <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-yellow-800 to-yellow-950">
+                                <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                <!-- Tag for Briefing Card 4 -->
+                                <div class="absolute top-3 left-3 bg-transparent border border-yellow-600 text-yellow-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                    <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    Report
+                                </div>
+                                <div class="relative p-4 flex flex-col justify-end h-full">
+                                    <p class="text-sm text-gray-300 mb-1">Sales</p>
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Q1 Lead Generation: Performance & Strategy</h3>
+                                    <p class="text-xs text-gray-300 mt-1">1 week ago</p>
+                                    <!-- Options Dropdown -->
+                                    <div class="absolute top-2 right-2 z-20">
+                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                        </button>
+                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Briefing Card 5 - Update -->
+                        <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for System Upgrade: Upcoming Changes and Benefits...', 'info')">
+                            <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-blue-800 to-blue-950">
+                                <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                <!-- Tag for Briefing Card 5 -->
+                                <div class="absolute top-3 left-3 bg-transparent border border-blue-600 text-blue-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                    Update
+                                </div>
+                                <div class="relative p-4 flex flex-col justify-end h-full">
+                                    <p class="text-sm text-gray-300 mb-1">IT</p>
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">System Upgrade: Upcoming Changes and Benefits</h3>
+                                    <p class="text-xs text-gray-300 mt-1">4 days ago</p>
+                                    <!-- Options Dropdown -->
+                                    <div class="absolute top-2 right-2 z-20">
+                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                        </button>
+                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Briefing Card 6 - Report (Marketing) -->
+                        <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Campaign Performance: Deep Dive into Q1 Results...', 'info')">
+                            <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-yellow-800 to-yellow-950">
+                                <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                <!-- Tag for Briefing Card 6 -->
+                                <div class="absolute top-3 left-3 bg-transparent border border-yellow-600 text-yellow-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                    <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    Report
+                                </div>
+                                <div class="relative p-4 flex flex-col justify-end h-full">
+                                    <p class="text-sm text-gray-300 mb-1">Marketing</p>
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Campaign Performance: Deep Dive into Q1 Results</h3>
+                                    <p class="text-xs text-gray-300 mt-1">6 days ago</p>
+                                    <!-- Options Dropdown -->
+                                    <div class="absolute top-2 right-2 z-20">
+                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                        </button>
+                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="briefings-right-gradient-overlay" class="scroll-gradient-overlay right">
+                        <button id="briefings-scroll-right-button" class="briefings-scroll-button p-2 rounded-full text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEW: Featured Stories Section (Full-Width Slider) -->
+            <section class="featured-stories mb-8 -mx-4 md:-mx-8">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 px-4 md:px-8 text-white">Featured Stories</h2>
+                <div id="hero-slider" class="relative w-full overflow-hidden shadow-xl" style="height: 30rem;">
+                    <div id="slider-inner" class="relative w-full h-full">
+                        <!-- Slider Item 1 -->
+                        <div class="slider-item bg-slate-900" data-slide-index="0">
+                             <!-- Animated Background Layer -->
+                            <div class="animated-background">
+                                <div class="flex items-start justify-start h-full py-8 px-4">
+                                    <!-- Left one-third column -->
+                                    <div class="flex flex-col items-start gap-y-4 w-1/3 flex-shrink-0">
+                                        <div class="bg-blue-700 rounded-lg w-full h-32 flex items-center justify-center text-white text-xl">Chart</div>
+                                        <div class="flex flex-col space-y-4 w-full">
+                                            <!-- Placeholder text blocks (5 of them) -->
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                        </div>
+                                    </div>
+                                    <!-- Right two-thirds column for the new visual block -->
+                                    <div class="flex items-start justify-center w-2/3 h-full flex-shrink-0">
+                                        <div class="bg-slate-700 rounded-lg w-96 h-96 flex items-center justify-center text-white text-xl shadow-lg">
+                                            Background Visual
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                            <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
+                                <p class="text-sm text-gray-300 mb-1">Marketing</p>
+                                <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">New Campaign Launch: Q3 Strategy & Expected ROI</h3>
+                                <p class="text-sm text-gray-400 mt-1">10 Sections</p>
+                                <button class="mt-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 pl-2 pr-4 rounded-lg flex items-center space-x-2 transition duration-200" onclick="alertMessage('Starting story: New Campaign Launch...', 'info')">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+                                    <span>Start</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Slider Item 2 -->
+                        <div class="slider-item bg-slate-900" data-slide-index="1">
+                            <!-- Animated Background Layer -->
+                            <div class="animated-background">
+                                <div class="flex items-start justify-start h-full py-8 px-4">
+                                    <div class="flex flex-col items-start gap-y-4 w-1/3 flex-shrink-0">
+                                        <div class="bg-green-700 rounded-lg w-full h-24 flex items-center justify-center text-white text-xl">Chart</div>
+                                        <div class="flex flex-col space-y-4 w-full">
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start justify-center w-2/3 h-full flex-shrink-0">
+                                        <div class="bg-slate-700 rounded-lg w-96 h-96 flex items-center justify-center text-white text-xl shadow-lg">
+                                            Background Visual
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                            <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
+                                <p class="text-sm text-gray-300 mb-1">Product</p>
+                                <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">Product Roadmap 2025: Innovations & User Experience</h3>
+                                <p class="text-sm text-gray-400 mt-1">12 Sections</p>
+                                <button class="mt-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 pl-2 pr-4 rounded-lg flex items-center space-x-2 transition duration-200" onclick="alertMessage('Starting story: Product Roadmap...', 'info')">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+                                    <span>Start</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Slider Item 3 -->
+                        <div class="slider-item bg-slate-900" data-slide-index="2">
+                            <!-- Animated Background Layer -->
+                            <div class="animated-background">
+                                <div class="flex items-start justify-start h-full py-8 px-4">
+                                    <div class="flex flex-col items-start gap-y-4 w-1/3 flex-shrink-0">
+                                        <div class="bg-red-700 rounded-lg w-full h-40 flex items-center justify-center text-white text-xl">Chart</div>
+                                        <div class="flex flex-col space-y-4 w-full">
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                            <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start justify-center w-2/3 h-full flex-shrink-0">
+                                        <div class="bg-slate-700 rounded-lg w-96 h-96 flex items-center justify-center text-white text-xl shadow-lg">
+                                            Background Visual
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                            <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
+                                <p class="text-sm text-gray-300 mb-1">Operations</p>
+                                <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">Optimizing Logistics: Efficiency Gains in Q4 Operations</h3>
+                                <p class="text-sm text-gray-400 mt-1">8 Sections</p>
+                                <button class="mt-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 pl-2 pr-4 rounded-lg flex items-center space-x-2 transition duration-200" onclick="alertMessage('Starting story: Optimizing Logistics...', 'info')">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+                                    <span>Start</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Thumbnails below slider -->
+                <div id="slider-thumbnails" class="flex justify-start space-x-2 mt-4 overflow-x-auto pb-2 px-4 md:px-8 scrollbar-hide">
+                    <img src="https://placehold.co/120x67/333/fff?text=Story+1+Thumb" alt="Story 1 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer border-2 border-transparent hover:border-red-500 transition duration-200" data-slide-index="0">
+                    <img src="https://placehold.co/120x67/555/eee?text=Story+2+Thumb" alt="Story 2 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer border-2 border-transparent hover:border-red-500 transition duration-200" data-slide-index="1">
+                    <img src="https://placehold.co/120x67/777/ddd?text=Story+3+Thumb" alt="Story 3 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer border-2 border-transparent hover:border-500 transition duration-200" data-slide-index="2">
+                </div>
+            </section>
+
+            <section class="mb-8"> <h2 class="text-2xl md:text-3xl font-bold mb-4 text-white">Continue Viewing</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
+                        <img src="https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+current+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <p class="text-sm text-gray-400 mb-1">Finance</p>
+                            <h3 class="text-xl font-semibold text-white line-clamp-2">Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments</h3>
+                            <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                <span>Story</span>
+                                <span class="num-sections">15 Sections</span>
+                            </div>
+                            <div class="mt-4 w-full bg-gray-700 rounded-full h-2.5">
+                                <div class="bg-red-600 h-2.5 rounded-full" style="width: 75%;"></div>
+                            </div>
+                            <p class="text-sm text-red-400 mt-2">75% Complete (Section 12 of 16)</p>
+                            <!-- Options Dropdown -->
+                            <div class="absolute top-2 right-2 z-20">
+                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                </button>
+                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-8"> <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white">Recommended for You</h2>
+                    </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
+                        <img src="https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <p class="text-sm text-gray-400 mb-1">Finance</p>
+                            <h3 class="text-xl font-semibold text-white line-clamp-2">Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments</h3>
+                            <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                <span>Story</span>
+                                <span class="num-sections"></span>
+                            </div>
+                            <!-- Options Dropdown -->
+                            <div class="absolute top-2 right-2 z-20">
+                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                </button>
+                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                        <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <p class="text-sm text-gray-400 mb-1">Operations</p>
+                            <h3 class="text-xl font-semibold text-white line-clamp-2">Operations Dashboard: Live KPIs and Key Supply Chain Updates for the Quarter</h3>
+                            <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                <span>Dashboard</span>
+                                <span>4 Pages</span>
+                            </div>
+                            <!-- Options Dropdown -->
+                            <div class="absolute top-2 right-2 z-20">
+                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                </button>
+                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
+                        <img src="https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <p class="text-sm text-gray-400 mb-1">HR</p>
+                            <h3 class="text-xl font-semibold text-white line-clamp-2">Employee Engagement Trends 2024: Key Insights and Retention Strategies</h3>
+                            <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                <span>Story</span>
+                                <span class="num-sections"></span>
+                            </div>
+                            <!-- Options Dropdown -->
+                            <div class="absolute top-2 right-2 z-20">
+                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                </button>
+                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                        <img src="https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <p class="text-sm text-gray-400 mb-1">Sales</p>
+                            <h3 class="text-xl font-semibold text-white line-clamp-2">Monthly Sales Performance: Detailed Regional Breakdowns and Future Forecasts</h3>
+                            <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                <span>Dashboard</span>
+                                <span>3 Pages</span>
+                            </div>
+                            <!-- Options Dropdown -->
+                            <div class="absolute top-2 right-2 z-20">
+                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                </button>
+                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
+                        <img src="https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <p class="text-sm text-gray-400 mb-1">Marketing</p>
+                            <h3 class="text-xl font-semibold text-white line-clamp-2">2025 Marketing Strategy Overview: Key Initiatives and Anticipated Impact Analysis</h3>
+                            <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                <span>Story</span>
+                                <span class="num-sections"></span>
+                            </div>
+                            <!-- Options Dropdown -->
+                            <div class="absolute top-2 right-2 z-20">
+                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                </button>
+                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                        <img src="https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <p class="text-sm text-gray-400 mb-1">IT</p>
+                            <h3 class="text-xl font-semibold text-white line-clamp-2">IT Infrastructure Monitoring: Real-time Network Health and Security Alerts</h3>
+                            <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                <span>Dashboard</span>
+                                <span>5 Pages</span>
+                            </div>
+                            <!-- Options Dropdown -->
+                            <div class="absolute top-2 right-2 z-20">
+                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                </button>
+                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <button id="ai-chat-button" class="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-lg transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400 z-50">
+            <!-- Chat Bubble Icon SVG -->
+             <img src="ai-icon.svg" alt="AI Chat Icon" class="w-8 h-8" />
+            <!-- <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+            </svg> -->
+        </button>
+
+        <div id="ai-chat-window" class="fixed bg-gray-800 rounded-xl shadow-2xl flex overflow-hidden transition-all duration-300 ease-in-out z-50">
+            <div id="chat-content-wrapper" class="flex flex-col flex-shrink-0 w-80 h-full">
+                <div class="bg-gray-700 p-3 flex items-center justify-between">
+                    <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
+                    <div class="flex space-x-2">
+                        <button id="expand-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><path d="M21 3 14 10"></path><path d="M3 21 10 14"></path></svg>
+                        </button>
+                        <button id="close-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
+                    <div class="flex justify-start">
+                        <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%]">
+                            Hello! I'm Lumen. How can I help you today?
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <div class="bg-blue-600 text-white p-2 rounded-lg max-w-[80%]">
+                            Show me the latest Q2 Finance story.
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 border-t border-gray-700 flex items-center">
+                    <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm placeholder-gray-400">
+                    <button id="send-chat-button" class="ml-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400" disabled>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="ai-panel-separator" class="hidden"></div>
+
+            <div id="ai-interactive-panel" class="relative flex-shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out bg-gray-900 rounded-xl shadow-inner">
+                <div class="panel-header p-3 flex items-center justify-between rounded-tr-xl">
+                    <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
+                    <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg>
+                    </button>
+                </div>
+                <div id="interactive-panel-content" class="flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
+                    <p>Interactive content will appear here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log("Script loaded and starting..."); // Added for debugging
+
+        // Utility for toggling dropdowns
+        function setupDropdown(buttonId, menuId) {
+            const button = document.getElementById(buttonId);
+            const menu = document.getElementById(menuId);
+
+            if (button && menu) {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent document click from immediately closing
+                    menu.classList.toggle('hidden');
+                });
+
+                // Close dropdown if clicked outside
+                document.addEventListener('click', (event) => {
+                    if (!button.contains(event.target) && !menu.contains(event.target)) {
+                        menu.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        // Setup User Dropdown
+        setupDropdown('user-dropdown-button', 'user-dropdown-menu');
+
+
+        // Custom message box function instead of alert()
+        function alertMessage(message, type = "info") {
+            const container = document.getElementById('crimson-app');
+            let messageBox = document.getElementById('message-box');
+
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'message-box';
+                messageBox.className = 'fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
+                container.appendChild(messageBox);
+            }
+
+            // Set styles based on type
+            let bgColor = '';
+            switch (type) {
+                case 'success':
+                    bgColor = 'bg-green-500';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-500';
+                    break;
+                case 'info':
+                default:
+                    bgColor = 'bg-blue-500';
+                    break;
+            }
+
+            messageBox.className = `fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
+            messageBox.textContent = message;
+
+            // Show animation
+            setTimeout(() => {
+                messageBox.classList.remove('scale-0', 'opacity-0');
+                messageBox.classList.add('scale-100', 'opacity-100');
+            }, 50);
+
+            // Hide animation after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.remove('scale-100', 'opacity-100');
+                messageBox.classList.add('scale-0', 'opacity-0');
+                // Remove message box from DOM after transition
+                messageBox.addEventListener('transitionend', function handler() {
+                    if (messageBox.parentNode) {
+                        messageBox.parentNode.removeChild(messageBox);
+                    }
+                    messageBox.removeEventListener('transitionend', handler);
+                });
+            }, 3000);
+        }
+
+        // Handle Workspace navigation
+        document.querySelectorAll('.workspace-nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const selectedWorkspace = this.dataset.workspace;
+
+                // Remove active class from all workspace items
+                document.querySelectorAll('.workspace-nav-item').forEach(navItem => {
+                    navItem.classList.remove('active', 'bg-red-600', 'border', 'border-red-500', 'font-semibold');
+                    navItem.classList.add('bg-gray-700'); // Revert to default background
+                    navItem.classList.remove('hover:bg-gray-600'); // Ensure hover is removed
+                    navItem.classList.add('hover:bg-gray-600'); // Add the new hover
+                });
+
+                // Add active class to the clicked item
+                this.classList.add('active', 'bg-red-600', 'border', 'border-red-500', 'font-semibold');
+                this.classList.remove('bg-gray-700'); // Remove default background
+                this.classList.remove('hover:bg-gray-600'); // Ensure hover is removed for active state
+                this.classList.add('hover:bg-red-700'); // Add hover for active state (optional, but good practice)
+
+                // Simulate navigation to workspace page
+                alertMessage(`Navigating to ${selectedWorkspace} Workspace Page...`, 'info');
+                // In a real app, you would use window.location.href or a routing library here
+            });
+        });
+
+        // AI Chat Window functionality
+        const aiChatButton = document.getElementById('ai-chat-button');
+        const aiChatWindow = document.getElementById('ai-chat-window');
+        const closeChatButton = document.getElementById('close-chat-button');
+        const expandChatButton = document.getElementById('expand-chat-button');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatButton = document.getElementById('send-chat-button');
+        const chatMessagesContainer = document.getElementById('chat-messages');
+        const interactivePanel = document.getElementById('ai-interactive-panel');
+        const interactivePanelTitle = document.getElementById('interactive-panel-title');
+        const interactivePanelContent = document.getElementById('interactive-panel-content');
+        const closeInteractivePanelButton = document.getElementById('close-interactive-panel-button');
+        const aiPanelSeparator = document.getElementById('ai-panel-separator');
+
+        // Global variable to hold reference to the last generated toggle button
+        let lastToggleButtonElement = null;
+
+        // Function to toggle chat window visibility (open/close)
+        function toggleChatWindowVisibility() {
+            console.log("toggleChatWindowVisibility called.");
+            if (aiChatWindow.classList.contains('chat-window-open')) {
+                console.log("Closing chat window.");
+                aiChatWindow.classList.remove('chat-window-open');
+                aiChatWindow.classList.remove('is-minimal');
+                aiChatWindow.classList.remove('is-fullscreen');
+                aiChatWindow.classList.remove('has-interactive-panel');
+                toggleInteractivePanel('hide');
+
+                setTimeout(() => {
+                    if (!aiChatWindow.classList.contains('chat-window-open')) {
+                        aiChatWindow.style.display = 'none';
+                    }
+                }, 300);
+
+            } else {
+                console.log("Opening chat window.");
+                aiChatWindow.style.display = 'flex';
+                void aiChatWindow.offsetWidth; 
+                aiChatWindow.classList.add('chat-window-open', 'is-minimal');
+                chatInput.focus();
+                console.log("Chat window opened to minimal state.");
+            }
+            updateExpandCollapseButton();
+        }
+
+        // Function to toggle fullscreen mode
+        function toggleFullscreen() {
+            console.log("toggleFullscreen called.");
+            if (aiChatWindow.classList.contains('is-fullscreen')) {
+                console.log("Exiting fullscreen.");
+                aiChatWindow.classList.remove('is-fullscreen');
+                aiChatWindow.classList.add('is-minimal');
+                console.log("Exited fullscreen, CSS transition back to minimal expected.");
+            } else {
+                console.log("Entering fullscreen.");
+                aiChatWindow.classList.remove('is-minimal'); 
+                aiChatWindow.classList.add('is-fullscreen');
+                console.log("Entered fullscreen, CSS transition to fullscreen expected.");
+            }
+            chatInput.focus();
+            updateExpandCollapseButton();
+        }
+
+        // Update expand/collapse button icon
+        function updateExpandCollapseButton() {
+            if (aiChatWindow.classList.contains('is-fullscreen')) {
+                // Show minimize-2 icon
+                expandChatButton.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><path d="M14 10 21 3"/><path d="M3 21 10 14"/></svg>`;
+            } else {
+                // Show maximize-2 icon
+                expandChatButton.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><path d="M21 3 14 10"/><path d="M3 21 10 14"/></svg>`;
+            }
+        }
+
+        // Function to show/hide the interactive sub-panel
+        function toggleInteractivePanel(action, componentType = null) {
+            console.log("toggleInteractivePanel called with action:", action, "and componentType:", componentType);
+            if (action === 'toggle') {
+                action = interactivePanel.classList.contains('is-active') ? 'hide' : 'show';
+                if (lastToggleButtonElement && lastToggleButtonElement.dataset.componentType) {
+                    componentType = lastToggleButtonElement.dataset.componentType;
+                } else if (action === 'show') {
+                    console.warn("Could not determine component type for toggle. Defaulting to chart.");
+                    componentType = 'chart';
+                }
+            }
+
+            if (action === 'show') {
+                console.log("Showing interactive panel.");
+                interactivePanel.classList.add('is-active');
+                aiPanelSeparator.classList.remove('hidden');
+                setTimeout(() => aiPanelSeparator.classList.add('is-active'), 50);
+
+                aiChatWindow.classList.add('has-interactive-panel');
+
+                if (componentType === 'chart') {
+                    interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-600 rounded-md flex items-center justify-center"><p class="text-white text-lg">📈 Placeholder Chart Data</p></div>`;
+                } else if (componentType === 'map') {
+                    interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-600 rounded-md flex items-center justify-center"><p class="text-white text-lg">🗺️ Placeholder Map Data</p></div>`;
+                }
+
+                if (lastToggleButtonElement) {
+                    lastToggleButtonElement.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Hide Component`;
+                    lastToggleButtonElement.dataset.componentType = componentType;
+                }
+
+            } else if (action === 'hide') {
+                console.log("Hiding interactive panel.");
+                interactivePanel.classList.remove('is-active');
+                aiPanelSeparator.classList.remove('is-active');
+                aiPanelSeparator.classList.add('hidden');
+
+                aiChatWindow.classList.remove('has-interactive-panel');
+                interactivePanelContent.innerHTML = '<p>Interactive content will appear here.</p>';
+
+                if (lastToggleButtonElement) {
+                    lastToggleButtonElement.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Show Component`;
+                }
+            }
+        }
+
+
+        aiChatButton.addEventListener('click', toggleChatWindowVisibility);
+        closeChatButton.addEventListener('click', toggleChatWindowVisibility);
+        expandChatButton.addEventListener('click', toggleFullscreen);
+        closeInteractivePanelButton.addEventListener('click', () => toggleInteractivePanel('hide'));
+
+        // Simulate sending/receiving messages
+        function addChatMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            messageDiv.innerHTML = `
+                <div class="${sender === 'user' ? 'bg-blue-600' : 'bg-gray-600'} text-white p-2 rounded-lg max-w-[80%] break-words">
+                    ${message}
+                </div>
+            `;
+            chatMessagesContainer.appendChild(messageDiv);
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }
+
+        sendChatButton.addEventListener('click', async () => {
+            const message = chatInput.value.trim();
+            if (!message) {
+                alertMessage("Please enter a message.", "error");
+                return;
+            }
+
+            addChatMessage(message, 'user');
+            chatInput.value = '';
+            sendChatButton.disabled = true;
+
+            const isShowChart = message.toLowerCase().includes("show chart");
+            const isShowMap = message.toLowerCase().includes("show map");
+            const isGenerateResponse = message.toLowerCase().includes("generate response");
+
+            if (isShowChart || isShowMap) {
+                const componentType = isShowChart ? 'chart' : 'map';
+                toggleInteractivePanel('show', componentType);
+
+                const aiMessageDiv = document.createElement('div');
+                aiMessageDiv.className = `flex justify-start`;
+                aiMessageDiv.innerHTML = `
+                    <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%] break-words flex flex-col">
+                        <span>Here's a placeholder ${componentType} for your data!</span>
+                        <button class="toggle-component-button mt-2 bg-gray-700 hover:bg-slate-700 text-white p-2 rounded-md transition duration-200 text-sm flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Hide Component
+                        </button>
+                    </div>
+                `;
+                chatMessagesContainer.appendChild(aiMessageDiv);
+                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+
+                const toggleButton = aiMessageDiv.querySelector('.toggle-component-button');
+                if (toggleButton) {
+                    if (lastToggleButtonElement && lastToggleButtonElement !== toggleButton) {
+                        lastToggleButtonElement.onclick = null;
+                    }
+                    lastToggleButtonElement = toggleButton;
+                    lastToggleButtonElement.dataset.componentType = componentType;
+
+                    lastToggleButtonElement.addEventListener('click', () => {
+                        toggleInteractivePanel('toggle');
+                    });
+                }
+
+            } else if (isGenerateResponse) {
+                addChatMessage("Generating response...", 'ai');
+                const prompt = "Please provide a concise summary of current global economic trends, including key indicators and potential future outlook.";
+                try {
+                    const chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API error: ${response.status} ${response.statusText} - ${errorData.error.message}`);
+                    }
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        addChatMessage(text, 'ai');
+                    } else {
+                        addChatMessage("Sorry, I could not generate a response.", 'ai');
+                        console.error("Gemini API response structure unexpected:", result);
+                    }
+                } catch (error) {
+                    console.error("Error calling Gemini API:", error);
+                    addChatMessage(`Error generating response: ${error.message}`, 'ai');
+                }
+                toggleInteractivePanel('hide');
+                lastToggleButtonElement = null;
+            }
+            else {
+                // Default AI response for other messages
+                setTimeout(() => {
+                    addChatMessage("I'm Lumen. In a real app, I would process your request and provide insights. How else can I assist? Try typing 'show chart', 'show map', or 'generate response'!", 'ai');
+                }, 800);
+                toggleInteractivePanel('hide');
+                lastToggleButtonElement = null;
+            }
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatButton.click();
+            }
+        });
+
+        // Event listener to enable/disable send button based on input content
+        chatInput.addEventListener('input', () => {
+            sendChatButton.disabled = chatInput.value.trim() === '';
+        });
+
+
+        // Function to generate a random number between min and max (inclusive)
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Update all story cards with random sections on load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.story-card-container .num-sections').forEach(span => {
+                span.textContent = `${getRandomInt(12, 20)} Sections`;
+            });
+            // Initial check for scroll button visibility on load
+            updateScrollButtons();
+            updateBriefingsScrollButtons();
+            updateExpandCollapseButton();
+            sendChatButton.disabled = true;
+        });
+
+
+        // Workspace Horizontal Scrolling Logic
+        const workspaceButtonsContainer = document.getElementById('workspace-buttons-container');
+        const workspaceLeftGradientOverlay = document.getElementById('workspace-left-gradient-overlay');
+        const workspaceRightGradientOverlay = document.getElementById('workspace-right-gradient-overlay');
+
+        const scrollStep = 150; // Pixels to scroll per arrow click
+        const scrollEndTolerance = 5; // Pixels from end to consider it "at the end" for hiding overlays
+
+        // Function to update the hidden state of scroll buttons
+        function updateScrollButtons() {
+            if (!workspaceButtonsContainer || !workspaceLeftGradientOverlay || !workspaceRightGradientOverlay) return;
+
+            const { scrollLeft, scrollWidth, clientWidth } = workspaceButtonsContainer;
+            const maxScrollLeft = scrollWidth - clientWidth;
+
+            const isScrollable = scrollWidth > clientWidth;
+
+            // Determine if at the left or right end with tolerance
+            const atLeftEnd = scrollLeft <= scrollEndTolerance;
+            const atRightEnd = scrollLeft >= (maxScrollLeft - scrollEndTolerance);
+
+            // Hide/show left gradient overlay for WORKSPACE
+            workspaceLeftGradientOverlay.classList.toggle('hidden', !isScrollable || atLeftEnd);
+            workspaceLeftGradientOverlay.style.pointerEvents = (!isScrollable || atLeftEnd) ? 'none' : 'all';
+
+            // Hide/show right gradient overlay for WORKSPACE
+            workspaceRightGradientOverlay.classList.toggle('hidden', !isScrollable || atRightEnd);
+            workspaceRightGradientOverlay.style.pointerEvents = (!isScrollable || atRightEnd) ? 'none' : 'all';
+        }
+
+        // Event listeners for arrow buttons
+        document.getElementById('scroll-left-button').addEventListener('click', () => {
+            workspaceButtonsContainer.scrollBy({
+                left: -scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        document.getElementById('scroll-right-button').addEventListener('click', () => {
+            workspaceButtonsContainer.scrollBy({
+                left: scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        // Add scroll event listener to update buttons when scrolling
+        workspaceButtonsContainer.addEventListener('scroll', updateScrollButtons);
+
+        // Recalculate button states on window resize.
+        window.addEventListener('resize', updateScrollButtons);
+
+
+        // Briefings Horizontal Scrolling Logic
+        const briefingsScrollContainer = document.getElementById('briefings-scroll-container');
+        const briefingsLeftGradientOverlay = document.getElementById('briefings-left-gradient-overlay');
+        const briefingsRightGradientOverlay = document.getElementById('briefings-right-gradient-overlay');
+
+        function updateBriefingsScrollButtons() {
+            if (!briefingsScrollContainer || !briefingsLeftGradientOverlay || !briefingsRightGradientOverlay) return;
+
+            const { scrollLeft, scrollWidth, clientWidth } = briefingsScrollContainer;
+            const maxScrollLeft = scrollWidth - clientWidth;
+
+            const isScrollable = scrollWidth > clientWidth;
+
+            const atLeftEnd = scrollLeft <= scrollEndTolerance;
+            const atRightEnd = scrollLeft >= (maxScrollLeft - scrollEndTolerance);
+
+            // Hide/show left gradient overlay
+            briefingsLeftGradientOverlay.classList.toggle('hidden', !isScrollable || atLeftEnd);
+            briefingsLeftGradientOverlay.style.pointerEvents = (!isScrollable || atLeftEnd) ? 'none' : 'all';
+
+            // Hide/show right gradient overlay
+            briefingsRightGradientOverlay.classList.toggle('hidden', !isScrollable || atRightEnd);
+            briefingsRightGradientOverlay.style.pointerEvents = (!isScrollable || atRightEnd) ? 'none' : 'all';
+        }
+
+        // Event listeners for arrow buttons
+        document.getElementById('briefings-scroll-left-button').addEventListener('click', () => {
+            briefingsScrollContainer.scrollBy({
+                left: -scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        document.getElementById('briefings-scroll-right-button').addEventListener('click', () => {
+            briefingsScrollContainer.scrollBy({
+                left: scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        // Add scroll event listener to update buttons when scrolling
+        briefingsScrollContainer.addEventListener('scroll', updateBriefingsScrollButtons);
+
+        // Add scroll event listener to close open dropdowns on scroll
+        briefingsScrollContainer.addEventListener('scroll', () => {
+            if (openDropdownMenu && !openDropdownMenu.classList.contains('hidden')) {
+                openDropdownMenu.classList.add('hidden');
+                openDropdownMenu = null;
+            }
+        });
+
+        window.addEventListener('resize', updateBriefingsScrollButtons);
+
+        // Tooltip functionality for "Create Workspace" button
+        const createWorkspaceButton = document.getElementById('create-workspace-button');
+        let tooltipElement = null;
+        let tooltipTimeout = null;
+
+        function showTooltip(button, text) {
+            if (tooltipElement) {
+                tooltipElement.remove();
+                tooltipElement = null;
+            }
+
+            tooltipElement = document.createElement('div');
+            tooltipElement.className = 'tooltip';
+            tooltipElement.textContent = text;
+            document.body.appendChild(tooltipElement);
+
+            const rect = button.getBoundingClientRect();
+            const scrollX = window.scrollX || window.pageXOffset;
+            const scrollY = window.scrollY || window.pageYOffset;
+
+            tooltipElement.style.left = `${rect.left + scrollX}px`;
+            tooltipElement.style.top = `${rect.top + scrollY - tooltipElement.offsetHeight - 8}px`;
+            
+            requestAnimationFrame(() => {
+                tooltipElement.classList.add('show');
+            });
+        }
+
+        function hideTooltip() {
+            if (tooltipTimeout) {
+                clearTimeout(tooltipTimeout);
+                tooltipTimeout = null;
+            }
+            if (tooltipElement) {
+                tooltipElement.classList.remove('show');
+                tooltipElement.addEventListener('transitionend', function handler() {
+                    if (tooltipElement && !tooltipElement.classList.contains('show')) {
+                        tooltipElement.remove();
+                        tooltipElement = null;
+                        this.removeEventListener('transitionend', handler);
+                    }
+                });
+            }
+        }
+
+        if (createWorkspaceButton) {
+            createWorkspaceButton.addEventListener('mouseenter', () => {
+                tooltipTimeout = setTimeout(() => {
+                    showTooltip(createWorkspaceButton, createWorkspaceButton.dataset.tooltip);
+                }, 400);
+            });
+            createWorkspaceButton.addEventListener('mouseleave', hideTooltip);
+            createWorkspaceButton.addEventListener('click', () => {
+                alertMessage("Create Workspace functionality not implemented in prototype.", "info");
+            });
+        }
+
+        // Card Options Dropdown functionality
+        let openDropdownMenu = null;
+
+        document.addEventListener('click', (event) => {
+            if (openDropdownMenu) {
+                const targetButton = document.querySelector(`[data-dropdown-id="${openDropdownMenu.dataset.dropdownId}"]`);
+                if (targetButton && !targetButton.contains(event.target) && !openDropdownMenu.contains(event.target)) {
+                    openDropdownMenu.classList.add('hidden');
+                    openDropdownMenu = null;
+                }
+            }
+        });
+
+        let dropdownCounter = 0;
+
+        document.querySelectorAll('.options-dropdown-button').forEach(button => {
+            if (!button.dataset.dropdownId) {
+                button.dataset.dropdownId = `dropdown-${dropdownCounter++}`;
+            }
+
+            const menu = button.nextElementSibling;
+            // Ensure the menu also has the correct class for styling
+            menu.classList.add('options-dropdown-menu'); // Add this line to ensure it always has the class
+            menu.dataset.dropdownId = button.dataset.dropdownId;
+
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+
+                if (openDropdownMenu && openDropdownMenu !== menu) {
+                    openDropdownMenu.classList.add('hidden');
+                }
+
+                const wasHidden = menu.classList.contains('hidden');
+                if (wasHidden) {
+                    menu.classList.remove('hidden');
+                }
+                const menuWidth = menu.offsetWidth;
+                if (wasHidden) {
+                    menu.classList.add('hidden');
+                }
+
+                if (menu.classList.contains('hidden')) {
+                    document.body.appendChild(menu);
+
+                    const buttonRect = button.getBoundingClientRect();
+                    menu.style.position = 'absolute';
+                    menu.style.left = `${buttonRect.left + buttonRect.width + window.scrollX - menuWidth}px`;
+                    menu.style.top = `${buttonRect.bottom + window.scrollY + 5}px`;
+
+                    menu.classList.remove('hidden');
+                    openDropdownMenu = menu;
+                } else {
+                    menu.classList.add('hidden');
+                    openDropdownMenu = null;
+                }
+            });
+
+            menu.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+        });
+
+        // Featured Stories Slider Logic
+        const sliderInner = document.getElementById('slider-inner');
+        const sliderItems = document.querySelectorAll('.slider-item');
+        const thumbnailsContainer = document.getElementById('slider-thumbnails');
+        const thumbnailItems = document.querySelectorAll('.thumbnail-item');
+        const heroSlider = document.getElementById('hero-slider');
+
+        let currentSlideIndex = 0;
+        let slideInterval;
+        const slideDuration = 10000; // 10 seconds for each slide display
+
+        // Array of placeholder image URLs for the animated backgrounds (now without text in the URL)
+        const animatedBackgroundImages = [
+            'https://placehold.co/1920x1080/0f172a/64748b',
+            'https://placehold.co/1920x1080/1e293b/94a3b8',
+            'https://placehold.co/1920x1080/0c0a00/fde047'
+        ];
+
+        function getRandomWidthClass() {
+            const widths = ['w-full', 'w-5/6', 'w-4/5', 'w-3/4', 'w-2/3', 'w-1/2', 'w-1/3'];
+            return widths[Math.floor(Math.random() * widths.length)];
+        }
+
+        function populateAnimatedBackgrounds() {
+            document.querySelectorAll('.animated-background').forEach((bgElement, index) => {
+                // The background image will now be determined by the container's background-color or if a class is added to it.
+                // For this prototype, it will effectively be transparent and show the parent's dark background.
+                // No need to set backgroundImage via JS here if it's not meant to be an image.
+
+                // Set dynamic content (existing placeholder structure)
+                const content = `
+                    <div class="flex items-start justify-start h-full py-8 px-4">
+                        <div class="flex flex-col items-start gap-y-4 w-1/3 flex-shrink-0">
+                            <div class="bg-blue-700 rounded-lg w-full h-32 flex items-center justify-center text-white text-xl">Chart</div>
+                            <div class="flex flex-col space-y-4 w-full">
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-start justify-center w-2/3 h-full flex-shrink-0">
+                            <div class="bg-slate-700 rounded-lg w-96 h-96 flex items-center justify-center text-white text-xl shadow-lg">
+                                Background Visual
+                            </div>
+                        </div>
+                    </div>
+                `;
+                bgElement.innerHTML = content;
+            });
+        }
+
+        function showSlide(index) {
+            if (index >= sliderItems.length) {
+                currentSlideIndex = 0;
+            } else if (index < 0) {
+                currentSlideIndex = sliderItems.length - 1;
+            } else {
+                currentSlideIndex = index;
+            }
+
+            sliderItems.forEach((item, i) => {
+                const animatedBg = item.querySelector('.animated-background');
+                if (i === currentSlideIndex) {
+                    item.classList.add('active');
+                    if (animatedBg) {
+                        // Reset animation for the newly active slide to start from the top
+                        // Temporarily set animation to 'none' and reset transform, then reapply animation
+                        animatedBg.style.animation = 'none';
+                        animatedBg.style.transform = 'translateY(0)';
+                        // Force reflow
+                        void animatedBg.offsetHeight; 
+                        // Reapply the animation
+                        animatedBg.style.animation = 'backgroundPan 12s linear infinite';
+                    }
+                } else {
+                    item.classList.remove('active');
+                    // IMPORTANT: Do NOT stop the animation for inactive slides.
+                    // Let them continue animating in the background as they fade out,
+                    // so there's no jump when they become active again.
+                }
+            });
+
+            thumbnailItems.forEach((thumb, i) => {
+                if (i === currentSlideIndex) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            showSlide(currentSlideIndex + 1);
+        }
+
+        function startAutoSlide() {
+            stopAutoSlide();
+            slideInterval = setInterval(nextSlide, slideDuration);
+        }
+
+        function stopAutoSlide() {
+            clearInterval(slideInterval);
+        }
+
+        thumbnailItems.forEach(thumbnail => {
+            thumbnail.addEventListener('click', (event) => {
+                stopAutoSlide();
+                const index = parseInt(event.target.dataset.slideIndex);
+                showSlide(index);
+                startAutoSlide();
+            });
+        });
+
+        heroSlider.addEventListener('mouseenter', stopAutoSlide);
+        heroSlider.addEventListener('mouseleave', startAutoSlide);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            populateAnimatedBackgrounds();
+            showSlide(0); // Show the first slide initially
+            startAutoSlide();
+        });
+
+        // Animated Header Search Box Logic
+        const searchIconButton = document.getElementById('search-icon-button');
+        const searchInputWrapper = document.getElementById('search-input-wrapper');
+        const headerSearchInput = document.getElementById('header-search-input');
+
+        searchIconButton.addEventListener('click', () => {
+            searchInputWrapper.classList.add('is-active');
+            headerSearchInput.focus();
+            searchIconButton.classList.add('is-hidden');
+        });
+
+        headerSearchInput.addEventListener('blur', () => {
+            if (headerSearchInput.value.trim() === '') {
+                searchInputWrapper.classList.remove('is-active');
+                setTimeout(() => {
+                    if (!searchInputWrapper.classList.contains('is-active')) {
+                        searchIconButton.classList.remove('is-hidden');
+                    }
+                }, 300);
+            }
+        });
+
+        // Workspace Navbar sticky behavior on scroll
+        const workspaceNavBar = document.getElementById('workspace-nav-bar');
+        let lastScrollY = 0;
+        const mainHeader = document.querySelector('header');
+
+        // Initial update of --header-height CSS variable
+        document.documentElement.style.setProperty('--header-height', `${mainHeader.offsetHeight}px`);
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const headerHeight = mainHeader.offsetHeight;
+
+            // Update the CSS variable for sticky-nav top calculation
+            document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+
+            // Check if scrolling past the header
+            if (currentScrollY > headerHeight) {
+                if (currentScrollY > lastScrollY) {
+                    // Scrolling down
+                    workspaceNavBar.classList.add('hidden-up');
+                } else {
+                    // Scrolling up
+                    workspaceNavBar.classList.remove('hidden-up');
+                }
+            } else {
+                // At or near the top, always show the nav bar
+                workspaceNavBar.classList.remove('hidden-up');
+            }
+            lastScrollY = currentScrollY;
+        });
+
+        // Also update header height on resize in case it changes dynamically
+        window.addEventListener('resize', () => {
+            document.documentElement.style.setProperty('--header-height', `${mainHeader.offsetHeight}px`);
+            updateScrollButtons(); // Re-check horizontal scroll buttons too
+            updateBriefingsScrollButtons();
+        });
+    </script>
+</body>
+</html>

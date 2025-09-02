@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal Loading</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <script src="./js/modal-loader.js"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <h1 class="text-2xl font-bold mb-4">Test Modal Loading</h1>
+    <button id="test-modal-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+        Open Create Component Modal
+    </button>
+
+    <script>
+        document.getElementById('test-modal-btn').addEventListener('click', function() {
+            openCreateComponentModal();
+        });
+    </script>
+</body>
+</html>

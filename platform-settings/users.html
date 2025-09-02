@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Platform Settings - Crimson</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div id="crimson-app" class="bg-gray-900">
+        <header class="bg-gray-800 py-4 px-4 md:px-8 flex items-center justify-between shadow-lg sticky top-0 z-30">
+            <!-- Left-aligned group: Logo, divider, client logo, and navigation -->
+            <div class="flex items-center">
+                <div class="w-8 h-8 flex items-center justify-center rounded-md overflow-hidden">
+                    <svg viewBox="0 0 32 32" class="w-full h-full">
+                        <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" /> </svg>
+                </div>
+                <div class="h-6 border-l border-gray-600 ml-4"></div>
+                <div class="flex items-center justify-center px-3 py-1 rounded-md bg-[#1a1a1a] text-white text-sm font-semibold h-8 ml-4">
+                    <span>Client Logo</span>
+                </div>
+                <nav class="flex items-center ml-4">
+                    <a href="../index.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">My Workspaces</a>
+                    <a href="../explore.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">Explore</a>
+                </nav>
+            </div>
+
+            <!-- Right-aligned group of icons and user dropdown -->
+            <div class="flex items-center">
+                <!-- Search container -->
+                <div id="search-container" class="relative flex items-center">
+                    <button id="search-icon-button" class="text-gray-300 hover:text-red-400 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                    <div id="search-input-wrapper" class="absolute right-0 flex items-center bg-gray-700 rounded-full overflow-hidden transition-all duration-300 ease-in-out">
+                        <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" id="header-search-input" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
+                    </div>
+                </div>
+
+                <!-- Notification Icon Button -->
+                <button class="text-gray-300 hover:text-red-400 p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 ml-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </button>
+                
+                <!-- User Dropdown -->
+                <div class="relative ml-4">
+                    <button id="user-dropdown-button" class="flex items-center text-gray-300 hover:text-red-400 transition duration-200 focus:outline-none">
+                        <img src="https://placehold.co/32x32/555/fff?text=J" alt="User Avatar" class="rounded-full">
+                    </button>
+                    <div id="user-dropdown-menu" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden options-dropdown-menu">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Account Settings</a>
+                        <a href="overview.html" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Platform Settings</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Help</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout with Sidebar and Content -->
+        <div class="flex flex-1">
+            <!-- Vertical Sidebar Navigation -->
+            <aside class="w-56 bg-gray-800 border-r border-gray-700 sidebar-nav">
+                <div class="px-4 py-5">
+                    <h1 class="text-xl font-bold text-white mb-5">Platform Settings</h1>
+                    
+                    <!-- Navigation Menu -->
+                    <nav class="space-y-3">
+                        <a href="overview.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 mb-0">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">admin_panel_settings</span>
+                                Overview
+                            </div>
+                        </a>
+                        
+                        <a href="components.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">grid_view</span>
+                                Components
+                            </div>
+                        </a>
+                        
+                        <a href="filters.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">filter_list</span>
+                                Filters
+                            </div>
+                        </a>
+                        
+                        <a href="ai-models.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">auto_awesome</span>
+                                AI Models
+                            </div>
+                        </a>
+
+                        <a href="data-sources.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">storage</span>
+                                Data Sources
+                            </div>
+                        </a>
+                        
+                        <a href="workspaces.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">workspaces</span>
+                                Workspaces
+                            </div>
+                        </a>
+                        
+                        <a href="users.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 active">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">group</span>
+                                Users
+                            </div>
+                        </a>
+                        
+                        <a href="security.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">security</span>
+                                Security
+                            </div>
+                        </a>
+                        
+                        <a href="reporting.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">analytics</span>
+                                Reporting
+                            </div>
+                        </a>
+                        
+                        <a href="billing.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">receipt_long</span>
+                                Billing
+                            </div>
+                        </a>
+                        
+                        <a href="theme.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">palette</span>
+                                Theme
+                            </div>
+                        </a>
+                            
+                        <a href="organization.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">business</span>
+                                Organization
+                            </div>
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 main-content-area">
+                <!-- Users Tab Content -->
+                <div id="users-content" class="tab-content" style="height: calc(100vh - 72px);">
+                    <div class="flex w-full">
+                        <!-- Main Content Area -->
+                        <div class="flex-1 min-w-0 flex justify-center" style="margin-right: 256px;">
+                            <div class="p-10 max-w-7xl w-full">
+                                <h2 class="text-2xl font-bold text-white mb-5">User Management</h2>
+                            
+                            <!-- Internal Tabs -->
+                            <div class="border-b border-gray-700 mb-6">
+                                <nav class="flex space-x-6">
+                                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-red-500 text-white font-medium text-sm" data-internal-tab="users">
+                                        Users
+                                    </button>
+                                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="groups">
+                                        Groups
+                                    </button>
+                                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="organizational-units">
+                                        Organizational Units
+                                    </button>
+                                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="roles">
+                                        Roles
+                                    </button>
+                                </nav>
+                            </div>
+
+                            <!-- User Table -->
+                            <div class="bg-gray-800 rounded-lg overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-700">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                            <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
+                                            Invite Users
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="relative">
+                                            <input type="text" id="users-search-input" placeholder="Search users..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 w-64 text-sm" style="padding-right: 5rem;" />
+                                            <button id="users-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
+                                                <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+                                            </button>
+                                            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Filters Row -->
+                            <div class="px-6 py-4 border-b border-gray-700">
+                                <div class="flex flex-wrap gap-4 justify-between">
+                                    <div class="flex flex-wrap gap-4">
+                                        <!-- Role Filter -->
+                                        <div class="relative">
+                                            <button id="role-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                <span class="mr-1">Role</span>
+                                                <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                <span id="role-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Role Filter">
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                </span>
+                                            </button>
+                                            <div id="role-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
+                                                <div class="p-2">
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="Admin" class="mr-2"> Admin
+                                                    </label>
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="Manager" class="mr-2"> Manager
+                                                    </label>
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="User" class="mr-2"> User
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Workspace Filter -->
+                                        <div class="relative">
+                                            <button id="workspace-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                <span class="mr-1">Workspace</span>
+                                                <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                <span id="workspace-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Workspace Filter">
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                </span>
+                                            </button>
+                                            <div id="workspace-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
+                                                <div class="p-2">
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="IT" class="mr-2"> IT
+                                                    </label>
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="Sales" class="mr-2"> Sales
+                                                    </label>
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="Marketing" class="mr-2"> Marketing
+                                                    </label>
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="Finance" class="mr-2"> Finance
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status Filter -->
+                                        <div class="relative">
+                                            <button id="status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                <span class="mr-1">Status</span>
+                                                <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                <span id="status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                </span>
+                                            </button>
+                                            <div id="status-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
+                                                <div class="p-2">
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="Active" class="mr-2"> Active
+                                                    </label>
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="Pending" class="mr-2"> Pending
+                                                    </label>
+                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                        <input type="checkbox" value="Suspended" class="mr-2"> Suspended
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Clear All Filters Button -->
+                                    <button id="clear-all-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
+                                        <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
+                                        Clear All Filters
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="border-b border-gray-700">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">User</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Role</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Workspace</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Status</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Last Active</th>
+                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider w-1"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-gray-800 divide-y divide-gray-700">
+                                        <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <img class="h-10 w-10 rounded-full" src="https://placehold.co/40x40/555/fff?text=JD" alt="">
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-white">John Doe</div>
+                                                        <div class="text-sm text-gray-400">john.doe@company.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm text-gray-300">Admin</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm text-gray-300">IT</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                2 hours ago
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="relative">
+                                                    <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('dropdown-1')">
+                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                    </button>
+                                                    <div id="dropdown-1" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit User</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add to Groups</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Change Organization Unit</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete User</a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <img class="h-10 w-10 rounded-full" src="https://placehold.co/40x40/555/fff?text=JS" alt="">
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-white">Jane Smith</div>
+                                                        <div class="text-sm text-gray-400">jane.smith@company.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm text-gray-300">Manager</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm text-gray-300">Sales</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                1 day ago
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="relative">
+                                                    <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('dropdown-2')">
+                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                    </button>
+                                                    <div id="dropdown-2" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit User</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add to Groups</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Change Organization Unit</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete User</a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <img class="h-10 w-10 rounded-full" src="https://placehold.co/40x40/555/fff?text=MB" alt="">
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-white">Mike Brown</div>
+                                                        <div class="text-sm text-gray-400">mike.brown@company.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm text-gray-300">User</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm text-gray-300">Marketing</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-900 text-yellow-300">Pending</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                Never
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="relative">
+                                                    <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('dropdown-3')">
+                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                    </button>
+                                                    <div id="dropdown-3" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit User</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add to Groups</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Change Organization Unit</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete User</a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <img class="h-10 w-10 rounded-full" src="https://placehold.co/40x40/555/fff?text=SW" alt="">
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-white">Sarah Wilson</div>
+                                                        <div class="text-sm text-gray-400">sarah.wilson@company.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm text-gray-300">User</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm text-gray-300">Finance</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Suspended</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                3 days ago
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="relative">
+                                                    <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('dropdown-4')">
+                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                    </button>
+                                                    <div id="dropdown-4" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit User</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add to Groups</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Change Organization Unit</a>
+                                                        <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete User</a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- No matches found message -->
+                            <div id="no-matches-message" class="hidden px-6 py-8 text-center">
+                                <div class="flex flex-col items-center">
+                                    <span class="material-symbols-outlined text-gray-400 text-4xl mb-3">group</span>
+                                    <h3 class="text-lg font-medium text-gray-300 mb-2">No users found</h3>
+                                    <p class="text-gray-400 text-sm">Try adjusting your search terms or filters</p>
+                                </div>
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column - User Statistics -->
+                        <div class="w-64 bg-gray-800 border-l border-gray-700 h-full fixed right-0 top-0 overflow-y-auto" style="height: calc(100vh - 72px); margin-top: 72px;">
+                            <div class="p-4">
+                                <h3 class="text-md font-semibold text-white mb-4">Quick Stats</h3>
+                                <div class="space-y-4">
+                                    <!-- Total Users -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-blue-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">group</span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="text-sm font-medium text-gray-400">Total Users</p>
+                                                <p class="text-lg font-bold text-white">1,247</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Active Users -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-green-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">check_circle</span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="text-sm font-medium text-gray-400">Active Users</p>
+                                                <p class="text-lg font-bold text-white">892</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Pending Users -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-yellow-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">schedule</span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="text-sm font-medium text-gray-400">Pending</p>
+                                                <p class="text-lg font-bold text-white">23</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Suspended Users -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-red-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">block</span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="text-sm font-medium text-gray-400">Suspended</p>
+                                                <p class="text-lg font-bold text-white">8</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Recent Activity -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <h4 class="text-sm font-medium text-gray-300 mb-3">Recent Activity</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex text-xs">
+                                                <span class="w-2 h-2 bg-green-400 rounded-full mt-1 mr-2"></span>
+                                                <div>
+                                                    <div>John Doe logged in</div>
+                                                    <div class="text-gray-400">2 hours ago</div>
+                                                </div>
+                                            </div>
+                                            <div class="flex text-xs">
+                                                <span class="w-2 h-2 bg-green-400 rounded-full mt-1 mr-2"></span>
+                                                <div>
+                                                    <div>Jane Smith updated profile</div>
+                                                    <div class="text-gray-400">4 hours ago</div>
+                                                </div>
+                                            </div>
+                                            <div class="flex text-xs">
+                                                <span class="w-2 h-2 bg-yellow-400 rounded-full mt-1 mr-2"></span>
+                                                <div>
+                                                    <div>New user invitation sent</div>
+                                                    <div class="text-gray-400">6 hours ago</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Search functionality
+            const searchIconButton = document.getElementById('search-icon-button');
+            const searchInputWrapper = document.getElementById('search-input-wrapper');
+            const headerSearchInput = document.getElementById('header-search-input');
+
+            searchIconButton.addEventListener('click', () => {
+                searchInputWrapper.classList.toggle('is-active');
+                if (searchInputWrapper.classList.contains('is-active')) {
+                    headerSearchInput.focus();
+                }
+            });
+
+            // User dropdown functionality
+            const userDropdownButton = document.getElementById('user-dropdown-button');
+            const userDropdownMenu = document.getElementById('user-dropdown-menu');
+
+            userDropdownButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                userDropdownMenu.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!userDropdownButton.contains(event.target) && !userDropdownMenu.contains(event.target)) {
+                    userDropdownMenu.classList.add('hidden');
+                }
+            });
+
+            // Close search when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!searchIconButton.contains(event.target) && !searchInputWrapper.contains(event.target)) {
+                    searchInputWrapper.classList.remove('is-active');
+                }
+            });
+
+            // Internal tab switching functionality
+            document.querySelectorAll('.internal-tab-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Skip if this is a modal tab
+                    if (this.closest('#component-modal')) {
+                        return;
+                    }
+                    
+                    const tabContainer = this.closest('.tab-content');
+                    const tabButtons = tabContainer.querySelectorAll('.internal-tab-item');
+                    
+                    // Remove active class from all internal tabs in this container
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.remove('border-red-500');
+                        btn.classList.add('border-transparent');
+                        btn.classList.remove('text-white');
+                        btn.classList.add('text-gray-400');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    this.classList.add('border-red-500');
+                    this.classList.remove('border-transparent');
+                    this.classList.add('text-white');
+                    this.classList.remove('text-gray-400');
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('[id^="dropdown-"]') && !event.target.closest('button[onclick*="toggleDropdown"]')) {
+                    document.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
+                        dropdown.classList.add('hidden');
+                    });
+                }
+            });
+
+            // Close filter dropdowns when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('[id^="filter-dropdown-"]') && !event.target.closest('button[onclick*="toggleDropdown"]') && !event.target.closest('a[onclick*="openFilterModal"]')) {
+                    document.querySelectorAll('[id^="filter-dropdown-"]').forEach(dropdown => {
+                        dropdown.classList.add('hidden');
+                    });
+                }
+            });
+
+            // Filter functionality
+            const filterButtons = ['role-filter-btn', 'workspace-filter-btn', 'status-filter-btn'];
+            const filterDropdowns = ['role-filter-dropdown', 'workspace-filter-dropdown', 'status-filter-dropdown'];
+            
+            // Initialize filter states
+            const filterStates = {
+                role: [],
+                workspace: [],
+                status: []
+            };
+
+            // Toggle filter dropdowns
+            filterButtons.forEach((btnId, index) => {
+                const button = document.getElementById(btnId);
+                const dropdown = document.getElementById(filterDropdowns[index]);
+                
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    
+                    // Close other dropdowns
+                    filterDropdowns.forEach((dropdownId, i) => {
+                        if (i !== index) {
+                            document.getElementById(dropdownId).classList.add('hidden');
+                        }
+                    });
+                    
+                    dropdown.classList.toggle('hidden');
+                });
+            });
+
+            // Handle checkbox changes
+            document.querySelectorAll('#role-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateFilterState('role', checkbox.value, checkbox.checked);
+                    updateFilterButton('role-filter-btn', filterStates.role);
+                });
+            });
+
+            document.querySelectorAll('#workspace-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateFilterState('workspace', checkbox.value, checkbox.checked);
+                    updateFilterButton('workspace-filter-btn', filterStates.workspace);
+                });
+            });
+
+            document.querySelectorAll('#status-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateFilterState('status', checkbox.value, checkbox.checked);
+                    updateFilterButton('status-filter-btn', filterStates.status);
+                });
+            });
+
+            function updateFilterState(filterType, value, checked) {
+                if (checked) {
+                    if (!filterStates[filterType].includes(value)) {
+                        filterStates[filterType].push(value);
+                    }
+                } else {
+                    filterStates[filterType] = filterStates[filterType].filter(item => item !== value);
+                }
+            }
+
+            function updateFilterButton(buttonId, selectedValues) {
+                const button = document.getElementById(buttonId);
+                const buttonText = button.querySelector('span:first-child');
+                const filterType = buttonId.split('-')[0];
+                const clearBtn = document.getElementById(filterType + '-clear-btn');
+                
+                if (selectedValues.length === 0) {
+                    buttonText.textContent = filterType.charAt(0).toUpperCase() + filterType.slice(1);
+                    clearBtn.classList.add('hidden');
+                } else {
+                    buttonText.textContent = selectedValues.join(', ');
+                    clearBtn.classList.remove('hidden');
+                }
+                
+                // Update "Clear All Filters" button visibility
+                updateClearAllFiltersButton();
+            }
+
+            function updateClearAllFiltersButton() {
+                const clearAllBtn = document.getElementById('clear-all-filters-btn');
+                const hasAnyFilters = filterStates.role.length > 0 || filterStates.workspace.length > 0 || filterStates.status.length > 0;
+                
+                if (hasAnyFilters) {
+                    clearAllBtn.classList.remove('hidden');
+                } else {
+                    clearAllBtn.classList.add('hidden');
+                }
+            }
+
+            // Clear individual filter buttons
+            document.getElementById('role-clear-btn').addEventListener('click', (event) => {
+                event.stopPropagation();
+                clearFilter('role');
+            });
+
+            document.getElementById('workspace-clear-btn').addEventListener('click', (event) => {
+                event.stopPropagation();
+                clearFilter('workspace');
+            });
+
+            document.getElementById('status-clear-btn').addEventListener('click', (event) => {
+                event.stopPropagation();
+                clearFilter('status');
+            });
+
+            // Clear all filters button
+            document.getElementById('clear-all-filters-btn').addEventListener('click', () => {
+                clearAllFilters();
+            });
+
+            function clearFilter(filterType) {
+                // Clear the filter state
+                filterStates[filterType] = [];
+                
+                // Uncheck all checkboxes in the dropdown
+                document.querySelectorAll(`#${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Update the button text
+                updateFilterButton(`${filterType}-filter-btn`, []);
+                
+                // Close the dropdown
+                const dropdown = document.getElementById(`${filterType}-filter-dropdown`);
+                if (dropdown) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+
+            function clearAllFilters() {
+                // Clear all filter states
+                Object.keys(filterStates).forEach(filterType => {
+                    filterStates[filterType] = [];
+                    
+                    // Uncheck all checkboxes in each dropdown
+                    document.querySelectorAll(`#${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    
+                    // Update each button text
+                    updateFilterButton(`${filterType}-filter-btn`, []);
+                });
+                
+                // Close all filter dropdowns
+                filterDropdowns.forEach(dropdownId => {
+                    const dropdown = document.getElementById(dropdownId);
+                    if (dropdown) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Close filter dropdowns when clicking outside
+            document.addEventListener('click', (event) => {
+                // Don't close if clicking on checkboxes or their labels inside filter dropdowns
+                if (event.target.type === 'checkbox' || event.target.closest('label')) {
+                    return;
+                }
+                
+                if (!event.target.closest('[id^="filter-"]') && !event.target.closest('button[id*="filter"]')) {
+                    filterDropdowns.forEach(dropdownId => {
+                        document.getElementById(dropdownId).classList.add('hidden');
+                    });
+                }
+            });
+
+            // Search functionality
+            const usersSearchInput = document.getElementById('users-search-input');
+            const usersSearchClear = document.getElementById('users-search-clear');
+            
+            usersSearchInput.addEventListener('input', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+                filterUsers();
+                
+                // Show/hide clear button based on input value
+                if (searchTerm.length > 0) {
+                    usersSearchClear.style.display = 'flex';
+                } else {
+                    usersSearchClear.style.display = 'none';
+                }
+            });
+
+            // Clear button functionality
+            usersSearchClear.addEventListener('click', () => {
+                usersSearchInput.value = '';
+                usersSearchClear.style.display = 'none';
+                filterUsers();
+                usersSearchInput.focus();
+            });
+
+            function filterUsers() {
+                const searchTerm = usersSearchInput.value.toLowerCase();
+                const rows = document.querySelectorAll('tbody tr');
+                const noMatchesMessage = document.getElementById('no-matches-message');
+                let visibleCount = 0;
+                
+                rows.forEach(row => {
+                    const userText = row.textContent.toLowerCase();
+                    const matchesSearch = searchTerm === '' || userText.includes(searchTerm);
+                    
+                    // Additional filter logic can be added here
+                    row.style.display = matchesSearch ? '' : 'none';
+                    if (matchesSearch) visibleCount++;
+                });
+                
+                // Show/hide no matches message
+                if (searchTerm.length > 0 && visibleCount === 0) {
+                    noMatchesMessage.classList.remove('hidden');
+                } else {
+                    noMatchesMessage.classList.add('hidden');
+                }
+            }
+
+            const typeClearBtn = document.getElementById('type-clear-btn');
+            if (typeClearBtn) {
+                typeClearBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    clearComponentFilter('type');
+                });
+            }
+            
+            const filterTypeClearBtn = document.getElementById('filter-type-clear-btn');
+            if (filterTypeClearBtn) {
+                filterTypeClearBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    clearFilterFilter('type');
+                });
+            }
+
+
+        });
+
+        // Global dropdown functionality for user table
+        function toggleDropdown(dropdownId) {
+            // Close all other dropdowns (user, component, and filter dropdowns)
+            document.querySelectorAll('[id^="dropdown-"], [id^="component-dropdown-"], [id^="filter-dropdown-"]').forEach(dropdown => {
+                if (dropdown.id !== dropdownId) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+            
+            // Get the dropdown and button
+            const dropdown = document.getElementById(dropdownId);
+            const button = window.event ? window.event.target.closest('button') : event.target.closest('button');
+            
+            if (!dropdown) {
+                return;
+            }
+            
+            // Toggle the clicked dropdown
+            dropdown.classList.toggle('hidden');
+            
+            if (!dropdown.classList.contains('hidden')) {
+                // Ensure dropdown is appended to body if not already
+                if (dropdown.parentElement !== document.body) {
+                    document.body.appendChild(dropdown);
+                }
+                
+                // Position the dropdown relative to the button
+                const buttonRect = button.getBoundingClientRect();
+                dropdown.style.position = 'fixed';
+                dropdown.style.top = (buttonRect.bottom + 8) + 'px';
+                dropdown.style.right = (window.innerWidth - buttonRect.right) + 'px';
+            }
+        }
+
+        // Single-selection dropdown functionality for Data Binding tab
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                const allDropdowns = document.querySelectorAll('[id$="-dropdown"]');
+                const allButtons = document.querySelectorAll('[id$="-btn"]');
+                
+                let clickedInsideDropdown = false;
+                let clickedInsideButton = false;
+                
+                allDropdowns.forEach(dropdown => {
+                    if (dropdown.contains(e.target)) {
+                        clickedInsideDropdown = true;
+                    }
+                });
+                
+                allButtons.forEach(button => {
+                    if (button.contains(e.target)) {
+                        clickedInsideButton = true;
+                    }
+                });
+                
+                if (!clickedInsideDropdown && !clickedInsideButton) {
+                    allDropdowns.forEach(dropdown => {
+                        dropdown.classList.add('hidden');
+                    });
+                }
+            });
+
+            
+        });
+    </script>
+
+</body>
+</html> 

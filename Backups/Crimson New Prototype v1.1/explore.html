@@ -1,0 +1,2743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crimson Explore</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        html, body, #crimson-app {
+            height: 100%;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        #crimson-app {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main.fullscreen-main {
+            flex: 1 1 0%;
+            display: flex;
+            flex-direction: row;
+            width: 100vw;
+            height: calc(100vh - 80px); /* header height approx */
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+        }
+        .explore-left-col {
+            width: 340px;
+            min-width: 260px;
+            max-width: 400px;
+            height: 100%;
+            background: #1f2937;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #374151;
+            padding: 0;
+            margin: 0;
+        }
+        .explore-left-scroll {
+            flex: 1 1 0%;
+            overflow-y: auto;
+            min-height: 0;
+            padding: 0 1rem 1rem 1rem;
+        }
+        .explore-main-col {
+            flex: 1 1 0%;
+            height: 100%;
+            background: #111827;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+        }
+        .explore-separator {
+            width: 1px;
+            background: #374151;
+            height: 100%;
+        }
+        .tab-item.active {
+            background: #374151;
+            color: #fff;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        #crimson-app { width: 100%; max-width: 1920px; display: flex; flex-direction: column; min-height: 100vh; }
+        @media (min-width: 768px) { .p-4 { padding: 2rem; } }
+        @media (min-width: 1024px) { .p-8 { padding: 3rem; } }
+        #search-icon-button { transition: opacity 0.3s ease-out; z-index: 10; }
+        #search-icon-button.is-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+        #search-input-wrapper { position: absolute; right: 0; height: 2.5rem; width: 2.5rem; opacity: 0; pointer-events: none; background-color: #374151; border-radius: 9999px; display: flex; align-items: center; overflow: hidden; transition: width 0.3s ease-out, opacity 0.3s ease-out; z-index: 5; }
+        #search-input-wrapper.is-active { width: 200px; opacity: 1; pointer-events: auto; z-index: 25; }
+        #header-search-input { background-color: transparent; border: none; outline: none; color: white; padding-left: 0.5rem; padding-right: 0.5rem; flex-grow: 1; font-size: 0.875rem; line-height: 1.25rem; width: 0; min-width: 0; transition: width 0.3s ease-out; }
+        #search-input-wrapper.is-active #header-search-input { width: auto; }
+        .options-dropdown-menu { position: absolute; right: auto; top: auto; left: auto; z-index: 100; background-color: #111827; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 1px solid #475569; min-width: 12rem; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .options-dropdown-menu a { padding: 0.5rem 1rem; display: block; color: #e0e0e0; }
+        .options-dropdown-menu a:hover { background-color: #1f2937; }
+        #ai-chat-window { position: fixed; transition: all 0.3s ease-in-out; background-color: #1f2937; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2); z-index: 50; display: none; opacity: 0; transform: scale(0); transform-origin: bottom right; right: 1.5rem; bottom: 5rem; width: 20rem; height: 30rem; flex-direction: row; overflow: hidden; align-items: stretch; justify-content: flex-start; }
+        #ai-chat-window.chat-window-open { display: flex; opacity: 1; transform: scale(1); }
+        #ai-chat-window.is-minimal { top: calc(100vh - 30rem - 5rem); left: calc(100vw - 20rem - 1.5rem); width: 20rem; height: 30rem; right: auto; bottom: auto; border-radius: 0.75rem; transform: none; }
+        #ai-chat-window.has-interactive-panel { left: calc(100vw - (20rem + 24rem + 1px) - 1.5rem); width: calc(20rem + 24rem + 1px); }
+        #ai-chat-window.is-fullscreen { top: 0; right: 0; bottom: 0; left: 0; width: 100vw; height: 100vh; border-radius: 0; background-color: rgba(17, 24, 39, 0.95); z-index: 999; transform: none; padding: 0; flex-direction: row; box-shadow: none; }
+        #chat-content-wrapper { width: 20rem; height: 100%; flex-shrink: 0; display: flex; flex-direction: column; }
+        #ai-chat-window.is-fullscreen #chat-content-wrapper { width: auto; flex-grow: 1; flex-shrink: 1; flex-basis: 0%; }
+        #ai-chat-window.is-fullscreen.has-interactive-panel #chat-content-wrapper { max-width: 40%; flex-basis: 40%; }
+        #ai-panel-separator { width: 1px; height: 100%; background-color: rgb(55 65 81 / var(--tw-border-opacity, 1)); margin: 0; transition: all 0.3s ease-in-out; opacity: 0; transform: scaleX(0); flex-shrink: 0; }
+        #ai-panel-separator.is-active { opacity: 1; transform: scaleX(1); }
+        #ai-interactive-panel { height: 100%; flex-shrink: 0; transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, width 0.3s ease-in-out, flex-basis 0.3s ease-in-out; display: flex; flex-direction: column; background-color: #111827; border-radius: 0.75rem; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); overflow: hidden; transform: scaleX(0); transform-origin: right center; opacity: 0; width: 0; flex-basis: 0; margin-left: 0; }
+        #ai-interactive-panel.is-active { transform: scaleX(1); opacity: 1; width: 24rem; flex-basis: 24rem; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+        #ai-chat-window.is-fullscreen #ai-interactive-panel.is-active { flex-basis: 60%; width: auto; flex-grow: 1; flex-shrink: 1; margin-left: 0; border-radius: 0.75rem; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+        #ai-interactive-panel .panel-header { background-color: #223145; border-top-right-radius: 0.75rem; border-bottom-left-radius: 0; border-top-left-radius: 0; }
+        #ai-interactive-panel.is-active .panel-header { border-top-left-radius: 0; }
+        @media (max-width: 767px) {
+            #ai-chat-window.is-fullscreen { flex-direction: column; padding: 0.5rem; }
+            #ai-chat-window.is-fullscreen #chat-content-wrapper { width: 100%; height: 50%; max-width: 100%; }
+            #ai-panel-separator { width: 100%; height: 1px; margin: 0.5rem 0; }
+            #ai-interactive-panel.is-active { width: 100%; height: 50%; margin-left: 0; margin-top: 1rem; }
+            #ai-chat-window.is-fullscreen #chat-messages { overflow-y: auto; }
+        }
+        #send-chat-button:disabled { opacity: 0.5; cursor: not-allowed; background-color: #4a5568; pointer-events: none; }
+        .tooltip { position: absolute; background-color: #1a202c; color: #fff; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.875rem; white-space: nowrap; z-index: 60; opacity: 0; pointer-events: none; transition: opacity 0.2s ease-in-out; }
+        .tooltip.show { opacity: 1; }
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+        }
+        .component-icon-btn .material-symbols-outlined {
+            color: #d1d5db;
+            transition: color 0.2s;
+            font-size: 20px;
+        }
+        .component-icon-btn:hover .material-symbols-outlined {
+            color: #fff;
+        }
+        .tab-item {
+            font-size: 0.95rem;
+            transition: background 0.15s;
+        }
+        .tab-item:hover {
+            background: #374151;
+            color: #fff;
+        }
+        .tab-close-btn {
+            border-radius: 9999px;
+            background: transparent;
+        }
+        .tab-close-btn .material-symbols-outlined {
+            color: #d1d5db;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+        .tab-close-btn:hover {
+            background: #4b5563;
+        }
+        .tab-close-btn:hover .material-symbols-outlined {
+            color: #fff;
+        }
+        .add-tab-btn {
+            border-radius: 9999px;
+            background: transparent;
+        }
+        .add-tab-btn .material-symbols-outlined {
+            color: #d1d5db;
+            font-size: 20px;
+            transition: color 0.2s;
+        }
+        .add-tab-btn:hover {
+            background: #374151;
+        }
+        .add-tab-btn:hover .material-symbols-outlined {
+            color: #fff;
+        }
+        .options-dropdown-button {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            transition: background 0.2s;
+        }
+        .options-dropdown-button .material-symbols-outlined {
+            font-size: 20px;
+        }
+        #tab-canvas, #droppable-canvas {
+            display: block;
+        }
+        #droppable-canvas {
+            min-height: 100%;
+            position: relative;
+        }
+        #canvas-empty-state {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            z-index: 10;
+        }
+        #droppable-canvas > .canvas-component-card,
+        #droppable-canvas > .canvas-drop-placeholder {
+            margin-bottom: 1rem;
+        }
+        #droppable-canvas > .canvas-component-card:last-child,
+        #droppable-canvas > .canvas-drop-placeholder:last-child,
+        #droppable-canvas-right > .canvas-component-card:last-child,
+        #droppable-canvas-right > .canvas-drop-placeholder:last-child {
+            margin-bottom: 0;
+        }
+        .canvas-component-card {
+            flex-shrink: 0;
+        }
+        .drag-ghost-bg {
+            background-color: rgba(59, 130, 246, 0.3); /* Tailwind blue-500 at 30% opacity */
+            transition: background 0.15s;
+            pointer-events: none;
+        }
+        .canvas-drop-placeholder {
+            max-width: 680px;
+            width: 100%;
+            margin: 0 auto;
+            border-radius: 0.75rem;
+            background-color: rgba(59, 130, 246, 0.3);
+            min-height: 228px; /* 48px header + 180px min content */
+            display: none;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1.5px 6px 0 rgb(0 0 0 / 0.1);
+            border: 1px solid #374151;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+        /* Drag cursor for palette thumbnails */
+        .draggable-component {
+            cursor: move;
+        }
+        .component-icon-btn {
+            cursor: pointer;
+        }
+        /* Drag cursor for canvas card header */
+        .canvas-card-header {
+            cursor: move;
+        }
+        #components-view > .draggable-component:not(:first-of-type) {
+          margin-top: 0.75rem;
+        }
+        .category-components-container > .draggable-component:not(:first-of-type) {
+          margin-top: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="crimson-app" class="bg-gray-900">
+        <header class="bg-gray-800 py-4 px-4 md:px-8 flex items-center justify-between shadow-lg sticky top-0 z-30">
+            <!-- Left-aligned group: Logo, divider, client logo, and navigation -->
+            <div class="flex items-center">
+                <div class="w-8 h-8 flex items-center justify-center rounded-md overflow-hidden">
+                    <svg viewBox="0 0 32 32" class="w-full h-full">
+                        <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" /> </svg>
+                </div>
+                <div class="h-6 border-l border-gray-600 ml-4"></div>
+                <div class="flex items-center justify-center px-3 py-1 rounded-md bg-[#1a1a1a] text-white text-sm font-semibold h-8 ml-4">
+                    <span>Client Logo</span>
+                </div>
+                <nav class="flex items-center ml-4">
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">My Workspaces</a>
+                    <a href="#" class="px-3 py-2 rounded-md text-sm font-bold text-white transition duration-200">Explore</a>
+                </nav>
+            </div>
+            <div class="flex items-center">
+                <div id="search-container" class="relative flex items-center">
+                    <button id="search-icon-button" class="text-gray-300 hover:text-red-400 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                    <div id="search-input-wrapper" class="absolute right-0 flex items-center bg-gray-700 rounded-full overflow-hidden transition-all duration-300 ease-in-out">
+                        <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" id="header-search-input" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
+                    </div>
+                </div>
+                <button class="text-gray-300 hover:text-red-400 p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 ml-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </button>
+                <div class="relative ml-4">
+                    <button id="user-dropdown-button" class="flex items-center text-gray-300 hover:text-red-400 transition duration-200 focus:outline-none">
+                        <img src="https://placehold.co/32x32/555/fff?text=J" alt="User Avatar" class="rounded-full">
+                    </button>
+                    <div id="user-dropdown-menu" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden options-dropdown-menu">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Profile</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Settings</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main class="fullscreen-main">
+            <!-- Left Column: Component Browser -->
+            <aside class="explore-left-col">
+                <div class="p-4 pt-5 pb-0">
+                    <h2 class="text-xl font-bold text-white mb-4">Components</h2>
+                    <div class="relative mb-4">
+                        <input type="text" id="components-search-input" placeholder="Search..." class="w-full bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500" style="padding-right: 5rem;" />
+                        <button id="components-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
+                            <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+                        </button>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
+                    </div>
+                    <hr class="border-gray-600 my-4" />
+                    <div class="relative mb-4">
+                        <button id="back-to-categories" class="flex items-center text-gray-400 hover:text-white transition duration-200 focus:outline-none" style="display: none;">
+                            <span class="material-symbols-outlined mr-2" style="font-size: 20px;">arrow_back</span>
+                            <span class="text-base font-medium">Back to Categories</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="explore-left-scroll" id="left-panel-content">
+                    <!-- Categories View (initially visible) -->
+                    <div id="categories-view" class="space-y-3">
+                        <div class="category-item bg-gray-700 rounded-md p-4 hover:bg-gray-600 transition cursor-pointer" data-category="sales">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-white font-semibold">Sales</div>
+                                    <div class="text-gray-400 text-sm">12 components</div>
+                                </div>
+                                <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+                            </div>
+                        </div>
+                        <div class="category-item bg-gray-700 rounded-md p-4 hover:bg-gray-600 transition cursor-pointer" data-category="marketing">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-white font-semibold">Marketing</div>
+                                    <div class="text-gray-400 text-sm">8 components</div>
+                                </div>
+                                <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+                            </div>
+                        </div>
+                        <div class="category-item bg-gray-700 rounded-md p-4 hover:bg-gray-600 transition cursor-pointer" data-category="finance">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-white font-semibold">Finance</div>
+                                    <div class="text-gray-400 text-sm">15 components</div>
+                                </div>
+                                <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+                            </div>
+                        </div>
+                        <div class="category-item bg-gray-700 rounded-md p-4 hover:bg-gray-600 transition cursor-pointer" data-category="operations">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-white font-semibold">Operations</div>
+                                    <div class="text-gray-400 text-sm">6 components</div>
+                                </div>
+                                <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+                            </div>
+                        </div>
+                        <div class="category-item bg-gray-700 rounded-md p-4 hover:bg-gray-600 transition cursor-pointer" data-category="hr">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-white font-semibold">HR</div>
+                                    <div class="text-gray-400 text-sm">4 components</div>
+                                </div>
+                                <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+                            </div>
+                        </div>
+                        <div class="category-item bg-gray-700 rounded-md p-4 hover:bg-gray-600 transition cursor-pointer" data-category="it">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-white font-semibold">IT</div>
+                                    <div class="text-gray-400 text-sm">10 components</div>
+                                </div>
+                                <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Components View (initially hidden) -->
+                    <div id="components-view" style="display: none;">
+                        <!-- Sales Components Container -->
+                        <div id="sales-components-container" class="category-components-container" style="display: none;">
+                            <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Revenue Growth Chart" data-thumbnail="https://placehold.co/48x48/222/fff?text=RG">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=RG" alt="Revenue Growth" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Revenue Growth Chart</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Sales Pipeline Overview" data-thumbnail="https://placehold.co/48x48/222/fff?text=SP">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=SP" alt="Sales Pipeline" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Sales Pipeline Overview</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Customer Acquisition Cost" data-thumbnail="https://placehold.co/48x48/222/fff?text=CA">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=CA" alt="Customer Acquisition" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Customer Acquisition Cost</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Conversion Rate Analysis" data-thumbnail="https://placehold.co/48x48/222/fff?text=CR">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=CR" alt="Conversion Rate" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Conversion Rate Analysis</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Sales Team Performance" data-thumbnail="https://placehold.co/48x48/222/fff?text=ST">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=ST" alt="Sales Team" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Sales Team Performance</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Lead Quality Metrics" data-thumbnail="https://placehold.co/48x48/222/fff?text=LQ">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=LQ" alt="Lead Quality" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Lead Quality Metrics</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Deal Size Distribution" data-thumbnail="https://placehold.co/48x48/222/fff?text=DS">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=DS" alt="Deal Size" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Deal Size Distribution</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Sales Cycle Duration" data-thumbnail="https://placehold.co/48x48/222/fff?text=SC">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=SC" alt="Sales Cycle" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Sales Cycle Duration</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Win Rate Analysis" data-thumbnail="https://placehold.co/48x48/222/fff?text=WR">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=WR" alt="Win Rate" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Win Rate Analysis</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Revenue Forecasting" data-thumbnail="https://placehold.co/48x48/222/fff?text=RF">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=RF" alt="Revenue Forecast" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Revenue Forecasting</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sales-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Customer Lifetime Value" data-thumbnail="https://placehold.co/48x48/222/fff?text=CL">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=CL" alt="Customer Lifetime" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Customer Lifetime Value</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        </div>
+
+                        <!-- Marketing Components Container -->
+                        <div id="marketing-components-container" class="category-components-container" style="display: none;">
+                            <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Campaign Performance Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=CP">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=CP" alt="Campaign Performance" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Campaign Performance Dashboard</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Email Marketing Analytics" data-thumbnail="https://placehold.co/48x48/222/fff?text=EM">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=EM" alt="Email Marketing" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Email Marketing Analytics</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Social Media Metrics" data-thumbnail="https://placehold.co/48x48/222/fff?text=SM">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=SM" alt="Social Media" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Social Media Metrics</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Lead Generation Funnel" data-thumbnail="https://placehold.co/48x48/222/fff?text=LG">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=LG" alt="Lead Generation" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Lead Generation Funnel</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Brand Awareness Tracking" data-thumbnail="https://placehold.co/48x48/222/fff?text=BA">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=BA" alt="Brand Awareness" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Brand Awareness Tracking</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Content Performance Analysis" data-thumbnail="https://placehold.co/48x48/222/fff?text=CA">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=CA" alt="Content Analysis" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Content Performance Analysis</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="ROI Measurement Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=RO">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=RO" alt="ROI Measurement" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">ROI Measurement Dashboard</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Customer Segmentation Analysis" data-thumbnail="https://placehold.co/48x48/222/fff?text=CS">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=CS" alt="Customer Segmentation" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Customer Segmentation Analysis</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Marketing Attribution Model" data-thumbnail="https://placehold.co/48x48/222/fff?text=MA">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=MA" alt="Marketing Attribution" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Marketing Attribution Model</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Competitive Analysis Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=CD">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=CD" alt="Competitive Analysis" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Competitive Analysis Dashboard</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Marketing Budget Allocation" data-thumbnail="https://placehold.co/48x48/222/fff?text=MB">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=MB" alt="Budget Allocation" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Marketing Budget Allocation</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        </div>
+
+                        <!-- Finance Components Container -->
+                        <div id="finance-components-container" class="category-components-container" style="display: none;">
+                            <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Cash Flow Analysis" data-thumbnail="https://placehold.co/48x48/222/fff?text=CF">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=CF" alt="Cash Flow" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Cash Flow Analysis</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Profit & Loss Statement" data-thumbnail="https://placehold.co/48x48/222/fff?text=PL">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=PL" alt="Profit Loss" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Profit & Loss Statement</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Balance Sheet Overview" data-thumbnail="https://placehold.co/48x48/222/fff?text=BS">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=BS" alt="Balance Sheet" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Balance Sheet Overview</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Budget Variance Analysis" data-thumbnail="https://placehold.co/48x48/222/fff?text=BV">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=BV" alt="Budget Variance" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Budget Variance Analysis</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Financial Ratios Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=FR">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=FR" alt="Financial Ratios" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Financial Ratios Dashboard</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Accounts Receivable Aging" data-thumbnail="https://placehold.co/48x48/222/fff?text=AR">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=AR" alt="Accounts Receivable" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Accounts Receivable Aging</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Expense Tracking Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=ET">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=ET" alt="Expense Tracking" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Expense Tracking Dashboard</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Revenue Recognition Analysis" data-thumbnail="https://placehold.co/48x48/222/fff?text=RR">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=RR" alt="Revenue Recognition" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Revenue Recognition Analysis</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Tax Planning Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=TP">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=TP" alt="Tax Planning" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Tax Planning Dashboard</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Investment Portfolio Analysis" data-thumbnail="https://placehold.co/48x48/222/fff?text=IP">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=IP" alt="Investment Portfolio" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Investment Portfolio Analysis</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="finance-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Financial Forecasting Model" data-thumbnail="https://placehold.co/48x48/222/fff?text=FF">
+                            <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                <img src="https://placehold.co/48x48/222/fff?text=FF" alt="Financial Forecasting" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex items-center p-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white font-semibold truncate">Financial Forecasting Model</div>
+                                </div>
+                                <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                                <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                        </div>
+                        </div>
+
+                        <!-- Operations Components -->
+                        <div id="operations-components-container" class="category-components-container" style="display: none;">
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Supply Chain Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=SC">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=SC" alt="Supply Chain" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Supply Chain Dashboard</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Inventory Management System" data-thumbnail="https://placehold.co/48x48/222/fff?text=IM">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=IM" alt="Inventory Management" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Inventory Management System</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Quality Control Metrics" data-thumbnail="https://placehold.co/48x48/222/fff?text=QC">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=QC" alt="Quality Control" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Quality Control Metrics</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Production Efficiency Analysis" data-thumbnail="https://placehold.co/48x48/222/fff?text=PE">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=PE" alt="Production Efficiency" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Production Efficiency Analysis</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Logistics Performance Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=LP">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=LP" alt="Logistics Performance" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Logistics Performance Dashboard</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Maintenance Schedule Tracker" data-thumbnail="https://placehold.co/48x48/222/fff?text=MS">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=MS" alt="Maintenance Schedule" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Maintenance Schedule Tracker</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Resource Utilization Monitor" data-thumbnail="https://placehold.co/48x48/222/fff?text=RU">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=RU" alt="Resource Utilization" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Resource Utilization Monitor</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Safety Compliance Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=SA">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=SA" alt="Safety Compliance" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Safety Compliance Dashboard</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Vendor Performance Analytics" data-thumbnail="https://placehold.co/48x48/222/fff?text=VP">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=VP" alt="Vendor Performance" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Vendor Performance Analytics</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Process Optimization Tracker" data-thumbnail="https://placehold.co/48x48/222/fff?text=PO">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=PO" alt="Process Optimization" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Process Optimization Tracker</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="operations-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Capacity Planning Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=CP">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=CP" alt="Capacity Planning" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Capacity Planning Dashboard</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HR Components -->
+                        <div id="hr-components-container" class="category-components-container" style="display: none;">
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Employee Performance Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=EP">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=EP" alt="Employee Performance" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Employee Performance Dashboard</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Recruitment Pipeline Tracker" data-thumbnail="https://placehold.co/48x48/222/fff?text=RP">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=RP" alt="Recruitment Pipeline" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Recruitment Pipeline Tracker</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Training & Development Analytics" data-thumbnail="https://placehold.co/48x48/222/fff?text=TD">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=TD" alt="Training Development" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Training & Development Analytics</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Employee Satisfaction Survey" data-thumbnail="https://placehold.co/48x48/222/fff?text=ES">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=ES" alt="Employee Satisfaction" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Employee Satisfaction Survey</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Compensation Analysis Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=CA">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=CA" alt="Compensation Analysis" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Compensation Analysis Dashboard</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Turnover Rate Analytics" data-thumbnail="https://placehold.co/48x48/222/fff?text=TR">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=TR" alt="Turnover Rate" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Turnover Rate Analytics</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Benefits Utilization Tracker" data-thumbnail="https://placehold.co/48x48/222/fff?text=BU">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=BU" alt="Benefits Utilization" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Benefits Utilization Tracker</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Diversity & Inclusion Metrics" data-thumbnail="https://placehold.co/48x48/222/fff?text=DI">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=DI" alt="Diversity Inclusion" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Diversity & Inclusion Metrics</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Workforce Planning Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=WP">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=WP" alt="Workforce Planning" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Workforce Planning Dashboard</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Performance Review Analytics" data-thumbnail="https://placehold.co/48x48/222/fff?text=PR">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=PR" alt="Performance Review" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Performance Review Analytics</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hr-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Employee Engagement Monitor" data-thumbnail="https://placehold.co/48x48/222/fff?text=EE">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=EE" alt="Employee Engagement" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Employee Engagement Monitor</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- IT Components -->
+                        <div id="it-components-container" class="category-components-container" style="display: none;">
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="System Performance Monitor" data-thumbnail="https://placehold.co/48x48/222/fff?text=SP">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=SP" alt="System Performance" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">System Performance Monitor</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Network Security Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=NS">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=NS" alt="Network Security" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Network Security Dashboard</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Help Desk Analytics" data-thumbnail="https://placehold.co/48x48/222/fff?text=HD">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=HD" alt="Help Desk" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Help Desk Analytics</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Software License Tracker" data-thumbnail="https://placehold.co/48x48/222/fff?text=SL">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=SL" alt="Software License" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Software License Tracker</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Backup & Recovery Monitor" data-thumbnail="https://placehold.co/48x48/222/fff?text=BR">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=BR" alt="Backup Recovery" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Backup & Recovery Monitor</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Cloud Infrastructure Analytics" data-thumbnail="https://placehold.co/48x48/222/fff?text=CI">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=CI" alt="Cloud Infrastructure" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Cloud Infrastructure Analytics</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="API Performance Monitor" data-thumbnail="https://placehold.co/48x48/222/fff?text=AP">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=AP" alt="API Performance" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">API Performance Monitor</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Database Performance Analytics" data-thumbnail="https://placehold.co/48x48/222/fff?text=DP">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=DP" alt="Database Performance" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Database Performance Analytics</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="DevOps Pipeline Monitor" data-thumbnail="https://placehold.co/48x48/222/fff?text=DM">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=DM" alt="DevOps Pipeline" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">DevOps Pipeline Monitor</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="Cybersecurity Threat Monitor" data-thumbnail="https://placehold.co/48x48/222/fff?text=CT">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=CT" alt="Cybersecurity Threat" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">Cybersecurity Threat Monitor</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="it-component flex flex-col bg-gray-700 rounded-md overflow-hidden hover:bg-gray-600 transition group relative draggable-component" draggable="true" data-title="IT Asset Management Dashboard" data-thumbnail="https://placehold.co/48x48/222/fff?text=AM">
+                                <div class="w-full aspect-[16/9] bg-gray-800 overflow-hidden">
+                                    <img src="https://placehold.co/48x48/222/fff?text=AM" alt="Asset Management" class="w-full h-full object-cover" />
+                                </div>
+                                <div class="flex items-center p-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white font-semibold truncate">IT Asset Management Dashboard</div>
+                                    </div>
+                                    <button class="component-icon-btn ml-2 p-0.5 rounded-full focus:outline-none flex items-center" title="Add">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                    <button class="component-icon-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" title="Info">
+                                        <span class="material-symbols-outlined">info</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            <!-- Main Area: Tabbed Canvas -->
+            <section class="explore-main-col">
+                <div class="p-4 pb-0">
+                    <div class="flex items-center gap-3" id="tabs-inner-bar">
+                        <div class="flex items-center gap-2" id="tabs-bar">
+                            <div class="tab-item active text-white px-4 py-2 rounded-t-md font-semibold shadow cursor-pointer flex items-center gap-2 max-w-[180px] pr-2">
+                                <span class="truncate overflow-hidden whitespace-nowrap">Sales Over Time</span>
+                                <button class="tab-close-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" data-tooltip="Close Tab"><span class="material-symbols-outlined">close</span></button>
+                            </div>
+                            <div class="tab-item bg-gray-800 text-gray-300 px-4 py-2 rounded-t-md cursor-pointer flex items-center gap-2 max-w-[180px] pr-2">
+                                <span class="truncate overflow-hidden whitespace-nowrap">Top Cities by Sales</span>
+                                <button class="tab-close-btn ml-1 p-0.5 rounded-full focus:outline-none flex items-center" data-tooltip="Close Tab"><span class="material-symbols-outlined">close</span></button>
+                            </div>
+                        </div>
+                        <button class="add-tab-btn p-0.5 focus:outline-none flex items-center transition" data-tooltip="New Tab">
+                            <span class="material-symbols-outlined">add</span>
+                        </button>
+                    </div>
+                </div>
+                <hr class="border-gray-700" />
+                <!-- View Toggle Bar -->
+                <div class="flex items-center justify-center p-3 border-b border-gray-700">
+                    <div class="flex bg-gray-800 rounded-md p-1">
+                        <button id="view-single" class="px-3 py-1.5 rounded text-white bg-gray-600 transition-colors duration-200 focus:outline-none flex items-center">
+                            <span class="material-symbols-outlined mr-1.5" style="font-size: 16px; transform: rotate(90deg);">rectangle</span>
+                            <span class="text-sm">1 Column</span>
+                        </button>
+                        <button id="view-split" class="px-3 py-1.5 rounded text-gray-300 hover:text-white hover:bg-gray-600 transition-colors duration-200 focus:outline-none flex items-center ml-1">
+                            <span class="material-symbols-outlined mr-1.5" style="font-size: 16px; transform: rotate(90deg);">splitscreen</span>
+                            <span class="text-sm">2 Columns</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Tab Content: Components Canvas -->
+                <div class="flex-1 overflow-y-auto p-4 pb-0" id="tab-canvas">
+                    <!-- Unified Canvas Structure -->
+                    <div class="w-full h-full" id="canvas-container">
+                        <div class="flex gap-4 pb-4" style="min-height: 100%;">
+                            <!-- Left Column (always visible) -->
+                            <div class="w-full" id="droppable-canvas" style="min-height: 100%;">
+                                <div id="canvas-empty-state" class="flex flex-col items-center justify-center select-none" style="display: none; color: #777; font-size: 20px; font-weight: normal;">
+                                    <div style="max-width: 680px; background: #1f2937; border-radius: 0.75rem; padding: 2.5rem 2rem; width: 100%; box-sizing: border-box; text-align: center;">
+                                        <span>Drag and drop components here</span>
+                                    </div>
+                                </div>
+                                <!-- Example Component Instance REMOVED -->
+                                <!-- Add more static component instances as needed for now -->
+                            </div>
+                            
+                            <!-- Vertical Separator (hidden in single column view) -->
+                            <div id="canvas-separator" class="w-px bg-gray-600 self-stretch" style="display: none;"></div>
+                            
+                            <!-- Right Column (hidden in single column view) -->
+                            <div id="droppable-canvas-right" class="w-full" style="display: none; min-height: 100%;">
+                                <div id="canvas-empty-state-right" class="flex flex-col items-center justify-center select-none" style="display: none; color: #777; font-size: 20px; font-weight: normal;">
+                                    <div style="max-width: 680px; background: #1f2937; border-radius: 0.75rem; padding: 2.5rem 2rem; width: 100%; box-sizing: border-box; text-align: center;">
+                                        <span>Drag and drop components here</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <button id="ai-chat-button" class="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-lg transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400 z-50">
+            <img src="ai-icon.svg" alt="AI Chat Icon" class="w-8 h-8" />
+        </button>
+        <div id="ai-chat-window" class="fixed bg-gray-800 rounded-xl shadow-2xl flex overflow-hidden transition-all duration-300 ease-in-out z-50">
+            <div id="chat-content-wrapper" class="flex flex-col flex-shrink-0 w-80 h-full">
+                <div class="bg-gray-700 p-3 flex items-center justify-between">
+                    <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
+                    <div class="flex space-x-2">
+                        <button id="expand-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><path d="M21 3 14 10"></path><path d="M3 21 10 14"></path></svg>
+                        </button>
+                        <button id="close-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
+                    <div class="flex justify-start">
+                        <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%]">
+                            Hello! I'm Lumen. How can I help you today?
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <div class="bg-blue-600 text-white p-2 rounded-lg max-w-[80%]">
+                            Show me the latest Q2 Finance story.
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 border-t border-gray-700 flex items-center">
+                    <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm placeholder-gray-400">
+                    <button id="send-chat-button" class="ml-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400" disabled>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="ai-panel-separator" class="hidden"></div>
+            <div id="ai-interactive-panel" class="relative flex-shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out bg-gray-900 rounded-xl shadow-inner">
+                <div class="panel-header p-3 flex items-center justify-between rounded-tr-xl">
+                    <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
+                    <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg>
+                    </button>
+                </div>
+                <div id="interactive-panel-content" class="flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
+                    <p>Interactive content will appear here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Utility for toggling dropdowns
+        function setupDropdown(buttonId, menuId) {
+            const button = document.getElementById(buttonId);
+            const menu = document.getElementById(menuId);
+            if (button && menu) {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    menu.classList.toggle('hidden');
+                });
+                document.addEventListener('click', (event) => {
+                    if (!button.contains(event.target) && !menu.contains(event.target)) {
+                        menu.classList.add('hidden');
+                    }
+                });
+            }
+        }
+        setupDropdown('user-dropdown-button', 'user-dropdown-menu');
+        // Animated Header Search Box Logic
+        const searchIconButton = document.getElementById('search-icon-button');
+        const searchInputWrapper = document.getElementById('search-input-wrapper');
+        const headerSearchInput = document.getElementById('header-search-input');
+        const componentsSearchInput = document.getElementById('components-search-input');
+        console.log('Components search input element found:', componentsSearchInput);
+        searchIconButton.addEventListener('click', () => {
+            searchInputWrapper.classList.add('is-active');
+            headerSearchInput.focus();
+            searchIconButton.classList.add('is-hidden');
+        });
+        headerSearchInput.addEventListener('blur', () => {
+            if (headerSearchInput.value.trim() === '') {
+                searchInputWrapper.classList.remove('is-active');
+                setTimeout(() => {
+                    if (!searchInputWrapper.classList.contains('is-active')) {
+                        searchIconButton.classList.remove('is-hidden');
+                    }
+                }, 300);
+            }
+        });
+        // AI Chat Window functionality
+        const aiChatButton = document.getElementById('ai-chat-button');
+        const aiChatWindow = document.getElementById('ai-chat-window');
+        const closeChatButton = document.getElementById('close-chat-button');
+        const expandChatButton = document.getElementById('expand-chat-button');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatButton = document.getElementById('send-chat-button');
+        const chatMessagesContainer = document.getElementById('chat-messages');
+        const interactivePanel = document.getElementById('ai-interactive-panel');
+        const interactivePanelTitle = document.getElementById('interactive-panel-title');
+        const interactivePanelContent = document.getElementById('interactive-panel-content');
+        const closeInteractivePanelButton = document.getElementById('close-interactive-panel-button');
+        const aiPanelSeparator = document.getElementById('ai-panel-separator');
+        let lastToggleButtonElement = null;
+        function toggleChatWindowVisibility() {
+            if (aiChatWindow.classList.contains('chat-window-open')) {
+                aiChatWindow.classList.remove('chat-window-open');
+                aiChatWindow.classList.remove('is-minimal');
+                aiChatWindow.classList.remove('is-fullscreen');
+                aiChatWindow.classList.remove('has-interactive-panel');
+                toggleInteractivePanel('hide');
+                setTimeout(() => {
+                    if (!aiChatWindow.classList.contains('chat-window-open')) {
+                        aiChatWindow.style.display = 'none';
+                    }
+                }, 300);
+            } else {
+                aiChatWindow.style.display = 'flex';
+                void aiChatWindow.offsetWidth;
+                aiChatWindow.classList.add('chat-window-open', 'is-minimal');
+                chatInput.focus();
+            }
+            updateExpandCollapseButton();
+        }
+        function toggleFullscreen() {
+            if (aiChatWindow.classList.contains('is-fullscreen')) {
+                aiChatWindow.classList.remove('is-fullscreen');
+                aiChatWindow.classList.add('is-minimal');
+            } else {
+                aiChatWindow.classList.remove('is-minimal');
+                aiChatWindow.classList.add('is-fullscreen');
+            }
+            chatInput.focus();
+            updateExpandCollapseButton();
+        }
+        function updateExpandCollapseButton() {
+            if (aiChatWindow.classList.contains('is-fullscreen')) {
+                expandChatButton.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><path d="M14 10 21 3"/><path d="M3 21 10 14"/></svg>`;
+            } else {
+                expandChatButton.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><path d="M21 3 14 10"/><path d="M3 21 10 14"/></svg>`;
+            }
+        }
+        function toggleInteractivePanel(action, componentType = null) {
+            if (action === 'toggle') {
+                action = interactivePanel.classList.contains('is-active') ? 'hide' : 'show';
+                if (lastToggleButtonElement && lastToggleButtonElement.dataset.componentType) {
+                    componentType = lastToggleButtonElement.dataset.componentType;
+                } else if (action === 'show') {
+                    componentType = 'chart';
+                }
+            }
+            if (action === 'show') {
+                interactivePanel.classList.add('is-active');
+                aiPanelSeparator.classList.remove('hidden');
+                setTimeout(() => aiPanelSeparator.classList.add('is-active'), 50);
+                aiChatWindow.classList.add('has-interactive-panel');
+                if (componentType === 'chart') {
+                    interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-600 rounded-md flex items-center justify-center"><p class="text-white text-lg">📈 Placeholder Chart Data</p></div>`;
+                } else if (componentType === 'map') {
+                    interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-600 rounded-md flex items-center justify-center"><p class="text-white text-lg">🗺️ Placeholder Map Data</p></div>`;
+                }
+                if (lastToggleButtonElement) {
+                    lastToggleButtonElement.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Hide Component`;
+                    lastToggleButtonElement.dataset.componentType = componentType;
+                }
+            } else if (action === 'hide') {
+                interactivePanel.classList.remove('is-active');
+                aiPanelSeparator.classList.remove('is-active');
+                aiPanelSeparator.classList.add('hidden');
+                aiChatWindow.classList.remove('has-interactive-panel');
+                interactivePanelContent.innerHTML = '<p>Interactive content will appear here.</p>';
+                if (lastToggleButtonElement) {
+                    lastToggleButtonElement.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Show Component`;
+                }
+            }
+        }
+        aiChatButton.addEventListener('click', toggleChatWindowVisibility);
+        closeChatButton.addEventListener('click', toggleChatWindowVisibility);
+        expandChatButton.addEventListener('click', toggleFullscreen);
+        closeInteractivePanelButton.addEventListener('click', () => toggleInteractivePanel('hide'));
+        function addChatMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            messageDiv.innerHTML = `
+                <div class="${sender === 'user' ? 'bg-blue-600' : 'bg-gray-600'} text-white p-2 rounded-lg max-w-[80%] break-words">
+                    ${message}
+                </div>
+            `;
+            chatMessagesContainer.appendChild(messageDiv);
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }
+        sendChatButton.addEventListener('click', async () => {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            addChatMessage(message, 'user');
+            chatInput.value = '';
+            sendChatButton.disabled = true;
+            const isShowChart = message.toLowerCase().includes("show chart");
+            const isShowMap = message.toLowerCase().includes("show map");
+            if (isShowChart || isShowMap) {
+                const componentType = isShowChart ? 'chart' : 'map';
+                toggleInteractivePanel('show', componentType);
+                const aiMessageDiv = document.createElement('div');
+                aiMessageDiv.className = `flex justify-start`;
+                aiMessageDiv.innerHTML = `
+                    <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%] break-words flex flex-col">
+                        <span>Here's a placeholder ${componentType} for your data!</span>
+                        <button class="toggle-component-button mt-2 bg-gray-700 hover:bg-slate-700 text-white p-2 rounded-md transition duration-200 text-sm flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Hide Component
+                        </button>
+                    </div>
+                `;
+                chatMessagesContainer.appendChild(aiMessageDiv);
+                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+                const toggleButton = aiMessageDiv.querySelector('.toggle-component-button');
+                if (toggleButton) {
+                    if (lastToggleButtonElement && lastToggleButtonElement !== toggleButton) {
+                        lastToggleButtonElement.onclick = null;
+                    }
+                    lastToggleButtonElement = toggleButton;
+                    lastToggleButtonElement.dataset.componentType = componentType;
+                    lastToggleButtonElement.addEventListener('click', () => {
+                        toggleInteractivePanel('toggle');
+                    });
+                }
+                setTimeout(() => {
+                    addChatMessage("I'm Lumen. In a real app, I would process your request and provide insights. How else can I assist? Try typing 'show chart', 'show map', or 'generate response'!", 'ai');
+                }, 800);
+                toggleInteractivePanel('hide');
+                lastToggleButtonElement = null;
+            } else {
+                setTimeout(() => {
+                    addChatMessage("I'm Lumen. In a real app, I would process your request and provide insights. How else can I assist? Try typing 'show chart', 'show map', or 'generate response'!", 'ai');
+                }, 800);
+                toggleInteractivePanel('hide');
+                lastToggleButtonElement = null;
+            }
+        });
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatButton.click();
+            }
+        });
+        chatInput.addEventListener('input', () => {
+            sendChatButton.disabled = chatInput.value.trim() === '';
+        });
+        // --- DRAG AND DROP LOGIC REWRITE ---
+        // Utility: get index of a child in parent
+        function getChildIndex(node) {
+            return Array.prototype.indexOf.call(node.parentNode.children, node);
+        }
+
+        const droppableCanvas = document.getElementById('droppable-canvas');
+        let dragData = null;
+        let dragType = null; // 'palette' or 'canvas'
+        let dragSrcEl = null;
+        let placeholder = null;
+        let draggedCardHeight = 300;
+        let isDragging = false;
+
+        // Helper: create placeholder
+        function createPlaceholder(heightPx) {
+            const ph = document.createElement('div');
+            ph.className = 'canvas-drop-placeholder';
+            ph.style.display = 'block';
+            if (heightPx) {
+                ph.style.height = heightPx + 'px';
+            } else {
+                ph.style.height = '300px'; // default for palette
+            }
+            return ph;
+        }
+
+        // Make palette components draggable
+        function makePaletteComponentDraggable(card) {
+            card.setAttribute('draggable', 'true');
+            card.addEventListener('dragstart', e => {
+                dragData = {
+                    title: card.dataset.title,
+                    thumbnail: card.dataset.thumbnail
+                };
+                dragType = 'palette';
+                dragSrcEl = null;
+                isDragging = true;
+                e.dataTransfer.effectAllowed = 'copy';
+                e.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+                // Always set drag image to the entire card with correct offset
+                const rect = card.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left;
+                const offsetY = e.clientY - rect.top;
+                if (typeof e.dataTransfer.setDragImage === 'function') {
+                    e.dataTransfer.setDragImage(card, offsetX, offsetY);
+                }
+            });
+        }
+
+        // Initialize palette components
+        Array.from(document.querySelectorAll('.draggable-component')).forEach(card => {
+            makePaletteComponentDraggable(card);
+        });
+
+        // Make canvas cards draggable (header only)
+        function makeCardDraggable(card) {
+            card.setAttribute('draggable', 'false'); // Default: not draggable
+            const header = card.querySelector('.canvas-card-header');
+            if (header) {
+                header.style.cursor = 'move';
+                header.setAttribute('draggable', 'true');
+                header.addEventListener('dragstart', e => {
+                    dragData = {
+                        title: card.dataset.title,
+                        thumbnail: card.dataset.thumbnail
+                    };
+                    dragType = 'canvas';
+                    dragSrcEl = card;
+                    isDragging = true;
+                    // Capture the height BEFORE hiding
+                    draggedCardHeight = card.offsetHeight;
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+                    // Set drag image to the point where the mouse started dragging
+                    if (typeof e.dataTransfer.setDragImage === 'function') {
+                        const rect = card.getBoundingClientRect();
+                        const offsetX = e.clientX - rect.left;
+                        const offsetY = e.clientY - rect.top;
+                        e.dataTransfer.setDragImage(card, offsetX, offsetY);
+                    }
+                    // Hide the card after drag image is created
+                    requestAnimationFrame(() => {
+                        card.classList.add('opacity-50');
+                        card.style.display = 'none';
+                    });
+                });
+                header.addEventListener('dragend', e => {
+                    card.classList.remove('opacity-50');
+                    card.style.display = '';
+                    isDragging = false;
+                    // Only cleanup if not doing a canvas reorder
+                    if (dragType !== 'canvas') {
+                        cleanupPlaceholder();
+                    }
+                });
+            }
+        }
+
+        // Add drag events to all initial cards
+        Array.from(droppableCanvas.children).forEach(card => {
+            if (card.classList.contains('canvas-component-card')) makeCardDraggable(card);
+        });
+
+        // Helper: cleanup placeholder
+        function cleanupPlaceholder() {
+            if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+            placeholder = null;
+            Array.from(droppableCanvas.children).forEach(card => card.classList.remove('drag-ghost-bg'));
+            
+            // Show empty states when placeholder is removed, but only if not dragging
+            updateCanvasEmptyState();
+            if (!isDragging) {
+                updateSplitViewEmptyStates();
+            }
+        }
+
+        // Canvas dragover: show placeholder at correct position
+        function onCanvasDragOver(e) {
+            e.preventDefault();
+            let after = null;
+            let found = false;
+            // Find the card we're hovering over
+            for (const card of Array.from(droppableCanvas.children)) {
+                if (!card.classList.contains('canvas-component-card')) continue;
+                const rect = card.getBoundingClientRect();
+                const midY = rect.top + rect.height / 2;
+                if (!found && e.clientY < midY) {
+                    after = card;
+                    found = true;
+                    break;
+                }
+            }
+            // Create or move placeholder
+            let heightPx = 300;
+            if (dragType === 'canvas') {
+                heightPx = draggedCardHeight;
+            }
+            if (!placeholder) placeholder = createPlaceholder(heightPx);
+            else placeholder.style.height = heightPx + 'px';
+            if (after) {
+                droppableCanvas.insertBefore(placeholder, after);
+            } else {
+                droppableCanvas.appendChild(placeholder);
+            }
+            // Remove any extra placeholders
+            Array.from(droppableCanvas.querySelectorAll('.canvas-drop-placeholder')).forEach(ph => {
+                if (ph !== placeholder) ph.remove();
+            });
+            updateCanvasEmptyState();
+        }
+
+        droppableCanvas.addEventListener('dragover', onCanvasDragOver);
+        droppableCanvas.addEventListener('dragleave', e => {
+            // Only cleanup if leaving the whole canvas AND not dragging a canvas component
+            if (!droppableCanvas.contains(e.relatedTarget) && dragType !== 'canvas') {
+                cleanupPlaceholder();
+                updateCanvasEmptyState();
+            }
+        });
+        droppableCanvas.addEventListener('drop', e => {
+            e.preventDefault();
+            if (!placeholder) return;
+            const idx = getChildIndex(placeholder);
+            let newCard = null;
+            if (dragType === 'palette' && dragData) {
+                newCard = createCanvasCard(dragData.title, dragData.thumbnail);
+            } else if (dragType === 'canvas' && dragSrcEl) {
+                newCard = dragSrcEl;
+            }
+            if (newCard) {
+                if (idx >= droppableCanvas.children.length) {
+                    droppableCanvas.appendChild(newCard);
+                } else {
+                    droppableCanvas.insertBefore(newCard, droppableCanvas.children[idx]);
+                }
+            }
+            cleanupPlaceholder();
+            dragData = null;
+            dragType = null;
+            dragSrcEl = null;
+            isDragging = false;
+        });
+
+        // Global dragover handler to maintain placeholder position when outside canvas
+        document.addEventListener('dragover', e => {
+            if (dragType === 'canvas' && placeholder) {
+                e.preventDefault();
+                // Determine which canvas we're working with based on current view
+                const targetCanvas = currentView === 'split' && e.clientX > window.innerWidth / 2 ? droppableCanvasRight : droppableCanvas;
+                if (!targetCanvas) return;
+                
+                // Hide empty state if we're targeting the right canvas
+                if (targetCanvas === droppableCanvasRight) {
+                    const rightEmptyState = document.getElementById('canvas-empty-state-right');
+                    if (rightEmptyState) {
+                        rightEmptyState.style.display = 'none';
+                    }
+                }
+                
+                const mouseY = e.clientY;
+                
+                // Find the correct position in the canvas
+                let after = null;
+                let found = false;
+                
+                for (const card of Array.from(targetCanvas.children)) {
+                    if (!card.classList.contains('canvas-component-card')) continue;
+                    const rect = card.getBoundingClientRect();
+                    const midY = rect.top + rect.height / 2;
+                    if (!found && mouseY < midY) {
+                        after = card;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // Move placeholder to correct position
+                if (after) {
+                    targetCanvas.insertBefore(placeholder, after);
+                } else {
+                    targetCanvas.appendChild(placeholder);
+                }
+            }
+        });
+
+        // Global drop handler for drops outside the canvas
+        document.addEventListener('drop', e => {
+            if (dragType === 'canvas' && placeholder && dragSrcEl) {
+                e.preventDefault();
+                // Determine which canvas we're working with based on current view
+                const targetCanvas = currentView === 'split' && e.clientX > window.innerWidth / 2 ? droppableCanvasRight : droppableCanvas;
+                if (!targetCanvas) return;
+                
+                const idx = getChildIndex(placeholder);
+                if (idx >= targetCanvas.children.length) {
+                    targetCanvas.appendChild(dragSrcEl);
+                } else {
+                    targetCanvas.insertBefore(dragSrcEl, targetCanvas.children[idx]);
+                }
+                cleanupPlaceholder();
+                dragData = null;
+                dragType = null;
+                dragSrcEl = null;
+            }
+        });
+        // --- END DRAG AND DROP LOGIC REWRITE ---
+        // Dropdown logic for canvas cards
+        let canvasDropdownCounter = 0;
+        let openCanvasDropdownMenu = null;
+        function setupCanvasDropdown(button, menu) {
+            if (!button.dataset.dropdownId) {
+                button.dataset.dropdownId = `canvas-dropdown-${canvasDropdownCounter++}`;
+            }
+            menu.classList.add('options-dropdown-menu');
+            menu.dataset.dropdownId = button.dataset.dropdownId;
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                if (openCanvasDropdownMenu && openCanvasDropdownMenu !== menu) {
+                    openCanvasDropdownMenu.classList.add('hidden');
+                }
+                if (menu.classList.contains('hidden')) {
+                    menu.classList.remove('hidden');
+                    openCanvasDropdownMenu = menu;
+                } else {
+                    menu.classList.add('hidden');
+                    openCanvasDropdownMenu = null;
+                }
+            });
+            menu.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+        }
+        document.addEventListener('click', (event) => {
+            if (openCanvasDropdownMenu) {
+                const targetButton = document.querySelector(`[data-dropdown-id="${openCanvasDropdownMenu.dataset.dropdownId}"]`);
+                if (targetButton && !targetButton.contains(event.target) && !openCanvasDropdownMenu.contains(event.target)) {
+                    openCanvasDropdownMenu.classList.add('hidden');
+                    openCanvasDropdownMenu = null;
+                }
+            }
+        });
+        // Setup dropdown for initial static cards
+        Array.from(document.querySelectorAll('.canvas-component-card')).forEach(card => {
+            const btn = card.querySelector('.options-dropdown-button');
+            const menu = btn && btn.nextElementSibling;
+            if (btn && menu) setupCanvasDropdown(btn, menu);
+        });
+        // Remove handler for static and dynamic cards
+        function setupRemoveHandler(card) {
+            const removeBtn = card.querySelector('.remove-canvas-component');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    card.remove();
+                });
+            }
+        }
+        Array.from(document.querySelectorAll('.canvas-component-card')).forEach(setupRemoveHandler);
+        // Update card creation in drop handler
+        function createCanvasCard(title, thumbnail) {
+            const card = document.createElement('div');
+            card.className = 'relative bg-gray-800 rounded-md overflow-hidden shadow group canvas-component-card max-w-[680px] w-full mx-auto mb-4';
+            card.dataset.title = title;
+            card.dataset.thumbnail = thumbnail;
+            card.innerHTML = `
+                <div class="canvas-card-header flex items-center justify-between py-3 px-4 border-b border-gray-700">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-white font-semibold truncate">${title}</div>
+                    </div>
+                    <div class="absolute top-2 right-2 z-20">
+                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150 remove-canvas-component">Remove</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-placeholder flex items-center justify-center bg-gray-700 text-gray-300 text-lg font-medium" style="height: 300px;">
+                    Component Placeholder
+                </div>
+            `;
+            makeCardDraggable(card);
+            // Setup dropdown and remove for this card
+            const btn = card.querySelector('.options-dropdown-button');
+            const menu = btn && btn.nextElementSibling;
+            if (btn && menu) setupCanvasDropdown(btn, menu);
+            setupRemoveHandler(card);
+            return card;
+        }
+        function updateCanvasEmptyState() {
+            const emptyState = document.getElementById('canvas-empty-state');
+            const hasComponents = droppableCanvas.querySelector('.canvas-component-card');
+            const hasPlaceholder = droppableCanvas.querySelector('.canvas-drop-placeholder');
+            emptyState.style.display = (hasComponents || hasPlaceholder) ? 'none' : '';
+        }
+        // Call after any add/remove
+        Array.from(document.querySelectorAll('.canvas-component-card')).forEach(card => {
+            setupRemoveHandler(card);
+        });
+        updateCanvasEmptyState();
+        // Patch remove handler to update empty state
+        function setupRemoveHandler(card) {
+            const removeBtn = card.querySelector('.remove-canvas-component');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    card.remove();
+                    updateCanvasEmptyState();
+                    updateSplitViewEmptyStates();
+                });
+            }
+        }
+        // Patch card creation to update empty state
+        function createCanvasCard(title, thumbnail) {
+            const card = document.createElement('div');
+            card.className = 'relative bg-gray-800 rounded-md overflow-hidden shadow group canvas-component-card max-w-[680px] w-full mx-auto mb-4';
+            card.dataset.title = title;
+            card.dataset.thumbnail = thumbnail;
+            card.innerHTML = `
+                <div class="canvas-card-header flex items-center justify-between py-3 px-4 border-b border-gray-700">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-white font-semibold truncate">${title}</div>
+                    </div>
+                    <div class="absolute top-2 right-2 z-20">
+                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </button>
+                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150 remove-canvas-component">Remove</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="component-placeholder flex items-center justify-center bg-gray-700 text-gray-300 text-lg font-medium" style="height: 300px;">
+                    Component Placeholder
+                </div>
+            `;
+            makeCardDraggable(card);
+            // Setup dropdown and remove for this card
+            const btn = card.querySelector('.options-dropdown-button');
+            const menu = btn && btn.nextElementSibling;
+            if (btn && menu) setupCanvasDropdown(btn, menu);
+            setupRemoveHandler(card);
+            updateCanvasEmptyState();
+            return card;
+        }
+        // Also update after drop
+        const origDropHandler = droppableCanvas.ondrop;
+        droppableCanvas.addEventListener('drop', function() {
+            updateCanvasEmptyState();
+        });
+        // Category navigation functionality
+        const categoriesView = document.getElementById('categories-view');
+        const componentsView = document.getElementById('components-view');
+        const backToCategoriesBtn = document.getElementById('back-to-categories');
+        let currentCategory = null;
+        let isSearchMode = false;
+
+        // Category click handler
+        Array.from(document.querySelectorAll('.category-item')).forEach(category => {
+            category.addEventListener('click', function() {
+                console.log('Category clicked:', this.dataset.category);
+                const categoryName = this.dataset.category;
+                currentCategory = categoryName;
+                isSearchMode = false;
+                
+                // Clear search input
+                componentsSearchInput.value = '';
+                
+                // Hide search results container if it exists
+                const searchResultsContainer = document.getElementById('search-results-container');
+                if (searchResultsContainer) {
+                    searchResultsContainer.style.display = 'none';
+                }
+                
+                // Hide categories, show components
+                categoriesView.style.display = 'none';
+                componentsView.style.display = 'block';
+                backToCategoriesBtn.style.display = 'flex';
+                
+                // Update back button text to show selected category
+                const backButtonText = backToCategoriesBtn.querySelector('span:last-child');
+                // Handle acronyms that should be fully capitalized
+                const displayName = categoryName === 'hr' ? 'HR' : 
+                                  categoryName === 'it' ? 'IT' : 
+                                  categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
+                backButtonText.textContent = displayName;
+                
+                // Show components for the selected category
+                showCategoryComponents(categoryName);
+                
+                // Re-setup tooltips and drag functionality for newly visible components
+                setupTooltips();
+                setupTooltipHandlers();
+                setupAddButtonHandlers();
+            });
+        });
+
+        // Function to show components for a specific category
+        function showCategoryComponents(categoryName) {
+            console.log('Showing category:', categoryName);
+            
+            // Hide all category containers first
+            Array.from(document.querySelectorAll('.category-components-container')).forEach(container => {
+                container.style.display = 'none';
+            });
+            
+            // Show the container for the selected category
+            const categoryContainer = document.getElementById(`${categoryName}-components-container`);
+            console.log('Found container:', categoryContainer);
+            if (categoryContainer) {
+                categoryContainer.style.display = 'block';
+                console.log('Container displayed');
+            } else {
+                console.log('Container not found for category:', categoryName);
+            }
+        }
+
+        // Back button handler
+        backToCategoriesBtn.addEventListener('click', function() {
+            if (isSearchMode) {
+                // Return from search mode to categories
+                isSearchMode = false;
+                currentCategory = null;
+                
+                // Clear search input
+                componentsSearchInput.value = '';
+                
+                // Hide clear search button
+                const clearBtn = document.getElementById('components-search-clear');
+                if (clearBtn) clearBtn.style.display = 'none';
+                
+                // Show categories, hide components
+                categoriesView.style.display = 'block';
+                componentsView.style.display = 'none';
+                backToCategoriesBtn.style.display = 'none';
+                
+                // Hide all category containers
+                Array.from(document.querySelectorAll('.category-components-container')).forEach(container => {
+                    container.style.display = 'none';
+                });
+            } else {
+                // Return from category to categories list
+                categoriesView.style.display = 'block';
+                componentsView.style.display = 'none';
+                backToCategoriesBtn.style.display = 'none';
+                
+                currentCategory = null;
+            }
+        });
+
+        // Add button click handler for palette components
+        function setupAddButtonHandlers() {
+            Array.from(document.querySelectorAll('.draggable-component .component-icon-btn[title="Add"]')).forEach(btn => {
+                // Remove existing click handlers by cloning and replacing the button
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                // Add the click handler to the new button
+                newBtn.addEventListener('click', function(e) {
+                    const card = newBtn.closest('.draggable-component');
+                    if (!card) return;
+                    const title = card.dataset.title;
+                    const thumbnail = card.dataset.thumbnail;
+                    const newCard = createCanvasCard(title, thumbnail);
+                    droppableCanvas.appendChild(newCard);
+                    updateCanvasEmptyState();
+                });
+                
+                // Re-add tooltip functionality to the new button
+                newBtn.setAttribute('data-tooltip', 'Add to Current Tab');
+                newBtn.classList.remove('tooltip-handler-added');
+                
+                // Add tooltip event listeners to the new button
+                newBtn.addEventListener('mouseenter', () => {
+                    if (paletteTooltipTimeout) {
+                        clearTimeout(paletteTooltipTimeout);
+                    }
+                    paletteTooltipTimeout = setTimeout(() => {
+                        showPaletteTooltip(newBtn);
+                    }, 400);
+                });
+                newBtn.addEventListener('mouseleave', () => {
+                    if (paletteTooltipTimeout) {
+                        clearTimeout(paletteTooltipTimeout);
+                        paletteTooltipTimeout = null;
+                    }
+                    hidePaletteTooltip();
+                });
+                newBtn.addEventListener('click', () => {
+                    if (paletteTooltipTimeout) {
+                        clearTimeout(paletteTooltipTimeout);
+                        paletteTooltipTimeout = null;
+                    }
+                    hidePaletteTooltip();
+                });
+                newBtn.addEventListener('mousedown', () => {
+                    if (paletteTooltipTimeout) {
+                        clearTimeout(paletteTooltipTimeout);
+                        paletteTooltipTimeout = null;
+                    }
+                    hidePaletteTooltip();
+                });
+                newBtn.classList.add('tooltip-handler-added');
+            });
+        }
+        // Search functionality
+        console.log('Components search input event listener added');
+        componentsSearchInput.addEventListener('input', function() {
+            console.log('Components search input changed:', this.value);
+            const searchTerm = this.value.toLowerCase().trim();
+            // Show/hide clear button
+            const clearBtn = document.getElementById('components-search-clear');
+            if (clearBtn) clearBtn.style.display = this.value ? 'flex' : 'none';
+            
+            if (searchTerm === '') {
+                // Clear search - return to previous state
+                if (isSearchMode) {
+                    isSearchMode = false;
+                    if (currentCategory) {
+                        // Return to category view
+                        showCategoryComponents(currentCategory);
+                        const backButtonText = backToCategoriesBtn.querySelector('span:last-child');
+                        const displayName = currentCategory === 'hr' ? 'HR' : 
+                                          currentCategory === 'it' ? 'IT' : 
+                                          currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+                        backButtonText.textContent = displayName;
+                    } else {
+                        // Return to categories list
+                        categoriesView.style.display = 'block';
+                        componentsView.style.display = 'none';
+                        backToCategoriesBtn.style.display = 'none';
+                        
+                        // Hide all category containers
+                        Array.from(document.querySelectorAll('.category-components-container')).forEach(container => {
+                            container.style.display = 'none';
+                        });
+                    }
+                }
+                return;
+            }
+            
+            // Enter search mode
+            isSearchMode = true;
+            
+            // Hide categories, show components
+            categoriesView.style.display = 'none';
+            componentsView.style.display = 'block';
+            backToCategoriesBtn.style.display = 'flex';
+            
+            // Update back button text
+            const backButtonText = backToCategoriesBtn.querySelector('span:last-child');
+            backButtonText.textContent = 'Search Results';
+            
+            // Search across all components
+            const allComponents = document.querySelectorAll('.draggable-component');
+            let hasResults = false;
+            
+            // Hide all category containers first
+            Array.from(document.querySelectorAll('.category-components-container')).forEach(container => {
+                container.style.display = 'none';
+            });
+            
+            // Create a temporary container for search results
+            let searchResultsContainer = document.getElementById('search-results-container');
+            if (!searchResultsContainer) {
+                searchResultsContainer = document.createElement('div');
+                searchResultsContainer.id = 'search-results-container';
+                searchResultsContainer.className = 'category-components-container';
+                componentsView.appendChild(searchResultsContainer);
+            }
+            
+            // Clear previous search results
+            searchResultsContainer.innerHTML = '';
+            
+            // Track unique titles to avoid duplicates
+            const foundTitles = new Set();
+            
+            // Search through all components
+            allComponents.forEach(component => {
+                const title = component.dataset.title.toLowerCase();
+                if (title.includes(searchTerm) && !foundTitles.has(component.dataset.title)) {
+                    // Clone the component and add to search results
+                    const clonedComponent = component.cloneNode(true);
+                    searchResultsContainer.appendChild(clonedComponent);
+                    foundTitles.add(component.dataset.title);
+                    hasResults = true;
+                }
+            });
+            
+            // Show search results container
+            if (hasResults) {
+                searchResultsContainer.style.display = 'block';
+                
+                // Setup tooltips and handlers for search results
+                setupTooltips();
+                setupTooltipHandlers();
+                setupAddButtonHandlers();
+                
+                // Setup drag-and-drop for search result components
+                Array.from(searchResultsContainer.querySelectorAll('.draggable-component')).forEach(card => {
+                    makePaletteComponentDraggable(card);
+                });
+            } else {
+                // Show no results message
+                searchResultsContainer.innerHTML = '<div class="text-gray-500 text-left">No components found matching "' + searchTerm + '"</div>';
+                searchResultsContainer.style.display = 'block';
+            }
+        });
+        
+        // Add data-tooltip attributes to Add and Info buttons in the left panel
+        function setupTooltips() {
+            Array.from(document.querySelectorAll('.draggable-component .component-icon-btn[title="Add"]')).forEach(btn => {
+                btn.setAttribute('data-tooltip', 'Add to Current Tab');
+            });
+            Array.from(document.querySelectorAll('.draggable-component .component-icon-btn[title="Info"]')).forEach(btn => {
+                btn.setAttribute('data-tooltip', 'More Info');
+            });
+        }
+        
+        // Tooltip logic for left panel buttons
+        let paletteTooltipElement = null;
+        let paletteTooltipTimeout = null;
+
+        function showPaletteTooltip(button) {
+            if (paletteTooltipElement) {
+                paletteTooltipElement.remove();
+                paletteTooltipElement = null;
+            }
+
+            const text = button.getAttribute('data-tooltip');
+            if (!text) return;
+
+            paletteTooltipElement = document.createElement('div');
+            paletteTooltipElement.className = 'tooltip';
+            paletteTooltipElement.textContent = text;
+            document.body.appendChild(paletteTooltipElement);
+
+            const rect = button.getBoundingClientRect();
+            const scrollX = window.scrollX || window.pageXOffset;
+            const scrollY = window.scrollY || window.pageYOffset;
+
+            paletteTooltipElement.style.left = `${rect.left + rect.width / 2 + scrollX - paletteTooltipElement.offsetWidth / 2}px`;
+            paletteTooltipElement.style.top = `${rect.top + scrollY - paletteTooltipElement.offsetHeight - 8}px`;
+            
+            requestAnimationFrame(() => {
+                paletteTooltipElement.classList.add('show');
+            });
+        }
+
+        function hidePaletteTooltip() {
+            if (paletteTooltipTimeout) {
+                clearTimeout(paletteTooltipTimeout);
+                paletteTooltipTimeout = null;
+            }
+            if (paletteTooltipElement) {
+                paletteTooltipElement.classList.remove('show');
+                paletteTooltipElement.addEventListener('transitionend', function handler() {
+                    if (paletteTooltipElement && !paletteTooltipElement.classList.contains('show')) {
+                        paletteTooltipElement.remove();
+                        paletteTooltipElement = null;
+                        this.removeEventListener('transitionend', handler);
+                    }
+                });
+            }
+        }
+
+        function setupTooltipHandlers() {
+            // Clear any existing timeout first
+            if (paletteTooltipTimeout) {
+                clearTimeout(paletteTooltipTimeout);
+                paletteTooltipTimeout = null;
+            }
+            
+            // Add tooltip event listeners for component buttons
+            Array.from(document.querySelectorAll('.draggable-component .component-icon-btn[title]')).forEach(btn => {
+                // Remove existing tooltip listeners by using a specific class to track them
+                btn.classList.remove('tooltip-handler-added');
+                
+                if (!btn.classList.contains('tooltip-handler-added')) {
+                    btn.addEventListener('mouseenter', () => {
+                        // Clear any existing timeout
+                        if (paletteTooltipTimeout) {
+                            clearTimeout(paletteTooltipTimeout);
+                        }
+                        paletteTooltipTimeout = setTimeout(() => {
+                            showPaletteTooltip(btn);
+                        }, 400);
+                    });
+                    btn.addEventListener('mouseleave', () => {
+                        if (paletteTooltipTimeout) {
+                            clearTimeout(paletteTooltipTimeout);
+                            paletteTooltipTimeout = null;
+                        }
+                        hidePaletteTooltip();
+                    });
+                    btn.addEventListener('click', () => {
+                        if (paletteTooltipTimeout) {
+                            clearTimeout(paletteTooltipTimeout);
+                            paletteTooltipTimeout = null;
+                        }
+                        hidePaletteTooltip();
+                    });
+                    btn.addEventListener('mousedown', () => {
+                        if (paletteTooltipTimeout) {
+                            clearTimeout(paletteTooltipTimeout);
+                            paletteTooltipTimeout = null;
+                        }
+                        hidePaletteTooltip();
+                    });
+                    btn.classList.add('tooltip-handler-added');
+                }
+            });
+            
+            // Add tooltip event listeners for tab buttons
+            Array.from(document.querySelectorAll('.tab-close-btn[data-tooltip], .add-tab-btn[data-tooltip], #components-search-clear[data-tooltip]')).forEach(btn => {
+                // Remove existing tooltip listeners by using a specific class to track them
+                btn.classList.remove('tooltip-handler-added');
+                
+                if (!btn.classList.contains('tooltip-handler-added')) {
+                    btn.addEventListener('mouseenter', () => {
+                        // Clear any existing timeout
+                        if (paletteTooltipTimeout) {
+                            clearTimeout(paletteTooltipTimeout);
+                        }
+                        paletteTooltipTimeout = setTimeout(() => {
+                            showPaletteTooltip(btn);
+                        }, 400);
+                    });
+                    btn.addEventListener('mouseleave', () => {
+                        if (paletteTooltipTimeout) {
+                            clearTimeout(paletteTooltipTimeout);
+                            paletteTooltipTimeout = null;
+                        }
+                        hidePaletteTooltip();
+                    });
+                    btn.addEventListener('click', () => {
+                        if (paletteTooltipTimeout) {
+                            clearTimeout(paletteTooltipTimeout);
+                            paletteTooltipTimeout = null;
+                        }
+                        hidePaletteTooltip();
+                    });
+                    btn.addEventListener('mousedown', () => {
+                        if (paletteTooltipTimeout) {
+                            clearTimeout(paletteTooltipTimeout);
+                            paletteTooltipTimeout = null;
+                        }
+                        hidePaletteTooltip();
+                    });
+                    btn.classList.add('tooltip-handler-added');
+                }
+            });
+        }
+        
+        // Initial setup
+        setupTooltips();
+        setupTooltipHandlers();
+        setupAddButtonHandlers();
+        // Setup clear button for components search
+        const clearBtn = document.getElementById('components-search-clear');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                componentsSearchInput.value = '';
+                // Trigger input event to reset view
+                const event = new Event('input', { bubbles: true });
+                componentsSearchInput.dispatchEvent(event);
+                // Also ensure categories view is shown
+                categoriesView.style.display = 'block';
+                componentsView.style.display = 'none';
+                backToCategoriesBtn.style.display = 'none';
+                isSearchMode = false;
+                currentCategory = null;
+            });
+        }
+        
+        // View toggle functionality
+        const viewSingleBtn = document.getElementById('view-single');
+        const viewSplitBtn = document.getElementById('view-split');
+        const canvasSeparator = document.getElementById('canvas-separator');
+        const droppableCanvasRight = document.getElementById('droppable-canvas-right');
+        
+        let currentView = 'single';
+        
+        function switchToSingleView() {
+            currentView = 'single';
+            
+            // Hide right column and separator
+            droppableCanvasRight.style.display = 'none';
+            canvasSeparator.style.display = 'none';
+            
+            // Set left column to full width
+            droppableCanvas.style.width = '100%';
+            
+            // Update button states
+            viewSingleBtn.classList.add('bg-gray-600', 'text-white');
+            viewSingleBtn.classList.remove('text-gray-300', 'hover:text-white', 'hover:bg-gray-600');
+            viewSplitBtn.classList.remove('bg-gray-600', 'text-white');
+            viewSplitBtn.classList.add('text-gray-300', 'hover:text-white', 'hover:bg-gray-600');
+            
+            updateCanvasEmptyState();
+        }
+        
+        function switchToSplitView() {
+            currentView = 'split';
+            
+            // Show right column and separator
+            droppableCanvasRight.style.display = 'block';
+            canvasSeparator.style.display = 'block';
+            
+            // Set both columns to 50% width
+            droppableCanvas.style.width = '50%';
+            droppableCanvasRight.style.width = '50%';
+            
+            // Update button states
+            viewSplitBtn.classList.add('bg-gray-600', 'text-white');
+            viewSplitBtn.classList.remove('text-gray-300', 'hover:text-white', 'hover:bg-gray-600');
+            viewSingleBtn.classList.remove('bg-gray-600', 'text-white');
+            viewSingleBtn.classList.add('text-gray-300', 'hover:text-white', 'hover:bg-gray-600');
+            
+            // Show empty state if right column is empty
+            const rightEmptyState = document.getElementById('canvas-empty-state-right');
+            const rightHasComponents = Array.from(droppableCanvasRight.children).some(child => child.classList.contains('canvas-component-card'));
+            console.log('Right column has components:', rightHasComponents);
+            console.log('Right column children count:', droppableCanvasRight.children.length);
+            if (!rightHasComponents) {
+                rightEmptyState.style.display = 'flex';
+                console.log('Showing empty state');
+            } else {
+                rightEmptyState.style.display = 'none';
+                console.log('Hiding empty state');
+            }
+        }
+        
+        function updateSplitViewEmptyStates() {
+            const rightEmptyState = document.getElementById('canvas-empty-state-right');
+            
+            // Show empty state if right column has no components and no placeholder
+            const rightHasComponents = Array.from(droppableCanvasRight.children).some(child => 
+                child.classList.contains('canvas-component-card') || child.classList.contains('canvas-drop-placeholder')
+            );
+            rightEmptyState.style.display = rightHasComponents ? 'none' : 'flex';
+        }
+        
+        // Event listeners for view toggle buttons
+        viewSingleBtn.addEventListener('click', switchToSingleView);
+        viewSplitBtn.addEventListener('click', switchToSplitView);
+        
+        // Update existing drag-and-drop to work with split view
+        function updateDragAndDropForSplitView() {
+            // Add drop zones for split view columns
+            if (droppableCanvasRight) {
+                // Right column drop zone - use the same logic as left column
+                droppableCanvasRight.addEventListener('dragover', function(e) {
+                    if (currentView === 'split') {
+                        e.preventDefault();
+                        
+                        // Hide empty state when dragging over the right canvas
+                        const rightEmptyState = document.getElementById('canvas-empty-state-right');
+                        if (rightEmptyState) {
+                            rightEmptyState.style.display = 'none';
+                        }
+                        
+                        let after = null;
+                        let found = false;
+                        // Find the card we're hovering over
+                        for (const card of Array.from(droppableCanvasRight.children)) {
+                            if (!card.classList.contains('canvas-component-card')) continue;
+                            const rect = card.getBoundingClientRect();
+                            const midY = rect.top + rect.height / 2;
+                            if (!found && e.clientY < midY) {
+                                after = card;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // Create or move placeholder
+                        let heightPx = 300;
+                        if (dragType === 'canvas') {
+                            heightPx = draggedCardHeight;
+                        }
+                        if (!placeholder) placeholder = createPlaceholder(heightPx);
+                        else placeholder.style.height = heightPx + 'px';
+                        if (after) {
+                            droppableCanvasRight.insertBefore(placeholder, after);
+                        } else {
+                            droppableCanvasRight.appendChild(placeholder);
+                        }
+                        // Remove any extra placeholders
+                        Array.from(droppableCanvasRight.querySelectorAll('.canvas-drop-placeholder')).forEach(ph => {
+                            if (ph !== placeholder) ph.remove();
+                        });
+                    }
+                });
+                
+                droppableCanvasRight.addEventListener('dragleave', function(e) {
+                    // Only cleanup if leaving the whole canvas AND not dragging a canvas component
+                    if (!this.contains(e.relatedTarget) && dragType !== 'canvas') {
+                        cleanupPlaceholder();
+                        updateSplitViewEmptyStates();
+                    }
+                });
+                
+                droppableCanvasRight.addEventListener('drop', function(e) {
+                    if (currentView === 'split') {
+                        e.preventDefault();
+                        if (!placeholder) return;
+                        const idx = getChildIndex(placeholder);
+                        let newCard = null;
+                        if (dragType === 'palette' && dragData) {
+                            newCard = createCanvasCard(dragData.title, dragData.thumbnail);
+                        } else if (dragType === 'canvas' && dragSrcEl) {
+                            newCard = dragSrcEl;
+                        }
+                        if (newCard) {
+                            if (idx >= droppableCanvasRight.children.length) {
+                                droppableCanvasRight.appendChild(newCard);
+                            } else {
+                                droppableCanvasRight.insertBefore(newCard, droppableCanvasRight.children[idx]);
+                            }
+                        }
+                        cleanupPlaceholder();
+                        dragData = null;
+                        dragType = null;
+                        dragSrcEl = null;
+                        isDragging = false;
+                        updateSplitViewEmptyStates();
+                    }
+                });
+            }
+        }
+        
+        // Initialize split view drag-and-drop
+        updateDragAndDropForSplitView();
+        
+        // Initialize empty states
+        updateSplitViewEmptyStates();
+    </script>
+</body>
+</html>

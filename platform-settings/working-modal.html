@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working Create Component Modal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    
+    <!-- Load all modular files directly -->
+    <script src="js/state.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/chart-mapping.js"></script>
+    <script src="js/wizard-navigation.js"></script>
+    <script src="js/create-component-modal.js"></script>
+    <script src="js/modal-loader.js"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Working Create Component Modal</h1>
+        <p class="text-gray-400 mb-8">This is a working implementation of the modular Create Component modal approach.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">Features</h2>
+                <ul class="space-y-2 text-gray-300">
+                    <li>✅ Modular JavaScript architecture</li>
+                    <li>✅ Lazy loading of components</li>
+                    <li>✅ State management</li>
+                    <li>✅ Validation system</li>
+                    <li>✅ Chart mapping functionality</li>
+                    <li>✅ Wizard navigation</li>
+                    <li>✅ Dynamic HTML generation</li>
+                </ul>
+            </div>
+            
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">Test the Modal</h2>
+                <button id="test-modal-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md transition duration-200 font-medium">
+                    <span class="material-symbols-outlined mr-2">add</span>
+                    Open Create Component Modal
+                </button>
+                
+                <div class="mt-4 p-4 bg-gray-700 rounded-lg">
+                    <h3 class="text-sm font-medium mb-2">Debug Info:</h3>
+                    <div id="debug-info" class="text-xs text-gray-400 space-y-1"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 bg-gray-800 p-6 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4">File Structure</h2>
+            <div class="text-sm text-gray-300 font-mono">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-blue-400">📁 js/</p>
+                        <p class="ml-4">├── state.js (Global state management)</p>
+                        <p class="ml-4">├── validation.js (Step validation logic)</p>
+                        <p class="ml-4">├── chart-mapping.js (Chart-specific HTML generation)</p>
+                        <p class="ml-4">├── wizard-navigation.js (Wizard navigation)</p>
+                        <p class="ml-4">├── create-component-modal.js (Main modal class)</p>
+                        <p class="ml-4">└── modal-loader.js (Dynamic loading system)</p>
+                    </div>
+                    <div>
+                        <p class="text-green-400">📄 Files</p>
+                        <p class="ml-4">├── working-modal.html (This file)</p>
+                        <p class="ml-4">├── components.html (Main components page)</p>
+                        <p class="ml-4">└── test-modal.html (Simple test)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Debug information
+        const debugInfo = document.getElementById('debug-info');
+        debugInfo.innerHTML = `
+            <p>State loaded: ${typeof window.CreateComponentState !== 'undefined' ? '✅' : '❌'}</p>
+            <p>Validation loaded: ${typeof ValidationManager !== 'undefined' ? '✅' : '❌'}</p>
+            <p>Chart Mapping loaded: ${typeof ChartMappingManager !== 'undefined' ? '✅' : '❌'}</p>
+            <p>Wizard Navigation loaded: ${typeof WizardNavigation !== 'undefined' ? '✅' : '❌'}</p>
+            <p>Create Component Modal loaded: ${typeof CreateComponentModal !== 'undefined' ? '✅' : '❌'}</p>
+            <p>Modal Loader loaded: ${typeof CreateComponentLoader !== 'undefined' ? '✅' : '❌'}</p>
+            <p>openCreateComponentModal function: ${typeof openCreateComponentModal !== 'undefined' ? '✅' : '❌'}</p>
+        `;
+
+        document.getElementById('test-modal-btn').addEventListener('click', function() {
+            console.log('Opening Create Component Modal...');
+            if (typeof openCreateComponentModal === 'function') {
+                openCreateComponentModal();
+            } else {
+                console.error('openCreateComponentModal function not found');
+                alert('Modal function not found. Check console for details.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filters - Platform Settings - Crimson</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <div id="crimson-app" class="bg-gray-900">
+        <header class="bg-gray-800 py-4 px-4 md:px-8 flex items-center justify-between shadow-lg sticky top-0 z-30">
+            <!-- Left-aligned group: Logo, divider, client logo, and navigation -->
+            <div class="flex items-center">
+                <div class="w-8 h-8 flex items-center justify-center rounded-md overflow-hidden">
+                    <svg viewBox="0 0 32 32" class="w-full h-full">
+                        <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" /> </svg>
+                </div>
+                <div class="h-6 border-l border-gray-600 ml-4"></div>
+                <div class="flex items-center justify-center px-3 py-1 rounded-md bg-[#1a1a1a] text-white text-sm font-semibold h-8 ml-4">
+                    <span>Client Logo</span>
+                </div>
+                <nav class="flex items-center ml-4">
+                    <a href="../index.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">My Workspaces</a>
+                    <a href="../explore.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">Explore</a>
+                </nav>
+            </div>
+
+            <!-- Right-aligned group of icons and user dropdown -->
+            <div class="flex items-center">
+                <!-- Search container -->
+                <div id="search-container" class="relative flex items-center">
+                    <button id="search-icon-button" class="text-gray-300 hover:text-red-400 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                    <div id="search-input-wrapper" class="absolute right-0 flex items-center bg-gray-700 rounded-full overflow-hidden transition-all duration-300 ease-in-out">
+                        <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" id="header-search-input" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
+                    </div>
+                </div>
+
+                <!-- Notification Icon Button -->
+                <button class="text-gray-300 hover:text-red-400 p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 ml-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </button>
+                
+                <!-- User Dropdown -->
+                <div class="relative ml-4">
+                    <button id="user-dropdown-button" class="flex items-center text-gray-300 hover:text-red-400 transition duration-200 focus:outline-none">
+                        <img src="https://placehold.co/32x32/555/fff?text=J" alt="User Avatar" class="rounded-full">
+                    </button>
+                    <div id="user-dropdown-menu" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden options-dropdown-menu">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Account Settings</a>
+                        <a href="overview.html" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Platform Settings</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Help</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout with Sidebar and Content -->
+        <div class="flex flex-1">
+            <!-- Vertical Sidebar Navigation -->
+            <aside class="w-56 bg-gray-800 border-r border-gray-700 sidebar-nav">
+                <div class="px-4 py-5">
+                    <h1 class="text-xl font-bold text-white mb-5">Platform Settings</h1>
+                    
+                    <!-- Navigation Menu -->
+                    <nav class="space-y-3">
+                        <a href="overview.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 mb-0">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">admin_panel_settings</span>
+                                Overview
+                            </div>
+                        </a>
+                        
+                        <a href="components.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">grid_view</span>
+                                Components
+                            </div>
+                        </a>
+                        
+                        <a href="filters.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 active">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">filter_list</span>
+                                Filters
+                            </div>
+                        </a>
+                        
+                        <a href="ai-models.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">auto_awesome</span>
+                                AI Models
+                            </div>
+                        </a>
+
+                        <a href="data-sources.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">storage</span>
+                                Data Sources
+                            </div>
+                        </a>
+                        
+                        <a href="workspaces.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">workspaces</span>
+                                Workspaces
+                            </div>
+                        </a>
+                        
+                        <a href="users.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">group</span>
+                                Users
+                            </div>
+                        </a>
+                        
+                        <a href="security.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">security</span>
+                                Security
+                            </div>
+                        </a>
+                        
+                        <a href="reporting.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">analytics</span>
+                                Reporting
+                            </div>
+                        </a>
+                        
+                        <a href="billing.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">receipt_long</span>
+                                Billing
+                            </div>
+                        </a>
+                        
+                        <a href="theme.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">palette</span>
+                                Theme
+                            </div>
+                        </a>
+                            
+                        <a href="organization.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined mr-3 text-lg">business</span>
+                                Organization
+                            </div>
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 main-content-area">
+                <!-- Filters Tab Content -->
+                <div id="filters-content" class="tab-content" style="height: calc(100vh - 72px);">
+                    <div class="flex w-full">
+                        <!-- Main Content Area -->
+                        <div class="flex-1 min-w-0 flex justify-center" style="margin-right: 256px;">
+                            <div class="p-10 max-w-7xl w-full">
+                                <h2 class="text-2xl font-bold text-white mb-5">Filter Management</h2>
+                                
+                                <!-- Filter Table -->
+                                <div class="bg-gray-800 rounded-lg overflow-hidden">
+                                    <div class="px-6 py-4 border-b border-gray-700">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                    <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
+                                                    Create Filter
+                                                </button>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <div class="relative">
+                                                    <input type="text" id="filters-search-input" placeholder="Search filters..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 w-64 text-sm" style="padding-right: 5rem;" />
+                                                    <button id="filters-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
+                                                        <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+                                                    </button>
+                                                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Filter Row -->
+                                    <div class="px-6 py-4 border-b border-gray-700">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-4">
+                                                <!-- Type Filter -->
+                                                <div class="relative">
+                                                    <button id="filter-type-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                        <span class="mr-1">Type</span>
+                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                        <span id="filter-type-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Type Filter">
+                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                        </span>
+                                                    </button>
+                                                    <div id="filter-type-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
+                                                        <div class="p-2">
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="DateRange" class="mr-2"> DateRange
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="Lookup" class="mr-2"> Lookup
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="Dropdown" class="mr-2"> Dropdown
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="Slider" class="mr-2"> Slider
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="Text" class="mr-2"> Text
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Status Filter -->
+                                                <div class="relative">
+                                                    <button id="filter-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                        <span class="mr-1">Status</span>
+                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                        <span id="filter-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
+                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                        </span>
+                                                    </button>
+                                                    <div id="filter-status-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
+                                                        <div class="p-2">
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="Active" class="mr-2"> Active
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="Pending Review" class="mr-2"> Pending Review
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="Archived" class="mr-2"> Archived
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Clear All Filters Button -->
+                                            <button id="clear-all-filter-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
+                                                <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
+                                                Clear All Filters
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="overflow-x-auto">
+                                        <table id="filters-table" class="w-full">
+                                            <thead class="border-b border-gray-700">
+                                                <tr>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Filter</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Type</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Status</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Last Updated</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider w-1"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-gray-800 divide-y divide-gray-700">
+                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex items-center">
+                                                            <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
+                                                                <span class="material-symbols-outlined text-white text-xl">date_range</span>
+                                                            </div>
+                                                            <div class="ml-4">
+                                                                <div class="text-sm font-medium text-white">Date Range Filter</div>
+                                                                <div class="text-sm text-gray-400">date_range_filter</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="text-sm text-gray-300">DateRange</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                        2 hours ago
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                        <div class="relative">
+                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('filter-dropdown-1')">
+                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                            </button>
+                                                            <div id="filter-dropdown-1" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex items-center">
+                                                            <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
+                                                                <span class="material-symbols-outlined text-white text-xl">location_on</span>
+                                                            </div>
+                                                            <div class="ml-4">
+                                                                <div class="text-sm font-medium text-white">Location Filter</div>
+                                                                <div class="text-sm text-gray-400">location_filter</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="text-sm text-gray-300">Lookup</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                        1 day ago
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                        <div class="relative">
+                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('filter-dropdown-2')">
+                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                            </button>
+                                                            <div id="filter-dropdown-2" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex items-center">
+                                                            <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
+                                                                <span class="material-symbols-outlined text-white text-xl">category</span>
+                                                            </div>
+                                                            <div class="ml-4">
+                                                                <div class="text-sm font-medium text-white">Category Filter</div>
+                                                                <div class="text-sm text-gray-400">category_filter</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="text-sm text-gray-300">Dropdown</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                        3 days ago
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                        <div class="relative">
+                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('filter-dropdown-3')">
+                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                            </button>
+                                                            <div id="filter-dropdown-3" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex items-center">
+                                                            <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
+                                                                <span class="material-symbols-outlined text-white text-xl">tune</span>
+                                                            </div>
+                                                            <div class="ml-4">
+                                                                <div class="text-sm font-medium text-white">Range Slider Filter</div>
+                                                                <div class="text-sm text-gray-400">range_slider_filter</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="text-sm text-gray-300">Slider</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-900 text-yellow-300">Pending Review</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                        1 week ago
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                        <div class="relative">
+                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('filter-dropdown-4')">
+                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                            </button>
+                                                            <div id="filter-dropdown-4" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex items-center">
+                                                            <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
+                                                                <span class="material-symbols-outlined text-white text-xl">person</span>
+                                                            </div>
+                                                            <div class="ml-4">
+                                                                <div class="text-sm font-medium text-white">User Filter</div>
+                                                                <div class="text-sm text-gray-400">user_filter</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="text-sm text-gray-300">Text</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                        2 weeks ago
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                        <div class="relative">
+                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('filter-dropdown-5')">
+                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                            </button>
+                                                            <div id="filter-dropdown-5" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        
+                                        <!-- No matches found message -->
+                                        <div id="no-filter-matches-message" class="hidden px-6 py-8 text-center">
+                                            <div class="text-gray-400 text-sm">No filters found matching your search criteria.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Sidebar -->
+                        <div class="w-64 bg-gray-800 border-l border-gray-700 fixed right-0 top-0" style="height: calc(100vh - 72px); margin-top: 72px;">
+                            <div class="p-4">
+                                <h3 class="text-md font-semibold text-white mb-4">Quick Stats</h3>
+                                <div class="space-y-4">
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-blue-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">filter_list</span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="text-sm font-medium text-gray-400">Total Filters</p>
+                                                <p class="text-lg font-bold text-white">24</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-green-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">check_circle</span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="text-sm font-medium text-gray-400">Active Filters</p>
+                                                <p class="text-lg font-bold text-white">18</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-yellow-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">schedule</span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="text-sm font-medium text-gray-400">Pending Review</p>
+                                                <p class="text-lg font-bold text-white">4</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Details Modal -->
+                <div id="filter-modal" class="fixed inset-0 p-10 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 h-full max-w-[1280px] flex flex-col">
+                        <!-- Modal Header -->
+                        <div class="p-6 border-b border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-xl font-semibold text-white">Date Range Filter</h2>
+                                <button id="close-filter-modal" class="text-gray-400 hover:text-white transition duration-200">
+                                    <span class="material-symbols-outlined text-xl">close</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Modal Content -->
+                        <div class="flex flex-1 overflow-hidden">
+                            <!-- Left Column - Filter Data -->
+                            <div class="w-8/12 flex flex-col border-r border-gray-700">
+                                <!-- Fixed Content (Description, Metadata, Tabs) -->
+                                <div class="flex-shrink-0">
+                                    <!-- Description -->
+                                    <div class="py-4 px-6">
+                                        <div class="text-sm">
+                                            <div class="text-gray-500 mb-1">Description</div>
+                                            <div class="text-gray-300">Allows users to select date ranges for filtering data across time periods.</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Metadata -->
+                                    <div class="pb-4 px-6">
+                                        <div class="grid grid-cols-3 gap-4 text-sm">
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Field Name</div>
+                                                <div class="text-gray-300">date_range_filter</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Type</div>
+                                                <div class="text-gray-300">DateRange</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Status</div>
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Default Range</div>
+                                                <div class="text-gray-300">Last 30 Days</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Created</div>
+                                                <div class="text-gray-300">May 15, 2024 <span class="text-gray-500">(John Doe)</span></div>
+                                            </div>
+                                            <div>
+                                                <div class="text-gray-500 mb-1">Last Updated</div>
+                                                <div class="text-gray-300">Aug 23, 2024 <span class="text-gray-500">(John Doe)</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Navigation Tabs -->
+                                    <div class="border-b border-gray-700 px-6 mt-2">
+                                        <nav class="flex space-x-6">
+                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-red-500 text-white font-medium text-sm" data-tab="configuration">Configuration</button>
+                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="validation">Validation</button>
+                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="usage-analytics">Usage Analytics</button>
+                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="permissions">Permissions</button>
+                                        </nav>
+                                    </div>
+                                </div>
+                                
+                                <!-- Scrollable Tab Content Container -->
+                                <div class="flex-1 overflow-y-auto">
+                                    <!-- Configuration Tab -->
+                                    <div id="filter-configuration-tab" class="filter-tab-content p-6">
+                                        <div class="space-y-6">
+                                            <div>
+                                                <div class="space-y-4">
+                                                    <div class="max-w-md">
+                                                        <label class="block text-sm font-medium text-gray-300 mb-2">Default Date Range</label>
+                                                        <select class="w-full bg-gray-700 text-white rounded-md p-2 text-sm">
+                                                            <option selected>Not Selected</option>
+                                                            <option>Last 7 Days</option>
+                                                            <option>Last 30 Days</option>
+                                                            <option>Last 90 Days</option>
+                                                            <option>Last Year</option>
+                                                            <option>Custom Range</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="max-w-md">
+                                                        <label class="block text-sm font-medium text-gray-300 mb-2">Date Format</label>
+                                                        <select class="w-full bg-gray-700 text-white rounded-md p-2 text-sm">
+                                                            <option selected>MMM D, YYYY</option>
+                                                            <option>DD/MM/YYYY</option>
+                                                            <option>MM/DD/YYYY</option>
+                                                            <option>YYYY-MM-DD</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Validation Tab -->
+                                    <div id="filter-validation-tab" class="filter-tab-content p-6 hidden">
+                                        <div class="space-y-6">
+                                            <div>
+                                                <div class="space-y-4">
+                                                    <div class="max-w-md">
+                                                        <label class="block text-sm font-medium text-gray-300 mb-2">Minimum Date</label>
+                                                        <select class="w-full bg-gray-700 text-white rounded-md p-2 text-sm">
+                                                            <option selected>No Minimum</option>
+                                                            <option>Today</option>
+                                                            <option>Custom Date</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="max-w-md">
+                                                        <label class="block text-sm font-medium text-gray-300 mb-2">Maximum Date</label>
+                                                        <select class="w-full bg-gray-700 text-white rounded-md p-2 text-sm">
+                                                            <option>No Maximum</option>
+                                                            <option selected>Today</option>
+                                                            <option>Custom Date</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Usage Analytics Tab -->
+                                    <div id="filter-usage-analytics-tab" class="filter-tab-content p-6 hidden">
+                                        <div class="space-y-6">
+                                            <!-- Key Metrics -->
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <div class="bg-gray-800 rounded-lg p-4">
+                                                    <div class="text-sm text-gray-400">Usage Over Time</div>
+                                                    <div class="text-2xl font-bold text-white">3.4K</div>
+                                                </div>
+                                                <div class="bg-gray-800 rounded-lg p-4">
+                                                    <div class="text-sm text-gray-400">No. of Users</div>
+                                                    <div class="text-2xl font-bold text-white">244</div>
+                                                </div>
+                                                <div class="bg-gray-800 rounded-lg p-4">
+                                                    <div class="text-sm text-gray-400">No. of Edits</div>
+                                                    <div class="text-2xl font-bold text-white">12</div>
+                                                </div>
+                                                <div class="bg-gray-800 rounded-lg p-4">
+                                                    <div class="text-sm text-gray-400">Run Time</div>
+                                                    <div class="text-2xl font-bold text-white">120 Days</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Charts -->
+                                            <div class="grid grid-cols-2 gap-6">
+                                                <!-- Usage Breakdown Chart -->
+                                                <div class="bg-gray-800 rounded-lg p-4">
+                                                    <h3 class="text-sm font-medium text-gray-300 mb-4">Usage Breakdown</h3>
+                                                    <div class="h-32 flex items-end justify-between">
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 30%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 45%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 60%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 80%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 50%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 70%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 90%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 40%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 65%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 35%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 55%"></div>
+                                                        <div class="w-4 bg-teal-400 rounded-t" style="height: 75%"></div>
+                                                    </div>
+                                                    <div class="flex justify-between text-xs text-gray-400 mt-2">
+                                                        <span>Jan</span>
+                                                        <span>Feb</span>
+                                                        <span>Mar</span>
+                                                        <span>Apr</span>
+                                                        <span>May</span>
+                                                        <span>Jun</span>
+                                                        <span>Jul</span>
+                                                        <span>Aug</span>
+                                                        <span>Sep</span>
+                                                        <span>Oct</span>
+                                                        <span>Nov</span>
+                                                        <span>Dec</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Volume Profile Chart -->
+                                                <div class="bg-gray-800 rounded-lg p-4">
+                                                    <h3 class="text-sm font-medium text-gray-300 mb-4">Volume Profile</h3>
+                                                    <div class="h-32 relative">
+                                                        <svg class="w-full h-full" viewBox="0 0 200 100">
+                                                            <path d="M0,80 L50,20 L100,70 L150,30 L200,60" stroke="#14b8a6" stroke-width="2" fill="none"></path>
+                                                            <circle cx="50" cy="20" r="2" fill="#14b8a6"></circle>
+                                                            <circle cx="100" cy="70" r="2" fill="#14b8a6"></circle>
+                                                            <circle cx="150" cy="30" r="2" fill="#14b8a6"></circle>
+                                                            <circle cx="200" cy="60" r="2" fill="#14b8a6"></circle>
+                                                        </svg>
+                                                        <div class="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-400">
+                                                            <span>12:00 am</span>
+                                                            <span>6:00 am</span>
+                                                            <span>12:00 pm</span>
+                                                            <span>6:00 pm</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Permissions Tab -->
+                                    <div id="filter-permissions-tab" class="filter-tab-content p-6 hidden">
+                                        <div class="space-y-4">
+                                            <!-- Planning Section -->
+                                            <div>
+                                                <h3 class="text-sm font-medium text-gray-300 mb-3">Planning</h3>
+                                                <div class="space-y-3">
+                                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                                        <div class="flex items-center space-x-3">
+                                                            <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JD" alt="">
+                                                            <div>
+                                                                <div class="text-sm font-medium text-white flex items-center space-x-2">
+                                                                    <span>John Doe</span>
+                                                                    <span class="text-xs bg-gray-900 text-gray-300 px-2 py-1 rounded">Admin</span>
+                                                                </div>
+                                                                <div class="text-xs text-gray-400">john.doe@company.com</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center space-x-2">
+                                                            <span class="text-xs text-gray-400">Full access</span>
+                                                            <span class="material-symbols-outlined text-gray-400 text-sm">expand_more</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                                        <div class="flex items-center space-x-3">
+                                                            <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JS" alt="">
+                                                            <div>
+                                                                <div class="text-sm font-medium text-white">Jane Smith</div>
+                                                                <div class="text-xs text-gray-400">jane.smith@company.com</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center space-x-2">
+                                                            <span class="text-xs text-gray-400">Limited access</span>
+                                                            <span class="material-symbols-outlined text-gray-400 text-sm">expand_more</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Chairman Office Section -->
+                                            <div>
+                                                <h3 class="text-sm font-medium text-gray-300 mb-3">Chairman Office</h3>
+                                                <div class="space-y-3">
+                                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                                        <div class="flex items-center space-x-3">
+                                                            <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=MB" alt="">
+                                                            <div>
+                                                                <div class="text-sm font-medium text-white">Mike Brown</div>
+                                                                <div class="text-xs text-gray-400">mike.brown@company.com</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center space-x-2">
+                                                            <span class="text-xs text-gray-400">Limited access</span>
+                                                            <span class="material-symbols-outlined text-gray-400 text-sm">expand_more</span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                                        <div class="flex items-center space-x-3">
+                                                            <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=SW" alt="">
+                                                            <div>
+                                                                <div class="text-sm font-medium text-white">Sarah Wilson</div>
+                                                                <div class="text-xs text-gray-400">sarah.wilson@company.com</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center space-x-2">
+                                                            <span class="text-xs text-gray-400">View only</span>
+                                                            <span class="material-symbols-outlined text-gray-400 text-sm">expand_more</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column - Filter Preview -->
+                            <div class="w-4/12 bg-gray-800 p-6">
+                                <h3 class="text-md font-semibold text-white mb-4">Filter Preview</h3>
+                                <div class="bg-gray-700 rounded-lg p-4">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Date Range</label>
+                                            <div>
+                                                <select class="w-full bg-transparent border border-gray-500 text-white rounded-md p-2 text-sm">
+                                                    <option selected>Jan 1, 2024 — Jan 31, 2024</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Search functionality
+            const searchIconButton = document.getElementById('search-icon-button');
+            const searchInputWrapper = document.getElementById('search-input-wrapper');
+            const headerSearchInput = document.getElementById('header-search-input');
+
+            searchIconButton.addEventListener('click', () => {
+                searchInputWrapper.classList.toggle('is-active');
+                if (searchInputWrapper.classList.contains('is-active')) {
+                    headerSearchInput.focus();
+                }
+            });
+
+            // User dropdown functionality
+            const userDropdownButton = document.getElementById('user-dropdown-button');
+            const userDropdownMenu = document.getElementById('user-dropdown-menu');
+
+            userDropdownButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                userDropdownMenu.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!userDropdownButton.contains(event.target) && !userDropdownMenu.contains(event.target)) {
+                    userDropdownMenu.classList.add('hidden');
+                }
+            });
+
+            // Close search when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!searchIconButton.contains(event.target) && !searchInputWrapper.contains(event.target)) {
+                    searchInputWrapper.classList.remove('is-active');
+                }
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('[id^="dropdown-"]') && !event.target.closest('button[onclick*="toggleDropdown"]')) {
+                    document.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
+                        dropdown.classList.add('hidden');
+                    });
+                }
+            });
+
+            // Close filter dropdowns when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('[id^="filter-dropdown-"]') && !event.target.closest('button[onclick*="toggleDropdown"]') && !event.target.closest('a[onclick*="openFilterModal"]')) {
+                    document.querySelectorAll('[id^="filter-dropdown-"]').forEach(dropdown => {
+                        dropdown.classList.add('hidden');
+                    });
+                }
+            });
+
+            // Handle checkbox changes
+            document.querySelectorAll('#role-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateFilterState('role', checkbox.value, checkbox.checked);
+                    updateFilterButton('role-filter-btn', filterStates.role);
+                });
+            });
+
+            document.querySelectorAll('#workspace-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateFilterState('workspace', checkbox.value, checkbox.checked);
+                    updateFilterButton('workspace-filter-btn', filterStates.workspace);
+                });
+            });
+
+            document.querySelectorAll('#status-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateFilterState('status', checkbox.value, checkbox.checked);
+                    updateFilterButton('status-filter-btn', filterStates.status);
+                });
+            });
+
+            function updateFilterState(filterType, value, checked) {
+                if (checked) {
+                    if (!filterStates[filterType].includes(value)) {
+                        filterStates[filterType].push(value);
+                    }
+                } else {
+                    filterStates[filterType] = filterStates[filterType].filter(item => item !== value);
+                }
+            }
+
+            function updateFilterButton(buttonId, selectedValues) {
+                const button = document.getElementById(buttonId);
+                const buttonText = button.querySelector('span:first-child');
+                const filterType = buttonId.split('-')[0];
+                const clearBtn = document.getElementById(filterType + '-clear-btn');
+                
+                if (selectedValues.length === 0) {
+                    buttonText.textContent = filterType.charAt(0).toUpperCase() + filterType.slice(1);
+                    clearBtn.classList.add('hidden');
+                } else {
+                    buttonText.textContent = selectedValues.join(', ');
+                    clearBtn.classList.remove('hidden');
+                }
+                
+                // Update "Clear All Filters" button visibility
+                updateClearAllFiltersButton();
+            }
+
+            function updateClearAllFiltersButton() {
+                const clearAllBtn = document.getElementById('clear-all-filters-btn');
+                const hasAnyFilters = filterStates.role.length > 0 || filterStates.workspace.length > 0 || filterStates.status.length > 0;
+                
+                if (hasAnyFilters) {
+                    clearAllBtn.classList.remove('hidden');
+                } else {
+                    clearAllBtn.classList.add('hidden');
+                }
+            }
+
+            function clearFilter(filterType) {
+                // Clear the filter state
+                filterStates[filterType] = [];
+                
+                // Uncheck all checkboxes in the dropdown
+                document.querySelectorAll(`#${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Update the button text
+                updateFilterButton(`${filterType}-filter-btn`, []);
+                
+                // Close the dropdown
+                const dropdown = document.getElementById(`${filterType}-filter-dropdown`);
+                if (dropdown) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+
+            function clearAllFilters() {
+                // Clear all filter states
+                Object.keys(filterStates).forEach(filterType => {
+                    filterStates[filterType] = [];
+                    
+                    // Uncheck all checkboxes in each dropdown
+                    document.querySelectorAll(`#${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    
+                    // Update each button text
+                    updateFilterButton(`${filterType}-filter-btn`, []);
+                });
+                
+                // Close all filter dropdowns
+                filterDropdowns.forEach(dropdownId => {
+                    const dropdown = document.getElementById(dropdownId);
+                    if (dropdown) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+
+            
+
+            // Filters search functionality
+            const filtersSearchInput = document.getElementById('filters-search-input');
+            const filtersSearchClear = document.getElementById('filters-search-clear');
+            
+            if (filtersSearchInput && filtersSearchClear) {
+                filtersSearchInput.addEventListener('input', (event) => {
+                    const searchTerm = event.target.value.toLowerCase();
+                    filterFilters();
+                    
+                    // Show/hide clear button based on input value
+                    if (searchTerm.length > 0) {
+                        filtersSearchClear.style.display = 'flex';
+                    } else {
+                        filtersSearchClear.style.display = 'none';
+                    }
+                });
+
+                // Clear button functionality
+                filtersSearchClear.addEventListener('click', () => {
+                    filtersSearchInput.value = '';
+                    filtersSearchClear.style.display = 'none';
+                    filterFilters();
+                    filtersSearchInput.focus();
+                });
+            }
+
+            function filterFilters() {
+                const searchTerm = filtersSearchInput ? filtersSearchInput.value.toLowerCase() : '';
+                const rows = document.querySelectorAll('#filters-content tbody tr');
+                const noMatchesMessage = document.getElementById('no-filter-matches-message');
+                let visibleCount = 0;
+                
+                rows.forEach(row => {
+                    const filterText = row.textContent.toLowerCase();
+                    const matchesSearch = searchTerm === '' || filterText.includes(searchTerm);
+                    
+                    // Additional filter logic can be added here
+                    row.style.display = matchesSearch ? '' : 'none';
+                    if (matchesSearch) visibleCount++;
+                });
+                
+                // Show/hide no matches message
+                if (searchTerm.length > 0 && visibleCount === 0) {
+                    noMatchesMessage.classList.remove('hidden');
+                } else {
+                    noMatchesMessage.classList.add('hidden');
+                }
+            }
+
+            // Initialize filter filter states
+            const filterFilterStates = {
+                type: [],
+                status: []
+            };
+
+            // Filters filter functionality
+            const filterFilterButtons = ['filter-type-filter-btn', 'filter-status-filter-btn'];
+            const filterFilterDropdowns = ['filter-type-filter-dropdown', 'filter-status-filter-dropdown'];
+            
+            // Toggle filter filter dropdowns
+            filterFilterButtons.forEach((btnId, index) => {
+                const button = document.getElementById(btnId);
+                if (button) {
+                    const dropdown = document.getElementById(filterFilterDropdowns[index]);
+                    
+                    button.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        
+                        // Close other dropdowns
+                        filterFilterDropdowns.forEach((dropdownId, i) => {
+                            if (i !== index) {
+                                const otherDropdown = document.getElementById(dropdownId);
+                                if (otherDropdown) {
+                                    otherDropdown.classList.add('hidden');
+                                }
+                            }
+                        });
+                        
+                        dropdown.classList.toggle('hidden');
+                    });
+                }
+            });
+
+            // Handle filter filter checkbox changes
+            document.querySelectorAll('#filter-type-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateFilterFilterState('type', checkbox.value, checkbox.checked);
+                    updateFilterFilterButton('filter-type-filter-btn', filterFilterStates.type);
+                });
+            });
+
+            document.querySelectorAll('#filter-status-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateFilterFilterState('status', checkbox.value, checkbox.checked);
+                    updateFilterFilterButton('filter-status-filter-btn', filterFilterStates.status);
+                });
+            });
+
+            function updateFilterFilterState(filterType, value, checked) {
+                if (checked) {
+                    if (!filterFilterStates[filterType].includes(value)) {
+                        filterFilterStates[filterType].push(value);
+                    }
+                } else {
+                    filterFilterStates[filterType] = filterFilterStates[filterType].filter(item => item !== value);
+                }
+            }
+
+            function updateFilterFilterButton(buttonId, selectedValues) {
+                const button = document.getElementById(buttonId);
+                if (!button) return;
+                
+                const buttonText = button.querySelector('span:first-child');
+                
+                // Handle different filter types with proper clear button IDs
+                let clearBtnId;
+                let defaultText;
+                
+                if (buttonId === 'filter-category-filter-btn') {
+                    clearBtnId = 'filter-category-clear-btn';
+                    defaultText = 'Category';
+                } else if (buttonId === 'filter-type-filter-btn') {
+                    clearBtnId = 'filter-type-clear-btn';
+                    defaultText = 'Type';
+                } else if (buttonId === 'filter-status-filter-btn') {
+                    clearBtnId = 'filter-status-clear-btn';
+                    defaultText = 'Status';
+                }
+                
+                const clearBtn = document.getElementById(clearBtnId);
+                
+                if (selectedValues.length === 0) {
+                    buttonText.textContent = defaultText;
+                    if (clearBtn) clearBtn.classList.add('hidden');
+                } else {
+                    buttonText.textContent = selectedValues.join(', ');
+                    if (clearBtn) clearBtn.classList.remove('hidden');
+                }
+                
+                // Update "Clear All Filters" button visibility
+                updateFilterClearAllFiltersButton();
+            }
+
+            function updateFilterClearAllFiltersButton() {
+                const clearAllBtn = document.getElementById('clear-all-filter-filters-btn');
+                if (!clearAllBtn) return;
+                
+                const hasAnyFilters = filterFilterStates.type.length > 0 || filterFilterStates.status.length > 0;
+                
+                if (hasAnyFilters) {
+                    clearAllBtn.classList.remove('hidden');
+                } else {
+                    clearAllBtn.classList.add('hidden');
+                }
+            }
+
+            const typeClearBtn = document.getElementById('type-clear-btn');
+            if (typeClearBtn) {
+                typeClearBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    clearComponentFilter('type');
+                });
+            }
+            
+            const filterTypeClearBtn = document.getElementById('filter-type-clear-btn');
+            if (filterTypeClearBtn) {
+                filterTypeClearBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    clearFilterFilter('type');
+                });
+            }
+
+            const filterStatusClearBtn = document.getElementById('filter-status-clear-btn');
+            if (filterStatusClearBtn) {
+                filterStatusClearBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    clearFilterFilter('status');
+                });
+            }
+
+            // Clear all filter filters button
+            const clearAllFilterFiltersBtn = document.getElementById('clear-all-filter-filters-btn');
+            if (clearAllFilterFiltersBtn) {
+                clearAllFilterFiltersBtn.addEventListener('click', () => {
+                    clearAllFilterFilters();
+                });
+            }
+
+            function clearFilterFilter(filterType) {
+                // Clear the filter state
+                filterFilterStates[filterType] = [];
+                
+                // Uncheck all checkboxes in the dropdown
+                let dropdownId;
+                let buttonId;
+                
+                if (filterType === 'category') {
+                    dropdownId = 'filter-category-filter-dropdown';
+                    buttonId = 'filter-category-filter-btn';
+                } else if (filterType === 'type') {
+                    dropdownId = 'filter-type-filter-dropdown';
+                    buttonId = 'filter-type-filter-btn';
+                } else if (filterType === 'status') {
+                    dropdownId = 'filter-status-filter-dropdown';
+                    buttonId = 'filter-status-filter-btn';
+                }
+                
+                document.querySelectorAll(`#${dropdownId} input[type="checkbox"]`).forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Update the button text
+                updateFilterFilterButton(buttonId, []);
+                
+                // Close the dropdown
+                const dropdown = document.getElementById(dropdownId);
+                if (dropdown) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+
+            function clearAllFilterFilters() {
+                // Clear all filter states
+                filterFilterStates.type = [];
+                filterFilterStates.status = [];
+                
+                // Uncheck all checkboxes in each dropdown
+                document.querySelectorAll('#filter-type-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                document.querySelectorAll('#filter-status-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Update each button text
+                updateFilterFilterButton('filter-type-filter-btn', []);
+                updateFilterFilterButton('filter-status-filter-btn', []);
+                
+                // Close all filter filter dropdowns
+                filterFilterDropdowns.forEach(dropdownId => {
+                    const dropdown = document.getElementById(dropdownId);
+                    if (dropdown) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Filter Modal Functionality
+            const filterModal = document.getElementById('filter-modal');
+            const closeFilterModal = document.getElementById('close-filter-modal');
+            const filterTableRows = document.querySelectorAll('#filters-table tbody tr');
+
+            // Function to open filter modal
+            function openFilterModal() {
+                
+                // Check if modal exists
+                if (!filterModal) {
+                    return;
+                }
+                
+                // Close all filter dropdowns first
+                document.querySelectorAll('[id^="filter-dropdown-"]').forEach(dropdown => {
+                    dropdown.classList.add('hidden');
+                });
+                
+                // Open modal immediately
+                filterModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                
+                // Reset modal tabs to show Configuration tab by default
+                const filterModalTabs = document.querySelectorAll('#filter-modal .internal-tab-item[data-tab]');
+                const filterTabContents = document.querySelectorAll('#filter-modal .component-tab-content');
+                
+                // Reset all tabs to inactive state
+                filterModalTabs.forEach(tab => {
+                    tab.classList.remove('border-red-500', 'text-white');
+                    tab.classList.add('border-transparent', 'text-gray-400');
+                });
+                
+                // Hide all tab contents
+                filterTabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Activate Configuration tab
+                const configurationTab = document.querySelector('#filter-modal .internal-tab-item[data-tab="configuration"]');
+                const configurationTabContent = document.getElementById('filter-configuration-tab');
+                
+                if (configurationTab && configurationTabContent) {
+                    configurationTab.classList.add('border-red-500', 'text-white');
+                    configurationTab.classList.remove('border-transparent', 'text-gray-400');
+                    configurationTabContent.classList.remove('hidden');
+                }
+            }
+            
+            // Add event listeners for Edit Filter links
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('edit-filter-link')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openFilterModal();
+                }
+            });
+
+            // Open modal when clicking on filter table rows
+            filterTableRows.forEach(row => {
+                row.addEventListener('click', (event) => {
+                    // Don't open modal if clicking on dropdown button
+                    if (event.target.closest('.options-dropdown-button')) {
+                        return;
+                    }
+                    openFilterModal();
+                });
+            });
+
+            // Close filter modal
+            closeFilterModal.addEventListener('click', () => {
+                filterModal.classList.add('hidden');
+                document.body.style.overflow = ''; // Restore scrolling
+            });
+
+            // Close filter modal when clicking outside
+            filterModal.addEventListener('click', (event) => {
+                if (event.target === filterModal) {
+                    filterModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Filter Modal Tab Switching
+            const filterModalTabs = document.querySelectorAll('#filter-modal .internal-tab-item[data-tab]');
+            const filterTabContents = document.querySelectorAll('#filter-modal .filter-tab-content');
+
+            filterModalTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.getAttribute('data-tab');
+                    
+                    // Update tab styling to match internal tab style
+                    filterModalTabs.forEach(t => {
+                        t.classList.remove('border-red-500', 'text-white');
+                        t.classList.add('border-transparent', 'text-gray-400');
+                    });
+                    tab.classList.add('border-red-500', 'text-white');
+                    tab.classList.remove('border-transparent', 'text-gray-400');
+                    
+                    // Show target content
+                    filterTabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById('filter-' + targetTab + '-tab').classList.remove('hidden');
+                });
+            });
+
+        });
+
+        // Global dropdown functionality for user table
+        function toggleDropdown(dropdownId) {
+            // Close all other dropdowns (user, component, and filter dropdowns)
+            document.querySelectorAll('[id^="dropdown-"], [id^="component-dropdown-"], [id^="filter-dropdown-"]').forEach(dropdown => {
+                if (dropdown.id !== dropdownId) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+            
+            // Get the dropdown and button
+            const dropdown = document.getElementById(dropdownId);
+            const button = window.event ? window.event.target.closest('button') : event.target.closest('button');
+            
+            if (!dropdown) {
+                return;
+            }
+            
+            // Toggle the clicked dropdown
+            dropdown.classList.toggle('hidden');
+            
+            if (!dropdown.classList.contains('hidden')) {
+                // Ensure dropdown is appended to body if not already
+                if (dropdown.parentElement !== document.body) {
+                    document.body.appendChild(dropdown);
+                }
+                
+                // Position the dropdown relative to the button
+                const buttonRect = button.getBoundingClientRect();
+                dropdown.style.position = 'fixed';
+                dropdown.style.top = (buttonRect.bottom + 8) + 'px';
+                dropdown.style.right = (window.innerWidth - buttonRect.right) + 'px';
+            }
+        }
+
+        // Single-selection dropdown functionality for Data Binding tab
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                const allDropdowns = document.querySelectorAll('[id$="-dropdown"]');
+                const allButtons = document.querySelectorAll('[id$="-btn"]');
+                
+                let clickedInsideDropdown = false;
+                let clickedInsideButton = false;
+                
+                allDropdowns.forEach(dropdown => {
+                    if (dropdown.contains(e.target)) {
+                        clickedInsideDropdown = true;
+                    }
+                });
+                
+                allButtons.forEach(button => {
+                    if (button.contains(e.target)) {
+                        clickedInsideButton = true;
+                    }
+                });
+                
+                if (!clickedInsideDropdown && !clickedInsideButton) {
+                    allDropdowns.forEach(dropdown => {
+                        dropdown.classList.add('hidden');
+                    });
+                }
+            });
+
+            
+        });
+    </script>
+
+</body>
+</html> 
