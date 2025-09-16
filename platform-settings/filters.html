@@ -180,7 +180,7 @@
                                             </div>
                                             <div class="flex items-center">
                                                 <div class="relative">
-                                                    <input type="text" id="filters-search-input" placeholder="Search filters..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 w-64 text-sm" style="padding-right: 5rem;" />
+                                                    <input type="text" id="filters-search-input" placeholder="Search filters..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
                                                     <button id="filters-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
                                                         <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
                                                     </button>
@@ -261,11 +261,11 @@
                                         <table id="filters-table" class="w-full">
                                             <thead class="border-b border-gray-700">
                                                 <tr>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Filter</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Type</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Status</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Last Updated</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider w-1"></th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">Filter</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Type</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Status</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Last Updated</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-1"></th>
                                                 </tr>
                                             </thead>
                                             <tbody class="bg-gray-800 divide-y divide-gray-700">
@@ -296,10 +296,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="filter-dropdown-1" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -332,10 +331,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="filter-dropdown-2" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -368,10 +366,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="filter-dropdown-3" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -404,10 +401,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="filter-dropdown-4" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -440,10 +436,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="filter-dropdown-5" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-filter-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Filter</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Filter</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -510,10 +505,31 @@
                         <!-- Modal Header -->
                         <div class="p-6 border-b border-gray-700">
                             <div class="flex items-center justify-between">
-                                <h2 class="text-xl font-semibold text-white">Date Range Filter</h2>
-                                <button id="close-filter-modal" class="text-gray-400 hover:text-white transition duration-200">
-                                    <span class="material-symbols-outlined text-xl">close</span>
-                                </button>
+                                <div class="flex items-center">
+                                    <h2 class="text-xl font-semibold text-white mr-4">Date Range Filter</h2>
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <button onclick="openEditFilterModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200 text-sm flex items-center">
+                                        <span class="material-symbols-outlined mr-2" style="font-size: 18px;">edit</span>
+                                        Edit Filter
+                                    </button>
+                                    <!-- Filter Dropdown -->
+                                    <div class="relative">
+                                        <button id="filter-actions-dropdown-btn" class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <span class="material-symbols-outlined text-lg">more_vert</span>
+                                        </button>
+                                        <div id="filter-actions-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                    <!-- Close Button -->
+                                    <button id="close-filter-modal" class="text-gray-400 hover:text-white transition duration-200 flex items-center">
+                                        <span class="material-symbols-outlined text-xl">close</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
@@ -541,10 +557,6 @@
                                             <div>
                                                 <div class="text-gray-500 mb-1">Type</div>
                                                 <div class="text-gray-300">DateRange</div>
-                                            </div>
-                                            <div>
-                                                <div class="text-gray-500 mb-1">Status</div>
-                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
                                             </div>
                                             <div>
                                                 <div class="text-gray-500 mb-1">Default Range</div>
@@ -1267,6 +1279,9 @@
                     configurationTab.classList.remove('border-transparent', 'text-gray-400');
                     configurationTabContent.classList.remove('hidden');
                 }
+                
+                // Initialize filter action dropdown
+                initializeFilterActionDropdown();
             }
             
             // Add event listeners for Edit Filter links
@@ -1395,6 +1410,46 @@
 
             
         });
+
+        // Edit Filter Modal Function (placeholder)
+        function openEditFilterModal() {
+            // TODO: Implement Edit Filter modal
+            console.log('Opening Edit Filter modal');
+        }
+
+        // Filter Actions Dropdown Function
+        function initializeFilterActionDropdown() {
+            const filterDropdownBtn = document.getElementById('filter-actions-dropdown-btn');
+            const filterDropdown = document.getElementById('filter-actions-dropdown');
+            
+            if (filterDropdownBtn && filterDropdown) {
+                // Remove any existing event listener to avoid duplicates
+                filterDropdownBtn.removeEventListener('click', handleFilterDropdownClick);
+                
+                // Add the event listener
+                filterDropdownBtn.addEventListener('click', handleFilterDropdownClick);
+            }
+        }
+
+        // Separate function for filter dropdown click handler
+        function handleFilterDropdownClick(event) {
+            event.stopPropagation();
+            
+            const filterDropdown = document.getElementById('filter-actions-dropdown');
+            if (filterDropdown) {
+                document.querySelectorAll('[id$="-dropdown"]').forEach(dropdown => {
+                    if (dropdown.id !== 'filter-actions-dropdown') {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+                
+                filterDropdown.classList.toggle('hidden');
+            }
+        }
+
+        // Make functions global
+        window.openEditFilterModal = openEditFilterModal;
+        window.initializeFilterActionDropdown = initializeFilterActionDropdown;
     </script>
 
 </body>

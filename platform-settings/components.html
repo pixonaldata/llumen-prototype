@@ -180,7 +180,7 @@
                                             </div>
                                             <div class="flex items-center">
                                                 <div class="relative">
-                                                    <input type="text" id="components-search-input" placeholder="Search components..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 w-64 text-sm" style="padding-right: 5rem;" />
+                                                    <input type="text" id="components-search-input" placeholder="Search components..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
                                                     <button id="components-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
                                                         <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
                                                     </button>
@@ -288,12 +288,12 @@
                                         <table id="components-table" class="w-full">
                                             <thead class="border-b border-gray-700">
                                                 <tr>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Component</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Category</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Type</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Status</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Last Updated</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider w-1"></th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">Component</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Category</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Type</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Status</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Last Updated</th>
+                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-1"></th>
                                                 </tr>
                                             </thead>
                                             <tbody class="bg-gray-800 divide-y divide-gray-700">
@@ -327,10 +327,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="component-dropdown-1" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-component-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Component</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Component</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -365,10 +364,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="component-dropdown-2" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-component-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Component</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Component</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -403,10 +401,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="component-dropdown-3" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-component-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Component</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Component</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -441,10 +438,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="component-dropdown-4" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-component-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Component</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Component</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -468,7 +464,7 @@
                                                         <span class="text-sm text-gray-300">Chart</span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-900 text-gray-300">Archived</span>
+                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Inactive</span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                                                         1 week ago
@@ -479,10 +475,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="component-dropdown-5" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-component-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Component</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Component</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Activate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -517,10 +512,9 @@
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
                                                             <div id="component-dropdown-6" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
-                                                                <a href="#" class="edit-component-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Component</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Component</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -547,10 +541,31 @@
                                         <!-- Modal Header -->
                                         <div class="py-4 px-6 border-b border-gray-700">
                                             <div class="flex items-center justify-between">
-                                                <h2 class="text-xl font-semibold text-white">Sales Growth</h2>
-                                                <button id="close-component-modal" class="flex items-center text-gray-400 hover:text-white transition duration-200">
-                                                    <span class="material-symbols-outlined text-2xl">close</span>
-                                                </button>
+                                                <div class="flex items-center">
+                                                    <h2 class="text-xl font-semibold text-white mr-4">Sales Growth</h2>
+                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                </div>
+                                                <div class="flex items-center space-x-4">
+                                                    <button onclick="openEditComponentModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200 text-sm flex items-center">
+                                                        <span class="material-symbols-outlined mr-2" style="font-size: 18px;">edit</span>
+                                                        Edit Component
+                                                    </button>
+                                                    <!-- Component Dropdown -->
+                                                    <div class="relative">
+                                                        <button id="component-actions-dropdown-btn" class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                        </button>
+                                                        <div id="component-actions-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Close Button -->
+                                                    <button id="close-component-modal" class="text-gray-400 hover:text-white transition duration-200 flex items-center">
+                                                        <span class="material-symbols-outlined text-xl">close</span>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                         
@@ -578,10 +593,6 @@
                                                             <div>
                                                                 <div class="text-gray-500 mb-1">Type</div>
                                                                 <div class="text-gray-300">Chart</div>
-                                                            </div>
-                                                            <div>
-                                                                <div class="text-gray-500 mb-1">Status</div>
-                                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
                                                             </div>
                                                             <div>
                                                                 <div class="text-gray-500 mb-1">Update Frequency</div>
@@ -759,13 +770,11 @@ ORDER BY population_density DESC;</code></pre>
                                                         
                                                         <!-- Datapoints Summary Tab Content -->
                                                         <div id="datapoints-summary-content" class="results-tab-content hidden">
-                                                            <!-- GRIDS Section -->
-                                                            <div class="mb-6">
-                                                                <h3 class="text-sm font-medium text-gray-300 mb-4">GRIDS, with columns:</h3>
-                                                                <div class="overflow-x-auto">
-                                                                    <div class="flex gap-4 min-w-max">
+                                                            <!-- Combined Datapoints Section -->
+                                                            <div>
+                                                                <div class="grid grid-cols-4 gap-4">
                                                                     <!-- grid_id -->
-                                                                    <div class="bg-gray-800 rounded-lg p-4 w-64">
+                                                                    <div class="bg-gray-800 rounded-lg p-4">
                                                                         <div class="text-sm font-medium text-white mb-2">grid_id</div>
                                                                         <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">INT</div>
                                                                         <div class="grid grid-cols-3 gap-4 text-xs">
@@ -797,7 +806,7 @@ ORDER BY population_density DESC;</code></pre>
                                                                     </div>
                                                                     
                                                                     <!-- longitude -->
-                                                                    <div class="bg-gray-800 rounded-lg p-4 w-64">
+                                                                    <div class="bg-gray-800 rounded-lg p-4">
                                                                         <div class="text-sm font-medium text-white mb-2">longitude</div>
                                                                         <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">FLOAT</div>
                                                                         <div class="grid grid-cols-3 gap-4 text-xs">
@@ -829,7 +838,7 @@ ORDER BY population_density DESC;</code></pre>
                                                                     </div>
                                                                     
                                                                     <!-- latitude -->
-                                                                    <div class="bg-gray-800 rounded-lg p-4 w-64">
+                                                                    <div class="bg-gray-800 rounded-lg p-4">
                                                                         <div class="text-sm font-medium text-white mb-2">latitude</div>
                                                                         <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">FLOAT</div>
                                                                         <div class="grid grid-cols-3 gap-4 text-xs">
@@ -861,7 +870,7 @@ ORDER BY population_density DESC;</code></pre>
                                                                     </div>
                                                                     
                                                                     <!-- area_size_km2 -->
-                                                                    <div class="bg-gray-800 rounded-lg p-4 w-64">
+                                                                    <div class="bg-gray-800 rounded-lg p-4">
                                                                         <div class="text-sm font-medium text-white mb-2">area_size_km2</div>
                                                                         <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">FLOAT</div>
                                                                         <div class="grid grid-cols-3 gap-4 text-xs">
@@ -893,9 +902,9 @@ ORDER BY population_density DESC;</code></pre>
                                                                     </div>
                                                                     
                                                                     <!-- district_name -->
-                                                                    <div class="bg-gray-800 rounded-lg p-4 w-64">
+                                                                    <div class="bg-gray-800 rounded-lg p-4">
                                                                         <div class="text-sm font-medium text-white mb-2">district_name</div>
-                                                                        <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">VARCHAR(255)                                                                        </div>
+                                                                        <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">VARCHAR(255)</div>
                                                                         <div class="grid grid-cols-3 gap-4 text-xs">
                                                                             <div class="space-y-1">
                                                                                 <div class="text-gray-400">Count</div>
@@ -923,17 +932,9 @@ ORDER BY population_density DESC;</code></pre>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            <!-- POPULATION_DATA Section -->
-                                                            <div>
-                                                                <h3 class="text-sm font-medium text-gray-300 mb-4">POPULATION_DATA, with columns:</h3>
-                                                                <div class="overflow-x-auto">
-                                                                    <div class="flex gap-4 min-w-max">
+                                                                    
                                                                     <!-- population_id -->
-                                                                    <div class="bg-gray-800 rounded-lg p-4 w-64">
+                                                                    <div class="bg-gray-800 rounded-lg p-4">
                                                                         <div class="text-sm font-medium text-white mb-2">population_id</div>
                                                                         <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">INT</div>
                                                                         <div class="grid grid-cols-3 gap-4 text-xs">
@@ -964,40 +965,8 @@ ORDER BY population_density DESC;</code></pre>
                                                                         </div>
                                                                     </div>
                                                                     
-                                                                    <!-- grid_id -->
-                                                                    <div class="bg-gray-800 rounded-lg p-4 w-64">
-                                                                        <div class="text-sm font-medium text-white mb-2">grid_id</div>
-                                                                        <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">INT</div>
-                                                                        <div class="grid grid-cols-3 gap-4 text-xs">
-                                                                            <div class="space-y-1">
-                                                                                <div class="text-gray-400">Count</div>
-                                                                                <div class="text-gray-300">100</div>
-                                                                            </div>
-                                                                            <div class="space-y-1">
-                                                                                <div class="text-gray-400">Missing</div>
-                                                                                <div class="text-gray-300">0.0%</div>
-                                                                            </div>
-                                                                            <div class="space-y-1">
-                                                                                <div class="text-gray-400">Zeroes</div>
-                                                                                <div class="text-gray-300">0.0%</div>
-                                                                            </div>
-                                                                            <div class="space-y-1">
-                                                                                <div class="text-gray-400">Min</div>
-                                                                                <div class="text-gray-300">1</div>
-                                                                            </div>
-                                                                            <div class="space-y-1">
-                                                                                <div class="text-gray-400">Max</div>
-                                                                                <div class="text-gray-300">100</div>
-                                                                            </div>
-                                                                            <div class="space-y-1">
-                                                                                <div class="text-gray-400">Median</div>
-                                                                                <div class="text-gray-300">50.5</div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    
                                                                     <!-- population_count -->
-                                                                    <div class="bg-gray-800 rounded-lg p-4 w-64">
+                                                                    <div class="bg-gray-800 rounded-lg p-4">
                                                                         <div class="text-sm font-medium text-white mb-2">population_count</div>
                                                                         <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">INT</div>
                                                                         <div class="grid grid-cols-3 gap-4 text-xs">
@@ -1028,8 +997,8 @@ ORDER BY population_density DESC;</code></pre>
                                                                         </div>
                                                                     </div>
                                                                     
-                                                                    <!-- date -->
-                                                                    <div class="bg-gray-800 rounded-lg p-4 w-64">
+                                                                    <!-- date_time -->
+                                                                    <div class="bg-gray-800 rounded-lg p-4">
                                                                         <div class="text-sm font-medium text-white mb-2">date_time</div>
                                                                         <div class="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-3">DATETIME</div>
                                                                         <div class="grid grid-cols-3 gap-4 text-xs">
@@ -1058,9 +1027,6 @@ ORDER BY population_density DESC;</code></pre>
                                                                                 <div class="text-gray-300">NA</div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
-                                                                    
-                                                    
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2081,6 +2047,9 @@ ORDER BY population_density DESC;</code></pre>
                     queryTab.classList.remove('border-transparent', 'text-gray-400');
                     queryTabContent.classList.remove('hidden');
                 }
+                
+                // Initialize component action dropdown
+                initializeComponentActionDropdown();
             }
 
             // Add event listeners for Edit Component links
@@ -6296,7 +6265,6 @@ ORDER BY population_density DESC;</code></pre>
             if (finishBtn) {
                 finishBtn.addEventListener('click', function() {
                     // Handle component creation
-                    console.log('Creating component...');
                     if (createComponentModal) {
                         createComponentModal.classList.add('hidden');
                         document.body.style.overflow = '';
@@ -7045,6 +7013,45 @@ ORDER BY population_density DESC;</code></pre>
                 });
             }
         });
+
+        // Edit Component Modal Function (placeholder)
+        function openEditComponentModal() {
+            // TODO: Implement Edit Component modal
+        }
+
+        // Component Actions Dropdown Function
+        function initializeComponentActionDropdown() {
+            const componentDropdownBtn = document.getElementById('component-actions-dropdown-btn');
+            const componentDropdown = document.getElementById('component-actions-dropdown');
+            
+            if (componentDropdownBtn && componentDropdown) {
+                // Remove any existing event listener to avoid duplicates
+                componentDropdownBtn.removeEventListener('click', handleComponentDropdownClick);
+                
+                // Add the event listener
+                componentDropdownBtn.addEventListener('click', handleComponentDropdownClick);
+            }
+        }
+
+        // Separate function for component dropdown click handler
+        function handleComponentDropdownClick(event) {
+            event.stopPropagation();
+            
+            const componentDropdown = document.getElementById('component-actions-dropdown');
+            if (componentDropdown) {
+                document.querySelectorAll('[id$="-dropdown"]').forEach(dropdown => {
+                    if (dropdown.id !== 'component-actions-dropdown') {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+                
+                componentDropdown.classList.toggle('hidden');
+            }
+        }
+
+        // Make functions global
+        window.openEditComponentModal = openEditComponentModal;
+        window.initializeComponentActionDropdown = initializeComponentActionDropdown;
     </script>
 
     <!-- Create Component Modal -->
@@ -8501,7 +8508,7 @@ ORDER BY population_density DESC;</code></pre>
                             <div class="flex items-center space-x-3">
                                 <div class="flex-1 relative">
                                     <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">search</span>
-                                    <input type="text" id="database-modal-search" class="w-full bg-gray-800 border border-gray-600 rounded-md pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Search database connections...">
+                                    <input type="text" id="database-modal-search" class="w-full bg-gray-800 border border-gray-600 rounded-md pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Search connections...">
                                 </div>
                                 <div class="relative">
                                     <button id="database-modal-filter-btn" class="flex items-center space-x-2 bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white hover:bg-gray-700 transition duration-200 h-[38px]">
@@ -8659,7 +8666,7 @@ ORDER BY population_density DESC;</code></pre>
                             <div class="flex items-center space-x-3">
                                 <div class="flex-1 relative">
                                     <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">search</span>
-                                    <input type="text" id="api-modal-search" class="w-full bg-gray-800 border border-gray-600 rounded-md pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Search API connections...">
+                                    <input type="text" id="api-modal-search" class="w-full bg-gray-800 border border-gray-600 rounded-md pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Search collections and requests...">
                                 </div>
                                 <div class="relative">
                                     <button id="api-modal-filter-btn" class="flex items-center space-x-2 bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white hover:bg-gray-700 transition duration-200 h-[38px]">
