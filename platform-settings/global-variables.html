@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billing - Platform Settings - Crimson</title>
+    <title>Global Variables - Platform Settings - Crimson</title>
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -106,7 +106,7 @@
                             </div>
                         </a>
                         
-                        <a href="global-variables.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
+                        <a href="global-variables.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 active">
                             <div class="flex items-center">
                                 <span class="material-symbols-outlined mr-3 text-lg">tune</span>
                                 Global Variables
@@ -141,7 +141,7 @@
                             </div>
                         </a>
                         
-                        <a href="billing.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 active">
+                        <a href="billing.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
                             <div class="flex items-center">
                                 <span class="material-symbols-outlined mr-3 text-lg">receipt_long</span>
                                 Billing
@@ -167,62 +167,59 @@
 
             <!-- Main Content Area -->
             <main class="flex-1 main-content-area">
-                <!-- Billing Tab Content -->
-                <div id="billing-content" class="tab-content" style="height: calc(100vh - 72px);">
+                <!-- Global Variables Tab Content -->
+                <div id="global-variables-content" class="tab-content" style="height: calc(100vh - 72px);">
                     <div class="flex w-full">
                         <!-- Main Content Area -->
                         <div class="flex-1 min-w-0 flex justify-center" style="margin-right: 256px;">
                             <div class="p-10 max-w-7xl w-full">
-                                <h2 class="text-2xl font-bold text-white mb-5">Billing & Subscriptions</h2>
+                                <h2 class="text-2xl font-bold text-white mb-5">Global Variables</h2>
                                 
                                 <!-- Internal Tabs -->
                                 <div class="border-b border-gray-700 mb-6">
                                     <nav class="flex space-x-6">
-                                        <button class="internal-tab-item pb-2 px-1 border-b-2 border-red-500 text-white font-medium text-sm" data-internal-tab="subscriptions">
-                                            Subscriptions
+                                        <button class="internal-tab-item pb-2 px-1 border-b-2 border-red-500 text-white font-medium text-sm" data-internal-tab="system">
+                                            System
                                         </button>
-                                        <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="invoices">
-                                            Invoices
-                                        </button>
-                                        <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="payment-methods">
-                                            Payment Methods
+                                        <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="custom">
+                                            Custom
                                         </button>
                                     </nav>
                                 </div>
                                 <div class="bg-gray-800 rounded-lg p-6">
-                                    <h3 class="text-lg font-semibold text-white mb-4">Billing Information</h3>
-                                    <p class="text-gray-400">Billing and subscription management will be implemented here.</p>
+                                    <h3 class="text-lg font-semibold text-white mb-4">Global Variables Configuration</h3>
+                                    <p class="text-gray-400">System and custom global variables will be managed here.</p>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Right Column - Billing Statistics -->
+                        <!-- Right Column - Global Variables Statistics -->
                         <div class="w-64 bg-gray-800 border-l border-gray-700 h-full fixed right-0 top-0 overflow-y-auto" style="height: calc(100vh - 72px); margin-top: 72px;">
                             <div class="p-4">
                                 <h3 class="text-md font-semibold text-white mb-4">Quick Stats</h3>
                                 <div class="space-y-4">
-                                    <!-- Current Plan -->
+                                    <!-- System Variables -->
                                     <div class="bg-gray-700 rounded-lg p-4">
                                         <div class="flex items-center">
-                                            <div class="w-10 h-10 flex items-center justify-center bg-green-600 rounded-lg">
-                                                <span class="material-symbols-outlined text-white text-xl">receipt_long</span>
+                                            <div class="w-10 h-10 flex items-center justify-center bg-blue-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">settings</span>
                                             </div>
                                             <div class="ml-4">
-                                                <p class="text-sm font-medium text-gray-400">Current Plan</p>
-                                                <p class="text-lg font-bold text-white">Enterprise</p>
+                                                <p class="text-sm font-medium text-gray-400">System Variables</p>
+                                                <p class="text-lg font-bold text-white">12</p>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <!-- Next Invoice -->
+                                    <!-- Custom Variables -->
                                     <div class="bg-gray-700 rounded-lg p-4">
                                         <div class="flex items-center">
-                                            <div class="w-10 h-10 flex items-center justify-center bg-blue-600 rounded-lg">
-                                                <span class="material-symbols-outlined text-white text-xl">schedule</span>
+                                            <div class="w-10 h-10 flex items-center justify-center bg-green-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">tune</span>
                                             </div>
                                             <div class="ml-4">
-                                                <p class="text-sm font-medium text-gray-400">Next Invoice</p>
-                                                <p class="text-lg font-bold text-white">Mar 15</p>
+                                                <p class="text-sm font-medium text-gray-400">Custom Variables</p>
+                                                <p class="text-lg font-bold text-white">8</p>
                                             </div>
                                         </div>
                                     </div>
@@ -382,4 +379,4 @@
     </script>
 
 </body>
-</html> 
+</html>
