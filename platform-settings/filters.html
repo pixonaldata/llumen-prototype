@@ -556,27 +556,34 @@
                                     
                                     <!-- Metadata -->
                                     <div class="pb-4 px-6">
-                                        <div class="grid grid-cols-3 gap-4 text-sm">
-                                            <div>
-                                                <div class="text-gray-500 mb-1">Field Name</div>
-                                                <div class="text-gray-300">date_range_filter</div>
+                                        <div class="flex items-start">
+                                            <div class="flex-1">
+                                                <div class="grid grid-cols-3 gap-4 text-sm">
+                                                    <div>
+                                                        <div class="text-gray-500 mb-1">Field Name</div>
+                                                        <div class="text-gray-300">date_range_filter</div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-gray-500 mb-1">Type</div>
+                                                        <div class="text-gray-300">DateRange</div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-gray-500 mb-1">Default Range</div>
+                                                        <div class="text-gray-300">Last 30 Days</div>
+                                                    </div>
+                                                    <div class="metadata-extra hidden">
+                                                        <div class="text-gray-500 mb-1">Created</div>
+                                                        <div class="text-gray-300">May 15, 2024 <span class="text-gray-500">(John Doe)</span></div>
+                                                    </div>
+                                                    <div class="metadata-extra hidden">
+                                                        <div class="text-gray-500 mb-1">Last Updated</div>
+                                                        <div class="text-gray-300">Aug 23, 2024 <span class="text-gray-500">(John Doe)</span></div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div class="text-gray-500 mb-1">Type</div>
-                                                <div class="text-gray-300">DateRange</div>
-                                            </div>
-                                            <div>
-                                                <div class="text-gray-500 mb-1">Default Range</div>
-                                                <div class="text-gray-300">Last 30 Days</div>
-                                            </div>
-                                            <div>
-                                                <div class="text-gray-500 mb-1">Created</div>
-                                                <div class="text-gray-300">May 15, 2024 <span class="text-gray-500">(John Doe)</span></div>
-                                            </div>
-                                            <div>
-                                                <div class="text-gray-500 mb-1">Last Updated</div>
-                                                <div class="text-gray-300">Aug 23, 2024 <span class="text-gray-500">(John Doe)</span></div>
-                                            </div>
+                                            <button id="expand-filter-metadata-btn" class="flex items-center h-11 ml-4 p-2 text-gray-400 hover:text-white transition duration-200">
+                                                <span class="material-symbols-outlined text-[24px]">expand_more</span>
+                                            </button>
                                         </div>
                                     </div>
                                     
@@ -586,7 +593,7 @@
                                             <button class="internal-tab-item pb-2 px-1 border-b-2 border-red-500 text-white font-medium text-sm" data-tab="configuration">Configuration</button>
                                             <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="validation">Validation</button>
                                             <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="usage-analytics">Usage Analytics</button>
-                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="permissions">Permissions</button>
+                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="permissions">Access</button>
                                         </nav>
                                     </div>
                                 </div>
@@ -595,28 +602,41 @@
                                 <div class="flex-1 overflow-y-auto">
                                     <!-- Configuration Tab -->
                                     <div id="filter-configuration-tab" class="filter-tab-content p-6">
+
+                                        <h4 class="text-sm font-semibold text-white mb-4">Configuration</h4>
+                                        
                                         <div class="space-y-6">
                                             <div>
                                                 <div class="space-y-4">
                                                     <div class="max-w-md">
                                                         <label class="block text-sm font-medium text-gray-300 mb-2">Default Date Range</label>
-                                                        <select class="w-full bg-gray-700 text-white rounded-md p-2 text-sm">
-                                                            <option selected>Not Selected</option>
-                                                            <option>Last 7 Days</option>
-                                                            <option>Last 30 Days</option>
-                                                            <option>Last 90 Days</option>
-                                                            <option>Last Year</option>
-                                                            <option>Custom Range</option>
-                                                        </select>
+                                                        <div class="relative">
+                                                            <select class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 pr-8 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none">
+                                                                <option selected>Not Selected</option>
+                                                                <option>Last 7 Days</option>
+                                                                <option>Last 30 Days</option>
+                                                                <option>Last 90 Days</option>
+                                                                <option>Last Year</option>
+                                                                <option>Custom Range</option>
+                                                            </select>
+                                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                                <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     <div class="max-w-md">
                                                         <label class="block text-sm font-medium text-gray-300 mb-2">Date Format</label>
-                                                        <select class="w-full bg-gray-700 text-white rounded-md p-2 text-sm">
-                                                            <option selected>MMM D, YYYY</option>
-                                                            <option>DD/MM/YYYY</option>
-                                                            <option>MM/DD/YYYY</option>
-                                                            <option>YYYY-MM-DD</option>
-                                                        </select>
+                                                        <div class="relative">
+                                                            <select class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 pr-8 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none">
+                                                                <option selected>MMM D, YYYY</option>
+                                                                <option>DD/MM/YYYY</option>
+                                                                <option>MM/DD/YYYY</option>
+                                                                <option>YYYY-MM-DD</option>
+                                                            </select>
+                                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                                <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -625,24 +645,37 @@
                                     
                                     <!-- Validation Tab -->
                                     <div id="filter-validation-tab" class="filter-tab-content p-6 hidden">
+
+                                        <h4 class="text-sm font-semibold text-white mb-4">Validation</h4>
+
                                         <div class="space-y-6">
                                             <div>
                                                 <div class="space-y-4">
                                                     <div class="max-w-md">
                                                         <label class="block text-sm font-medium text-gray-300 mb-2">Minimum Date</label>
-                                                        <select class="w-full bg-gray-700 text-white rounded-md p-2 text-sm">
-                                                            <option selected>No Minimum</option>
-                                                            <option>Today</option>
-                                                            <option>Custom Date</option>
-                                                        </select>
+                                                        <div class="relative">
+                                                            <select class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 pr-8 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none">
+                                                                <option selected>No Minimum</option>
+                                                                <option>Today</option>
+                                                                <option>Custom Date</option>
+                                                            </select>
+                                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                                <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     <div class="max-w-md">
                                                         <label class="block text-sm font-medium text-gray-300 mb-2">Maximum Date</label>
-                                                        <select class="w-full bg-gray-700 text-white rounded-md p-2 text-sm">
-                                                            <option>No Maximum</option>
-                                                            <option selected>Today</option>
-                                                            <option>Custom Date</option>
-                                                        </select>
+                                                        <div class="relative">
+                                                            <select class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 pr-8 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none">
+                                                                <option>No Maximum</option>
+                                                                <option selected>Today</option>
+                                                                <option>Custom Date</option>
+                                                            </select>
+                                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                                <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -651,7 +684,10 @@
                                     
                                     <!-- Usage Analytics Tab -->
                                     <div id="filter-usage-analytics-tab" class="filter-tab-content p-6 hidden">
-                                        <div class="space-y-6">
+
+                                        <h4 class="text-sm font-semibold text-white mb-4">Usage Analytics</h4>
+
+                                        <div class="space-y-4">
                                             <!-- Key Metrics -->
                                             <div class="grid grid-cols-2 gap-4">
                                                 <div class="bg-gray-800 rounded-lg p-4">
@@ -673,7 +709,7 @@
                                             </div>
                                             
                                             <!-- Charts -->
-                                            <div class="grid grid-cols-2 gap-6">
+                                            <div class="grid grid-cols-2 gap-4">
                                                 <!-- Usage Breakdown Chart -->
                                                 <div class="bg-gray-800 rounded-lg p-4">
                                                     <h3 class="text-sm font-medium text-gray-300 mb-4">Usage Breakdown</h3>
@@ -732,6 +768,20 @@
                                     
                                     <!-- Permissions Tab -->
                                     <div id="filter-permissions-tab" class="filter-tab-content p-6 hidden">
+
+                                        <h4 class="text-sm font-semibold text-white mb-4">Access</h4>
+
+                                        <!-- Add People/Workspaces Input and Invite Button -->
+                                        <div class="flex items-center space-x-3 mb-6">
+                                            <div class="flex-1">
+                                                <input type="text" placeholder="Add workspaces or people" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                            </div>
+                                            <button class="flex items-center space-x-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-md transition-colors duration-200">
+                                                <span class="material-symbols-outlined text-[20px]">add</span>
+                                                <span>Invite</span>
+                                            </button>
+                                        </div>
+
                                         <div class="space-y-4">
                                             <!-- Planning Section -->
                                             <div>
@@ -749,8 +799,8 @@
                                                             </div>
                                                         </div>
                                                         <div class="flex items-center space-x-2">
-                                                            <span class="text-xs text-gray-400">Full access</span>
-                                                            <span class="material-symbols-outlined text-gray-400 text-sm">expand_more</span>
+                                                            <span class="text-sm text-gray-400">Full access</span>
+                                                            <span class="material-symbols-outlined text-gray-400 text-[20px]">expand_more</span>
                                                         </div>
                                                     </div>
                                                     
@@ -763,8 +813,8 @@
                                                             </div>
                                                         </div>
                                                         <div class="flex items-center space-x-2">
-                                                            <span class="text-xs text-gray-400">Limited access</span>
-                                                            <span class="material-symbols-outlined text-gray-400 text-sm">expand_more</span>
+                                                            <span class="text-sm text-gray-400">Limited access</span>
+                                                            <span class="material-symbols-outlined text-gray-400 text-[20px]">expand_more</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -783,8 +833,8 @@
                                                             </div>
                                                         </div>
                                                         <div class="flex items-center space-x-2">
-                                                            <span class="text-xs text-gray-400">Limited access</span>
-                                                            <span class="material-symbols-outlined text-gray-400 text-sm">expand_more</span>
+                                                            <span class="text-sm text-gray-400">Limited access</span>
+                                                            <span class="material-symbols-outlined text-gray-400 text-[20px]">expand_more</span>
                                                         </div>
                                                     </div>
                                                     
@@ -797,8 +847,8 @@
                                                             </div>
                                                         </div>
                                                         <div class="flex items-center space-x-2">
-                                                            <span class="text-xs text-gray-400">View only</span>
-                                                            <span class="material-symbols-outlined text-gray-400 text-sm">expand_more</span>
+                                                            <span class="text-sm text-gray-400">View only</span>
+                                                            <span class="material-symbols-outlined text-gray-400 text-[20px]">expand_more</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1348,6 +1398,25 @@
                     document.getElementById('filter-' + targetTab + '-tab').classList.remove('hidden');
                 });
             });
+
+            // Filter metadata expand/collapse functionality
+            const expandFilterMetadataBtn = document.getElementById('expand-filter-metadata-btn');
+            if (expandFilterMetadataBtn) {
+                expandFilterMetadataBtn.addEventListener('click', function() {
+                    const extraMetadata = document.querySelectorAll('.metadata-extra');
+                    const icon = this.querySelector('.material-symbols-outlined');
+                    
+                    if (extraMetadata[0] && extraMetadata[0].classList.contains('hidden')) {
+                        // Expand metadata
+                        extraMetadata.forEach(item => item.classList.remove('hidden'));
+                        icon.textContent = 'expand_less';
+                    } else {
+                        // Collapse metadata
+                        extraMetadata.forEach(item => item.classList.add('hidden'));
+                        icon.textContent = 'expand_more';
+                    }
+                });
+            }
 
         });
 
