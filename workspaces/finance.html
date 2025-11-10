@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llumen Prototype</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        /* Active state for sort dropdown options */
+        #story-sort-dropdown a.active {
+            background-color: #1f2937;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div id="crimson-app" class="bg-gray-900">
+        <header class="bg-gray-800 py-4 px-4 md:px-8 flex items-center justify-between shadow-lg sticky top-0 z-30">
+            <!-- Left-aligned group: Logo, divider, client logo, and navigation -->
+            <div class="flex items-center">
+                <a href="../index.html">
+                    <div class="w-9 h-9 flex items-center justify-center rounded-lg overflow-hidden">
+                        <svg viewBox="0 0 32 32" class="w-full h-full">
+                            <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" />
+                        </svg>
+                    </div>
+                </a>
+                <div class="h-9 border-l border-gray-600 ml-4"></div> <!-- Added ml-4 for spacing -->
+                <a href="../index.html">
+                    <div class="flex items-center justify-center px-3 py-1 rounded-lg bg-[#1a1a1a] text-white text-sm font-semibold h-9 ml-4"> <!-- Added ml-4 for spacing -->
+                        <span>Client Logo</span>
+                    </div>
+                </a>
+                <!-- New Navigation Menu - now directly next to client logo with controlled spacing -->
+                <!-- <nav class="flex items-center ml-4">
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-bold text-white transition duration-200">My Workspaces</a>
+                    <a href="explore.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">Explore</a>
+                </nav> -->
+                <div class="flex items-center bg-gray-700 rounded-lg w-[20rem] ml-4">
+                    <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
+                </div>
+            </div>
+
+            <!-- Right-aligned group of icons and user dropdown -->
+            <div class="flex items-center">
+                <!-- Create Dropdown -->
+                <div class="relative mr-4">
+                    <button id="create-dropdown-button" class="flex items-center bg-gray-700 hover:bg-gray-600 text-white transition duration-200 focus:outline-none px-3 pl-2.5 py-2 rounded-md">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span class="text-sm font-medium">Create</span>
+                    </button>
+                    <div id="create-dropdown-menu" class="options-dropdown-menu hidden">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Briefing'); return false;">Briefing</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Story'); return false;">Story</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Dashboard'); return false;">Dashboard</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Whiteboard'); return false;">Whiteboard</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Workspace</a>
+                    </div>
+                </div>
+
+                <!-- Replaced original search button with the search container -->
+                <div id="search-container" class="relative flex items-center mr-3 hidden">
+                    <button id="search-icon-button" class="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-400 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                    <div id="search-input-wrapper" class="absolute right-0 flex items-center bg-gray-700 rounded-full overflow-hidden transition-all duration-300 ease-in-out">
+                        <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" id="header-search-input" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
+                    </div>
+                </div>
+
+                <!-- Notification Icon Button with margin-left for spacing from search -->
+                <button class="notifications-button round-button mr-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </button>
+                
+                <!-- User Dropdown with specific margins -->
+                <div class="relative">
+                    <button id="user-dropdown-button" class="user-dropdown-button round-button bg-gray-600 hover:bg-gray-500">
+                        <span class="">J</span>
+                    </button>
+                    <div id="user-dropdown-menu" class="options-dropdown-menu hidden">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Account Settings</a>
+                        <a href="../platform-settings/overview.html" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Platform Settings</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Help</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav id="workspace-nav-bar" class="bg-gray-800 py-3 px-4 md:px-8 shadow-md sticky-nav flex items-center justify-center">
+            <div id="workspace-left-gradient-overlay" class="scroll-gradient-overlay left workspace-gradient-overlay">
+                <button id="scroll-left-button" class="workspace-scroll-button p-2 rounded-full text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+            </div>
+
+            <div id="workspace-buttons-container" class="flex-grow flex overflow-x-auto whitespace-nowrap space-x-2 sm:space-x-4 scrollbar-hide py-1">
+                <!-- New "Create Workspace" Button -->
+                <!-- <button class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 relative group"
+                        id="create-workspace-button" data-tooltip="Create Workspace">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                </button>
+
+                <div class="h-8 border-l border-gray-600 mx-2"></div> -->
+
+                <a href="../index.html" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>All</span>
+                </a>
+                <a href="private.html" data-workspace="Private" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Private</span>
+                </a>
+                <a href="shared.html" data-workspace="Shared with Me" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Shared with Me</span>
+                </a>
+
+                <div class="h-8 border-l border-gray-600 mx-2"></div> <!-- Separator after Shared with Me (h-7 for 1.75rem, to match button height) -->
+                
+                <a href="finance.html" data-workspace="Finance" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-red-600 active transition duration-200 text-sm">
+                    <span>Finance</span>
+                </a>
+                <a href="finance.html" data-workspace="Operations" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Operations</span>
+                </a>
+                <a href="finance.html" data-workspace="HR" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>HR</span>
+                </a>
+                <a href="finance.html" data-workspace="Sales" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Sales</span>
+                </a>
+                <a href="finance.html" data-workspace="Marketing" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Marketing</span>
+                </a>
+                <a href="finance.html" data-workspace="IT" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>IT</span>
+                </a>
+                <a href="finance.html" data-workspace="Product" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Product</span>
+                </a>
+                <a href="finance.html" data-workspace="Engineering" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Engineering</span>
+                </a>
+                <a href="finance.html" data-workspace="Customer Success" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Customer Success</span>
+                </a>
+            </div>
+
+            <div id="workspace-right-gradient-overlay" class="scroll-gradient-overlay right workspace-gradient-overlay">
+                <button id="scroll-right-button" class="workspace-scroll-button p-2 rounded-full text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </nav>
+
+        <main class="flex-grow z-10">
+
+            <div class="workspace-header body-bg-color px-4 py-3 md:px-8 md:py-6 pb-0 md:pb-0 border-b border-gray-800">
+
+                <div class="flex items-center justify-between mb-6 space-x-6">
+                    <div class="flex items-center space-x-4">
+                        <h2 class="flex items-center text-xl md:text-2xl font-bold text-white">
+                            <span class="material-symbols-outlined mr-3 text-[24px]">workspaces</span>
+                            Finance
+                        </h2>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                            <span class="material-symbols-outlined mr-2" style="font-size: 20px;">people</span>
+                            26
+                        </button>
+                        <div class="relative">
+                            <button id="database-actions-dropdown-btn" class="options-dropdown-button">
+                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                            </button>
+                            <div class="options-dropdown-menu w-36 hidden">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit Workspace</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Members</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Settings</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="flex space-x-6">
+                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-red-500 text-white font-medium text-sm" data-internal-tab="overview">Overview</button>
+                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="briefings">Briefings</button>
+                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="stories">Stories</button>
+                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="dashboards">Dashboards</button>
+                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="whiteboards">Whiteboards</button>
+                </nav>
+
+            </div>
+
+            <div id="overview-tab-content" class="workspace-tab-content p-4 md:p-8">
+
+                <section class="mb-8">
+
+                    <div class="flex justify-between items-center mb-4 space-x-6">
+                        <h2 class="text-lg md:text-xl font-bold text-white">Latest Briefings</h2>
+                        <div class="flex items-center space-x-4">
+                            <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 pl-2.5 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                <span class="material-symbols-outlined mr-2" style="font-size: 20px;">add</span>
+                                Briefing
+                            </button>
+                            <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center" data-internal-tab="briefings">
+                                <span class="material-symbols-outlined mr-2" style="font-size: 20px;">visibility</span>
+                                All Briefings
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <div id="briefings-left-gradient-overlay" class="scroll-gradient-overlay left">
+                            <button id="briefings-scroll-left-button" class="briefings-scroll-button p-2 rounded-full text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+                        </div>
+                        <div id="briefings-scroll-container" class="flex overflow-x-auto space-x-4 scrollbar-hide">
+                            <!-- New "Create Briefing" Card -->
+                            <div class="briefings-card-outer flex-shrink-0 w-48 h-64 cursor-pointer" onclick="alertMessage('Creating a new briefing (simulated)...', 'info')">
+                                <div class="absolute inset-0 rounded-lg shadow-lg bg-gray-700 flex flex-col items-center justify-center text-white p-4 hover:bg-gray-600 transition duration-300">
+                                    <svg class="w-14 h-14 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path></svg>
+                                    <p class="text-sm text-gray-300 text-center">Create Briefing</p>
+                                </div>
+                            </div>
+                            <!-- Briefing Card 1 - Alert -->
+                            <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Supply Chain Alert: Critical Component Shortage...', 'info')">
+                                <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-red-800 to-red-950">
+                                    <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                    <!-- Tag for Briefing Card 1 -->
+                                    <div class="absolute top-3 left-3 bg-transparent border border-red-600 text-red-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                        <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        Alert
+                                    </div>
+                                    <div class="relative p-4 flex flex-col justify-end h-full">
+                                        <h3 class="text-xl font-semibold text-white line-clamp-2">Supply Chain Alert: Critical Component Shortage</h3>
+                                        <p class="text-xs text-gray-300 mt-1">2 hours ago</p>
+                                        <!-- Options Dropdown -->
+                                        <div class="absolute top-2 right-2 z-20">
+                                            <button class="options-dropdown-button">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                            </button>
+                                            <div class="options-dropdown-menu w-8 hidden">
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Briefing Card 2 - Report (Finance) -->
+                            <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Market Volatility Impact on Q3 Forecasts...', 'info')">
+                                <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-yellow-800 to-yellow-950">
+                                    <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                    <!-- Tag for Briefing Card 2 -->
+                                    <div class="absolute top-3 left-3 bg-transparent border border-yellow-600 text-yellow-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                        <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Report
+                                    </div>
+                                    <div class="relative p-4 flex flex-col justify-end h-full">
+                                        <h3 class="text-xl font-semibold text-white line-clamp-2">Market Volatility Impact on Q3 Forecasts</h3>
+                                        <p class="text-xs text-gray-300 mt-1">Yesterday</p>
+                                        <!-- Options Dropdown -->
+                                        <div class="absolute top-2 right-2 z-20">
+                                            <button class="options-dropdown-button">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                            </button>
+                                            <div class="options-dropdown-menu w-8 hidden">
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Briefing Card 3 - Feedback -->
+                            <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Employee Feedback: Key Takeaways & Action Plans...', 'info')">
+                                <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-emerald-800 to-green-950">
+                                    <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                    <!-- Tag for Briefing Card 3 -->
+                                    <div class="absolute top-3 left-3 bg-transparent border border-green-600 text-green-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                        <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                                        Feedback
+                                    </div>
+                                    <div class="relative p-4 flex flex-col justify-end h-full">
+                                        <h3 class="text-xl font-semibold text-white line-clamp-2">Employee Feedback: Key Takeaways & Action Plans</h3>
+                                        <p class="text-xs text-gray-300 mt-1">3 days ago</p>
+                                        <!-- Options Dropdown -->
+                                        <div class="absolute top-2 right-2 z-20">
+                                            <button class="options-dropdown-button">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                            </button>
+                                            <div class="options-dropdown-menu w-8 hidden">
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Briefing Card 4 - Report (Sales) -->
+                            <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Q1 Lead Generation: Performance & Strategy...', 'info')">
+                                <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-yellow-800 to-yellow-950">
+                                    <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                    <!-- Tag for Briefing Card 4 -->
+                                    <div class="absolute top-3 left-3 bg-transparent border border-yellow-600 text-yellow-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                        <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Report
+                                    </div>
+                                    <div class="relative p-4 flex flex-col justify-end h-full">
+                                        <h3 class="text-xl font-semibold text-white line-clamp-2">Q1 Lead Generation: Performance & Strategy</h3>
+                                        <p class="text-xs text-gray-300 mt-1">1 week ago</p>
+                                        <!-- Options Dropdown -->
+                                        <div class="absolute top-2 right-2 z-20">
+                                            <button class="options-dropdown-button">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                            </button>
+                                            <div class="options-dropdown-menu w-8 hidden">
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Briefing Card 5 - Update -->
+                            <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for System Upgrade: Upcoming Changes and Benefits...', 'info')">
+                                <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-blue-800 to-blue-950">
+                                    <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                    <!-- Tag for Briefing Card 5 -->
+                                    <div class="absolute top-3 left-3 bg-transparent border border-blue-600 text-blue-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                        Update
+                                    </div>
+                                    <div class="relative p-4 flex flex-col justify-end h-full">
+                                        <h3 class="text-xl font-semibold text-white line-clamp-2">System Upgrade: Upcoming Changes and Benefits</h3>
+                                        <p class="text-xs text-gray-300 mt-1">4 days ago</p>
+                                        <!-- Options Dropdown -->
+                                        <div class="absolute top-2 right-2 z-20">
+                                            <button class="options-dropdown-button">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                            </button>
+                                            <div class="options-dropdown-menu w-8 hidden">
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Briefing Card 6 - Report (Marketing) -->
+                            <div class="briefings-card-outer flex-shrink-0 w-48 h-64" onclick="alertMessage('Viewing details for Campaign Performance: Deep Dive into Q1 Results...', 'info')">
+                                <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-yellow-800 to-yellow-950">
+                                    <img src="https://placehold.co/192x256/333/fff?text=Briefing+Thumbnail" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                    <!-- Tag for Briefing Card 6 -->
+                                    <div class="absolute top-3 left-3 bg-transparent border border-yellow-600 text-yellow-600 text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                        <svg class="w-4 h-4 mr-1 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Report
+                                    </div>
+                                    <div class="relative p-4 flex flex-col justify-end h-full">
+                                        <h3 class="text-xl font-semibold text-white line-clamp-2">Campaign Performance: Deep Dive into Q1 Results</h3>
+                                        <p class="text-xs text-gray-300 mt-1">6 days ago</p>
+                                        <!-- Options Dropdown -->
+                                        <div class="absolute top-2 right-2 z-20">
+                                            <button class="options-dropdown-button">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                            </button>
+                                            <div class="options-dropdown-menu w-8 hidden">
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="briefings-right-gradient-overlay" class="scroll-gradient-overlay right">
+                            <button id="briefings-scroll-right-button" class="briefings-scroll-button p-2 rounded-full text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+    
+                <section class="mb-8">
+
+                    <div class="flex justify-between items-center mb-4 space-x-6">
+                        <h2 class="text-lg md:text-xl font-bold text-white">Latest Stories</h2>
+                        <div class="flex items-center space-x-4">
+                            <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 pl-2.5 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                            <span class="material-symbols-outlined mr-2" style="font-size: 20px;">add</span>Story</button>
+                            <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center" data-internal-tab="stories">
+                                <span class="material-symbols-outlined mr-2" style="font-size: 20px;">visibility</span>
+                                All Stories
+                            </button>
+                        </div>
+                    </div>
+    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
+                            <img src="https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Story</span>
+                                    <span class="num-sections"></span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
+                            <img src="https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Employee Engagement Trends 2024: Key Insights and Retention Strategies</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Story</span>
+                                    <span class="num-sections"></span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
+                            <img src="https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">2025 Marketing Strategy Overview: Key Initiatives and Anticipated Impact Analysis</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Story</span>
+                                    <span class="num-sections"></span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
+                            <img src="https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Story</span>
+                                    <span class="num-sections"></span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+    
+                </section>
+    
+                <section class="mb-8">
+
+                    <div class="flex justify-between items-center mb-4 space-x-6">
+                        <h2 class="text-lg md:text-xl font-bold text-white">Latest Dashboards</h2>
+                        <div class="flex items-center space-x-4">
+                            <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 pl-2.5 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                <span class="material-symbols-outlined mr-2" style="font-size: 20px;">add</span>
+                                Dashboard
+                            </button>
+                            <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center" data-internal-tab="dashboards">
+                                <span class="material-symbols-outlined mr-2" style="font-size: 20px;">visibility</span>
+                                All Dashboards
+                            </button>
+                        </div>
+                    </div>
+    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                            <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Operations Dashboard: Live KPIs and Key Supply Chain Updates for the Quarter</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Dashboard</span>
+                                    <span>4 Pages</span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                            <img src="https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Monthly Sales Performance: Detailed Regional Breakdowns and Future Forecasts</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Dashboard</span>
+                                    <span>3 Pages</span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                            <img src="https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">IT Infrastructure Monitoring: Real-time Network Health and Security Alerts</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Dashboard</span>
+                                    <span>5 Pages</span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                            <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Operations Dashboard: Live KPIs and Key Supply Chain Updates for the Quarter</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Dashboard</span>
+                                    <span>4 Pages</span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                </section>
+    
+                <section class="mb-8">
+
+                    <div class="flex justify-between items-center mb-4 space-x-6">
+                        <h2 class="text-lg md:text-xl font-bold text-white">Latest Whiteboards</h2>
+                        <div class="flex items-center space-x-4">
+                            <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 pl-2.5 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                <span class="material-symbols-outlined mr-2" style="font-size: 20px;">add</span>
+                                Whiteboard
+                            </button>
+                            <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center" data-internal-tab="whiteboards">
+                                <span class="material-symbols-outlined mr-2" style="font-size: 20px;">visibility</span>
+                                All Whiteboards
+                            </button>
+                        </div>
+                    </div>
+    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                            <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+canvas" alt="Whiteboard Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Q2 Performace Planning</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Whiteboard</span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                            <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+canvas" alt="Whiteboard Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Cash Flow Analysis</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Whiteboard</span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                            <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+canvas" alt="Whiteboard Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Valuation</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Whiteboard</span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
+                            <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+canvas" alt="Whiteboard Thumbnail" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="text-xl font-semibold text-white line-clamp-2">Solvency Ratios</h3>
+                                <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                    <span>Whiteboard</span>
+                                </div>
+                                <!-- Options Dropdown -->
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                </section>
+
+            </div>
+
+            <div id="briefings-tab-content" class="workspace-tab-content p-4 md:p-8 hidden">
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">Briefings Tab Content</h3>
+                    <p class="text-gray-400">Briefings tab content will be implemented here.</p>
+                </div>
+            </div>
+
+            <div id="stories-tab-content" class="workspace-tab-content hidden">
+                <!-- Stories Table -->
+                <div class="px-6 py-4 border-b border-gray-800">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-bold text-white">Stories</h2>
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <input type="text" id="stories-search-input" placeholder="Search stories..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
+                                <button id="stories-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
+                                    <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+                                </button>
+                                <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
+                            </div>
+                            <button id="create-story-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md transition duration-200 text-sm flex items-center">
+                                <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
+                                Create Story
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filters Row -->
+                <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+                    <div class="flex flex-wrap gap-4">
+                        <div class="flex flex-wrap gap-4">
+                            <!-- Status Filter -->
+                            <div class="relative">
+                                <button id="story-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                    <span class="material-symbols-outlined mr-2">filter_alt</span>
+                                    <span class="selected-value mr-1">Status</span>
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                    <span id="story-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                    </span>
+                                </button>
+                                <div id="story-status-filter-dropdown" class="options-dropdown-menu w-34 left hidden">
+                                    <label class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Draft" class="mr-2"> Draft
+                                    </label>
+                                    <label class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Published" class="mr-2"> Published
+                                    </label>
+                                    <label class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Unpublished" class="mr-2"> Unpublished
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Clear All Filters Button -->
+                        <button id="clear-all-story-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
+                            <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
+                            Clear All Filters
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button id="story-sort-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                            <span class="material-symbols-outlined mr-2">sort</span>
+                            <span class="sort-selected-value mr-1">Default</span>
+                            <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                            <span id="story-sort-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Sort">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                            </span>
+                        </button>
+                        <div id="story-sort-dropdown" class="options-dropdown-menu w-8 hidden">
+                            <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150" data-sort="default">Default</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150" data-sort="last-updated">Last Updated</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150" data-sort="title-asc">Title (A-Z)</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150" data-sort="title-desc">Title (Z-A)</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table id="stories-table" class="w-full">
+                        <thead class="border-b border-gray-800">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">Story</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Status</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Content</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Last Updated</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-1"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="stories-content" class="divide-y divide-gray-800 border-b border-gray-800">
+                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                            <img src="https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-white">Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Published</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm text-gray-300">14 Sections</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                    2 hours ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="relative">
+                                        <button class="options-dropdown-button">
+                                            <span class="material-symbols-outlined text-lg">more_vert</span>
+                                        </button>
+                                        <div id="story-dropdown-1" class="options-dropdown-menu w-8 hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                            <img src="https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-white">Employee Engagement Trends 2024: Key Insights and Retention Strategies</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Published</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm text-gray-300">17 Sections</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                    1 day ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="relative">
+                                        <button class="options-dropdown-button">
+                                            <span class="material-symbols-outlined text-lg">more_vert</span>
+                                        </button>
+                                        <div id="story-dropdown-2" class="options-dropdown-menu w-8 hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                            <img src="https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-white">2025 Marketing Strategy Overview: Key Initiatives and Anticipated Impact Analysis</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-900 text-yellow-300">Unpublished</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm text-gray-300">14 Sections</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                    3 days ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="relative">
+                                        <button class="options-dropdown-button">
+                                            <span class="material-symbols-outlined text-lg">more_vert</span>
+                                        </button>
+                                        <div id="story-dropdown-3" class="options-dropdown-menu w-8 hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                            <img src="https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-white">Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-600 text-white">Draft</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm text-gray-300">12 Sections</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                    1 week ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="relative">
+                                        <button class="options-dropdown-button">
+                                            <span class="material-symbols-outlined text-lg">more_vert</span>
+                                        </button>
+                                        <div id="story-dropdown-4" class="options-dropdown-menu w-8 hidden">
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- No matches message -->
+                <div id="no-story-matches-message" class="px-6 py-8 text-center text-gray-400 hidden">
+                    <p>No stories match your search criteria.</p>
+                </div>
+            </div>
+
+            <div id="dashboards-tab-content" class="workspace-tab-content p-4 md:p-8 hidden">
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">Dashboards Tab Content</h3>
+                    <p class="text-gray-400">Dashboards tab content will be implemented here.</p>
+                </div>
+            </div>
+
+            <div id="whiteboards-tab-content" class="workspace-tab-content p-4 md:p-8 hidden">
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">Whiteboards Tab Content</h3>
+                    <p class="text-gray-400">Whiteboards tab content will be implemented here.</p>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Create Content Modal -->
+    <div id="create-content-modal" class="fixed inset-0 bg-black p-10 bg-opacity-50 flex justify-center items-start z-50 hidden">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-h-full max-w-[680px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 id="create-content-modal-title" class="text-xl font-semibold text-white">Create</h2>
+                    <button id="close-create-content-modal" class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div id="create-content-modal-content" class="flex-1 overflow-y-auto p-6">
+                <p id="create-content-modal-description" class="text-gray-300 font-semibold mb-6">Select a Workspace to proceed</p>
+                
+                <!-- Private Section -->
+                <div>
+                    <a href="#" id="private-workspace-link" class="block w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 transition duration-200 text-white flex items-center">
+                        <span class="material-symbols-outlined mr-3" style="font-size: 20px;">lock</span>
+                        <span class="text-sm font-medium">Private</span>
+                    </a>
+                </div>
+
+                <!-- Workspaces Section -->
+                <div>
+                    <div class="border-t border-gray-700 my-4"></div>
+                    <div id="workspaces-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Workspace links will be dynamically generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-700">
+                <div class="flex items-center justify-end space-x-3">
+                    <button type="button" id="cancel-create-content" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="ai-chat-button" class="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-3 rounded-full shadow-lg transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400 z-50">
+        <!-- Chat Bubble Icon SVG -->
+         <img src="../ai-icon.svg" alt="AI Chat Icon" class="w-6 h-6" />
+        <!-- <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        </svg> -->
+    </button>
+
+    <div id="ai-chat-window" class="fixed bg-gray-800 rounded-xl shadow-2xl flex overflow-hidden transition-all duration-300 ease-in-out z-50">
+        <div id="chat-content-wrapper" class="flex flex-col flex-shrink-0 w-80 h-full">
+            <div class="bg-gray-700 p-3 flex items-center justify-between">
+                <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
+                <div class="flex space-x-2">
+                    <button id="expand-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><path d="M21 3 14 10"></path><path d="M3 21 10 14"></path></svg>
+                    </button>
+                    <button id="close-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
+                <div class="flex justify-start">
+                    <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%]">
+                        Hello! I'm Lumen. How can I help you today?
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg max-w-[80%]">
+                        Show me the latest Q2 Finance story.
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-700 flex items-center">
+                <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm placeholder-gray-400">
+                <button id="send-chat-button" class="ml-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400" disabled>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="ai-panel-separator" class="hidden"></div>
+
+        <div id="ai-interactive-panel" class="relative flex-shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out bg-gray-900 rounded-xl shadow-inner">
+            <div class="panel-header p-3 flex items-center justify-between rounded-tr-xl">
+                <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
+                <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg>
+                </button>
+            </div>
+            <div id="interactive-panel-content" class="flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
+                <p>Interactive content will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/ai-chat.js"></script>
+    <script src="../js/create-content-modal.js"></script>
+
+    <script>
+        console.log("Script loaded and starting..."); // Added for debugging
+
+        // Utility for toggling dropdowns with mutual exclusivity
+        function setupDropdown(buttonId, menuId, otherMenuId) {
+            const button = document.getElementById(buttonId);
+            const menu = document.getElementById(menuId);
+            const otherMenu = otherMenuId ? document.getElementById(otherMenuId) : null;
+
+            if (button && menu) {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent document click from immediately closing
+                    const wasHidden = menu.classList.contains('hidden');
+                    
+                    // Close the other dropdown if it exists
+                    if (otherMenu && !otherMenu.classList.contains('hidden')) {
+                        otherMenu.classList.add('hidden');
+                    }
+                    
+                    // Toggle this dropdown
+                    if (wasHidden) {
+                        menu.classList.remove('hidden');
+                    } else {
+                        menu.classList.add('hidden');
+                    }
+                });
+
+                // Close dropdown if clicked outside
+                document.addEventListener('click', (event) => {
+                    if (!button.contains(event.target) && !menu.contains(event.target)) {
+                        menu.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        // Setup User Dropdown (with reference to Create dropdown)
+        setupDropdown('user-dropdown-button', 'user-dropdown-menu', 'create-dropdown-menu');
+
+        // Setup Create Dropdown (with reference to User dropdown)
+        setupDropdown('create-dropdown-button', 'create-dropdown-menu', 'user-dropdown-menu');
+
+
+        // Custom message box function instead of alert()
+        function alertMessage(message, type = "info") {
+            const container = document.getElementById('crimson-app');
+            let messageBox = document.getElementById('message-box');
+
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'message-box';
+                messageBox.className = 'fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
+                container.appendChild(messageBox);
+            }
+
+            // Set styles based on type
+            let bgColor = '';
+            switch (type) {
+                case 'success':
+                    bgColor = 'bg-green-500';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-500';
+                    break;
+                case 'info':
+                default:
+                    bgColor = 'bg-blue-500';
+                    break;
+            }
+
+            messageBox.className = `fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
+            messageBox.textContent = message;
+
+            // Show animation
+            setTimeout(() => {
+                messageBox.classList.remove('scale-0', 'opacity-0');
+                messageBox.classList.add('scale-100', 'opacity-100');
+            }, 50);
+
+            // Hide animation after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.remove('scale-100', 'opacity-100');
+                messageBox.classList.add('scale-0', 'opacity-0');
+                // Remove message box from DOM after transition
+                messageBox.addEventListener('transitionend', function handler() {
+                    if (messageBox.parentNode) {
+                        messageBox.parentNode.removeChild(messageBox);
+                    }
+                    messageBox.removeEventListener('transitionend', handler);
+                });
+            }, 3000);
+        }
+
+
+        // Function to generate a random number between min and max (inclusive)
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Update all story cards with random sections on load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.story-card-container .num-sections').forEach(span => {
+                span.textContent = `${getRandomInt(12, 20)} Sections`;
+            });
+            // Initial check for scroll button visibility on load
+            updateScrollButtons();
+            updateBriefingsScrollButtons();
+            updateExpandCollapseButton();
+            sendChatButton.disabled = true;
+        });
+
+
+        // Workspace Horizontal Scrolling Logic
+        const workspaceButtonsContainer = document.getElementById('workspace-buttons-container');
+        const workspaceLeftGradientOverlay = document.getElementById('workspace-left-gradient-overlay');
+        const workspaceRightGradientOverlay = document.getElementById('workspace-right-gradient-overlay');
+
+        const scrollStep = 150; // Pixels to scroll per arrow click
+        const scrollEndTolerance = 5; // Pixels from end to consider it "at the end" for hiding overlays
+
+        // Function to update the hidden state of scroll buttons
+        function updateScrollButtons() {
+            if (!workspaceButtonsContainer || !workspaceLeftGradientOverlay || !workspaceRightGradientOverlay) return;
+
+            const { scrollLeft, scrollWidth, clientWidth } = workspaceButtonsContainer;
+            const maxScrollLeft = scrollWidth - clientWidth;
+
+            const isScrollable = scrollWidth > clientWidth;
+
+            // Determine if at the left or right end with tolerance
+            const atLeftEnd = scrollLeft <= scrollEndTolerance;
+            const atRightEnd = scrollLeft >= (maxScrollLeft - scrollEndTolerance);
+
+            // Hide/show left gradient overlay for WORKSPACE
+            workspaceLeftGradientOverlay.classList.toggle('hidden', !isScrollable || atLeftEnd);
+            workspaceLeftGradientOverlay.style.pointerEvents = (!isScrollable || atLeftEnd) ? 'none' : 'all';
+
+            // Hide/show right gradient overlay for WORKSPACE
+            workspaceRightGradientOverlay.classList.toggle('hidden', !isScrollable || atRightEnd);
+            workspaceRightGradientOverlay.style.pointerEvents = (!isScrollable || atRightEnd) ? 'none' : 'all';
+        }
+
+        // Event listeners for arrow buttons
+        document.getElementById('scroll-left-button').addEventListener('click', () => {
+            workspaceButtonsContainer.scrollBy({
+                left: -scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        document.getElementById('scroll-right-button').addEventListener('click', () => {
+            workspaceButtonsContainer.scrollBy({
+                left: scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        // Add scroll event listener to update buttons when scrolling
+        workspaceButtonsContainer.addEventListener('scroll', updateScrollButtons);
+
+        // Recalculate button states on window resize.
+        window.addEventListener('resize', updateScrollButtons);
+
+
+        // Briefings Horizontal Scrolling Logic
+        const briefingsScrollContainer = document.getElementById('briefings-scroll-container');
+        const briefingsLeftGradientOverlay = document.getElementById('briefings-left-gradient-overlay');
+        const briefingsRightGradientOverlay = document.getElementById('briefings-right-gradient-overlay');
+
+        function updateBriefingsScrollButtons() {
+            if (!briefingsScrollContainer || !briefingsLeftGradientOverlay || !briefingsRightGradientOverlay) return;
+
+            const { scrollLeft, scrollWidth, clientWidth } = briefingsScrollContainer;
+            const maxScrollLeft = scrollWidth - clientWidth;
+
+            const isScrollable = scrollWidth > clientWidth;
+
+            const atLeftEnd = scrollLeft <= scrollEndTolerance;
+            const atRightEnd = scrollLeft >= (maxScrollLeft - scrollEndTolerance);
+
+            // Hide/show left gradient overlay
+            briefingsLeftGradientOverlay.classList.toggle('hidden', !isScrollable || atLeftEnd);
+            briefingsLeftGradientOverlay.style.pointerEvents = (!isScrollable || atLeftEnd) ? 'none' : 'all';
+
+            // Hide/show right gradient overlay
+            briefingsRightGradientOverlay.classList.toggle('hidden', !isScrollable || atRightEnd);
+            briefingsRightGradientOverlay.style.pointerEvents = (!isScrollable || atRightEnd) ? 'none' : 'all';
+        }
+
+        // Event listeners for arrow buttons
+        document.getElementById('briefings-scroll-left-button').addEventListener('click', () => {
+            briefingsScrollContainer.scrollBy({
+                left: -scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        document.getElementById('briefings-scroll-right-button').addEventListener('click', () => {
+            briefingsScrollContainer.scrollBy({
+                left: scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        // Add scroll event listener to update buttons when scrolling
+        briefingsScrollContainer.addEventListener('scroll', updateBriefingsScrollButtons);
+
+        // Add scroll event listener to close open dropdowns on scroll
+        briefingsScrollContainer.addEventListener('scroll', () => {
+            if (openDropdownMenu && !openDropdownMenu.classList.contains('hidden')) {
+                openDropdownMenu.classList.add('hidden');
+                openDropdownMenu = null;
+            }
+        });
+
+        window.addEventListener('resize', updateBriefingsScrollButtons);
+
+        // Tooltip functionality for "Create Workspace" button
+        const createWorkspaceButton = document.getElementById('create-workspace-button');
+        let tooltipElement = null;
+        let tooltipTimeout = null;
+
+        function showTooltip(button, text) {
+            if (tooltipElement) {
+                tooltipElement.remove();
+                tooltipElement = null;
+            }
+
+            tooltipElement = document.createElement('div');
+            tooltipElement.className = 'tooltip';
+            tooltipElement.textContent = text;
+            document.body.appendChild(tooltipElement);
+
+            const rect = button.getBoundingClientRect();
+            const scrollX = window.scrollX || window.pageXOffset;
+            const scrollY = window.scrollY || window.pageYOffset;
+
+            tooltipElement.style.left = `${rect.left + scrollX}px`;
+            tooltipElement.style.top = `${rect.top + scrollY - tooltipElement.offsetHeight - 8}px`;
+            
+            requestAnimationFrame(() => {
+                tooltipElement.classList.add('show');
+            });
+        }
+
+        function hideTooltip() {
+            if (tooltipTimeout) {
+                clearTimeout(tooltipTimeout);
+                tooltipTimeout = null;
+            }
+            if (tooltipElement) {
+                tooltipElement.classList.remove('show');
+                tooltipElement.addEventListener('transitionend', function handler() {
+                    if (tooltipElement && !tooltipElement.classList.contains('show')) {
+                        tooltipElement.remove();
+                        tooltipElement = null;
+                        this.removeEventListener('transitionend', handler);
+                    }
+                });
+            }
+        }
+
+        if (createWorkspaceButton) {
+            createWorkspaceButton.addEventListener('mouseenter', () => {
+                tooltipTimeout = setTimeout(() => {
+                    showTooltip(createWorkspaceButton, createWorkspaceButton.dataset.tooltip);
+                }, 400);
+            });
+            createWorkspaceButton.addEventListener('mouseleave', hideTooltip);
+            createWorkspaceButton.addEventListener('click', () => {
+                alertMessage("Create Workspace functionality not implemented in prototype.", "info");
+            });
+        }
+
+        // Card Options Dropdown functionality
+        let openDropdownMenu = null;
+
+        document.addEventListener('click', (event) => {
+            if (openDropdownMenu) {
+                const targetButton = document.querySelector(`[data-dropdown-id="${openDropdownMenu.dataset.dropdownId}"]`);
+                if (targetButton && !targetButton.contains(event.target) && !openDropdownMenu.contains(event.target)) {
+                    openDropdownMenu.classList.add('hidden');
+                    openDropdownMenu = null;
+                }
+            }
+        });
+
+        let dropdownCounter = 0;
+
+        document.querySelectorAll('.options-dropdown-button').forEach(button => {
+            if (!button.dataset.dropdownId) {
+                button.dataset.dropdownId = `dropdown-${dropdownCounter++}`;
+            }
+
+            const menu = button.nextElementSibling;
+            // Ensure the menu also has the correct class for styling
+            menu.classList.add('options-dropdown-menu'); // Add this line to ensure it always has the class
+            menu.dataset.dropdownId = button.dataset.dropdownId;
+
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+
+                if (openDropdownMenu && openDropdownMenu !== menu) {
+                    openDropdownMenu.classList.add('hidden');
+                }
+
+                const wasHidden = menu.classList.contains('hidden');
+                if (wasHidden) {
+                    menu.classList.remove('hidden');
+                }
+                const menuWidth = menu.offsetWidth;
+                if (wasHidden) {
+                    menu.classList.add('hidden');
+                }
+
+                if (menu.classList.contains('hidden')) {
+                    document.body.appendChild(menu);
+
+                    const buttonRect = button.getBoundingClientRect();
+                    menu.style.position = 'absolute';
+                    menu.style.left = `${buttonRect.left + buttonRect.width + window.scrollX - menuWidth}px`;
+                    menu.style.top = `${buttonRect.bottom + window.scrollY + 5}px`;
+
+                    menu.classList.remove('hidden');
+                    openDropdownMenu = menu;
+                } else {
+                    menu.classList.add('hidden');
+                    openDropdownMenu = null;
+                }
+            });
+
+            menu.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+        });
+
+        // Animated Header Search Box Logic
+        const searchIconButton = document.getElementById('search-icon-button');
+        const searchInputWrapper = document.getElementById('search-input-wrapper');
+        const headerSearchInput = document.getElementById('header-search-input');
+
+        searchIconButton.addEventListener('click', () => {
+            searchInputWrapper.classList.add('is-active');
+            headerSearchInput.focus();
+            searchIconButton.classList.add('is-hidden');
+        });
+
+        headerSearchInput.addEventListener('blur', () => {
+            if (headerSearchInput.value.trim() === '') {
+                searchInputWrapper.classList.remove('is-active');
+                setTimeout(() => {
+                    if (!searchInputWrapper.classList.contains('is-active')) {
+                        searchIconButton.classList.remove('is-hidden');
+                    }
+                }, 300);
+            }
+        });
+
+        // Workspace Navbar sticky behavior on scroll
+        const workspaceNavBar = document.getElementById('workspace-nav-bar');
+        const workspaceNavBarHeight = workspaceNavBar.offsetHeight;
+        let lastScrollY = 0;
+        const mainHeader = document.querySelector('header');
+
+        // Initial update of --header-height CSS variable
+        document.documentElement.style.setProperty('--header-height', `${mainHeader.offsetHeight}px`);
+        document.documentElement.style.setProperty('--workspace-header-top', `${mainHeader.offsetHeight + workspaceNavBarHeight}px`);
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const headerHeight = mainHeader.offsetHeight;
+
+            // Update the CSS variable for sticky-nav top calculation
+            document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+            document.documentElement.style.setProperty('--workspace-header-top', `${headerHeight + workspaceNavBarHeight}px`);
+            // Check if scrolling past the header
+            if (currentScrollY > headerHeight) {
+                if (currentScrollY > lastScrollY) {
+                    // Scrolling down
+                    workspaceNavBar.classList.add('hidden-up');
+                    document.documentElement.style.setProperty('--workspace-header-top', `${headerHeight}px`);
+                } else {
+                    // Scrolling up
+                    workspaceNavBar.classList.remove('hidden-up');
+                    document.documentElement.style.setProperty('--workspace-header-top', `${headerHeight + workspaceNavBarHeight}px`);
+                }
+            } else {
+                // At or near the top, always show the nav bar
+                workspaceNavBar.classList.remove('hidden-up');
+                document.documentElement.style.setProperty('--workspace-header-top', `${headerHeight + workspaceNavBarHeight}px`);
+            }
+            lastScrollY = currentScrollY;
+        });
+
+        // Also update header height on resize in case it changes dynamically
+        window.addEventListener('resize', () => {
+            document.documentElement.style.setProperty('--header-height', `${mainHeader.offsetHeight}px`);
+            if (workspaceNavBar.classList.contains('hidden-up')) {
+                document.documentElement.style.setProperty('--workspace-header-top', `${mainHeader.offsetHeight}px`);
+            } else {
+                document.documentElement.style.setProperty('--workspace-header-top', `${mainHeader.offsetHeight + workspaceNavBarHeight}px`);
+            }
+            updateScrollButtons(); // Re-check horizontal scroll buttons too
+            updateBriefingsScrollButtons();
+        });
+
+
+        // Internal Tab Switching functionality
+        function switchInternalTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.workspace-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active styling from all tab buttons
+            document.querySelectorAll('.internal-tab-item').forEach(button => {
+                button.classList.remove('border-red-500', 'text-white');
+                button.classList.add('border-transparent', 'text-gray-400');
+            });
+
+            // Show selected tab content
+            const selectedTabContent = document.getElementById(`${tabName}-tab-content`);
+            if (selectedTabContent) {
+                selectedTabContent.classList.remove('hidden');
+            }
+
+            // Add active styling to clicked tab button
+            const clickedButton = document.querySelector(`[data-internal-tab="${tabName}"]`);
+            if (clickedButton) {
+                clickedButton.classList.remove('border-transparent', 'text-gray-400');
+                clickedButton.classList.add('border-red-500', 'text-white');
+            }
+        }
+
+        // Add event listeners to all internal tab buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            // Tab navigation buttons
+            const internalTabButtons = document.querySelectorAll('.internal-tab-item');
+            
+            internalTabButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tabName = button.dataset.internalTab;
+                    if (tabName) {
+                        switchInternalTab(tabName);
+                    }
+                });
+            });
+
+            // "All X" buttons in Overview tab content
+            const allContentButtons = document.querySelectorAll('[data-internal-tab]');
+            
+            allContentButtons.forEach(button => {
+                // Skip the navigation tab buttons (they're handled above)
+                if (!button.classList.contains('internal-tab-item')) {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const tabName = button.dataset.internalTab;
+                        if (tabName) {
+                            switchInternalTab(tabName);
+                        }
+                    });
+                }
+            });
+        });
+
+        // Stories Table Functionality - dropdowns are handled by the existing .options-dropdown-button system above
+
+        document.addEventListener('DOMContentLoaded', function() {
+        // Stories search functionality
+        const storiesSearchInput = document.getElementById('stories-search-input');
+        const storiesSearchClear = document.getElementById('stories-search-clear');
+        
+        if (storiesSearchInput && storiesSearchClear) {
+            storiesSearchInput.addEventListener('input', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+                filterStories();
+                
+                // Show/hide clear button based on input value
+                if (searchTerm.length > 0) {
+                    storiesSearchClear.style.display = 'flex';
+                } else {
+                    storiesSearchClear.style.display = 'none';
+                }
+            });
+
+            // Clear button functionality
+            storiesSearchClear.addEventListener('click', () => {
+                storiesSearchInput.value = '';
+                storiesSearchClear.style.display = 'none';
+                filterStories();
+                storiesSearchInput.focus();
+            });
+        }
+
+        function filterStories() {
+            const searchTerm = storiesSearchInput ? storiesSearchInput.value.toLowerCase() : '';
+            const rows = document.querySelectorAll('#stories-content tr');
+            const noMatchesMessage = document.getElementById('no-story-matches-message');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const storyText = row.textContent.toLowerCase();
+                const matchesSearch = searchTerm === '' || storyText.includes(searchTerm);
+                
+                // Check status filter
+                const statusCell = row.querySelector('td:nth-child(2)');
+                const statusBadge = statusCell ? statusCell.querySelector('span') : null;
+                const rowStatus = statusBadge ? statusBadge.textContent.trim() : '';
+                const matchesStatus = storyFilterStates.status.length === 0 || storyFilterStates.status.includes(rowStatus);
+                
+                const shouldShow = matchesSearch && matchesStatus;
+                row.style.display = shouldShow ? '' : 'none';
+                if (shouldShow) visibleCount++;
+            });
+            
+            // Show/hide no matches message
+            if ((searchTerm.length > 0 || storyFilterStates.status.length > 0) && visibleCount === 0) {
+                noMatchesMessage.classList.remove('hidden');
+            } else {
+                noMatchesMessage.classList.add('hidden');
+            }
+        }
+
+        // Stories filter functionality
+        const storyFilterButtons = ['story-status-filter-btn'];
+        const storyFilterDropdowns = ['story-status-filter-dropdown'];
+
+        // Initialize story filter states
+        const storyFilterStates = {
+            status: []
+        };
+
+        // Toggle story filter dropdowns
+        storyFilterButtons.forEach((btnId, index) => {
+            const button = document.getElementById(btnId);
+            if (button) {
+                const dropdown = document.getElementById(storyFilterDropdowns[index]);
+                
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    
+                    // Close other dropdowns
+                    storyFilterDropdowns.forEach((dropdownId, i) => {
+                        if (i !== index) {
+                            const otherDropdown = document.getElementById(dropdownId);
+                            if (otherDropdown) {
+                                otherDropdown.classList.add('hidden');
+                            }
+                        }
+                    });
+                    
+                    dropdown.classList.toggle('hidden');
+                });
+            }
+        });
+
+        // Handle story filter checkbox changes
+        document.querySelectorAll('#story-status-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                updateStoryFilterState('status', checkbox.value, checkbox.checked);
+                updateStoryFilterButton('story-status-filter-btn', storyFilterStates.status);
+                filterStories();
+            });
+        });
+
+        function updateStoryFilterState(filterType, value, checked) {
+            if (checked) {
+                if (!storyFilterStates[filterType].includes(value)) {
+                    storyFilterStates[filterType].push(value);
+                }
+            } else {
+                storyFilterStates[filterType] = storyFilterStates[filterType].filter(item => item !== value);
+            }
+        }
+
+        function updateStoryFilterButton(buttonId, selectedValues) {
+            const button = document.getElementById(buttonId);
+            if (!button) return;
+            
+            const buttonText = button.querySelector('.selected-value');
+            const clearBtnId = 'story-status-clear-btn';
+            const defaultText = 'Status';
+            
+            const clearBtn = document.getElementById(clearBtnId);
+            
+            if (selectedValues.length === 0) {
+                buttonText.textContent = defaultText;
+                if (clearBtn) clearBtn.classList.add('hidden');
+            } else {
+                buttonText.textContent = selectedValues.join(', ');
+                if (clearBtn) clearBtn.classList.remove('hidden');
+            }
+            
+            // Update "Clear All Filters" button visibility
+            updateStoryClearAllFiltersButton();
+        }
+
+        function updateStoryClearAllFiltersButton() {
+            const clearAllBtn = document.getElementById('clear-all-story-filters-btn');
+            if (!clearAllBtn) return;
+            
+            const hasAnyFilters = storyFilterStates.status.length > 0;
+            
+            if (hasAnyFilters) {
+                clearAllBtn.classList.remove('hidden');
+            } else {
+                clearAllBtn.classList.add('hidden');
+            }
+        }
+
+        // Clear individual story filter buttons
+        const storyStatusClearBtn = document.getElementById('story-status-clear-btn');
+        if (storyStatusClearBtn) {
+            storyStatusClearBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                clearStoryFilter('status');
+            });
+        }
+
+        // Clear all story filters button
+        const clearAllStoryFiltersBtn = document.getElementById('clear-all-story-filters-btn');
+        if (clearAllStoryFiltersBtn) {
+            clearAllStoryFiltersBtn.addEventListener('click', () => {
+                clearAllStoryFilters();
+            });
+        }
+
+        function clearStoryFilter(filterType) {
+            // Clear the filter state
+            storyFilterStates[filterType] = [];
+            
+            // Uncheck all checkboxes in the dropdown
+            document.querySelectorAll(`#story-${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Update the button text
+            updateStoryFilterButton(`story-${filterType}-filter-btn`, []);
+            
+            // Close the dropdown
+            const dropdown = document.getElementById(`story-${filterType}-filter-dropdown`);
+            if (dropdown) {
+                dropdown.classList.add('hidden');
+            }
+            
+            // Re-filter
+            filterStories();
+        }
+
+        function clearAllStoryFilters() {
+            // Clear all filter states
+            Object.keys(storyFilterStates).forEach(filterType => {
+                storyFilterStates[filterType] = [];
+                
+                // Uncheck all checkboxes in each dropdown
+                document.querySelectorAll(`#story-${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Update each button text
+                updateStoryFilterButton(`story-${filterType}-filter-btn`, []);
+            });
+            
+            // Close all filter dropdowns
+            storyFilterDropdowns.forEach(dropdownId => {
+                const dropdown = document.getElementById(dropdownId);
+                if (dropdown) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+            
+            // Re-filter
+            filterStories();
+        }
+
+        // Close story filter dropdowns when clicking outside
+        document.addEventListener('click', (event) => {
+            if (event.target.type === 'checkbox' || event.target.closest('label')) {
+                return;
+            }
+            
+            if (!event.target.closest('[id^="story-status-filter-"]') && !event.target.closest('button[id*="filter"]')) {
+                storyFilterDropdowns.forEach(dropdownId => {
+                    const dropdown = document.getElementById(dropdownId);
+                    if (dropdown) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+
+        // Story Sort Functionality
+        const storySortBtn = document.getElementById('story-sort-btn');
+        const storySortDropdown = document.getElementById('story-sort-dropdown');
+        let currentSort = 'default';
+
+        if (storySortBtn && storySortDropdown) {
+            // Toggle sort dropdown
+            storySortBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                
+                // Close other dropdowns
+                storyFilterDropdowns.forEach(dropdownId => {
+                    const dropdown = document.getElementById(dropdownId);
+                    if (dropdown) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+                
+                storySortDropdown.classList.toggle('hidden');
+            });
+
+            // Handle sort option clicks
+            storySortDropdown.querySelectorAll('a[data-sort]').forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const sortType = link.dataset.sort;
+                    currentSort = sortType;
+                    
+                    // Remove active class from all links
+                    storySortDropdown.querySelectorAll('a[data-sort]').forEach(l => {
+                        l.classList.remove('active');
+                    });
+                    // Add active class to selected link
+                    link.classList.add('active');
+                    
+                    // Update button text
+                    const sortValueSpan = storySortBtn.querySelector('.sort-selected-value');
+                    if (sortValueSpan) {
+                        sortValueSpan.textContent = link.textContent.trim();
+                    }
+                    
+                    // Show/hide clear button based on selection
+                    const sortClearBtn = document.getElementById('story-sort-clear-btn');
+                    if (sortClearBtn) {
+                        if (sortType === 'default') {
+                            sortClearBtn.classList.add('hidden');
+                        } else {
+                            sortClearBtn.classList.remove('hidden');
+                        }
+                    }
+                    
+                    // Close dropdown
+                    storySortDropdown.classList.add('hidden');
+                    
+                    // Apply sort
+                    sortStories(sortType);
+                });
+            });
+
+            // Handle clear button click
+            const sortClearBtn = document.getElementById('story-sort-clear-btn');
+            if (sortClearBtn) {
+                sortClearBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    
+                    // Reset to default
+                    currentSort = 'default';
+                    
+                    // Remove active class from all links
+                    storySortDropdown.querySelectorAll('a[data-sort]').forEach(l => {
+                        l.classList.remove('active');
+                    });
+                    // Add active class to default link
+                    const defaultLink = storySortDropdown.querySelector('a[data-sort="default"]');
+                    if (defaultLink) {
+                        defaultLink.classList.add('active');
+                    }
+                    
+                    // Update button text
+                    const sortValueSpan = storySortBtn.querySelector('.sort-selected-value');
+                    if (sortValueSpan) {
+                        sortValueSpan.textContent = 'Default';
+                    }
+                    
+                    // Hide clear button
+                    sortClearBtn.classList.add('hidden');
+                    
+                    // Apply default sort
+                    sortStories('default');
+                });
+            }
+            
+            // Set default option as active on page load
+            const defaultLink = storySortDropdown.querySelector('a[data-sort="default"]');
+            if (defaultLink) {
+                defaultLink.classList.add('active');
+            }
+
+            // Close sort dropdown when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!storySortBtn.contains(event.target) && !storySortDropdown.contains(event.target)) {
+                    storySortDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        // Store original order for default sort
+        let originalStoryOrder = [];
+
+        function sortStories(sortType) {
+            const tbody = document.getElementById('stories-content');
+            if (!tbody) return;
+            
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Store original order if not already stored
+            if (originalStoryOrder.length === 0 && rows.length > 0) {
+                originalStoryOrder = rows.map((row, index) => ({ row, index }));
+            }
+            
+            if (sortType === 'default') {
+                // Restore original order
+                if (originalStoryOrder.length > 0) {
+                    originalStoryOrder.sort((a, b) => a.index - b.index);
+                    originalStoryOrder.forEach(({ row }) => tbody.appendChild(row));
+                }
+                return;
+            }
+            
+            rows.sort((a, b) => {
+                switch(sortType) {
+                    case 'last-updated':
+                        // Sort by Last Updated (column 4)
+                        const timeA = parseTime(a.querySelector('td:nth-child(4)')?.textContent.trim() || '');
+                        const timeB = parseTime(b.querySelector('td:nth-child(4)')?.textContent.trim() || '');
+                        return timeA - timeB; // Most recent first (descending)
+                    
+                    case 'title-asc':
+                        // Sort by Title A-Z (column 1)
+                        const titleA = a.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent.trim() || '';
+                        const titleB = b.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent.trim() || '';
+                        return titleA.localeCompare(titleB);
+                    
+                    case 'title-desc':
+                        // Sort by Title Z-A (column 1)
+                        const titleAZ = a.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent.trim() || '';
+                        const titleBZ = b.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent.trim() || '';
+                        return titleBZ.localeCompare(titleAZ);
+                    
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Re-append rows in sorted order
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function parseTime(timeString) {
+            // Convert time strings like "2 hours ago", "1 day ago", "3 days ago", "1 week ago" to milliseconds
+            const timeMatch = timeString.match(/(\d+)\s+(hour|day|week)s?\s+ago/i);
+            if (!timeMatch) return 0;
+            
+            const value = parseInt(timeMatch[1]);
+            const unit = timeMatch[2].toLowerCase();
+            
+            const multipliers = {
+                'hour': 60 * 60 * 1000,
+                'day': 24 * 60 * 60 * 1000,
+                'week': 7 * 24 * 60 * 60 * 1000
+            };
+            
+            return value * (multipliers[unit] || 0);
+        }
+        });
+    </script>
+</body>
+</html>

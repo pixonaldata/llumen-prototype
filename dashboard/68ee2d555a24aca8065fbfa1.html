@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llumen Prototype</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        #crimson-app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        main {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        
+        #dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1.5rem;
+            grid-auto-rows: minmax(200px, auto);
+            min-height: 0;
+            position: relative;
+        }
+        
+        /* Guide boxes for grid units */
+        .grid-guide-box {
+            position: absolute;
+            border: 1px dashed #374151;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .grid-guide-box-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Hide guide boxes in view mode */
+        .view-mode .grid-guide-box-container {
+            display: none;
+        }
+        
+        /* Grid column configurations */
+        #dashboard-grid.grid-cols-1 {
+            grid-template-columns: repeat(1, 1fr);
+        }
+        #dashboard-grid.grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        #dashboard-grid.grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        #dashboard-grid.grid-cols-6 {
+            grid-template-columns: repeat(6, 1fr);
+        }
+        #dashboard-grid.grid-cols-8 {
+            grid-template-columns: repeat(8, 1fr);
+        }
+        #dashboard-grid.grid-cols-10 {
+            grid-template-columns: repeat(10, 1fr);
+        }
+        #dashboard-grid.grid-cols-12 {
+            grid-template-columns: repeat(12, 1fr);
+        }
+        
+        /* Visibility for grid unit buttons */
+        .grid-unit-btn-mobile {
+            display: block;
+            border-radius: 0.5rem;
+        }
+        @media (max-width: 767px) {
+            .hide-in-mobile {
+                display: none !important;
+            }
+        }
+        @media (min-width: 768px) {
+            .grid-unit-btn-mobile {
+                display: none;
+            }
+
+            .grid-unit-btn-mobile + .grid-unit-btn-tablet {
+                border-top-left-radius: 0.5rem;
+                border-bottom-left-radius: 0.5rem;
+            }
+
+            .grid-unit-btn-tablet:has(+ .grid-unit-btn-desktop) {
+                border-top-right-radius: 0.5rem;
+                border-bottom-right-radius: 0.5rem;
+            }
+        }
+        
+        .grid-unit-btn-tablet {
+            display: none;
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .grid-unit-btn-tablet {
+                display: block;
+            }
+        }
+        @media (min-width: 1024px) {
+            .grid-unit-btn-tablet {
+                display: none;
+            }
+
+            .grid-unit-btn-tablet + .grid-unit-btn-desktop {
+                border-top-left-radius: 0.5rem;
+                border-bottom-left-radius: 0.5rem;
+            }
+
+            .grid-unit-toggle-button:last-child {
+                border-top-right-radius: 0.5rem;
+                border-bottom-right-radius: 0.5rem;
+            }
+        }
+        
+        .grid-unit-btn-desktop {
+            display: none;
+        }
+        @media (min-width: 1024px) {
+            .grid-unit-btn-desktop {
+                display: block;
+            }
+        }
+        #dashboard-grid.resizing-active {
+            cursor: nwse-resize;
+        }
+        .edit-mode #dashboard-grid {
+            flex-grow: 1;
+        }
+        
+        .dashboard-component {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            /* Grid area will be set via JavaScript */
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .dashboard-component.dragging {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+        
+        .dashboard-component.resizing {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Prevent width/height transitions on other components during resize to avoid animation from grid reflow */
+        /* But allow transform transitions for smooth repositioning */
+        #dashboard-grid.resizing-active .dashboard-component:not(.resizing) {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .dashboard-component.dragging:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(25,118,210,0.5);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            cursor: nwse-resize;
+            z-index: 10;
+            border-right-width: 3px;
+            border-bottom-width: 3px;
+            border-color: #9ca3af;
+            border-bottom-right-radius: 50%;
+        }
+        
+            .resize-handle:hover {
+                border-color: #fff;
+            }
+
+            .dashboard-component-header {
+                padding: 0.75rem 1rem;
+            }
+
+            .dashboard-component-body {
+                flex-grow: 1;
+                padding: 1rem;
+            }
+
+
+        .dashboard-nav {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translate(-50%);
+            z-index: 11;
+        }
+
+        .view-mode .hide-in-view-mode,
+        .edit-mode .hide-in-edit-mode {
+            display: none;
+        }
+        
+    </style>
+</head>
+<body class="edit-mode">
+    <div id="crimson-app" class="bg-gray-900">
+        <header class="dashboard-header bg-gray-800 py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
+
+            <div class="flex space-x-6 hide-in-view-mode">
+
+                <a href="../index.html" class="bg-gray-700 hover:bg-gray-600 text-white w-12 h-12 rounded-full transition duration-200 text-sm flex items-center justify-center mt-3">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">arrow_back_ios_new</span>
+                </a>
+
+                <div>
+
+                    <div class="flex items-center space-x-4">
+
+                        <h2 class="text-lg font-medium text-white multi-line-editor focus:outline-none focus:ring-2 focus:ring-red-400" contenteditable="true">Dashboard Name Goes Here</h2>
+
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                <span class="font-semibold">Finance</span>
+                            </div>
+                            <div>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-700 text-white">Draft</span>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <button class="options-dropdown-button">
+                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                            </button>
+                            <div class="options-dropdown-menu hidden w-44">
+                                <a href="#" class="mode-toggle-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Switch to View Mode</a>
+                                <div class="border-b border-gray-700 my-2"></div>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Publish Dashboard</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share Dashboard</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Configure Dashboard</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Dashboard</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="flex items-center space-x-4 mt-3">
+
+                        <h3 class="text-md text-white multi-line-editor focus:outline-none focus:ring-2 focus:ring-red-400" contenteditable="true">Page 1</h3>
+
+                        <div class="flex items-center space-x-3">
+                            <button class="w-7 h-7 text-white hover:bg-gray-600 p-1 rounded-full flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[20px]">add</span>
+                            </button>
+    
+                            <div class="relative">
+                                <button class="options-dropdown-button">
+                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                </button>
+                                <div class="options-dropdown-menu hidden w-44">
+                                    <a href="#" class="mode-toggle-link block px-4 py-2 text-sm text-gray-200 transition duration-150">Switch to View Mode</a>
+                                    <div class="border-b border-gray-700 my-2"></div>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Hide Page</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete Page</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="flex items-center space-x-6 mt-4">
+
+                        <div class="flex items-center space-x-4">
+                            <span class="material-symbols-outlined text-gray-400" style="font-size: 20px;">dark_mode</span>
+                            <div class="flex items-center">
+                                <button id="theme-dark-button" class="theme-toggle-button bg-red-600 active text-white px-3 py-1.5 text-sm font-medium rounded-l-lg transition duration-200">
+                                    Dark
+                                </button>
+                                <button id="theme-light-button" class="theme-toggle-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium rounded-r-lg transition duration-200">
+                                    Light
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="h-8 border-l border-gray-600 hide-in-mobile"></div>
+                        
+                        <div class="flex items-center space-x-4 hide-in-mobile">
+                            <span class="material-symbols-outlined text-gray-400" style="font-size: 20px;">view_module</span>
+                            <div class="grid-units-toggle-buttons flex items-center">
+                                <button id="grid-unit-1-btn" class="grid-unit-toggle-button grid-unit-btn-mobile bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="1">1</button>
+                                <button id="grid-unit-2-btn" class="grid-unit-toggle-button grid-unit-btn-tablet bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="2">2</button>
+                                <button id="grid-unit-4-btn" class="grid-unit-toggle-button grid-unit-btn-tablet bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="4">4</button>
+                                <button id="grid-unit-6-btn" class="grid-unit-toggle-button grid-unit-btn-desktop bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="6">6</button>
+                                <button id="grid-unit-8-btn" class="grid-unit-toggle-button grid-unit-btn-desktop bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="8">8</button>
+                                <button id="grid-unit-10-btn" class="grid-unit-toggle-button grid-unit-btn-desktop bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="10">10</button>
+                                <button id="grid-unit-12-btn" class="grid-unit-toggle-button grid-unit-btn-desktop bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="12">12</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="hide-in-edit-mode flex items-center justify-center w-full space-x-4 w-full">
+                <div class="flex items-center justify-center px-3 py-1 rounded-lg bg-[#1a1a1a] text-white text-sm font-semibold h-14">
+                    <span>Client Logo</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-medium text-white">Dashboard Name Goes Here</h2>
+                    <div class="flex items-center space-x-4 mt-2">
+                        <div class="flex items-center space-x-2 text-sm">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                            <span class="font-semibold">Finance</span>
+                        </div>
+                        <div>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-700 text-white">Draft</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </header>
+
+        <nav id="workspace-nav-bar" class="bg-gray-800 py-3 px-6 shadow-md sticky-nav flex items-center justify-center">
+
+            <div id="workspace-left-gradient-overlay" class="w-[3.75rem] scroll-gradient-overlay left workspace-gradient-overlay">
+                <button id="scroll-left-button" class="workspace-scroll-button p-2 rounded-full text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+            </div>
+
+            <div id="workspace-buttons-container" class="flex overflow-x-auto whitespace-nowrap space-x-2 sm:space-x-4 scrollbar-hide py-1">
+                <!-- New "Create Workspace" Button -->
+                <!-- <button class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 relative group"
+                        id="create-workspace-button" data-tooltip="Create Workspace">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                </button>
+
+                <div class="h-8 border-l border-gray-600 mx-2"></div> -->
+
+                <a href="#" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-red-600 active transition duration-200 text-sm">
+                    <span>Page 1</span>
+                </a>
+                
+                <a href="#" data-workspace="Finance" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Page 2</span>
+                </a>
+                <a href="#" data-workspace="Operations" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Page 3</span>
+                </a>
+                <a href="#" data-workspace="HR" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Page 4</span>
+                </a>
+                <a href="#" data-workspace="Sales" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Page 5</span>
+                </a>
+                <a href="#" data-workspace="Marketing" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Page 6</span>
+                </a>
+                <a href="#" data-workspace="IT" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Page 7</span>
+                </a>
+                <a href="#" data-workspace="Product" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Page 8</span>
+                </a>
+                <a href="#" data-workspace="Engineering" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Page 9</span>
+                </a>
+                <a href="#" data-workspace="Customer Success" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
+                    <span>Page 10</span>
+                </a>
+            </div>
+
+            <div id="workspace-right-gradient-overlay" class="w-[3.75rem] scroll-gradient-overlay right workspace-gradient-overlay">
+                <button id="scroll-right-button" class="workspace-scroll-button p-2 rounded-full text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+
+        </nav>
+
+        <main class="flex-grow z-10 px-6 pt-6 py-24 flex flex-col min-h-0 justify-center">
+
+            <div class="hide-in-view-mode min-h-0 w-full mx-auto">
+                <div class="flex justify-center">
+                    <button class="text-sm bg-gray-700 text-white hover:bg-gray-600 py-1.5 px-3 pl-2 rounded-md transition duration-200 flex items-center space-x-1.5">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                        <span>Filter</span>
+                    </button>
+                </div>
+                <div class="mb-6 pb-6 border-b border-gray-700"></div>
+            </div>
+            
+            <!-- Dashboard Grid Container -->
+            <div id="dashboard-grid" class="min-h-0 w-full mx-auto">
+                <!-- Guide boxes container -->
+                <div id="grid-guide-boxes-container" class="grid-guide-box-container"></div>
+                <!-- Components will be added here dynamically -->
+            </div>
+
+            <div class="dashboard-nav bg-gray-700 rounded-lg flex items-center space-x-2 p-2">
+
+                <a href="../index.html" class="w-8 h-8 text-white hover:bg-gray-600 p-1 rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">home</span>
+                </a>
+
+                <div class="h-8 border-l border-gray-600 hide-in-view-mode"></div>
+                
+                <!-- Add Component Button -->
+                <button id="add-component-button" class="hide-in-view-mode text-sm text-white hover:bg-gray-600 py-1.5 px-3 pl-2 rounded-md transition duration-200 flex items-center space-x-1.5">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                    <span>Component</span>
+                </button>
+
+                <div class="h-8 border-l border-gray-600"></div>
+                
+                <button class="w-8 h-8 text-white hover:bg-gray-600 p-1 rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">ios_share</span>
+                </button>
+
+                <div class="h-8 border-l border-gray-600"></div>
+                
+                <div class="relative">
+                    <button class="options-dropdown-button">
+                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                    </button>
+                    <div class="options-dropdown-menu bottom w-56 hidden" style="margin-top: -8px">
+                        <a href="#" class="mode-toggle-link px-4 py-2 text-sm text-gray-200 transition duration-150">Switch to View Mode</a>
+                        <a href="#" id="adapt-dashboard-toggle-link" class="hide-in-edit-mode px-4 py-2 text-sm text-gray-200 transition duration-150">Adapt Dashboard to Device</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Component Browser Modal -->
+        <div id="component-browser-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 hidden">
+            <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] flex flex-col">
+                <!-- Modal Header -->
+                <div class="py-4 px-6 border-b border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-semibold text-white">Component Browser</h2>
+                        <button id="close-component-browser" class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                            <span class="material-symbols-outlined text-2xl">close</span>
+                        </button>
+                    </div>
+    </div>
+
+                <!-- Modal Content -->
+                <div class="flex-1 overflow-y-auto p-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="component-list">
+                        <!-- Component Cards will be dynamically generated here -->
+                        <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="bar-chart">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">bar_chart</span>
+                                <h3 class="text-white font-semibold">Bar Chart</h3>
+                            </div>
+                            <p class="text-gray-400 text-sm">Display data in vertical or horizontal bars</p>
+                        </div>
+                        <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="line-chart">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">show_chart</span>
+                                <h3 class="text-white font-semibold">Line Chart</h3>
+                            </div>
+                            <p class="text-gray-400 text-sm">Display trends over time</p>
+                        </div>
+                        <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="pie-chart">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">pie_chart</span>
+                                <h3 class="text-white font-semibold">Pie Chart</h3>
+                            </div>
+                            <p class="text-gray-400 text-sm">Display proportional data</p>
+                        </div>
+                        <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="table">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">table_chart</span>
+                                <h3 class="text-white font-semibold">Table</h3>
+                            </div>
+                            <p class="text-gray-400 text-sm">Display data in tabular format</p>
+                        </div>
+                        <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="metric">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">analytics</span>
+                                <h3 class="text-white font-semibold">Metric</h3>
+                            </div>
+                            <p class="text-gray-400 text-sm">Display a single key metric</p>
+                        </div>
+                        <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="gauge">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">speed</span>
+                                <h3 class="text-white font-semibold">Gauge</h3>
+                            </div>
+                            <p class="text-gray-400 text-sm">Display progress or performance metrics</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="p-6 border-t border-gray-700">
+                    <div class="flex items-center justify-end space-x-3">
+                        <button type="button" id="cancel-component-browser" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <button id="ai-chat-button" class="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-3 rounded-full shadow-lg transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400 z-50">
+        <!-- Chat Bubble Icon SVG -->
+         <img src="../ai-icon.svg" alt="AI Chat Icon" class="w-6 h-6" />
+        <!-- <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        </svg> -->
+    </button>
+
+    <div id="ai-chat-window" class="fixed bg-gray-800 rounded-xl shadow-2xl flex overflow-hidden transition-all duration-300 ease-in-out z-50">
+        <div id="chat-content-wrapper" class="flex flex-col flex-shrink-0 w-80 h-full">
+            <div class="bg-gray-700 p-3 flex items-center justify-between">
+                <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
+                <div class="flex space-x-2">
+                    <button id="expand-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><path d="M21 3 14 10"></path><path d="M3 21 10 14"></path></svg>
+                    </button>
+                    <button id="close-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
+                <div class="flex justify-start">
+                    <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%]">
+                        Hello! I'm Lumen. How can I help you today?
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg max-w-[80%]">
+                        Show me the latest Q2 Finance story.
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-700 flex items-center">
+                <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm placeholder-gray-400">
+                <button id="send-chat-button" class="ml-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400" disabled>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="ai-panel-separator" class="hidden"></div>
+
+        <div id="ai-interactive-panel" class="relative flex-shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out bg-gray-900 rounded-xl shadow-inner">
+            <div class="panel-header p-3 flex items-center justify-between rounded-tr-xl">
+                <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
+                <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg>
+                </button>
+            </div>
+            <div id="interactive-panel-content" class="flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
+                <p>Interactive content will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/ai-chat.js"></script>
+
+    <script>
+        console.log("Script loaded and starting..."); // Added for debugging
+
+        // Utility for toggling dropdowns with mutual exclusivity
+        function setupDropdown(buttonId, menuId, otherMenuId) {
+            const button = document.getElementById(buttonId);
+            const menu = document.getElementById(menuId);
+            const otherMenu = otherMenuId ? document.getElementById(otherMenuId) : null;
+
+            if (button && menu) {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent document click from immediately closing
+                    const wasHidden = menu.classList.contains('hidden');
+                    
+                    // Close the other dropdown if it exists
+                    if (otherMenu && !otherMenu.classList.contains('hidden')) {
+                        otherMenu.classList.add('hidden');
+                    }
+                    
+                    // Toggle this dropdown
+                    if (wasHidden) {
+                        menu.classList.remove('hidden');
+                    } else {
+                        menu.classList.add('hidden');
+                    }
+                });
+
+                // Close dropdown if clicked outside
+                document.addEventListener('click', (event) => {
+                    if (!button.contains(event.target) && !menu.contains(event.target)) {
+                        menu.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+
+        // Custom message box function instead of alert()
+        function alertMessage(message, type = "info") {
+            const container = document.getElementById('crimson-app');
+            let messageBox = document.getElementById('message-box');
+
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'message-box';
+                messageBox.className = 'fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
+                container.appendChild(messageBox);
+            }
+
+            // Set styles based on type
+            let bgColor = '';
+            switch (type) {
+                case 'success':
+                    bgColor = 'bg-green-500';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-500';
+                    break;
+                case 'info':
+                default:
+                    bgColor = 'bg-blue-500';
+                    break;
+            }
+
+            messageBox.className = `fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
+            messageBox.textContent = message;
+
+            // Show animation
+            setTimeout(() => {
+                messageBox.classList.remove('scale-0', 'opacity-0');
+                messageBox.classList.add('scale-100', 'opacity-100');
+            }, 50);
+
+            // Hide animation after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.remove('scale-100', 'opacity-100');
+                messageBox.classList.add('scale-0', 'opacity-0');
+                // Remove message box from DOM after transition
+                messageBox.addEventListener('transitionend', function handler() {
+                    if (messageBox.parentNode) {
+                        messageBox.parentNode.removeChild(messageBox);
+                    }
+                    messageBox.removeEventListener('transitionend', handler);
+                });
+            }, 3000);
+        }
+        
+        // Card Options Dropdown functionality
+        let openDropdownMenu = null;
+
+        document.addEventListener('click', (event) => {
+            if (openDropdownMenu) {
+                const targetButton = document.querySelector(`[data-dropdown-id="${openDropdownMenu.dataset.dropdownId}"]`);
+                if (targetButton && !targetButton.contains(event.target) && !openDropdownMenu.contains(event.target)) {
+                    openDropdownMenu.classList.add('hidden');
+                    openDropdownMenu = null;
+                }
+            }
+        });
+
+        let dropdownCounter = 0;
+
+        document.querySelectorAll('.options-dropdown-button').forEach(button => {
+            if (!button.dataset.dropdownId) {
+                button.dataset.dropdownId = `dropdown-${dropdownCounter++}`;
+            }
+
+            const menu = button.nextElementSibling;
+            // Ensure the menu also has the correct class for styling
+            menu.classList.add('options-dropdown-menu'); // Add this line to ensure it always has the class
+            menu.dataset.dropdownId = button.dataset.dropdownId;
+
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+
+                if (openDropdownMenu && openDropdownMenu !== menu) {
+                    openDropdownMenu.classList.add('hidden');
+                }
+
+                const wasHidden = menu.classList.contains('hidden');
+                if (wasHidden) {
+                    menu.classList.remove('hidden');
+                }
+                const menuWidth = menu.offsetWidth;
+                if (wasHidden) {
+                    menu.classList.add('hidden');
+                }
+
+                if (menu.classList.contains('hidden')) {
+                    document.body.appendChild(menu);
+
+                    const buttonRect = button.getBoundingClientRect();
+                    menu.style.position = 'absolute';
+                    menu.style.left = `${buttonRect.left + buttonRect.width + window.scrollX - menuWidth}px`;
+                    
+                    // Check if menu has "bottom" class - if so, align bottom edge to top of button
+                    if (menu.classList.contains('bottom')) {
+                        // Temporarily show menu to measure its height
+                        menu.classList.remove('hidden');
+                        const menuHeight = menu.offsetHeight;
+                        menu.classList.add('hidden');
+                        
+                        // Position so bottom of menu aligns with top of button
+                        menu.style.top = `${buttonRect.top + window.scrollY - menuHeight}px`;
+                        menu.style.bottom = '';
+                    } else {
+                        // Default: position below button
+                    menu.style.top = `${buttonRect.bottom + window.scrollY + 5}px`;
+                        menu.style.bottom = '';
+                    }
+
+                    menu.classList.remove('hidden');
+                    openDropdownMenu = menu;
+                } else {
+                    menu.classList.add('hidden');
+                    openDropdownMenu = null;
+                }
+            });
+
+            menu.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+        });
+
+        // Theme Toggle functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkButton = document.getElementById('theme-dark-button');
+            const lightButton = document.getElementById('theme-light-button');
+            
+            function setActiveTheme(theme) {
+                if (theme === 'dark') {
+                    // Dark is active
+                    darkButton.classList.add('active', 'bg-red-600');
+                    darkButton.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                    lightButton.classList.remove('active', 'bg-red-600');
+                    lightButton.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                } else {
+                    // Light is active
+                    lightButton.classList.add('active', 'bg-red-600');
+                    lightButton.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                    darkButton.classList.remove('active', 'bg-red-600');
+                    darkButton.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                }
+            }
+            
+            darkButton.addEventListener('click', () => {
+                setActiveTheme('dark');
+            });
+            
+            lightButton.addEventListener('click', () => {
+                setActiveTheme('light');
+            });
+        });
+
+        // Grid Unit Toggle functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const dashboardGrid = document.getElementById('dashboard-grid');
+            const gridUnitButtons = document.querySelectorAll('.grid-unit-toggle-button');
+            
+            function getDefaultGridCols() {
+                const width = window.innerWidth;
+                if (width < 768) {
+                    // Mobile
+                    return 1;
+                } else if (width >= 768 && width < 1024) {
+                    // Tablet
+                    return 2;
+                } else {
+                    // Desktop
+                    return 6;
+                }
+            }
+            
+            function setActiveGridUnit(cols) {
+                // Remove all grid column classes
+                dashboardGrid.classList.remove('grid-cols-1', 'grid-cols-2', 'grid-cols-4', 'grid-cols-6', 'grid-cols-8', 'grid-cols-10', 'grid-cols-12');
+                // Add the selected class
+                dashboardGrid.classList.add(`grid-cols-${cols}`);
+                
+                // Update button states
+                gridUnitButtons.forEach(button => {
+                    const buttonCols = parseInt(button.dataset.gridCols);
+                    if (buttonCols === cols) {
+                        button.classList.add('active', 'bg-red-600');
+                        button.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                    } else {
+                        button.classList.remove('active', 'bg-red-600');
+                        button.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                    }
+                });
+                
+                // Adjust component widths if they exceed the new grid column count
+                const components = dashboardGrid.querySelectorAll('.dashboard-component');
+                components.forEach(component => {
+                    const currentColSpan = parseInt(component.dataset.colSpan) || 2;
+                    if (currentColSpan > cols) {
+                        // Component width exceeds new grid, set it to maximum (new grid column count)
+                        component.dataset.colSpan = cols;
+                    }
+                });
+                
+                // Recalculate component heights when grid columns change
+                if (typeof updateComponentHeights === 'function') {
+                    updateComponentHeights();
+                }
+            }
+            
+            // Set default grid columns based on screen size
+            const defaultCols = getDefaultGridCols();
+            setActiveGridUnit(defaultCols);
+            
+            // Handle button clicks
+            gridUnitButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const cols = parseInt(button.dataset.gridCols);
+                    setActiveGridUnit(cols);
+                });
+            });
+            
+            // Update grid on window resize (to handle device orientation changes)
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    // Only update if no manual selection has been made
+                    // Check if current active button is still visible for current screen size
+                    const activeButton = document.querySelector('.grid-unit-toggle-button.active');
+                    if (activeButton) {
+                        const isVisible = window.getComputedStyle(activeButton).display !== 'none';
+                        if (!isVisible) {
+                            // Current active button is not visible, switch to default
+                            const defaultCols = getDefaultGridCols();
+                            setActiveGridUnit(defaultCols);
+                        }
+                    }
+                }, 250);
+            });
+        });
+
+        // Dashboard Grid functionality
+        let componentCounter = 0;
+        let draggedElement = null;
+        let lastDragTarget = null;
+        let lastDragPosition = null;
+        let lastAnimatedPosition = null; // Track last animated position to prevent duplicate animations
+        let isAnimating = false; // Track if animation is currently in progress
+        let reorderTimeout = null; // Timeout for delayed reordering
+        let resizeHandle = null;
+        let resizingComponent = null;
+        let isResizing = false;
+        let resizeStartX = 0;
+        let resizeStartY = 0;
+        let resizeStartWidth = 0;
+        
+        // Helper function to get current grid column count
+        function getGridColumnCount() {
+            const grid = document.getElementById('dashboard-grid');
+            if (!grid) return 4; // Default fallback
+            
+            // Check which grid-cols class is active
+            for (let i = 1; i <= 12; i++) {
+                if (grid.classList.contains(`grid-cols-${i}`)) {
+                    return i;
+                }
+            }
+            return 4; // Default fallback
+        }
+        
+        // Helper function to calculate grid unit size
+        function calculateGridUnitSize(gridWidth, gap) {
+            const cols = getGridColumnCount();
+            return (gridWidth - ((cols - 1) * gap)) / cols;
+        }
+        let resizeStartHeight = 0;
+        let resizeStartLeft = 0;
+        let resizeStartTop = 0;
+        let resizeStartColSpan = 2;
+        let resizeStartRowSpan = 2;
+        let resizeStartGridColumn = '';
+        let resizeStartGridRow = '';
+        let resizeAnimationFrame = null;
+        const gridUnitSize = 25; // Percentage per grid unit (4 units = 100%)
+
+        // Component Browser Modal
+        const componentBrowserModal = document.getElementById('component-browser-modal');
+        const addComponentButton = document.getElementById('add-component-button');
+        const closeComponentBrowser = document.getElementById('close-component-browser');
+        const cancelComponentBrowser = document.getElementById('cancel-component-browser');
+
+        function openComponentBrowser() {
+            componentBrowserModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeComponentBrowserModal() {
+            componentBrowserModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        addComponentButton.addEventListener('click', openComponentBrowser);
+        closeComponentBrowser.addEventListener('click', closeComponentBrowserModal);
+        cancelComponentBrowser.addEventListener('click', closeComponentBrowserModal);
+
+        componentBrowserModal.addEventListener('click', (e) => {
+            if (e.target === componentBrowserModal) {
+                closeComponentBrowserModal();
+            }
+        });
+
+        // Component type names mapping
+        const componentTypeNames = {
+            'bar-chart': 'Bar Chart',
+            'line-chart': 'Line Chart',
+            'pie-chart': 'Pie Chart',
+            'table': 'Table',
+            'metric': 'Metric',
+            'gauge': 'Gauge'
+        };
+
+        // Add component to grid
+        function addComponentToGrid(componentType) {
+            const grid = document.getElementById('dashboard-grid');
+            const componentId = `component-${componentCounter++}`;
+            
+            const componentDiv = document.createElement('div');
+            componentDiv.id = componentId;
+            componentDiv.className = 'dashboard-component bg-gray-800 rounded-lg border border-gray-700 relative';
+            const initialColSpan = 2;
+            const initialRowSpan = 1; // Default height is 1 unit
+            
+            // Set grid area using span
+            componentDiv.style.gridColumn = `span ${initialColSpan}`;
+            componentDiv.style.gridRow = `span ${initialRowSpan}`;
+            componentDiv.draggable = false; // Component itself is not draggable
+            
+            // Store dimensions in data attributes for tracking
+            componentDiv.dataset.colSpan = initialColSpan;
+            componentDiv.dataset.rowSpan = initialRowSpan;
+            
+            // Component header - this will be draggable
+            const header = document.createElement('div');
+            header.className = 'dashboard-component-header hide-in-view-mode flex items-center justify-between border-b border-gray-700 cursor-move';
+            header.draggable = true;
+            
+            const title = document.createElement('h3');
+            title.className = 'text-white font-semibold text-sm';
+            title.textContent = componentTypeNames[componentType] || componentType;
+            
+            // Options dropdown
+            const dropdownContainer = document.createElement('div');
+            dropdownContainer.className = 'relative';
+            
+            const dropdownButton = document.createElement('button');
+            dropdownButton.className = 'options-dropdown-button';
+            dropdownButton.innerHTML = '<span class="material-symbols-outlined text-lg">more_vert</span>';
+            dropdownButton.draggable = false; // Prevent dragging when clicking dropdown
+            
+            const dropdownMenu = document.createElement('div');
+            dropdownMenu.className = 'options-dropdown-menu hidden';
+            dropdownMenu.innerHTML = `
+                <a href="#" class="configure-component block px-4 py-2 text-sm text-gray-200 transition duration-150">Configure</a>
+                <a href="#" class="remove-component block px-4 py-2 text-sm text-red-400 transition duration-150">Remove</a>
+            `;
+            
+            dropdownContainer.appendChild(dropdownButton);
+            dropdownContainer.appendChild(dropdownMenu);
+            
+            header.appendChild(title);
+            header.appendChild(dropdownContainer);
+            
+            // Placeholder chart
+            const chartPlaceholder = document.createElement('div');
+            chartPlaceholder.className = 'dashboard-component-body rounded flex items-center justify-center';
+            chartPlaceholder.innerHTML = `
+                <div class="text-center">
+                    <span class="material-symbols-outlined text-gray-500" style="font-size: 48px;">${componentType === 'bar-chart' ? 'bar_chart' : componentType === 'line-chart' ? 'show_chart' : componentType === 'pie-chart' ? 'pie_chart' : componentType === 'table' ? 'table_chart' : componentType === 'metric' ? 'analytics' : 'speed'}</span>
+                    <p class="text-gray-500 text-sm mt-2">Chart Placeholder</p>
+                </div>
+            `;
+            
+            // Resize handle - only bottom-right (south-east)
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle resize-handle-se hide-in-view-mode';
+            resizeHandle.dataset.handle = 'se';
+            componentDiv.appendChild(resizeHandle);
+            
+            componentDiv.appendChild(header);
+            componentDiv.appendChild(chartPlaceholder);
+            
+            // Event listeners
+            setupComponentEvents(componentDiv, header, dropdownButton, dropdownMenu);
+            
+            grid.appendChild(componentDiv);
+            // Update component heights after adding
+            setTimeout(() => {
+                updateComponentHeights();
+            }, 50);
+            closeComponentBrowserModal();
+        }
+
+        // Animation state
+        let componentPositions = new Map(); // Store original positions for all components
+        
+        // Function to capture all component positions
+        function captureAndFixComponentPositions() {
+            const grid = document.getElementById('dashboard-grid');
+            const components = Array.from(grid.querySelectorAll('.dashboard-component'));
+            
+            componentPositions.clear();
+            
+            components.forEach(component => {
+                // Clear any existing transforms to get true position
+                component.style.transform = '';
+                void component.offsetWidth;
+                
+                // Get absolute position in viewport
+                const rect = component.getBoundingClientRect();
+                
+                // Store absolute position (viewport coordinates)
+                componentPositions.set(component, {
+                    originalX: rect.left,
+                    originalY: rect.top
+                });
+                
+                component.style.willChange = 'transform';
+            });
+        }
+        
+        // Simple animation function - animate components after drag/resize
+        function updateComponentTransforms(preCapturedStartPositions = null) {
+            console.log('🔄 updateComponentTransforms called', {
+                isUpdatingTransforms,
+                resizingComponent: resizingComponent?.id,
+                draggedElement: draggedElement?.id,
+                hasPreCapturedPositions: preCapturedStartPositions !== null
+            });
+            
+            if (isUpdatingTransforms) {
+                console.log('⏭️ Already updating, skipping');
+                return;
+            }
+            isUpdatingTransforms = true;
+            
+            const grid = document.getElementById('dashboard-grid');
+            const components = Array.from(grid.querySelectorAll('.dashboard-component'));
+            
+            // Get all components that need animation (exclude only resizing element)
+            // Include dragged element - it should animate to its new position in the DOM
+            const componentsToAnimate = components.filter(c => c !== resizingComponent);
+            
+            console.log('📦 Components to animate:', componentsToAnimate.map(c => c.id), 'Total:', components.length);
+            
+            if (componentsToAnimate.length === 0) {
+                console.log('❌ No components to animate');
+                isUpdatingTransforms = false;
+                return;
+            }
+            
+            // Get grid dimensions for logging
+            const gridRect = grid.getBoundingClientRect();
+            const gap = 24;
+            const gridUnitSize = calculateGridUnitSize(gridRect.width, gap);
+            
+            // Step 1: Use pre-captured positions if provided, otherwise capture now
+            const startPositions = preCapturedStartPositions || new Map();
+            
+            // If not pre-captured, capture now
+            if (!preCapturedStartPositions) {
+                componentsToAnimate.forEach(component => {
+                    const rect = component.getBoundingClientRect();
+                    startPositions.set(component, { x: rect.left, y: rect.top });
+                    
+                    // Calculate which column this corresponds to
+                    const relativeX = rect.left - gridRect.left;
+                    const estimatedCol = Math.round(relativeX / (gridUnitSize + gap));
+                    console.log(`📍 START position for ${component.id}: (${rect.left}, ${rect.top}) - estimated col: ${estimatedCol}`);
+                });
+            } else {
+                // Log pre-captured positions
+                componentsToAnimate.forEach(component => {
+                    const start = startPositions.get(component);
+                    if (start) {
+                        const relativeX = start.x - gridRect.left;
+                        const estimatedCol = Math.round(relativeX / (gridUnitSize + gap));
+                        console.log(`📍 START (pre-captured) for ${component.id}: (${start.x}, ${start.y}) - estimated col: ${estimatedCol}`);
+                    }
+                });
+            }
+            
+            // Step 2: Store original grid styles and dimensions
+            const originalStyles = new Map();
+            componentsToAnimate.forEach(component => {
+                const rect = component.getBoundingClientRect();
+                originalStyles.set(component, {
+                    gridColumn: component.style.gridColumn,
+                    gridRow: component.style.gridRow,
+                    width: rect.width,
+                    height: rect.height
+                });
+            });
+            
+            // Step 3: Calculate END positions and process animations
+            // Do everything in requestAnimationFrame to ensure proper timing
+            requestAnimationFrame(() => {
+                const endPositions = new Map();
+                const gridRect = grid.getBoundingClientRect();
+                const gap = 24;
+                const gridUnitSize = calculateGridUnitSize(gridRect.width, gap);
+                
+                console.log('📏 Grid dimensions:', {
+                    left: gridRect.left,
+                    top: gridRect.top,
+                    width: gridRect.width,
+                    gridUnitSize,
+                    gap
+                });
+                
+                // Calculate positions based on DOM order
+                let currentRow = 0;
+                let currentCol = 0;
+                let rowHeights = [0]; // Maximum height of each row
+                let rowYPositions = [gridRect.top]; // Y position of each row's top edge
+                
+                const allComponents = Array.from(grid.children).filter(c => c.classList.contains('dashboard-component'));
+                console.log('📐 Calculating positions for DOM order:', allComponents.map(c => c.id));
+                
+                allComponents.forEach(component => {
+                    // Get spans from original styles or data attributes
+                    let colSpan = 2;
+                    let rowSpan = 1;
+                    
+                    if (component === draggedElement) {
+                        // For dragged element, get spans from data attributes
+                        colSpan = parseInt(component.dataset.colSpan) || 2;
+                        rowSpan = parseInt(component.dataset.rowSpan) || 1;
+                        console.log(`  - Accounting for ${component.id} space (being dragged): span ${colSpan}x${rowSpan}`);
+                    } else {
+                        // For non-dragged components, get spans from original styles
+                        const original = originalStyles.get(component);
+                        if (original && original.gridColumn) {
+                            const match = original.gridColumn.match(/span (\d+)/);
+                            if (match) colSpan = parseInt(match[1]);
+                        }
+                        if (original && original.gridRow) {
+                            const match = original.gridRow.match(/span (\d+)/);
+                            if (match) rowSpan = parseInt(match[1]);
+                        }
+                    }
+                    
+                    // Check if fits in current row
+                    const maxCols = getGridColumnCount();
+                    if (currentCol + colSpan > maxCols) {
+                        currentRow++;
+                        currentCol = 0;
+                        // Initialize new row if needed
+                        while (rowHeights.length <= currentRow) {
+                            rowHeights.push(0);
+                        }
+                        // Calculate Y position for new row: previous row's Y + its height + gap
+                        const prevRowY = rowYPositions[currentRow - 1] || gridRect.top;
+                        const prevRowHeight = rowHeights[currentRow - 1] || 0;
+                        rowYPositions[currentRow] = prevRowY + prevRowHeight + gap;
+                    }
+                    
+                    // Calculate position
+                    const x = gridRect.left + (currentCol * (gridUnitSize + gap));
+                    const y = rowYPositions[currentRow];
+                    
+                    // Store position for all components (including dragged)
+                    if (componentsToAnimate.includes(component)) {
+                        endPositions.set(component, { x, y });
+                        console.log(`📍 END position for ${component.id}: (${x}, ${y}) - row:${currentRow} col:${currentCol} span:${colSpan}x${rowSpan}`);
+                    }
+                    
+                    // Update row height (max height of components in this row)
+                    const componentHeight = (gridUnitSize * rowSpan) + (gap * (rowSpan - 1));
+                    rowHeights[currentRow] = Math.max(rowHeights[currentRow], componentHeight);
+                    
+                    currentCol += colSpan;
+                });
+                
+                // Step 4: Determine which components will actually move
+                const componentsToMove = componentsToAnimate.filter(component => {
+                    const start = startPositions.get(component);
+                    const end = endPositions.get(component);
+                    if (!start || !end) return false;
+                    const deltaX = start.x - end.x;
+                    const deltaY = start.y - end.y;
+                    return Math.abs(deltaX) >= 0.5 || Math.abs(deltaY) >= 0.5;
+                });
+                
+                // Step 5: Position ALL components in componentsToAnimate absolutely to prevent grid reflow
+                // First, position non-moving components at their current positions
+                const componentsNotMoving = componentsToAnimate.filter(c => !componentsToMove.includes(c));
+                componentsNotMoving.forEach(component => {
+                    const startRect = startPositions.get(component);
+                    if (startRect) {
+                        // Position absolutely at current position to prevent grid from pulling them
+                        component.style.transition = 'none';
+                        component.style.position = 'absolute';
+                        component.style.left = `${startRect.x}px`;
+                        component.style.top = `${startRect.y}px`;
+                        const original = originalStyles.get(component);
+                        if (original) {
+                            component.style.width = `${original.width}px`;
+                            component.style.height = `${original.height}px`;
+                        }
+                        // Clear grid styles so they're out of grid flow
+                        component.style.gridColumn = '';
+                        component.style.gridRow = '';
+                    }
+                });
+                
+                // Then position and clear grid styles for components that will move
+                console.log('🧹 Clearing grid styles for', componentsToMove.length, 'components that will move');
+                componentsToMove.forEach(component => {
+                    console.log(`  - Clearing grid styles for ${component.id}: gridColumn="${component.style.gridColumn}", gridRow="${component.style.gridRow}"`);
+                    
+                    // Get current position (START) before clearing grid styles
+                    const startRect = startPositions.get(component);
+                    if (startRect) {
+                        // Immediately position absolutely at START to prevent visual shift
+                        component.style.transition = 'none';
+                        component.style.position = 'absolute';
+                        component.style.left = `${startRect.x}px`;
+                        component.style.top = `${startRect.y}px`;
+                        const original = originalStyles.get(component);
+                        if (original) {
+                            component.style.width = `${original.width}px`;
+                            component.style.height = `${original.height}px`;
+                        }
+                    }
+                    
+                    // Now clear grid styles (component is already positioned absolutely)
+                    component.style.gridColumn = '';
+                    component.style.gridRow = '';
+                });
+                
+                // Force reflow to ensure absolute positioning is applied
+                void grid.offsetHeight;
+                console.log('🔄 Grid forced to recalculate');
+                
+                // Step 6: Apply FLIP animation only to components that move
+                console.log('🎬 Applying FLIP animation to', componentsToMove.length, 'components');
+                componentsToMove.forEach(component => {
+                    const start = startPositions.get(component);
+                    const end = endPositions.get(component);
+                    
+                    if (!start || !end) {
+                        console.log(`⚠️ Missing position data for ${component.id}`);
+                        return;
+                    }
+                    
+                    const deltaX = start.x - end.x;
+                    const deltaY = start.y - end.y;
+                    
+                    console.log(`📊 ${component.id}: start(${start.x}, ${start.y}) end(${end.x}, ${end.y}) delta(${deltaX}, ${deltaY})`);
+                    
+                    console.log(`🎯 ${component.id}: Applying invert transform: translate3d(${deltaX}px, ${deltaY}px, 0)`);
+                    
+                    const original = originalStyles.get(component);
+                    
+                    // Update position and transform synchronously to batch with browser paint
+                    // Component is already positioned absolutely at START from step 5
+                    // Update all styles in requestAnimationFrame to batch with browser's paint cycle
+                    requestAnimationFrame(() => {
+                        // All style updates in one synchronous block
+                        component.style.transition = 'none';
+                        component.style.willChange = 'transform';
+                        component.style.backfaceVisibility = 'hidden';
+                        component.style.position = 'absolute';
+                        component.style.left = `${end.x}px`;
+                        component.style.top = `${end.y}px`;
+                        component.style.width = `${original.width}px`;
+                        component.style.height = `${original.height}px`;
+                        component.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
+                        
+                        // Play: animate to final position (translate3d(0,0,0) = end position)
+                        // Use double requestAnimationFrame to ensure browser has painted the invert state
+                        requestAnimationFrame(() => {
+                            console.log(`▶️ ${component.id}: Starting animation to translate3d(0, 0, 0)`);
+                            component.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                            component.style.transform = 'translate3d(0, 0, 0)';
+                            
+                            // Clean up after animation
+                            component.addEventListener('transitionend', function cleanup(e) {
+                                console.log(`✅ Transition ended for ${component.id}:`, e.propertyName);
+                                if (e.propertyName === 'transform' && e.target === component) {
+                                    // Clear transform and absolute positioning
+                                    component.style.transform = '';
+                                    component.style.transition = '';
+                                    component.style.position = '';
+                                    component.style.left = '';
+                                    component.style.top = '';
+                                    component.style.width = '';
+                                    component.style.height = '';
+                                    console.log(`🧹 Cleaned up styles for ${component.id}`);
+                                    
+                                    // NOW restore grid styles (after animation completes)
+                                    const original = originalStyles.get(component);
+                                    if (original) {
+                                        component.style.gridColumn = original.gridColumn;
+                                        component.style.gridRow = original.gridRow;
+                                        console.log(`🔄 Restored grid styles for ${component.id}: ${original.gridColumn} / ${original.gridRow}`);
+                                    }
+                                    
+                                    component.removeEventListener('transitionend', cleanup);
+                                    
+                                    // Check if all animations are done
+                                    const stillAnimating = componentsToMove.some(c => {
+                                        const transform = window.getComputedStyle(c).transform;
+                                        return transform && transform !== 'none' && transform !== 'matrix(1, 0, 0, 1, 0, 0)';
+                                    });
+                                    
+                                    console.log('📊 Still animating:', stillAnimating);
+                                    
+                                    if (!stillAnimating) {
+                                        console.log('✅ All animations complete');
+                                        
+                                        // Restore grid styles for non-moving components that were positioned absolutely
+                                        componentsNotMoving.forEach(component => {
+                                            const original = originalStyles.get(component);
+                                            if (original) {
+                                                component.style.position = '';
+                                                component.style.left = '';
+                                                component.style.top = '';
+                                                component.style.width = '';
+                                                component.style.height = '';
+                                                component.style.gridColumn = original.gridColumn;
+                                                component.style.gridRow = original.gridRow;
+                                                console.log(`🔄 Restored grid styles for non-moving ${component.id}: ${original.gridColumn} / ${original.gridRow}`);
+                                            }
+                                        });
+                                        
+                                        isUpdatingTransforms = false;
+                                    }
+                                }
+                            }, { once: true });
+                        }); // Close inner requestAnimationFrame (animation play)
+                    }); // Close outer requestAnimationFrame (position/transform update)
+                }); // Close forEach
+            }); // Close requestAnimationFrame from step 3
+        }
+        
+        let updateTransformsAnimationFrame = null;
+        let animatingComponents = new Set(); // Track components currently animating
+        let isUpdatingTransforms = false; // Prevent multiple simultaneous calls
+        
+        // Function to finalize positions: remove transforms and apply grid-area styles
+        function finalizeComponentPositions() {
+            const grid = document.getElementById('dashboard-grid');
+            const components = Array.from(grid.querySelectorAll('.dashboard-component'));
+            
+            components.forEach(component => {
+                // Remove transform and will-change
+                component.style.transform = '';
+                component.style.willChange = '';
+                
+                // Restore positioning - remove absolute positioning to return to grid flow
+                component.style.position = '';
+                component.style.left = '';
+                component.style.top = '';
+                
+                // Clear explicit width/height to let grid handle sizing
+                component.style.width = '';
+                component.style.height = '';
+                
+                // Restore or apply grid-area styles
+                const colSpan = parseInt(component.dataset.colSpan) || 2;
+                const rowSpan = parseInt(component.dataset.rowSpan || '1');
+                component.style.gridColumn = `span ${colSpan}`;
+                component.style.gridRow = `span ${rowSpan}`;
+            });
+            
+            // Update component heights to ensure correct sizing
+            updateComponentHeights();
+            
+            // Clear stored positions
+            componentPositions.clear();
+        }
+        
+        // Setup component events (drag, resize, dropdown)
+        function setupComponentEvents(component, header, dropdownButton, dropdownMenu) {
+            // Drag functionality - only from header
+            header.addEventListener('dragstart', (e) => {
+                draggedElement = component;
+                e.dataTransfer.effectAllowed = 'move';
+                
+                // Capture all component positions before drag starts
+                captureAndFixComponentPositions();
+                
+                // Create a custom drag image showing the entire component
+                // Clone BEFORE adding the dragging class so the overlay doesn't appear on the drag image
+                const dragImage = component.cloneNode(true);
+                dragImage.classList.remove('dragging'); // Ensure drag image doesn't have dragging class
+                dragImage.style.position = 'absolute';
+                dragImage.style.top = '-9999px';
+                dragImage.style.width = component.offsetWidth + 'px';
+                dragImage.style.height = component.offsetHeight + 'px';
+                dragImage.style.opacity = '0.8';
+                dragImage.style.pointerEvents = 'none';
+                document.body.appendChild(dragImage);
+                
+                // Now add the dragging class to the original component (for the blue overlay)
+                component.classList.add('dragging');
+                
+                // Set the drag image offset to center on cursor
+                const rect = component.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left;
+                const offsetY = e.clientY - rect.top;
+                
+                e.dataTransfer.setDragImage(dragImage, offsetX, offsetY);
+                
+                // Clean up the drag image after a short delay
+                setTimeout(() => {
+                    if (dragImage.parentNode) {
+                        dragImage.parentNode.removeChild(dragImage);
+                    }
+                }, 0);
+            });
+
+            header.addEventListener('dragend', (e) => {
+                component.classList.remove('dragging');
+                
+                // Clear any pending reorder timeout
+                if (reorderTimeout) {
+                    clearTimeout(reorderTimeout);
+                    reorderTimeout = null;
+                }
+                
+                // Clean up drop zone markers
+                document.querySelectorAll('.dashboard-component').forEach(comp => {
+                    delete comp.dataset.dropZone;
+                });
+                
+                // Reset flags
+                draggedElement = null;
+                lastDragTarget = null;
+                lastDragPosition = null;
+                lastAnimatedPosition = null;
+                isAnimating = false;
+                
+                // Finalize positions after drag ends (animations happened during drag)
+                setTimeout(() => {
+                    finalizeComponentPositions();
+                }, 400); // Give time for any in-progress animations to complete
+            });
+
+            // CRITICAL: Make each component a valid drop target
+            // The browser needs preventDefault on the element under the cursor
+            // This MUST be called on EVERY dragover event, not conditionally
+            component.addEventListener('dragover', (e) => {
+                // Always call preventDefault if we're dragging something
+                if (draggedElement) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    // Let event bubble to grid for actual reordering logic
+                }
+            });
+
+            // Dropdown functionality
+            dropdownButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = dropdownMenu.classList.contains('hidden');
+                
+                // Close other component dropdowns (only those inside dashboard components)
+                document.querySelectorAll('.dashboard-component .options-dropdown-menu').forEach(menu => {
+                    if (menu !== dropdownMenu) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                
+                if (isHidden) {
+                    dropdownMenu.classList.remove('hidden');
+                } else {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+
+            // Configure component
+            dropdownMenu.querySelector('.configure-component').addEventListener('click', (e) => {
+                e.preventDefault();
+                dropdownMenu.classList.add('hidden');
+                // Add configure functionality here
+                alert('Configure component functionality');
+            });
+
+            // Remove component
+            dropdownMenu.querySelector('.remove-component').addEventListener('click', (e) => {
+                e.preventDefault();
+                component.remove();
+                // Update guide boxes after component removal
+                setTimeout(() => {
+                    updateComponentHeights();
+                }, 50);
+            });
+
+            // Resize functionality
+            const resizeHandles = component.querySelectorAll('.resize-handle');
+            resizeHandles.forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    isResizing = true;
+                    resizingComponent = component;
+                    resizeHandle = handle.dataset.handle;
+                    resizeStartX = e.clientX;
+                    resizeStartY = e.clientY;
+                    
+                    const rect = component.getBoundingClientRect();
+                    resizeStartWidth = rect.width;
+                    resizeStartHeight = rect.height;
+                    resizeStartLeft = rect.left;
+                    resizeStartTop = rect.top;
+                    
+                    // Get current spans from data attributes
+                    resizeStartColSpan = parseInt(component.dataset.colSpan) || 2;
+                    resizeStartRowSpan = parseInt(component.dataset.rowSpan || '1');
+                    
+                    // Store original grid styles before clearing them
+                    resizeStartGridColumn = component.style.gridColumn || '';
+                    resizeStartGridRow = component.style.gridRow || '';
+                    
+                    // Get the grid element
+                    const grid = document.getElementById('dashboard-grid');
+                    const gridRect = grid.getBoundingClientRect();
+                    const gridWidth = gridRect.width;
+                    const gap = 24;
+                    const gridUnitSize = calculateGridUnitSize(gridWidth, gap);
+                    
+                    // CRITICAL: Lock all OTHER components' dimensions to prevent grid recalculation
+                    // This prevents them from being affected when the resizing component changes size
+                    const allComponents = Array.from(grid.querySelectorAll('.dashboard-component'));
+                    allComponents.forEach(comp => {
+                        if (comp !== component) {
+                            // Lock other components' dimensions to prevent grid from recalculating
+                            const rect = comp.getBoundingClientRect();
+                            comp.style.width = `${rect.width}px`;
+                            comp.style.height = `${rect.height}px`;
+                            // Mark as locked so we can clean up later
+                            comp.dataset.lockedDuringResize = 'true';
+                        }
+                    });
+                    
+                    // Set initial explicit width on resizing component BEFORE adding resizing class
+                    // This ensures the width is set before transitions start
+                    const componentWidth = (gridUnitSize * resizeStartColSpan) + (gap * (resizeStartColSpan - 1));
+                    component.style.width = `${componentWidth}px`;
+                    
+                    // Force a reflow to ensure the width is applied
+                    void component.offsetWidth;
+                    
+                    // Now add resizing class which will enable transitions for future changes
+                    component.classList.add('resizing');
+                    
+                    // Add class to grid to disable transitions on other components
+                    grid.classList.add('resizing-active');
+                    
+                    document.addEventListener('mousemove', handleResize);
+                    document.addEventListener('mouseup', stopResize);
+                });
+            });
+        }
+
+        // Function to update a single component's dimensions
+        function updateSingleComponentDimensions(component, gridWidth, gridUnitSize, gap, skipWidthClear = false) {
+            // Get colSpan from data attribute or width class
+            let colSpan = parseInt(component.dataset.colSpan) || 2;
+            const rowSpan = parseInt(component.dataset.rowSpan || '1');
+            
+            // Calculate height: rowSpan units * gridUnitSize + gaps between rows
+            const componentHeight = (gridUnitSize * rowSpan) + (gap * (rowSpan - 1));
+            
+            // Calculate width: colSpan units * gridUnitSize + gaps between columns
+            const componentWidth = (gridUnitSize * colSpan) + (gap * (colSpan - 1));
+            
+            // CRITICAL: Update gridColumn/gridRow in real-time during resize (just like we update DOM order during drag)
+            // This keeps the grid layout correct during resize, preventing other components from being affected
+            component.style.gridColumn = `span ${colSpan}`;
+            component.style.gridRow = `span ${rowSpan}`;
+            
+            // Set explicit height
+            component.style.height = `${componentHeight}px`;
+            
+            const isResizing = component.classList.contains('resizing');
+            
+            // If resizing, also set explicit width so it can animate
+            if (isResizing) {
+                component.style.width = `${componentWidth}px`;
+            } else if (!skipWidthClear && component.style.width) {
+                // Only clear explicit width if it was previously set (don't touch components that don't have explicit width)
+                component.style.width = '';
+            }
+            
+            // Update data attributes
+            component.dataset.colSpan = colSpan;
+            component.dataset.rowSpan = rowSpan;
+        }
+
+        // Function to update component heights based on grid units
+        function updateComponentHeights(skipWidthUpdates = false) {
+            const grid = document.getElementById('dashboard-grid');
+            const gridRect = grid.getBoundingClientRect();
+            const gridWidth = gridRect.width;
+            const gap = 24; // gap-4 = 1rem = 16px
+            const gridUnitSize = calculateGridUnitSize(gridWidth, gap);
+            
+            // Set grid-auto-rows to match grid unit size
+            grid.style.gridAutoRows = `${gridUnitSize}px`;
+            
+            // Update all component heights explicitly
+            const components = grid.querySelectorAll('.dashboard-component');
+            components.forEach(component => {
+                updateSingleComponentDimensions(component, gridWidth, gridUnitSize, gap, skipWidthUpdates);
+            });
+            
+            // Update guide boxes
+            updateGridGuideBoxes();
+        }
+        
+        // Function to create and update guide boxes showing available grid units
+        function updateGridGuideBoxes() {
+            const grid = document.getElementById('dashboard-grid');
+            const guideContainer = document.getElementById('grid-guide-boxes-container');
+            if (!grid || !guideContainer) return;
+            
+            // Use requestAnimationFrame to ensure grid has updated
+            requestAnimationFrame(() => {
+                const gridRect = grid.getBoundingClientRect();
+                const gridWidth = gridRect.width;
+                const gap = 24; // gap-4 = 1.5rem = 24px
+                const gridUnitSize = calculateGridUnitSize(gridWidth, gap);
+                const cols = getGridColumnCount();
+                
+                // Calculate how many rows we should show based on viewport height
+                // Use window inner height minus header and padding to determine visible area
+                const viewportHeight = window.innerHeight;
+                const gridTop = gridRect.top;
+                const availableHeight = viewportHeight - gridTop;
+                
+                // Calculate rows needed to fill visible area, with some buffer
+                // Each row takes: gridUnitSize + gap (except the last row doesn't have gap after it)
+                const rowsNeeded = Math.ceil(availableHeight / (gridUnitSize + gap));
+                const minRows = Math.max(4, rowsNeeded);
+                
+                // Clear existing guide boxes
+                guideContainer.innerHTML = '';
+                
+                // Create guide boxes for each grid unit position
+                for (let row = 0; row < minRows; row++) {
+                    for (let col = 0; col < cols; col++) {
+                        const guideBox = document.createElement('div');
+                        guideBox.className = 'grid-guide-box rounded-lg';
+                        
+                        // Calculate position: col * (unitSize + gap), row * (unitSize + gap)
+                        const left = col * (gridUnitSize + gap);
+                        const top = row * (gridUnitSize + gap);
+                        
+                        guideBox.style.left = `${left}px`;
+                        guideBox.style.top = `${top}px`;
+                        guideBox.style.width = `${gridUnitSize}px`;
+                        guideBox.style.height = `${gridUnitSize}px`;
+                        
+                        guideContainer.appendChild(guideBox);
+                    }
+                }
+                
+                // Calculate total height of all guide boxes created
+                // Formula: (number of rows * unit size) + (gaps between rows) + 96px
+                // For minRows rows, there are (minRows - 1) gaps between them
+                const totalGuideBoxesHeight = (minRows * gridUnitSize) + ((minRows - 1) * gap) + 96;
+                guideContainer.style.height = `${totalGuideBoxesHeight}px`;
+            });
+        }
+
+        // Update component heights on load and resize
+        window.addEventListener('resize', updateComponentHeights);
+        
+        // Update when grid is first rendered
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                updateComponentHeights();
+                setTimeout(() => {
+                    updateComponentHeights();
+                }, 100);
+            });
+        } else {
+            updateComponentHeights();
+            setTimeout(() => {
+                updateComponentHeights();
+            }, 100);
+        }
+
+        function handleResize(e) {
+            if (!isResizing || !resizingComponent) return;
+            
+            // Cancel any pending animation frame
+            if (resizeAnimationFrame) {
+                cancelAnimationFrame(resizeAnimationFrame);
+            }
+            
+            // Use requestAnimationFrame to throttle updates for smoother animation
+            resizeAnimationFrame = requestAnimationFrame(() => {
+                if (!isResizing || !resizingComponent) return;
+                
+                const deltaX = e.clientX - resizeStartX;
+                const deltaY = e.clientY - resizeStartY;
+                const grid = document.getElementById('dashboard-grid');
+                const gridRect = grid.getBoundingClientRect();
+                const gridWidth = gridRect.width;
+                const gap = 24; // gap-4 = 1rem = 16px
+                const gridUnitWidthWithGap = calculateGridUnitSize(gridWidth, gap); // Account for gaps
+                
+                // Height units are the same as width units (25% of grid width each)
+                const gridUnitHeightWithGap = gridUnitWidthWithGap;
+                
+                let newColSpan = resizeStartColSpan;
+                let newRowSpan = resizeStartRowSpan;
+                
+                // Calculate new spans based on handle and delta
+                // Since we only have bottom-right (se) handle, it resizes both width and height
+                if (resizeHandle === 'se') {
+                    // Bottom-right corner: resize both width (east) and height (south)
+                    const deltaUnitsX = Math.round(deltaX / gridUnitWidthWithGap);
+                    const deltaUnitsY = Math.round(deltaY / gridUnitHeightWithGap);
+                    newColSpan = resizeStartColSpan + deltaUnitsX;
+                    newRowSpan = resizeStartRowSpan + deltaUnitsY;
+                }
+                
+                // Clamp to valid range
+                // Width limit is the current grid column count, height limit is 4
+                const maxColSpan = getGridColumnCount();
+                newColSpan = Math.max(1, Math.min(maxColSpan, newColSpan));
+                newRowSpan = Math.max(1, Math.min(4, newRowSpan));
+                
+                // Get current spans
+                const currentColSpan = parseInt(resizingComponent.dataset.colSpan || resizeStartColSpan);
+                const currentRowSpan = parseInt(resizingComponent.dataset.rowSpan || resizeStartRowSpan);
+                
+                // Only update if spans changed
+                if (newColSpan !== currentColSpan || newRowSpan !== currentRowSpan) {
+                    // Update data attributes
+                    resizingComponent.dataset.colSpan = newColSpan;
+                    resizingComponent.dataset.rowSpan = newRowSpan;
+                    
+                    // Update only this component's dimensions (not all components)
+                    // This prevents other components from being affected during resize
+                    const gap = 24;
+                    const gridUnitSize = calculateGridUnitSize(gridWidth, gap);
+                    updateSingleComponentDimensions(resizingComponent, gridWidth, gridUnitSize, gap);
+                    
+                    // Don't call updateComponentTransforms during resize - it causes components to be repositioned
+                    // We only need to update dimensions, not reorder components
+                }
+                
+                resizeAnimationFrame = null;
+            });
+        }
+
+        function stopResize() {
+            // Cancel any pending animation frame
+            if (resizeAnimationFrame) {
+                cancelAnimationFrame(resizeAnimationFrame);
+                resizeAnimationFrame = null;
+            }
+            
+            // Clean up grid class in case of early return
+            const grid = document.getElementById('dashboard-grid');
+            
+            if (!resizingComponent) {
+                grid.classList.remove('resizing-active');
+                isResizing = false;
+                resizeHandle = null;
+                resizingComponent = null;
+                document.removeEventListener('mousemove', handleResize);
+                document.removeEventListener('mouseup', stopResize);
+                
+                // Clean up locked dimensions on all components in case of early return
+                const allComponents = Array.from(grid.querySelectorAll('.dashboard-component'));
+                allComponents.forEach(comp => {
+                    if (comp.dataset.lockedDuringResize === 'true') {
+                        comp.style.width = '';
+                        comp.style.height = '';
+                        delete comp.dataset.lockedDuringResize;
+                    }
+                });
+                
+                // Ensure animation flags are reset
+                isUpdatingTransforms = false;
+                isAnimating = false;
+                return;
+            }
+
+            // Remove resizing class
+            resizingComponent.classList.remove('resizing');
+            
+            // Remove class from grid to re-enable transitions on other components
+            grid.classList.remove('resizing-active');
+            
+            // Clear explicit width/height from resizing component
+            resizingComponent.style.width = '';
+            resizingComponent.style.height = '';
+            
+            // Clean up locked dimensions on other components
+            const allComponents = Array.from(grid.querySelectorAll('.dashboard-component'));
+            allComponents.forEach(comp => {
+                if (comp.dataset.lockedDuringResize === 'true') {
+                    // Clear locked dimensions to allow grid to handle sizing again
+                    comp.style.width = '';
+                    comp.style.height = '';
+                    delete comp.dataset.lockedDuringResize;
+                }
+            });
+            
+            // Update grid styles with new spans - this will position the component correctly
+            const colSpan = parseInt(resizingComponent.dataset.colSpan) || 2;
+            const rowSpan = parseInt(resizingComponent.dataset.rowSpan || '1');
+            resizingComponent.style.gridColumn = `span ${colSpan}`;
+            resizingComponent.style.gridRow = `span ${rowSpan}`;
+            
+            // Update component heights to ensure correct sizing
+            updateComponentHeights();
+            
+            // CRITICAL: Reset animation flags to allow dragging after resize
+            // These flags might have been set during resize animations and could block future drags
+            isUpdatingTransforms = false;
+            isAnimating = false;
+            
+            isResizing = false;
+            resizeHandle = null;
+            resizingComponent = null;
+            document.removeEventListener('mousemove', handleResize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
+        // Component selection from modal
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.component-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const componentType = card.dataset.componentType;
+                    addComponentToGrid(componentType);
+                });
+            });
+        });
+
+        // Close component dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dashboard-component .options-dropdown-button') && !e.target.closest('.dashboard-component .options-dropdown-menu')) {
+                document.querySelectorAll('.dashboard-component .options-dropdown-menu').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+            }
+        });
+
+        // Attach dragover/drop handlers to the GRID CONTAINER (like explore.html)
+        // This ensures the browser always recognizes it as a valid drop zone
+        const dashboardGrid = document.getElementById('dashboard-grid');
+        if (dashboardGrid) {
+            dashboardGrid.addEventListener('dragover', (e) => {
+                // CRITICAL: Always call preventDefault() FIRST to allow drop
+                // The grid must ALWAYS be a valid drop zone
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                if (!draggedElement) return;
+                
+                // Get all components (excluding the dragged one)
+                const components = Array.from(dashboardGrid.children).filter(child => 
+                    child.classList.contains('dashboard-component') && child !== draggedElement
+                );
+                
+                if (components.length === 0) return;
+                
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                
+                // Find the component the mouse is currently over
+                // Move happens immediately when mouse enters any component
+                let targetComponent = null;
+                
+                for (const comp of components) {
+                    const rect = comp.getBoundingClientRect();
+                    
+                    // Check if mouse is over this component
+                    const isOverComponent = mouseX >= rect.left && mouseX <= rect.right &&
+                                          mouseY >= rect.top && mouseY <= rect.bottom;
+                    
+                    if (isOverComponent) {
+                        targetComponent = comp;
+                        break;
+                    }
+                }
+                
+                // Add delay before reordering to prevent accidental moves when passing through
+                if (targetComponent) {
+                    // Get current DOM order
+                    const allChildren = Array.from(dashboardGrid.children);
+                    const draggedIndex = allChildren.indexOf(draggedElement);
+                    const targetIndex = allChildren.indexOf(targetComponent);
+                    
+                    // Skip if already in correct position
+                    if (draggedIndex === targetIndex) {
+                        // Clear timeout if we're already in the correct position
+                        if (reorderTimeout) {
+                            clearTimeout(reorderTimeout);
+                            reorderTimeout = null;
+                        }
+                        return;
+                    }
+                    
+                    // Check if we've already animated this position change
+                    const currentPosition = `${draggedIndex}-${targetIndex}`;
+                    if (lastAnimatedPosition === currentPosition) {
+                        console.log('⏭️ Already animated this position:', currentPosition);
+                        return;
+                    }
+                    
+                    // Skip if animation is already in progress
+                    if (isAnimating || isUpdatingTransforms) {
+                        console.log('⏭️ Skipping - animation already in progress', { isAnimating, isUpdatingTransforms });
+                        return;
+                    }
+                    
+                    // If we're over a different component than before, clear the old timeout
+                    if (reorderTimeout && lastDragTarget !== targetComponent) {
+                        clearTimeout(reorderTimeout);
+                        reorderTimeout = null;
+                    }
+                    
+                    // If we don't have a pending timeout, set one
+                    if (!reorderTimeout) {
+                        lastDragTarget = targetComponent;
+                        reorderTimeout = setTimeout(() => {
+                            // Clear the timeout reference
+                            reorderTimeout = null;
+                            
+                            // Verify we're still over the same target (in case it changed)
+                            const currentAllChildren = Array.from(dashboardGrid.children);
+                            const currentDraggedIndex = currentAllChildren.indexOf(draggedElement);
+                            const currentTargetIndex = currentAllChildren.indexOf(targetComponent);
+                            
+                            if (currentDraggedIndex === currentTargetIndex) {
+                                return; // Already in correct position
+                            }
+                            
+                            // Perform the reordering
+                            performReorder(targetComponent, currentDraggedIndex, currentTargetIndex);
+                        }, 100); // 100ms delay before reordering
+                    }
+                } else {
+                    // Not over any component - clear any pending timeout
+                    if (reorderTimeout) {
+                        clearTimeout(reorderTimeout);
+                        reorderTimeout = null;
+                        lastDragTarget = null;
+                    }
+                }
+            });
+            
+            // Function to perform the actual reordering
+            function performReorder(targetComponent, draggedIndex, targetIndex) {
+                console.log('🔄 performReorder called', {
+                    draggedElement: draggedElement?.id,
+                    targetComponent: targetComponent?.id,
+                    draggedIndex,
+                    targetIndex,
+                    lastAnimatedPosition
+                });
+                
+                const allChildren = Array.from(dashboardGrid.children);
+                
+                // Check if we've already animated this position change
+                const currentPosition = `${draggedIndex}-${targetIndex}`;
+                if (lastAnimatedPosition === currentPosition) {
+                    console.log('⏭️ Already animated this position, skipping');
+                    return;
+                }
+                
+                lastAnimatedPosition = currentPosition;
+                
+                // CAPTURE START POSITIONS BEFORE DOM REORDER (all components that will animate, including dragged)
+                const componentsToAnimate = allChildren.filter(c => 
+                    c.classList.contains('dashboard-component') && 
+                    c !== resizingComponent
+                );
+                
+                const startPositionsBeforeReorder = new Map();
+                componentsToAnimate.forEach(component => {
+                    const rect = component.getBoundingClientRect();
+                    startPositionsBeforeReorder.set(component, { x: rect.left, y: rect.top });
+                    console.log(`📍 START (before reorder) for ${component.id}: (${rect.left}, ${rect.top})`);
+                });
+                
+                // Determine insertion position: if dragged is before target, swap (insert after target)
+                // If dragged is after target, swap (insert before target)
+                const shouldInsertBefore = draggedIndex > targetIndex;
+                console.log('📌 Should insert before:', shouldInsertBefore);
+                
+                // Perform DOM move
+                const parent = draggedElement.parentNode;
+                parent.removeChild(draggedElement);
+                console.log('✂️ Removed dragged element from DOM');
+                
+                if (shouldInsertBefore) {
+                    dashboardGrid.insertBefore(draggedElement, targetComponent);
+                    console.log('📍 Inserted before target');
+                } else {
+                    const targetNextSibling = targetComponent.nextElementSibling;
+                    if (targetNextSibling) {
+                        dashboardGrid.insertBefore(draggedElement, targetNextSibling);
+                        console.log('📍 Inserted after target (before next sibling)');
+                    } else {
+                        dashboardGrid.appendChild(draggedElement);
+                        console.log('📍 Appended to end');
+                    }
+                }
+                
+                // Force grid to recalculate layout
+                void dashboardGrid.offsetHeight;
+                console.log('🔄 DOM reordered, calling updateComponentTransforms for animation');
+                
+                // Animate during drag - pass the captured start positions
+                requestAnimationFrame(() => {
+                    updateComponentTransforms(startPositionsBeforeReorder);
+                });
+            }
+            
+            dashboardGrid.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Reordering is handled in dragover for real-time feedback
+                console.log('✅ DROP EVENT FIRED');
+            });
+        }
+
+
+        // Update all story cards with random sections on load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.story-card-container .num-sections').forEach(span => {
+                span.textContent = `${getRandomInt(12, 20)} Sections`;
+            });
+            // Initial check for scroll button visibility on load
+            updateScrollButtons();
+        });
+
+        // Workspace Horizontal Scrolling Logic
+        const workspaceButtonsContainer = document.getElementById('workspace-buttons-container');
+        const workspaceLeftGradientOverlay = document.getElementById('workspace-left-gradient-overlay');
+        const workspaceRightGradientOverlay = document.getElementById('workspace-right-gradient-overlay');
+
+        const scrollStep = 150; // Pixels to scroll per arrow click
+        const scrollEndTolerance = 5; // Pixels from end to consider it "at the end" for hiding overlays
+
+        // Function to update the hidden state of scroll buttons
+        function updateScrollButtons() {
+            if (!workspaceButtonsContainer || !workspaceLeftGradientOverlay || !workspaceRightGradientOverlay) return;
+
+            const { scrollLeft, scrollWidth, clientWidth } = workspaceButtonsContainer;
+            const maxScrollLeft = scrollWidth - clientWidth;
+
+            const isScrollable = scrollWidth > clientWidth;
+
+            // Determine if at the left or right end with tolerance
+            const atLeftEnd = scrollLeft <= scrollEndTolerance;
+            const atRightEnd = scrollLeft >= (maxScrollLeft - scrollEndTolerance);
+
+            // Hide/show left gradient overlay for WORKSPACE
+            workspaceLeftGradientOverlay.classList.toggle('hidden', !isScrollable || atLeftEnd);
+            workspaceLeftGradientOverlay.style.pointerEvents = (!isScrollable || atLeftEnd) ? 'none' : 'all';
+
+            // Hide/show right gradient overlay for WORKSPACE
+            workspaceRightGradientOverlay.classList.toggle('hidden', !isScrollable || atRightEnd);
+            workspaceRightGradientOverlay.style.pointerEvents = (!isScrollable || atRightEnd) ? 'none' : 'all';
+        }
+
+        // Event listeners for arrow buttons
+        document.getElementById('scroll-left-button').addEventListener('click', () => {
+            workspaceButtonsContainer.scrollBy({
+                left: -scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        document.getElementById('scroll-right-button').addEventListener('click', () => {
+            workspaceButtonsContainer.scrollBy({
+                left: scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        // Add scroll event listener to update buttons when scrolling
+        workspaceButtonsContainer.addEventListener('scroll', updateScrollButtons);
+
+        // Recalculate button states on window resize.
+        window.addEventListener('resize', updateScrollButtons);
+
+        // Workspace Navbar sticky behavior on scroll
+        const workspaceNavBar = document.getElementById('workspace-nav-bar');
+        let lastScrollY = 0;
+        const mainHeader = document.querySelector('header');
+
+        // Initial update of --header-height CSS variable
+        document.documentElement.style.setProperty('--header-height', `${mainHeader.offsetHeight}px`);
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const headerHeight = mainHeader.offsetHeight;
+
+            // Update the CSS variable for sticky-nav top calculation
+            document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+
+            // Check if scrolling past the header
+            if (currentScrollY > headerHeight) {
+                if (currentScrollY > lastScrollY) {
+                    // Scrolling down
+                    workspaceNavBar.classList.add('hidden-up');
+                } else {
+                    // Scrolling up
+                    workspaceNavBar.classList.remove('hidden-up');
+                }
+            } else {
+                // At or near the top, always show the nav bar
+                workspaceNavBar.classList.remove('hidden-up');
+            }
+            lastScrollY = currentScrollY;
+        });
+
+        // Also update header height on resize in case it changes dynamically
+        window.addEventListener('resize', () => {
+            document.documentElement.style.setProperty('--header-height', `${mainHeader.offsetHeight}px`);
+            updateScrollButtons(); // Re-check horizontal scroll buttons too
+        });
+
+        // Edit/View Mode Toggle Functionality
+        let editMode = true; // Default to edit mode
+        
+        // Function to update the mode state and UI
+        function updateModeState() {
+            if (editMode) {
+                document.body.classList.remove('view-mode');
+                document.body.classList.add('edit-mode');
+            } else {
+                document.body.classList.remove('edit-mode');
+                document.body.classList.add('view-mode');
+            }
+            
+            // Update header height CSS variable after mode change
+            // Use requestAnimationFrame to ensure DOM has updated before measuring
+            requestAnimationFrame(() => {
+                const header = document.querySelector('header');
+                if (header) {
+                    document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`);
+                }
+            });
+            
+            // Update all "Switch to View Mode" / "Switch to Edit Mode" labels
+            document.querySelectorAll('.mode-toggle-link').forEach(link => {
+                link.textContent = editMode ? 'Switch to View Mode' : 'Switch to Edit Mode';
+            });
+        }
+        
+        // Function to attach event listeners to mode toggle links
+        function attachModeToggleListeners() {
+            document.querySelectorAll('.mode-toggle-link').forEach(link => {
+                // Check if listener already attached
+                if (link.dataset.modeToggleListener === 'attached') {
+                    return;
+                }
+                
+                // Mark as attached
+                link.dataset.modeToggleListener = 'attached';
+                
+                // Add click listener directly to the link
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation(); // Stop before other handlers
+                    editMode = !editMode;
+                    updateModeState();
+                    // Close the dropdown menu
+                    const menu = link.closest('.options-dropdown-menu');
+                    if (menu) {
+                        menu.classList.add('hidden');
+                    }
+                }, true); // Use capture phase to run before other handlers
+            });
+        }
+        
+        // Initialize mode state when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                updateModeState();
+                attachModeToggleListeners();
+            });
+        } else {
+            updateModeState();
+            attachModeToggleListeners();
+        }
+        
+        // Adapt Dashboard toggle functionality
+        let isAdaptMode = false; // Track whether showing "Adapt Dashboard to Device" or "View as Designed"
+        
+        function attachAdaptDashboardToggleListener() {
+            const adaptLink = document.getElementById('adapt-dashboard-toggle-link');
+            if (!adaptLink) {
+                return;
+            }
+            
+            // Check if listener already attached
+            if (adaptLink.dataset.adaptToggleListener === 'attached') {
+                return;
+            }
+            
+            // Mark as attached
+            adaptLink.dataset.adaptToggleListener = 'attached';
+            
+            // Add click listener
+            adaptLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                
+                // Toggle the state
+                isAdaptMode = !isAdaptMode;
+                
+                // Update the text
+                adaptLink.textContent = isAdaptMode ? 'View as Designed' : 'Adapt Dashboard to Device';
+                
+                // Close the dropdown menu
+                const menu = adaptLink.closest('.options-dropdown-menu');
+                if (menu) {
+                    menu.classList.add('hidden');
+                }
+            }, true);
+        }
+        
+        // Initialize adapt dashboard toggle listener
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                attachAdaptDashboardToggleListener();
+            });
+        } else {
+            attachAdaptDashboardToggleListener();
+        }
+        
+        // Re-attach listeners when menus are moved to body (using MutationObserver)
+        const observer = new MutationObserver(() => {
+            attachModeToggleListeners();
+            attachAdaptDashboardToggleListener();
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+    </script>
+</body>
+</html>

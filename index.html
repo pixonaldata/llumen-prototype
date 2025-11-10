@@ -7,33 +7,58 @@
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div id="crimson-app" class="bg-gray-900">
         <header class="bg-gray-800 py-4 px-4 md:px-8 flex items-center justify-between shadow-lg sticky top-0 z-30">
             <!-- Left-aligned group: Logo, divider, client logo, and navigation -->
             <div class="flex items-center">
-                <div class="w-8 h-8 flex items-center justify-center rounded-md overflow-hidden">
-                    <svg viewBox="0 0 32 32" class="w-full h-full">
-                        <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" /> </svg>
-                </div>
-                <div class="h-6 border-l border-gray-600 ml-4"></div> <!-- Added ml-4 for spacing -->
-                <div class="flex items-center justify-center px-3 py-1 rounded-md bg-[#1a1a1a] text-white text-sm font-semibold h-8 ml-4"> <!-- Added ml-4 for spacing -->
-                    <span>Client Logo</span>
-                </div>
+                <a href="index.html">
+                    <div class="w-9 h-9 flex items-center justify-center rounded-lg overflow-hidden">
+                        <svg viewBox="0 0 32 32" class="w-full h-full">
+                            <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" />
+                        </svg>
+                    </div>
+                </a>
+                <div class="h-9 border-l border-gray-600 ml-4"></div> <!-- Added ml-4 for spacing -->
+                <a href="index.html">
+                    <div class="flex items-center justify-center px-3 py-1 rounded-lg bg-[#1a1a1a] text-white text-sm font-semibold h-9 ml-4"> <!-- Added ml-4 for spacing -->
+                        <span>Client Logo</span>
+                    </div>
+                </a>
                 <!-- New Navigation Menu - now directly next to client logo with controlled spacing -->
-                <nav class="flex items-center ml-4"> <!-- Added ml-4 for spacing from client logo -->
+                <!-- <nav class="flex items-center ml-4">
                     <a href="index.html" class="px-3 py-2 rounded-md text-sm font-bold text-white transition duration-200">My Workspaces</a>
                     <a href="explore.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">Explore</a>
-                </nav>
+                </nav> -->
+                <div class="flex items-center bg-gray-700 rounded-lg w-[20rem] ml-4">
+                    <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
+                </div>
             </div>
 
             <!-- Right-aligned group of icons and user dropdown -->
             <div class="flex items-center">
+                <!-- Create Dropdown -->
+                <div class="relative mr-4">
+                    <button id="create-dropdown-button" class="flex items-center bg-gray-700 hover:bg-gray-600 text-white transition duration-200 focus:outline-none px-3 pl-2.5 py-2 rounded-md">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span class="text-sm font-medium">Create</span>
+                    </button>
+                    <div id="create-dropdown-menu" class="options-dropdown-menu hidden">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Briefing'); return false;">Briefing</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Story'); return false;">Story</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Dashboard'); return false;">Dashboard</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Whiteboard'); return false;">Whiteboard</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Workspace</a>
+                    </div>
+                </div>
+
                 <!-- Replaced original search button with the search container -->
-                <div id="search-container" class="relative flex items-center">
-                    <button id="search-icon-button" class="text-gray-300 hover:text-red-400 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
+                <div id="search-container" class="relative flex items-center mr-3 hidden">
+                    <button id="search-icon-button" class="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-400 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </button>
                     <div id="search-input-wrapper" class="absolute right-0 flex items-center bg-gray-700 rounded-full overflow-hidden transition-all duration-300 ease-in-out">
@@ -43,15 +68,16 @@
                 </div>
 
                 <!-- Notification Icon Button with margin-left for spacing from search -->
-                <button class="text-gray-300 hover:text-red-400 p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 ml-2">
+                <button class="notifications-button round-button mr-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                 </button>
+                
                 <!-- User Dropdown with specific margins -->
-                <div class="relative ml-4">
-                    <button id="user-dropdown-button" class="flex items-center text-gray-300 hover:text-red-400 transition duration-200 focus:outline-none">
-                        <img src="https://placehold.co/32x32/555/fff?text=J" alt="User Avatar" class="rounded-full">
+                <div class="relative">
+                    <button id="user-dropdown-button" class="user-dropdown-button round-button bg-gray-600 hover:bg-gray-500">
+                        <span class="">J</span>
                     </button>
-                    <div id="user-dropdown-menu" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden options-dropdown-menu">
+                    <div id="user-dropdown-menu" class="options-dropdown-menu hidden">
                         <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Account Settings</a>
                         <a href="platform-settings/overview.html" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Platform Settings</a>
                         <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Help</a>
@@ -63,55 +89,59 @@
 
         <nav id="workspace-nav-bar" class="bg-gray-800 py-3 px-4 md:px-8 shadow-md sticky-nav flex items-center justify-center">
             <div id="workspace-left-gradient-overlay" class="scroll-gradient-overlay left workspace-gradient-overlay">
-                <button id="scroll-left-button" class="workspace-scroll-button p-2 rounded-full text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400">
+                <button id="scroll-left-button" class="workspace-scroll-button p-2 rounded-full text-gray-400">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
             </div>
 
             <div id="workspace-buttons-container" class="flex-grow flex overflow-x-auto whitespace-nowrap space-x-2 sm:space-x-4 scrollbar-hide py-1">
                 <!-- New "Create Workspace" Button -->
-                <button class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 relative group"
+                <!-- <button class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 relative group"
                         id="create-workspace-button" data-tooltip="Create Workspace">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 </button>
-                <div class="h-8 border-l border-gray-600 mx-2"></div> <!-- Separator before All (h-7 for 1.75rem, to match button height) -->
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 active text-sm">
+
+                <div class="h-8 border-l border-gray-600 mx-2"></div> -->
+
+                <a href="index.html" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-red-600 active transition duration-200 text-sm">
                     <span>All</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Private">
+                </a>
+                <a href="workspaces/private.html" data-workspace="Private" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>Private</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Shared with Me">
+                </a>
+                <a href="workspaces/shared.html" data-workspace="Shared with Me" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>Shared with Me</span>
-                </button>
+                </a>
+
                 <div class="h-8 border-l border-gray-600 mx-2"></div> <!-- Separator after Shared with Me (h-7 for 1.75rem, to match button height) -->
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Finance">
+                
+                <a href="workspaces/finance.html" data-workspace="Finance" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>Finance</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Operations">
+                </a>
+                <a href="workspaces/finance.html" data-workspace="Operations" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none text-sm">
                     <span>Operations</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="HR">
+                </a>
+                <a href="workspaces/finance.html" data-workspace="HR" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>HR</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Sales">
+                </a>
+                <a href="workspaces/finance.html" data-workspace="Sales" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>Sales</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Marketing">
+                </a>
+                <a href="workspaces/finance.html" data-workspace="Marketing" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>Marketing</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="IT">
+                </a>
+                <a href="workspaces/finance.html" data-workspace="IT" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>IT</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Product">
+                </a>
+                <a href="workspaces/finance.html" data-workspace="Product" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>Product</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Engineering">
+                </a>
+                <a href="workspaces/finance.html" data-workspace="Engineering" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>Engineering</span>
-                </button>
-                <button class="workspace-nav-item flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm" data-workspace="Customer Success">
+                </a>
+                <a href="workspaces/finance.html" data-workspace="Customer Success" class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm">
                     <span>Customer Success</span>
-                </button>
+                </a>
             </div>
 
             <div id="workspace-right-gradient-overlay" class="scroll-gradient-overlay right workspace-gradient-overlay">
@@ -123,7 +153,7 @@
 
         <main class="flex-grow p-4 md:p-8 z-10"> <!-- Removed overflow-y-auto here -->
             <section class="mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold mb-4 text-white">Latest Briefings</h2>
+                <h2 class="text-lg md:text-xl font-bold mb-4 text-white">Latest Briefings</h2>
                 <div class="relative"> <div id="briefings-left-gradient-overlay" class="scroll-gradient-overlay left">
                         <button id="briefings-scroll-left-button" class="briefings-scroll-button p-2 rounded-full text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-400">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
@@ -148,15 +178,18 @@
                                     Alert
                                 </div>
                                 <div class="relative p-4 flex flex-col justify-end h-full">
-                                    <p class="text-sm text-gray-300 mb-1">Operations</p>
+                                    <div class="flex items-center space-x-2 text-sm mb-1">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                        <span class="font-medium">Operations</span>
+                                    </div>
                                     <h3 class="text-xl font-semibold text-white line-clamp-2">Supply Chain Alert: Critical Component Shortage</h3>
                                     <p class="text-xs text-gray-300 mt-1">2 hours ago</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
-                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                        <button class="options-dropdown-button">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                         </button>
-                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                        <div class="options-dropdown-menu w-8 hidden">
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -176,15 +209,18 @@
                                     Report
                                 </div>
                                 <div class="relative p-4 flex flex-col justify-end h-full">
-                                    <p class="text-sm text-gray-300 mb-1">Finance</p>
+                                    <div class="flex items-center space-x-2 text-sm mb-1">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                        <span class="font-medium">Finance</span>
+                                    </div>
                                     <h3 class="text-xl font-semibold text-white line-clamp-2">Market Volatility Impact on Q3 Forecasts</h3>
                                     <p class="text-xs text-gray-300 mt-1">Yesterday</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
-                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                        <button class="options-dropdown-button">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                         </button>
-                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                        <div class="options-dropdown-menu w-8 hidden">
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -204,15 +240,18 @@
                                     Feedback
                                 </div>
                                 <div class="relative p-4 flex flex-col justify-end h-full">
-                                    <p class="text-sm text-gray-300 mb-1">HR</p>
+                                    <div class="flex items-center space-x-2 text-sm mb-1">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                        <span class="font-medium">HR</span>
+                                    </div>
                                     <h3 class="text-xl font-semibold text-white line-clamp-2">Employee Feedback: Key Takeaways & Action Plans</h3>
                                     <p class="text-xs text-gray-300 mt-1">3 days ago</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
-                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                        <button class="options-dropdown-button">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                         </button>
-                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                        <div class="options-dropdown-menu w-8 hidden">
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -232,15 +271,18 @@
                                     Report
                                 </div>
                                 <div class="relative p-4 flex flex-col justify-end h-full">
-                                    <p class="text-sm text-gray-300 mb-1">Sales</p>
+                                    <div class="flex items-center space-x-2 text-sm mb-1">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                        <span class="font-medium">Sales</span>
+                                    </div>
                                     <h3 class="text-xl font-semibold text-white line-clamp-2">Q1 Lead Generation: Performance & Strategy</h3>
                                     <p class="text-xs text-gray-300 mt-1">1 week ago</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
-                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                        <button class="options-dropdown-button">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                         </button>
-                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                        <div class="options-dropdown-menu w-8 hidden">
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -260,15 +302,18 @@
                                     Update
                                 </div>
                                 <div class="relative p-4 flex flex-col justify-end h-full">
-                                    <p class="text-sm text-gray-300 mb-1">IT</p>
+                                    <div class="flex items-center space-x-2 text-sm mb-1">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                        <span class="font-medium">IT</span>
+                                    </div>
                                     <h3 class="text-xl font-semibold text-white line-clamp-2">System Upgrade: Upcoming Changes and Benefits</h3>
                                     <p class="text-xs text-gray-300 mt-1">4 days ago</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
-                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                        <button class="options-dropdown-button">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                         </button>
-                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                        <div class="options-dropdown-menu w-8 hidden">
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -288,15 +333,18 @@
                                     Report
                                 </div>
                                 <div class="relative p-4 flex flex-col justify-end h-full">
-                                    <p class="text-sm text-gray-300 mb-1">Marketing</p>
+                                    <div class="flex items-center space-x-2 text-sm mb-1">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                        <span class="font-medium">Marketing</span>
+                                    </div>
                                     <h3 class="text-xl font-semibold text-white line-clamp-2">Campaign Performance: Deep Dive into Q1 Results</h3>
                                     <p class="text-xs text-gray-300 mt-1">6 days ago</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
-                                        <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                        <button class="options-dropdown-button">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                         </button>
-                                        <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                        <div class="options-dropdown-menu w-8 hidden">
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                             <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -316,7 +364,7 @@
 
             <!-- NEW: Featured Stories Section (Full-Width Slider) -->
             <section class="featured-stories mb-8 -mx-4 md:-mx-8">
-                <h2 class="text-2xl md:text-3xl font-bold mb-4 px-4 md:px-8 text-white">Featured Stories</h2>
+                <h2 class="text-lg md:text-xl font-bold mb-4 px-4 md:px-8 text-white">Featured Stories</h2>
                 <div id="hero-slider" class="relative w-full overflow-hidden shadow-xl" style="height: 30rem;">
                     <div id="slider-inner" class="relative w-full h-full">
                         <!-- Slider Item 1 -->
@@ -346,7 +394,10 @@
                             </div>
                             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
                             <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
-                                <p class="text-sm text-gray-300 mb-1">Marketing</p>
+                                <div class="flex items-center space-x-2 text-sm mb-1">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                    <span class="font-medium">Marketing</span>
+                                </div>
                                 <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">New Campaign Launch: Q3 Strategy & Expected ROI</h3>
                                 <p class="text-sm text-gray-400 mt-1">10 Sections</p>
                                 <button class="mt-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 pl-2 pr-4 rounded-lg flex items-center space-x-2 transition duration-200" onclick="alertMessage('Starting story: New Campaign Launch...', 'info')">
@@ -379,7 +430,10 @@
                             </div>
                             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
                             <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
-                                <p class="text-sm text-gray-300 mb-1">Product</p>
+                                <div class="flex items-center space-x-2 text-sm mb-1">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                    <span class="font-medium">Product</span>
+                                </div>
                                 <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">Product Roadmap 2025: Innovations & User Experience</h3>
                                 <p class="text-sm text-gray-400 mt-1">12 Sections</p>
                                 <button class="mt-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 pl-2 pr-4 rounded-lg flex items-center space-x-2 transition duration-200" onclick="alertMessage('Starting story: Product Roadmap...', 'info')">
@@ -412,7 +466,10 @@
                             </div>
                             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
                             <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
-                                <p class="text-sm text-gray-300 mb-1">Operations</p>
+                                <div class="flex items-center space-x-2 text-sm mb-1">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                    <span class="font-medium">Operations</span>
+                                </div>
                                 <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">Optimizing Logistics: Efficiency Gains in Q4 Operations</h3>
                                 <p class="text-sm text-gray-400 mt-1">8 Sections</p>
                                 <button class="mt-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 pl-2 pr-4 rounded-lg flex items-center space-x-2 transition duration-200" onclick="alertMessage('Starting story: Optimizing Logistics...', 'info')">
@@ -431,12 +488,16 @@
                 </div>
             </section>
 
-            <section class="mb-8"> <h2 class="text-2xl md:text-3xl font-bold mb-4 text-white">Continue Viewing</h2>
+            <section class="mb-8">
+                <h2 class="text-lg md:text-xl font-bold mb-4 text-white">Continue Viewing</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
                         <img src="https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+current+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
                         <div class="p-4">
-                            <p class="text-sm text-gray-400 mb-1">Finance</p>
+                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                <span class="font-medium">Finance</span>
+                            </div>
                             <h3 class="text-xl font-semibold text-white line-clamp-2">Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments</h3>
                             <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
                                 <span>Story</span>
@@ -448,10 +509,10 @@
                             <p class="text-sm text-red-400 mt-2">75% Complete (Section 12 of 16)</p>
                             <!-- Options Dropdown -->
                             <div class="absolute top-2 right-2 z-20">
-                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <button class="options-dropdown-button">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                 </button>
-                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                <div class="options-dropdown-menu w-8 hidden">
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -462,14 +523,18 @@
                 </div>
             </section>
 
-            <section class="mb-8"> <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl md:text-3xl font-bold text-white">Recommended for You</h2>
-                    </div>
+            <section class="mb-8">
+
+                <h2 class="text-lg md:text-xl font-bold mb-4 text-white">Recommended for You</h2>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
                         <img src="https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
                         <div class="p-4">
-                            <p class="text-sm text-gray-400 mb-1">Finance</p>
+                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                <span class="font-medium">Finance</span>
+                            </div>
                             <h3 class="text-xl font-semibold text-white line-clamp-2">Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments</h3>
                             <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
                                 <span>Story</span>
@@ -477,10 +542,10 @@
                             </div>
                             <!-- Options Dropdown -->
                             <div class="absolute top-2 right-2 z-20">
-                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <button class="options-dropdown-button">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                 </button>
-                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                <div class="options-dropdown-menu w-8 hidden">
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -491,7 +556,10 @@
                     <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
                         <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
                         <div class="p-4">
-                            <p class="text-sm text-gray-400 mb-1">Operations</p>
+                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                <span class="font-medium">Operations</span>
+                            </div>
                             <h3 class="text-xl font-semibold text-white line-clamp-2">Operations Dashboard: Live KPIs and Key Supply Chain Updates for the Quarter</h3>
                             <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
                                 <span>Dashboard</span>
@@ -499,10 +567,10 @@
                             </div>
                             <!-- Options Dropdown -->
                             <div class="absolute top-2 right-2 z-20">
-                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <button class="options-dropdown-button">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                 </button>
-                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                <div class="options-dropdown-menu w-8 hidden">
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -513,7 +581,10 @@
                     <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
                         <img src="https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
                         <div class="p-4">
-                            <p class="text-sm text-gray-400 mb-1">HR</p>
+                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                <span class="font-medium">HR</span>
+                            </div>
                             <h3 class="text-xl font-semibold text-white line-clamp-2">Employee Engagement Trends 2024: Key Insights and Retention Strategies</h3>
                             <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
                                 <span>Story</span>
@@ -521,10 +592,10 @@
                             </div>
                             <!-- Options Dropdown -->
                             <div class="absolute top-2 right-2 z-20">
-                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <button class="options-dropdown-button">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                 </button>
-                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                <div class="options-dropdown-menu w-8 hidden">
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -535,7 +606,10 @@
                     <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
                         <img src="https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
                         <div class="p-4">
-                            <p class="text-sm text-gray-400 mb-1">Sales</p>
+                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                <span class="font-medium">Sales</span>
+                            </div>
                             <h3 class="text-xl font-semibold text-white line-clamp-2">Monthly Sales Performance: Detailed Regional Breakdowns and Future Forecasts</h3>
                             <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
                                 <span>Dashboard</span>
@@ -543,10 +617,10 @@
                             </div>
                             <!-- Options Dropdown -->
                             <div class="absolute top-2 right-2 z-20">
-                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <button class="options-dropdown-button">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                 </button>
-                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                <div class="options-dropdown-menu w-8 hidden">
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -557,7 +631,10 @@
                     <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer story-card-container">
                         <img src="https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section" alt="Story Thumbnail" class="w-full h-48 object-cover">
                         <div class="p-4">
-                            <p class="text-sm text-gray-400 mb-1">Marketing</p>
+                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                <span class="font-medium">Marketing</span>
+                            </div>
                             <h3 class="text-xl font-semibold text-white line-clamp-2">2025 Marketing Strategy Overview: Key Initiatives and Anticipated Impact Analysis</h3>
                             <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
                                 <span>Story</span>
@@ -565,10 +642,10 @@
                             </div>
                             <!-- Options Dropdown -->
                             <div class="absolute top-2 right-2 z-20">
-                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <button class="options-dropdown-button">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                 </button>
-                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                <div class="options-dropdown-menu w-8 hidden">
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -579,7 +656,10 @@
                     <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer">
                         <img src="https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page" alt="Dashboard Thumbnail" class="w-full h-48 object-cover">
                         <div class="p-4">
-                            <p class="text-sm text-gray-400 mb-1">IT</p>
+                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                <span class="font-medium">IT</span>
+                            </div>
                             <h3 class="text-xl font-semibold text-white line-clamp-2">IT Infrastructure Monitoring: Real-time Network Health and Security Alerts</h3>
                             <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
                                 <span>Dashboard</span>
@@ -587,10 +667,10 @@
                             </div>
                             <!-- Options Dropdown -->
                             <div class="absolute top-2 right-2 z-20">
-                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <button class="options-dropdown-button">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s-.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                 </button>
-                                <div class="options-dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+                                <div class="options-dropdown-menu w-8 hidden">
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">View Details</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Delete</a>
@@ -602,75 +682,137 @@
             </section>
         </main>
 
-        <button id="ai-chat-button" class="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-lg transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400 z-50">
-            <!-- Chat Bubble Icon SVG -->
-             <img src="ai-icon.svg" alt="AI Chat Icon" class="w-8 h-8" />
-            <!-- <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
-            </svg> -->
-        </button>
+    </div>
 
-        <div id="ai-chat-window" class="fixed bg-gray-800 rounded-xl shadow-2xl flex overflow-hidden transition-all duration-300 ease-in-out z-50">
-            <div id="chat-content-wrapper" class="flex flex-col flex-shrink-0 w-80 h-full">
-                <div class="bg-gray-700 p-3 flex items-center justify-between">
-                    <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
-                    <div class="flex space-x-2">
-                        <button id="expand-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><path d="M21 3 14 10"></path><path d="M3 21 10 14"></path></svg>
-                        </button>
-                        <button id="close-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
-                    <div class="flex justify-start">
-                        <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%]">
-                            Hello! I'm Lumen. How can I help you today?
-                        </div>
-                    </div>
-                    <div class="flex justify-end">
-                        <div class="bg-blue-600 text-white p-2 rounded-lg max-w-[80%]">
-                            Show me the latest Q2 Finance story.
-                        </div>
-                    </div>
-                </div>
-                <div class="p-3 border-t border-gray-700 flex items-center">
-                    <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm placeholder-gray-400">
-                    <button id="send-chat-button" class="ml-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400" disabled>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+    <!-- Create Content Modal -->
+    <div id="create-content-modal" class="fixed inset-0 bg-black p-10 bg-opacity-50 flex justify-center items-start z-50 hidden">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-h-full max-w-[680px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 id="create-content-modal-title" class="text-xl font-semibold text-white">Create</h2>
+                    <button id="close-create-content-modal" class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
                     </button>
                 </div>
             </div>
 
-            <div id="ai-panel-separator" class="hidden"></div>
-
-            <div id="ai-interactive-panel" class="relative flex-shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out bg-gray-900 rounded-xl shadow-inner">
-                <div class="panel-header p-3 flex items-center justify-between rounded-tr-xl">
-                    <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
-                    <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg>
-                    </button>
+            <!-- Modal Content -->
+            <div id="create-content-modal-content" class="flex-1 overflow-y-auto p-6">
+                <p id="create-content-modal-description" class="text-gray-300 font-semibold mb-6">Select a Workspace to proceed</p>
+                
+                <!-- Private Section -->
+                <div>
+                    <a href="#" id="private-workspace-link" class="block w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 transition duration-200 text-white flex items-center">
+                        <span class="material-symbols-outlined mr-3" style="font-size: 20px;">lock</span>
+                        <span class="text-sm font-medium">Private</span>
+                    </a>
                 </div>
-                <div id="interactive-panel-content" class="flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
-                    <p>Interactive content will appear here.</p>
+
+                <!-- Workspaces Section -->
+                <div>
+                    <div class="border-t border-gray-700 my-4"></div>
+                    <div id="workspaces-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Workspace links will be dynamically generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-700">
+                <div class="flex items-center justify-end space-x-3">
+                    <button type="button" id="cancel-create-content" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                        Cancel
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <button id="ai-chat-button" class="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-3 rounded-full shadow-lg transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400 z-50">
+        <!-- Chat Bubble Icon SVG -->
+         <img src="ai-icon.svg" alt="AI Chat Icon" class="w-6 h-6" />
+        <!-- <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        </svg> -->
+    </button>
+
+    <div id="ai-chat-window" class="fixed bg-gray-800 rounded-xl shadow-2xl flex overflow-hidden transition-all duration-300 ease-in-out z-50">
+        <div id="chat-content-wrapper" class="flex flex-col flex-shrink-0 w-80 h-full">
+            <div class="bg-gray-700 p-3 flex items-center justify-between">
+                <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
+                <div class="flex space-x-2">
+                    <button id="expand-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><path d="M21 3 14 10"></path><path d="M3 21 10 14"></path></svg>
+                    </button>
+                    <button id="close-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
+                <div class="flex justify-start">
+                    <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%]">
+                        Hello! I'm Lumen. How can I help you today?
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg max-w-[80%]">
+                        Show me the latest Q2 Finance story.
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-700 flex items-center">
+                <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm placeholder-gray-400">
+                <button id="send-chat-button" class="ml-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400" disabled>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="ai-panel-separator" class="hidden"></div>
+
+        <div id="ai-interactive-panel" class="relative flex-shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out bg-gray-900 rounded-xl shadow-inner">
+            <div class="panel-header p-3 flex items-center justify-between rounded-tr-xl">
+                <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
+                <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg>
+                </button>
+            </div>
+            <div id="interactive-panel-content" class="flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
+                <p>Interactive content will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ai-chat.js"></script>
+    <script src="js/create-content-modal.js"></script>
+
     <script>
         console.log("Script loaded and starting..."); // Added for debugging
 
-        // Utility for toggling dropdowns
-        function setupDropdown(buttonId, menuId) {
+        // Utility for toggling dropdowns with mutual exclusivity
+        function setupDropdown(buttonId, menuId, otherMenuId) {
             const button = document.getElementById(buttonId);
             const menu = document.getElementById(menuId);
+            const otherMenu = otherMenuId ? document.getElementById(otherMenuId) : null;
 
             if (button && menu) {
                 button.addEventListener('click', (event) => {
                     event.stopPropagation(); // Prevent document click from immediately closing
-                    menu.classList.toggle('hidden');
+                    const wasHidden = menu.classList.contains('hidden');
+                    
+                    // Close the other dropdown if it exists
+                    if (otherMenu && !otherMenu.classList.contains('hidden')) {
+                        otherMenu.classList.add('hidden');
+                    }
+                    
+                    // Toggle this dropdown
+                    if (wasHidden) {
+                        menu.classList.remove('hidden');
+                    } else {
+                        menu.classList.add('hidden');
+                    }
                 });
 
                 // Close dropdown if clicked outside
@@ -682,8 +824,11 @@
             }
         }
 
-        // Setup User Dropdown
-        setupDropdown('user-dropdown-button', 'user-dropdown-menu');
+        // Setup User Dropdown (with reference to Create dropdown)
+        setupDropdown('user-dropdown-button', 'user-dropdown-menu', 'create-dropdown-menu');
+
+        // Setup Create Dropdown (with reference to User dropdown)
+        setupDropdown('create-dropdown-button', 'create-dropdown-menu', 'user-dropdown-menu');
 
 
         // Custom message box function instead of alert()
@@ -735,276 +880,6 @@
                 });
             }, 3000);
         }
-
-        // Handle Workspace navigation
-        document.querySelectorAll('.workspace-nav-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const selectedWorkspace = this.dataset.workspace;
-
-                // Remove active class from all workspace items
-                document.querySelectorAll('.workspace-nav-item').forEach(navItem => {
-                    navItem.classList.remove('active', 'bg-red-600', 'border', 'border-red-500', 'font-semibold');
-                    navItem.classList.add('bg-gray-700'); // Revert to default background
-                    navItem.classList.remove('hover:bg-gray-600'); // Ensure hover is removed
-                    navItem.classList.add('hover:bg-gray-600'); // Add the new hover
-                });
-
-                // Add active class to the clicked item
-                this.classList.add('active', 'bg-red-600', 'border', 'border-red-500', 'font-semibold');
-                this.classList.remove('bg-gray-700'); // Remove default background
-                this.classList.remove('hover:bg-gray-600'); // Ensure hover is removed for active state
-                this.classList.add('hover:bg-red-700'); // Add hover for active state (optional, but good practice)
-
-                // Simulate navigation to workspace page
-                alertMessage(`Navigating to ${selectedWorkspace} Workspace Page...`, 'info');
-                // In a real app, you would use window.location.href or a routing library here
-            });
-        });
-
-        // AI Chat Window functionality
-        const aiChatButton = document.getElementById('ai-chat-button');
-        const aiChatWindow = document.getElementById('ai-chat-window');
-        const closeChatButton = document.getElementById('close-chat-button');
-        const expandChatButton = document.getElementById('expand-chat-button');
-        const chatInput = document.getElementById('chat-input');
-        const sendChatButton = document.getElementById('send-chat-button');
-        const chatMessagesContainer = document.getElementById('chat-messages');
-        const interactivePanel = document.getElementById('ai-interactive-panel');
-        const interactivePanelTitle = document.getElementById('interactive-panel-title');
-        const interactivePanelContent = document.getElementById('interactive-panel-content');
-        const closeInteractivePanelButton = document.getElementById('close-interactive-panel-button');
-        const aiPanelSeparator = document.getElementById('ai-panel-separator');
-
-        // Global variable to hold reference to the last generated toggle button
-        let lastToggleButtonElement = null;
-
-        // Function to toggle chat window visibility (open/close)
-        function toggleChatWindowVisibility() {
-            console.log("toggleChatWindowVisibility called.");
-            if (aiChatWindow.classList.contains('chat-window-open')) {
-                console.log("Closing chat window.");
-                aiChatWindow.classList.remove('chat-window-open');
-                aiChatWindow.classList.remove('is-minimal');
-                aiChatWindow.classList.remove('is-fullscreen');
-                aiChatWindow.classList.remove('has-interactive-panel');
-                toggleInteractivePanel('hide');
-
-                setTimeout(() => {
-                    if (!aiChatWindow.classList.contains('chat-window-open')) {
-                        aiChatWindow.style.display = 'none';
-                    }
-                }, 300);
-
-            } else {
-                console.log("Opening chat window.");
-                aiChatWindow.style.display = 'flex';
-                void aiChatWindow.offsetWidth; 
-                aiChatWindow.classList.add('chat-window-open', 'is-minimal');
-                chatInput.focus();
-                console.log("Chat window opened to minimal state.");
-            }
-            updateExpandCollapseButton();
-        }
-
-        // Function to toggle fullscreen mode
-        function toggleFullscreen() {
-            console.log("toggleFullscreen called.");
-            if (aiChatWindow.classList.contains('is-fullscreen')) {
-                console.log("Exiting fullscreen.");
-                aiChatWindow.classList.remove('is-fullscreen');
-                aiChatWindow.classList.add('is-minimal');
-                console.log("Exited fullscreen, CSS transition back to minimal expected.");
-            } else {
-                console.log("Entering fullscreen.");
-                aiChatWindow.classList.remove('is-minimal'); 
-                aiChatWindow.classList.add('is-fullscreen');
-                console.log("Entered fullscreen, CSS transition to fullscreen expected.");
-            }
-            chatInput.focus();
-            updateExpandCollapseButton();
-        }
-
-        // Update expand/collapse button icon
-        function updateExpandCollapseButton() {
-            if (aiChatWindow.classList.contains('is-fullscreen')) {
-                // Show minimize-2 icon
-                expandChatButton.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><path d="M14 10 21 3"/><path d="M3 21 10 14"/></svg>`;
-            } else {
-                // Show maximize-2 icon
-                expandChatButton.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><path d="M21 3 14 10"/><path d="M3 21 10 14"/></svg>`;
-            }
-        }
-
-        // Function to show/hide the interactive sub-panel
-        function toggleInteractivePanel(action, componentType = null) {
-            console.log("toggleInteractivePanel called with action:", action, "and componentType:", componentType);
-            if (action === 'toggle') {
-                action = interactivePanel.classList.contains('is-active') ? 'hide' : 'show';
-                if (lastToggleButtonElement && lastToggleButtonElement.dataset.componentType) {
-                    componentType = lastToggleButtonElement.dataset.componentType;
-                } else if (action === 'show') {
-                    console.warn("Could not determine component type for toggle. Defaulting to chart.");
-                    componentType = 'chart';
-                }
-            }
-
-            if (action === 'show') {
-                console.log("Showing interactive panel.");
-                interactivePanel.classList.add('is-active');
-                aiPanelSeparator.classList.remove('hidden');
-                setTimeout(() => aiPanelSeparator.classList.add('is-active'), 50);
-
-                aiChatWindow.classList.add('has-interactive-panel');
-
-                if (componentType === 'chart') {
-                    interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-600 rounded-md flex items-center justify-center"><p class="text-white text-lg">📈 Placeholder Chart Data</p></div>`;
-                } else if (componentType === 'map') {
-                    interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-600 rounded-md flex items-center justify-center"><p class="text-white text-lg">🗺️ Placeholder Map Data</p></div>`;
-                }
-
-                if (lastToggleButtonElement) {
-                    lastToggleButtonElement.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Hide Component`;
-                    lastToggleButtonElement.dataset.componentType = componentType;
-                }
-
-            } else if (action === 'hide') {
-                console.log("Hiding interactive panel.");
-                interactivePanel.classList.remove('is-active');
-                aiPanelSeparator.classList.remove('is-active');
-                aiPanelSeparator.classList.add('hidden');
-
-                aiChatWindow.classList.remove('has-interactive-panel');
-                interactivePanelContent.innerHTML = '<p>Interactive content will appear here.</p>';
-
-                if (lastToggleButtonElement) {
-                    lastToggleButtonElement.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Show Component`;
-                }
-            }
-        }
-
-
-        aiChatButton.addEventListener('click', toggleChatWindowVisibility);
-        closeChatButton.addEventListener('click', toggleChatWindowVisibility);
-        expandChatButton.addEventListener('click', toggleFullscreen);
-        closeInteractivePanelButton.addEventListener('click', () => toggleInteractivePanel('hide'));
-
-        // Simulate sending/receiving messages
-        function addChatMessage(message, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
-            messageDiv.innerHTML = `
-                <div class="${sender === 'user' ? 'bg-blue-600' : 'bg-gray-600'} text-white p-2 rounded-lg max-w-[80%] break-words">
-                    ${message}
-                </div>
-            `;
-            chatMessagesContainer.appendChild(messageDiv);
-            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-        }
-
-        sendChatButton.addEventListener('click', async () => {
-            const message = chatInput.value.trim();
-            if (!message) {
-                alertMessage("Please enter a message.", "error");
-                return;
-            }
-
-            addChatMessage(message, 'user');
-            chatInput.value = '';
-            sendChatButton.disabled = true;
-
-            const isShowChart = message.toLowerCase().includes("show chart");
-            const isShowMap = message.toLowerCase().includes("show map");
-            const isGenerateResponse = message.toLowerCase().includes("generate response");
-
-            if (isShowChart || isShowMap) {
-                const componentType = isShowChart ? 'chart' : 'map';
-                toggleInteractivePanel('show', componentType);
-
-                const aiMessageDiv = document.createElement('div');
-                aiMessageDiv.className = `flex justify-start`;
-                aiMessageDiv.innerHTML = `
-                    <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%] break-words flex flex-col">
-                        <span>Here's a placeholder ${componentType} for your data!</span>
-                        <button class="toggle-component-button mt-2 bg-gray-700 hover:bg-slate-700 text-white p-2 rounded-md transition duration-200 text-sm flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Hide Component
-                        </button>
-                    </div>
-                `;
-                chatMessagesContainer.appendChild(aiMessageDiv);
-                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-
-                const toggleButton = aiMessageDiv.querySelector('.toggle-component-button');
-                if (toggleButton) {
-                    if (lastToggleButtonElement && lastToggleButtonElement !== toggleButton) {
-                        lastToggleButtonElement.onclick = null;
-                    }
-                    lastToggleButtonElement = toggleButton;
-                    lastToggleButtonElement.dataset.componentType = componentType;
-
-                    lastToggleButtonElement.addEventListener('click', () => {
-                        toggleInteractivePanel('toggle');
-                    });
-                }
-
-            } else if (isGenerateResponse) {
-                addChatMessage("Generating response...", 'ai');
-                const prompt = "Please provide a concise summary of current global economic trends, including key indicators and potential future outlook.";
-                try {
-                    const chatHistory = [];
-                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                    const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(`API error: ${response.status} ${response.statusText} - ${errorData.error.message}`);
-                    }
-
-                    const result = await response.json();
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        addChatMessage(text, 'ai');
-                    } else {
-                        addChatMessage("Sorry, I could not generate a response.", 'ai');
-                        console.error("Gemini API response structure unexpected:", result);
-                    }
-                } catch (error) {
-                    console.error("Error calling Gemini API:", error);
-                    addChatMessage(`Error generating response: ${error.message}`, 'ai');
-                }
-                toggleInteractivePanel('hide');
-                lastToggleButtonElement = null;
-            }
-            else {
-                // Default AI response for other messages
-                setTimeout(() => {
-                    addChatMessage("I'm Lumen. In a real app, I would process your request and provide insights. How else can I assist? Try typing 'show chart', 'show map', or 'generate response'!", 'ai');
-                }, 800);
-                toggleInteractivePanel('hide');
-                lastToggleButtonElement = null;
-            }
-        });
-
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendChatButton.click();
-            }
-        });
-
-        // Event listener to enable/disable send button based on input content
-        chatInput.addEventListener('input', () => {
-            sendChatButton.disabled = chatInput.value.trim() === '';
-        });
 
 
         // Function to generate a random number between min and max (inclusive)
@@ -1434,6 +1309,7 @@
             updateScrollButtons(); // Re-check horizontal scroll buttons too
             updateBriefingsScrollButtons();
         });
+
     </script>
 </body>
 </html>

@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
     
     <style>
         /* Drag and Drop Styles */
@@ -69,25 +69,50 @@
         <header class="bg-gray-800 py-4 px-4 md:px-8 flex items-center justify-between shadow-lg sticky top-0 z-30">
             <!-- Left-aligned group: Logo, divider, client logo, and navigation -->
             <div class="flex items-center">
-                <div class="w-8 h-8 flex items-center justify-center rounded-md overflow-hidden">
-                    <svg viewBox="0 0 32 32" class="w-full h-full">
-                        <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" /> </svg>
+                <a href="../index.html">
+                    <div class="w-9 h-9 flex items-center justify-center rounded-lg overflow-hidden">
+                        <svg viewBox="0 0 32 32" class="w-full h-full">
+                            <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" />
+                        </svg>
+                    </div>
+                </a>
+                <div class="h-9 border-l border-gray-600 ml-4"></div> <!-- Added ml-4 for spacing -->
+                <a href="../index.html">
+                    <div class="flex items-center justify-center px-3 py-1 rounded-lg bg-[#1a1a1a] text-white text-sm font-semibold h-9 ml-4"> <!-- Added ml-4 for spacing -->
+                        <span>Client Logo</span>
+                    </div>
+                </a>
+                <!-- New Navigation Menu - now directly next to client logo with controlled spacing -->
+                <!-- <nav class="flex items-center ml-4">
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-bold text-white transition duration-200">My Workspaces</a>
+                    <a href="explore.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">Explore</a>
+                </nav> -->
+                <div class="flex items-center bg-gray-700 rounded-lg w-[20rem] ml-4">
+                    <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
                 </div>
-                <div class="h-6 border-l border-gray-600 ml-4"></div>
-                <div class="flex items-center justify-center px-3 py-1 rounded-md bg-[#1a1a1a] text-white text-sm font-semibold h-8 ml-4">
-                    <span>Client Logo</span>
-                </div>
-                <nav class="flex items-center ml-4">
-                    <a href="../index.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">My Workspaces</a>
-                    <a href="../explore.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">Explore</a>
-                </nav>
             </div>
 
             <!-- Right-aligned group of icons and user dropdown -->
             <div class="flex items-center">
-                <!-- Search container -->
-                <div id="search-container" class="relative flex items-center">
-                    <button id="search-icon-button" class="text-gray-300 hover:text-red-400 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
+                <!-- Create Dropdown -->
+                <div class="relative mr-4">
+                    <button id="create-dropdown-button" class="flex items-center bg-gray-700 hover:bg-gray-600 text-white transition duration-200 focus:outline-none px-3 pl-2.5 py-2 rounded-md">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span class="text-sm font-medium">Create</span>
+                    </button>
+                    <div id="create-dropdown-menu" class="options-dropdown-menu hidden">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Briefing'); return false;">Briefing</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Story'); return false;">Story</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Dashboard'); return false;">Dashboard</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Whiteboard'); return false;">Whiteboard</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Workspace</a>
+                    </div>
+                </div>
+
+                <!-- Replaced original search button with the search container -->
+                <div id="search-container" class="relative flex items-center mr-3 hidden">
+                    <button id="search-icon-button" class="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-400 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </button>
                     <div id="search-input-wrapper" class="absolute right-0 flex items-center bg-gray-700 rounded-full overflow-hidden transition-all duration-300 ease-in-out">
@@ -96,19 +121,19 @@
                     </div>
                 </div>
 
-                <!-- Notification Icon Button -->
-                <button class="text-gray-300 hover:text-red-400 p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 ml-2">
+                <!-- Notification Icon Button with margin-left for spacing from search -->
+                <button class="notifications-button round-button mr-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                 </button>
                 
-                <!-- User Dropdown -->
-                <div class="relative ml-4">
-                    <button id="user-dropdown-button" class="flex items-center text-gray-300 hover:text-red-400 transition duration-200 focus:outline-none">
-                        <img src="https://placehold.co/32x32/555/fff?text=J" alt="User Avatar" class="rounded-full">
+                <!-- User Dropdown with specific margins -->
+                <div class="relative">
+                    <button id="user-dropdown-button" class="user-dropdown-button round-button bg-gray-600 hover:bg-gray-500">
+                        <span class="">J</span>
                     </button>
-                    <div id="user-dropdown-menu" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden options-dropdown-menu">
+                    <div id="user-dropdown-menu" class="options-dropdown-menu hidden">
                         <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Account Settings</a>
-                        <a href="overview.html" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Platform Settings</a>
+                        <a href="../platform-settings/overview.html" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Platform Settings</a>
                         <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Help</a>
                         <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Logout</a>
                     </div>
@@ -143,13 +168,6 @@
                             <div class="flex items-center">
                                 <span class="material-symbols-outlined mr-3 text-lg">filter_list</span>
                                 Filters
-                            </div>
-                        </a>
-                        
-                        <a href="ai-models.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">auto_awesome</span>
-                                AI Models
                             </div>
                         </a>
 
@@ -222,7 +240,7 @@
             <!-- Main Content Area -->
             <main class="flex-1 main-content-area">
                 <!-- Organization Tab Content -->
-                <div id="organization-content" class="tab-content" style="height: calc(100vh - 72px);">
+                <div id="organization-content" class="tab-content" style="height: calc(100vh - 68px);">
                     <div class="flex w-full">
                         <!-- Main Content Area -->
                         <div class="flex-1 min-w-0 flex justify-center" style="margin-right: 256px;">
@@ -237,6 +255,12 @@
                                         </button>
                                         <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="apis">
                                             APIs
+                                        </button>
+                                        <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="ai-models">
+                                            AI Models
+                                        </button>
+                                        <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="files">
+                                            Files
                                         </button>
                                         <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="data-flows">
                                             Data Flows
@@ -282,24 +306,22 @@
                                                             <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
                                                         </span>
                                                     </button>
-                                                    <div id="database-type-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
-                                                        <div class="p-2">
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="mysql" class="mr-2"> MySQL
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="postgresql" class="mr-2"> PostgreSQL
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="sqlserver" class="mr-2"> SQL Server
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="oracle" class="mr-2"> Oracle
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="sqlite" class="mr-2"> SQLite
-                                                            </label>
-                                                        </div>
+                                                    <div id="database-type-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="mysql" class="mr-2"> MySQL
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="postgresql" class="mr-2"> PostgreSQL
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="sqlserver" class="mr-2"> SQL Server
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="oracle" class="mr-2"> Oracle
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="sqlite" class="mr-2"> SQLite
+                                                        </label>
                                                     </div>
                                                 </div>
                                                 
@@ -312,15 +334,13 @@
                                                             <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
                                                         </span>
                                                     </button>
-                                                    <div id="database-status-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
-                                                        <div class="p-2">
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="Active" class="mr-2"> Active
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="Inactive" class="mr-2"> Inactive
-                                                            </label>
-                                                        </div>
+                                                    <div id="database-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="Active" class="mr-2"> Active
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="Inactive" class="mr-2"> Inactive
+                                                        </label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -368,10 +388,10 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <div class="relative">
-                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-1')">
+                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-1')">
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
-                                                              <div id="database-dropdown-1" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                              <div id="database-dropdown-1" class="options-dropdown-menu hidden mt-0">
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
@@ -404,10 +424,10 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <div class="relative">
-                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-2')">
+                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-2')">
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
-                                                              <div id="database-dropdown-2" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                              <div id="database-dropdown-2" class="options-dropdown-menu hidden mt-0">
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
@@ -440,10 +460,10 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <div class="relative">
-                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-3')">
+                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-3')">
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
-                                                              <div id="database-dropdown-3" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                              <div id="database-dropdown-3" class="options-dropdown-menu hidden mt-0">
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
@@ -476,10 +496,10 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <div class="relative">
-                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-4')">
+                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-4')">
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
-                                                              <div id="database-dropdown-4" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                              <div id="database-dropdown-4" class="options-dropdown-menu hidden mt-0">
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
@@ -512,10 +532,10 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <div class="relative">
-                                                            <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-5')">
+                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-5')">
                                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                                             </button>
-                                                              <div id="database-dropdown-5" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                              <div id="database-dropdown-5" class="options-dropdown-menu hidden mt-0">
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Activate</a>
@@ -602,24 +622,22 @@
                                                             <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
                                                         </span>
                                                     </button>
-                                                    <div id="api-method-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
-                                                        <div class="p-2">
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="GET" class="mr-2"> GET
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="POST" class="mr-2"> POST
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="PUT" class="mr-2"> PUT
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="DELETE" class="mr-2"> DELETE
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="PATCH" class="mr-2"> PATCH
-                                                            </label>
-                                                        </div>
+                                                    <div id="api-method-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="GET" class="mr-2"> GET
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="POST" class="mr-2"> POST
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="PUT" class="mr-2"> PUT
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="DELETE" class="mr-2"> DELETE
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="PATCH" class="mr-2"> PATCH
+                                                        </label>
                                                     </div>
                                                 </div>
                                                 
@@ -632,15 +650,13 @@
                                                             <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
                                                         </span>
                                                     </button>
-                                                    <div id="api-status-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
-                                                        <div class="p-2">
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="active" class="mr-2"> Active
-                                                            </label>
-                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="inactive" class="mr-2"> Inactive
-                                                            </label>
-                                                        </div>
+                                                    <div id="api-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="active" class="mr-2"> Active
+                                                        </label>
+                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                            <input type="checkbox" value="inactive" class="mr-2"> Inactive
+                                                        </label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -689,10 +705,10 @@
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                             <div class="relative">
-                                                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" data-dropdown="api-collection-1">
+                                                                <button class="options-dropdown-button" data-dropdown="api-collection-1">
                                                                     <span class="material-symbols-outlined text-lg">more_vert</span>
                                                                 </button>
-                                                                <div id="api-collection-1-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <div id="api-collection-1-dropdown" class="options-dropdown-menu hidden mt-0">
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateRequestModal(); document.getElementById('api-collection-1-dropdown').classList.add('hidden');">Add Request</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
@@ -733,10 +749,10 @@
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                             <div class="relative">
-                                                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" data-dropdown="api-request-1.1">
+                                                                <button class="options-dropdown-button" data-dropdown="api-request-1.1">
                                                                     <span class="material-symbols-outlined text-lg">more_vert</span>
                                                                 </button>
-                                                                <div id="api-request-1.1-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <div id="api-request-1.1-dropdown" class="options-dropdown-menu hidden mt-0">
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
@@ -776,10 +792,10 @@
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                             <div class="relative">
-                                                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" data-dropdown="api-request-1.2">
+                                                                <button class="options-dropdown-button" data-dropdown="api-request-1.2">
                                                                     <span class="material-symbols-outlined text-lg">more_vert</span>
                                                                 </button>
-                                                                <div id="api-request-1.2-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <div id="api-request-1.2-dropdown" class="options-dropdown-menu hidden mt-0">
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
@@ -811,10 +827,10 @@
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                             <div class="relative">
-                                                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" data-dropdown="api-collection-2">
+                                                                <button class="options-dropdown-button" data-dropdown="api-collection-2">
                                                                     <span class="material-symbols-outlined text-lg">more_vert</span>
                                                                 </button>
-                                                                <div id="api-collection-2-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <div id="api-collection-2-dropdown" class="options-dropdown-menu hidden mt-0">
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateRequestModal(); document.getElementById('api-collection-2-dropdown').classList.add('hidden');">Add Request</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
@@ -855,10 +871,10 @@
                                                         </td>
                                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                             <div class="relative">
-                                                                <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" data-dropdown="api-request-2.1">
+                                                                <button class="options-dropdown-button" data-dropdown="api-request-2.1">
                                                                     <span class="material-symbols-outlined text-lg">more_vert</span>
                                                                 </button>
-                                                                <div id="api-request-2.1-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                                                <div id="api-request-2.1-dropdown" class="options-dropdown-menu hidden mt-0">
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
                                                                     <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
@@ -877,12 +893,28 @@
                                     </div>
                                 </div>
 
+                                <!-- AI Models Tab Content -->
+                                <div id="ai-models-tab-content" class="tab-content hidden">
+                                    <div class="bg-gray-800 rounded-lg p-6">
+                                        <h3 class="text-lg font-semibold text-white mb-4">AI Models Management</h3>
+                                        <p class="text-gray-400">AI models management functionality will be implemented here.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Files Tab Content -->
+                                <div id="files-tab-content" class="tab-content hidden">
+                                    <div class="bg-gray-800 rounded-lg p-6">
+                                        <h3 class="text-lg font-semibold text-white mb-4">Files Management</h3>
+                                        <p class="text-gray-400">File management functionality will be implemented here.</p>
+                                    </div>
+                                </div>
+
                                 <!-- Data Flows Tab Content -->
                                 <div id="data-flows-tab-content" class="tab-content hidden">
-                                <div class="bg-gray-800 rounded-lg p-6">
+                                    <div class="bg-gray-800 rounded-lg p-6">
                                         <h3 class="text-lg font-semibold text-white mb-4">Data Flows Management</h3>
                                         <p class="text-gray-400">Data flows management functionality will be implemented here.</p>
-                                </div>
+                                    </div>
                                 </div>
 
                                 </div>
@@ -892,7 +924,7 @@
                         </div>
                         
                         <!-- Right Column - Organization Statistics -->
-                        <div class="w-64 bg-gray-800 border-l border-gray-700 h-full fixed right-0 top-0 overflow-y-auto" style="height: calc(100vh - 72px); margin-top: 72px;">
+                        <div class="w-64 bg-gray-800 border-l border-gray-700 h-full fixed right-0 top-0 overflow-y-auto" style="height: calc(100vh - 68px); margin-top: 68px;">
                             <div class="p-4">
                                 <h3 class="text-md font-semibold text-white mb-4">Quick Stats</h3>
                                 <div class="space-y-4">
@@ -909,7 +941,7 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Branding -->
+                                    <!-- APIs -->
                                     <div class="bg-gray-700 rounded-lg p-4">
                                         <div class="flex items-center">
                                             <div class="w-10 h-10 flex items-center justify-center bg-blue-600 rounded-lg">
@@ -918,6 +950,19 @@
                                             <div class="ml-4">
                                                 <p class="text-sm font-medium text-gray-400">APIs</p>
                                                 <p class="text-lg font-bold text-white">15</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Files -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-indigo-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">folder</span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="text-sm font-medium text-gray-400">Files</p>
+                                                <p class="text-lg font-bold text-white">127</p>
                                             </div>
                                         </div>
                                     </div>
@@ -931,6 +976,19 @@
                                             <div class="ml-4">
                                                 <p class="text-sm font-medium text-gray-400">Data Flows</p>
                                                 <p class="text-lg font-bold text-white">3</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Reporting -->
+                                    <div class="bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 flex items-center justify-center bg-emerald-600 rounded-lg">
+                                                <span class="material-symbols-outlined text-white text-xl">assessment</span>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p class="text-sm font-medium text-gray-400">Reporting</p>
+                                                <p class="text-lg font-bold text-white">12</p>
                                             </div>
                                         </div>
                                     </div>
@@ -964,10 +1022,10 @@
                                  </div>
                              </button>
                          <div class="absolute right-3 top-1/2 translate-y-[-50%] z-10">
-                             <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" data-dropdown="nav-collection-dropdown">
+                             <button class="options-dropdown-button" data-dropdown="nav-collection-dropdown">
                                  <span class="material-symbols-outlined text-lg">more_vert</span>
                              </button>
-                             <div id="nav-collection-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                             <div id="nav-collection-dropdown" class="options-dropdown-menu hidden mt-0">
                                  <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateRequestModal(); document.getElementById('nav-collection-dropdown').classList.add('hidden');">Add Request</a>
                                  <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                  <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
@@ -991,10 +1049,10 @@
                              </button>
                              <div class="absolute right-3 top-1/2 translate-y-[-50%] z-10">
                                  <div class="relative">
-                                      <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" data-dropdown="nav-request-1.1-dropdown">
+                                      <button class="options-dropdown-button" data-dropdown="nav-request-1.1-dropdown">
                                          <span class="material-symbols-outlined text-lg">more_vert</span>
                                      </button>
-                                     <div id="nav-request-1.1-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                     <div id="nav-request-1.1-dropdown" class="options-dropdown-menu hidden mt-0">
                                          <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                          <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
                                          <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
@@ -1015,10 +1073,10 @@
                             </button>
                             <div class="absolute right-3 top-1/2 translate-y-[-50%] z-10">
                                 <div class="relative">
-                                     <button class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" data-dropdown="nav-request-1.2-dropdown">
+                                     <button class="options-dropdown-button" data-dropdown="nav-request-1.2-dropdown">
                                         <span class="material-symbols-outlined text-lg">more_vert</span>
                                     </button>
-                                    <div id="nav-request-1.2-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                    <div id="nav-request-1.2-dropdown" class="options-dropdown-menu hidden mt-0">
                                         <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                         <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
                                         <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
@@ -1057,10 +1115,10 @@
                                         </button>
                                         <!-- Collection Dropdown -->
                                         <div class="relative">
-                                            <button id="collection-actions-dropdown-btn" class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <button id="collection-actions-dropdown-btn" class="options-dropdown-button">
                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                             </button>
-                                            <div id="collection-actions-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                            <div id="collection-actions-dropdown" class="options-dropdown-menu hidden">
                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateRequestModal(); document.getElementById('collection-actions-dropdown').classList.add('hidden');">Add Request</a>
                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
@@ -1269,10 +1327,10 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                         </button>
                                         <!-- Request Dropdown -->
                                         <div class="relative">
-                                            <button id="request-actions-dropdown-btn" class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                                            <button id="request-actions-dropdown-btn" class="options-dropdown-button">
                                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                                             </button>
-                                            <div id="request-actions-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                                            <div id="request-actions-dropdown" class="options-dropdown-menu hidden">
                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
                                                 <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
@@ -1520,7 +1578,6 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
             </div>
         </div>
     </div>
-
 
     <script>
         // Global functions for database modal
@@ -2771,20 +2828,44 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                 }
             });
 
-            // User dropdown functionality
-            const userDropdownButton = document.getElementById('user-dropdown-button');
-            const userDropdownMenu = document.getElementById('user-dropdown-menu');
+            // Utility for toggling dropdowns with mutual exclusivity
+            function setupDropdown(buttonId, menuId, otherMenuId) {
+                const button = document.getElementById(buttonId);
+                const menu = document.getElementById(menuId);
+                const otherMenu = otherMenuId ? document.getElementById(otherMenuId) : null;
 
-            userDropdownButton.addEventListener('click', (event) => {
-                event.stopPropagation();
-                userDropdownMenu.classList.toggle('hidden');
-            });
+                if (button && menu) {
+                    button.addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevent document click from immediately closing
+                        const wasHidden = menu.classList.contains('hidden');
+                        
+                        // Close the other dropdown if it exists
+                        if (otherMenu && !otherMenu.classList.contains('hidden')) {
+                            otherMenu.classList.add('hidden');
+                        }
+                        
+                        // Toggle this dropdown
+                        if (wasHidden) {
+                            menu.classList.remove('hidden');
+                        } else {
+                            menu.classList.add('hidden');
+                        }
+                    });
 
-            document.addEventListener('click', (event) => {
-                if (!userDropdownButton.contains(event.target) && !userDropdownMenu.contains(event.target)) {
-                    userDropdownMenu.classList.add('hidden');
+                    // Close dropdown if clicked outside
+                    document.addEventListener('click', (event) => {
+                        if (!button.contains(event.target) && !menu.contains(event.target)) {
+                            menu.classList.add('hidden');
+                        }
+                    });
                 }
-            });
+            }
+
+            // Setup User Dropdown (with reference to Create dropdown)
+            setupDropdown('user-dropdown-button', 'user-dropdown-menu', 'create-dropdown-menu');
+
+            // Setup Create Dropdown (with reference to User dropdown)
+            setupDropdown('create-dropdown-button', 'create-dropdown-menu', 'user-dropdown-menu');
 
             // Close search when clicking outside
             document.addEventListener('click', (event) => {
@@ -2822,7 +2903,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                     this.classList.remove('text-gray-400');
                     
                     // Show/hide tab content - only target the specific data source tab contents
-                    const dataSourceTabContents = document.querySelectorAll('#databases-tab-content, #apis-tab-content, #data-flows-tab-content');
+                    const dataSourceTabContents = document.querySelectorAll('#databases-tab-content, #apis-tab-content, #ai-models-tab-content, #files-tab-content, #data-flows-tab-content');
                     dataSourceTabContents.forEach(content => {
                         content.classList.add('hidden');
                     });
@@ -4544,10 +4625,10 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                         </button>
                         <!-- Database Dropdown -->
                         <div class="relative">
-                            <button id="database-actions-dropdown-btn" class="options-dropdown-button text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">
+                            <button id="database-actions-dropdown-btn" class="options-dropdown-button">
                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                             </button>
-                            <div id="database-actions-dropdown" class="options-dropdown-menu absolute right-0 mt-2 w-50 rounded-md shadow-lg hidden">
+                            <div id="database-actions-dropdown" class="options-dropdown-menu hidden">
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
@@ -6688,7 +6769,112 @@ print(df.head())</code></pre>
                 </div>
             </div>
         </div>
+
     </div>
+
+    <!-- Create Content Modal -->
+    <div id="create-content-modal" class="fixed inset-0 bg-black p-10 bg-opacity-50 flex justify-center items-start z-50 hidden">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-h-full max-w-[680px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 id="create-content-modal-title" class="text-xl font-semibold text-white">Create</h2>
+                    <button id="close-create-content-modal" class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div id="create-content-modal-content" class="flex-1 overflow-y-auto p-6">
+                <p id="create-content-modal-description" class="text-gray-300 font-semibold mb-6">Select a Workspace to proceed</p>
+                
+                <!-- Private Section -->
+                <div>
+                    <a href="#" id="private-workspace-link" class="block w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 transition duration-200 text-white flex items-center">
+                        <span class="material-symbols-outlined mr-3" style="font-size: 20px;">lock</span>
+                        <span class="text-sm font-medium">Private</span>
+                    </a>
+                </div>
+
+                <!-- Workspaces Section -->
+                <div>
+                    <div class="border-t border-gray-700 my-4"></div>
+                    <div id="workspaces-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Workspace links will be dynamically generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-700">
+                <div class="flex items-center justify-end space-x-3">
+                    <button type="button" id="cancel-create-content" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="ai-chat-button" class="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-3 rounded-full shadow-lg transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400 z-50">
+        <!-- Chat Bubble Icon SVG -->
+         <img src="../ai-icon.svg" alt="AI Chat Icon" class="w-6 h-6" />
+        <!-- <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        </svg> -->
+    </button>
+
+    <div id="ai-chat-window" class="fixed bg-gray-800 rounded-xl shadow-2xl flex overflow-hidden transition-all duration-300 ease-in-out z-50">
+        <div id="chat-content-wrapper" class="flex flex-col flex-shrink-0 w-80 h-full">
+            <div class="bg-gray-700 p-3 flex items-center justify-between">
+                <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
+                <div class="flex space-x-2">
+                    <button id="expand-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><path d="M21 3 14 10"></path><path d="M3 21 10 14"></path></svg>
+                    </button>
+                    <button id="close-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
+                <div class="flex justify-start">
+                    <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%]">
+                        Hello! I'm Lumen. How can I help you today?
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg max-w-[80%]">
+                        Show me the latest Q2 Finance story.
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-700 flex items-center">
+                <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm placeholder-gray-400">
+                <button id="send-chat-button" class="ml-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400" disabled>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="ai-panel-separator" class="hidden"></div>
+
+        <div id="ai-interactive-panel" class="relative flex-shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out bg-gray-900 rounded-xl shadow-inner">
+            <div class="panel-header p-3 flex items-center justify-between rounded-tr-xl">
+                <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
+                <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg>
+                </button>
+            </div>
+            <div id="interactive-panel-content" class="flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
+                <p>Interactive content will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/ai-chat.js"></script>
+    <script src="../js/create-content-modal.js"></script>
 
 </body>
 </html> 
