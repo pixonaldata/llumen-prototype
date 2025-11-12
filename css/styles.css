@@ -274,6 +274,10 @@ main.fullscreen-main {
         background-color: #374151;
     }
 
+    .options-dropdown-menu a.active {
+        color: #ef4444;
+    }
+
 .round-button {
     width: 2.25rem;
     height: 2.25rem;
@@ -432,6 +436,52 @@ main.fullscreen-main {
     pointer-events: none;
 }
 
+
+/* ===== CAROUSEL STYLES ===== */
+.carousel-container {
+    position: relative;
+}
+
+.carousel-scroll-container {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+    margin-top: -1rem;
+    margin-bottom: -2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    margin-left: -2rem;
+    margin-right: -2rem;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.carousel-scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel-item {
+    flex-basis: calc(25% - 1.125rem);
+    flex-shrink: 0;
+}
+
+.scroll-button {
+    z-index: 22;
+    background-color: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(71, 85, 105, 0.5);
+    backdrop-filter: blur(5px);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+    .scroll-button:hover,
+    .scroll-button:hover:focus {
+        background-color: #4a5568;
+        color: #ffffff;
+    }
+
 /* ===== SCROLL GRADIENT STYLES ===== */
 .scroll-gradient-overlay {
     position: absolute;
@@ -452,17 +502,18 @@ main.fullscreen-main {
 
 .scroll-gradient-overlay.left {
     left: -2rem;
-    background: linear-gradient(to right, rgb(17 24 39 / var(--tw-bg-opacity, 1)), transparent);
+    background: linear-gradient(to right, rgb(13 13 13 / var(--tw-bg-opacity, 1)), transparent);
     justify-content: flex-end;
     align-items: center;
 }
 
 .scroll-gradient-overlay.right {
     right: -2rem;
-    background: linear-gradient(to left, rgb(17 24 39 / var(--tw-bg-opacity, 1)), transparent);
+    background: linear-gradient(to left, rgb(13 13 13 / var(--tw-bg-opacity, 1)), transparent);
     justify-content: flex-start;
     align-items: center;
 }
+
 
 .workspace-gradient-overlay.left {
     background: linear-gradient(to right, rgba(30, 41, 59, 0.95), transparent);
@@ -475,18 +526,6 @@ main.fullscreen-main {
 }
 
 /* ===== BRIEFINGS STYLES ===== */
-#briefings-scroll-container {
-    overflow-x: auto;
-    overflow-y: visible;
-    padding-top: 1rem;
-    padding-bottom: 2rem;
-    margin-top: -1rem;
-    margin-bottom: -2rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    margin-left: -2rem;
-    margin-right: -2rem;
-}
 
 .briefings-card-outer {
     position: relative;
@@ -500,7 +539,6 @@ main.fullscreen-main {
 
 .briefings-card-outer:hover {
     transform: scale(1.05) translateZ(0);
-    z-index: 10;
 }
 
 /* ===== SLIDER STYLES ===== */
