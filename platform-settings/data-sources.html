@@ -273,402 +273,402 @@
                                 <div id="databases-tab-content" class="tab-content">
                                     <!-- Database Management Grid -->
                                     <div class="bg-gray-800 rounded-lg overflow-hidden">
-                                    <div class="px-6 py-4 border-b border-gray-700">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center">
-                                                <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center" onclick="openCreateDatabaseModal()">
-                                                    <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
-                                                    Create Connection
+                                        <div class="px-6 py-4 border-b border-gray-700">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center" onclick="openCreateDatabaseModal()">
+                                                        <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
+                                                        Create Connection
+                                                    </button>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <div class="relative">
+                                                        <input type="text" id="databases-search-input" placeholder="Search database connections..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
+                                                        <button id="databases-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
+                                                            <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+                                                        </button>
+                                                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Filter Row -->
+                                        <div class="px-6 py-4 border-b border-gray-700">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center space-x-4">
+                                                    <!-- Type Filter -->
+                                                    <div class="relative">
+                                                        <button id="database-type-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                            <span class="mr-1">Type</span>
+                                                            <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                            <span id="database-type-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Type Filter">
+                                                                <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                            </span>
+                                                        </button>
+                                                        <div id="database-type-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="mysql" class="mr-2"> MySQL
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="postgresql" class="mr-2"> PostgreSQL
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="sqlserver" class="mr-2"> SQL Server
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="oracle" class="mr-2"> Oracle
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="sqlite" class="mr-2"> SQLite
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Status Filter -->
+                                                    <div class="relative">
+                                                        <button id="database-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                            <span class="mr-1">Status</span>
+                                                            <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                            <span id="database-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
+                                                                <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                            </span>
+                                                        </button>
+                                                        <div id="database-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="Active" class="mr-2"> Active
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="Inactive" class="mr-2"> Inactive
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Clear All Filters Button -->
+                                                <button id="clear-all-database-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
+                                                    <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
+                                                    Clear All Filters
                                                 </button>
                                             </div>
-                                            <div class="flex items-center">
-                                                <div class="relative">
-                                                    <input type="text" id="databases-search-input" placeholder="Search database connections..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
-                                                    <button id="databases-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
-                                                        <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
-                                                    </button>
-                                                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
-                                                </div>
-                                            </div>
                                         </div>
-                                    </div>
-
-                                    <!-- Filter Row -->
-                                    <div class="px-6 py-4 border-b border-gray-700">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-4">
-                                                <!-- Type Filter -->
-                                                <div class="relative">
-                                                    <button id="database-type-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Type</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                        <span id="database-type-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Type Filter">
-                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                        </span>
-                                                    </button>
-                                                    <div id="database-type-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="mysql" class="mr-2"> MySQL
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="postgresql" class="mr-2"> PostgreSQL
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="sqlserver" class="mr-2"> SQL Server
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="oracle" class="mr-2"> Oracle
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="sqlite" class="mr-2"> SQLite
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Status Filter -->
-                                                <div class="relative">
-                                                    <button id="database-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Status</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                        <span id="database-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
-                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                        </span>
-                                                    </button>
-                                                    <div id="database-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="Active" class="mr-2"> Active
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="Inactive" class="mr-2"> Inactive
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Clear All Filters Button -->
-                                            <button id="clear-all-database-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
-                                                <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
-                                                Clear All Filters
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="overflow-x-auto">
-                                        <table id="databases-table" class="w-full">
-                                            <thead class="border-b border-gray-700">
-                                                <tr>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">Database Connections</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Type</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Status</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Last Updated</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider w-1 whitespace-nowrap"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="bg-gray-800 divide-y divide-gray-700">
-                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Population Analytics</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Population and geographic data analysis results</p>
-                                                                    <p class="text-xs mt-1">population-analytics-db.company.com:3306 - population_analytics_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">MySQL</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        2 hours ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-1')">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                              <div id="database-dropdown-1" class="options-dropdown-menu hidden mt-0">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Analytics PostgreSQL</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Analytics and reporting database</p>
-                                                                    <p class="text-xs mt-1">analytics-reporting-db.company.com:3306 - analytics_reporting_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">PostgreSQL</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        1 day ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-2')">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                              <div id="database-dropdown-2" class="options-dropdown-menu hidden mt-0">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Data Warehouse</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Data warehouse for business intelligence</p>
-                                                                    <p class="text-xs mt-1">data-watehouse-db.company.com:3306 - data_watehouse_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">SQL Server</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        3 days ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-3')">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                              <div id="database-dropdown-3" class="options-dropdown-menu hidden mt-0">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Finance Oracle</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Financial data and transactions</p>
-                                                                    <p class="text-xs mt-1">finance-oracle-db.company.com:3306 - finance_oracle_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">Oracle</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        1 week ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-4')">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                              <div id="database-dropdown-4" class="options-dropdown-menu hidden mt-0">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Local Development</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Local development database</p>
-                                                                    <p class="text-xs mt-1">localhost - localdev_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">SQLite</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Inactive</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        2 weeks ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-5')">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                              <div id="database-dropdown-5" class="options-dropdown-menu hidden mt-0">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Activate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
                                         
-                                        <!-- No matches found message -->
-                                        <div id="no-database-matches-message" class="hidden px-6 py-8 text-center">
-                                            <div class="text-gray-400 text-sm">No databases found matching your search criteria.</div>
+                                        <div class="overflow-x-auto">
+                                            <table id="databases-table" class="w-full">
+                                                <thead class="border-b border-gray-700">
+                                                    <tr>
+                                                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">Database Connections</th>
+                                                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Type</th>
+                                                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Status</th>
+                                                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Last Updated</th>
+                                                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider w-1 whitespace-nowrap"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="bg-gray-800 divide-y divide-gray-700">
+                                                    <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="flex items-center">
+                                                                <div>
+                                                                    <div class="text-sm font-medium text-white">Population Analytics</div>
+                                                                    <div class="mt-1 text-gray-400">
+                                                                        <p class="text-sm">Population and geographic data analysis results</p>
+                                                                        <p class="text-xs mt-1">population-analytics-db.company.com:3306 - population_analytics_db</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="text-sm text-gray-300">MySQL</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                            2 hours ago
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div class="relative">
+                                                                <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-1')">
+                                                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                                </button>
+                                                                <div id="database-dropdown-1" class="options-dropdown-menu hidden mt-0">
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                    <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="flex items-center">
+                                                                <div>
+                                                                    <div class="text-sm font-medium text-white">Analytics PostgreSQL</div>
+                                                                    <div class="mt-1 text-gray-400">
+                                                                        <p class="text-sm">Analytics and reporting database</p>
+                                                                        <p class="text-xs mt-1">analytics-reporting-db.company.com:3306 - analytics_reporting_db</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="text-sm text-gray-300">PostgreSQL</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                            1 day ago
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div class="relative">
+                                                                <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-2')">
+                                                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                                </button>
+                                                                <div id="database-dropdown-2" class="options-dropdown-menu hidden mt-0">
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                    <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="flex items-center">
+                                                                <div>
+                                                                    <div class="text-sm font-medium text-white">Data Warehouse</div>
+                                                                    <div class="mt-1 text-gray-400">
+                                                                        <p class="text-sm">Data warehouse for business intelligence</p>
+                                                                        <p class="text-xs mt-1">data-watehouse-db.company.com:3306 - data_watehouse_db</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="text-sm text-gray-300">SQL Server</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                            3 days ago
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div class="relative">
+                                                                <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-3')">
+                                                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                                </button>
+                                                                <div id="database-dropdown-3" class="options-dropdown-menu hidden mt-0">
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                    <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="flex items-center">
+                                                                <div>
+                                                                    <div class="text-sm font-medium text-white">Finance Oracle</div>
+                                                                    <div class="mt-1 text-gray-400">
+                                                                        <p class="text-sm">Financial data and transactions</p>
+                                                                        <p class="text-xs mt-1">finance-oracle-db.company.com:3306 - finance_oracle_db</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="text-sm text-gray-300">Oracle</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                            1 week ago
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div class="relative">
+                                                                <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-4')">
+                                                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                                </button>
+                                                                <div id="database-dropdown-4" class="options-dropdown-menu hidden mt-0">
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                    <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <div class="flex items-center">
+                                                                <div>
+                                                                    <div class="text-sm font-medium text-white">Local Development</div>
+                                                                    <div class="mt-1 text-gray-400">
+                                                                        <p class="text-sm">Local development database</p>
+                                                                        <p class="text-xs mt-1">localhost - localdev_db</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="text-sm text-gray-300">SQLite</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap">
+                                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Inactive</span>
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                            2 weeks ago
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div class="relative">
+                                                                <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('database-dropdown-5')">
+                                                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                                </button>
+                                                                <div id="database-dropdown-5" class="options-dropdown-menu hidden mt-0">
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Activate</a>
+                                                                    <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            
+                                            <!-- No matches found message -->
+                                            <div id="no-database-matches-message" class="hidden px-6 py-8 text-center">
+                                                <div class="text-gray-400 text-sm">No databases found matching your search criteria.</div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                                 </div>
 
                                 <!-- APIs Tab Content -->
                                 <div id="apis-tab-content" class="tab-content hidden">
                                     <!-- API Management Grid -->
                                     <div class="bg-gray-800 rounded-lg overflow-hidden">
-                                    <div class="px-6 py-4 border-b border-gray-700">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center">
-                                                <button onclick="openCreateAPICollectionModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                    <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
-                                                    Create Collection
-                                                </button>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <div class="relative">
-                                                    <input type="text" id="apis-search-input" placeholder="Search collections & requests..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
-                                                    <button id="apis-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
-                                                        <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+                                        <div class="px-6 py-4 border-b border-gray-700">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <button onclick="openCreateAPICollectionModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                        <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
+                                                        Create Collection
                                                     </button>
-                                                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <div class="relative">
+                                                        <input type="text" id="apis-search-input" placeholder="Search collections & requests..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
+                                                        <button id="apis-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
+                                                            <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+                                                        </button>
+                                                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Filter Row -->
-                                    <div class="px-6 py-4 border-b border-gray-700">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-4">
-                                                <!-- Authentication Type Filter -->
-                                                <!-- <div class="relative">
-                                                    <button id="api-auth-type-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Authentication Type</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                        <span id="api-auth-type-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Authentication Type Filter">
-                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                        </span>
-                                                    </button>
-                                                    <div id="api-auth-type-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
-                                                        <div class="p-2">
+                                        <!-- Filter Row -->
+                                        <div class="px-6 py-4 border-b border-gray-700">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center space-x-4">
+                                                    <!-- Authentication Type Filter -->
+                                                    <!-- <div class="relative">
+                                                        <button id="api-auth-type-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                            <span class="mr-1">Authentication Type</span>
+                                                            <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                            <span id="api-auth-type-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Authentication Type Filter">
+                                                                <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                            </span>
+                                                        </button>
+                                                        <div id="api-auth-type-filter-dropdown" class="absolute top-full left-0 mt-2 bg-gray-700 rounded-md shadow-lg hidden z-50 min-w-48">
+                                                            <div class="p-2">
+                                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                    <input type="checkbox" value="none" class="mr-2"> No Authentication
+                                                                </label>
+                                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                    <input type="checkbox" value="basic" class="mr-2"> Basic Authentication
+                                                                </label>
+                                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                    <input type="checkbox" value="apikey" class="mr-2"> API Key
+                                                                </label>
+                                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                    <input type="checkbox" value="bearer" class="mr-2"> Bearer Token
+                                                                </label>
+                                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                    <input type="checkbox" value="oauth2" class="mr-2"> OAuth 2.0
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div> -->
+                                                    
+                                                    <!-- Method Filter -->
+                                                    <div class="relative">
+                                                        <button id="api-method-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                            <span class="mr-1">Method</span>
+                                                            <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                            <span id="api-method-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Method Filter">
+                                                                <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                            </span>
+                                                        </button>
+                                                        <div id="api-method-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
                                                             <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="none" class="mr-2"> No Authentication
+                                                                <input type="checkbox" value="GET" class="mr-2"> GET
                                                             </label>
                                                             <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="basic" class="mr-2"> Basic Authentication
+                                                                <input type="checkbox" value="POST" class="mr-2"> POST
                                                             </label>
                                                             <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="apikey" class="mr-2"> API Key
+                                                                <input type="checkbox" value="PUT" class="mr-2"> PUT
                                                             </label>
                                                             <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="bearer" class="mr-2"> Bearer Token
+                                                                <input type="checkbox" value="DELETE" class="mr-2"> DELETE
                                                             </label>
                                                             <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                                <input type="checkbox" value="oauth2" class="mr-2"> OAuth 2.0
+                                                                <input type="checkbox" value="PATCH" class="mr-2"> PATCH
                                                             </label>
                                                         </div>
                                                     </div>
-                                                </div> -->
-                                                
-                                                <!-- Method Filter -->
-                                                <div class="relative">
-                                                    <button id="api-method-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Method</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                        <span id="api-method-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Method Filter">
-                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                        </span>
-                                                    </button>
-                                                    <div id="api-method-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="GET" class="mr-2"> GET
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="POST" class="mr-2"> POST
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="PUT" class="mr-2"> PUT
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="DELETE" class="mr-2"> DELETE
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="PATCH" class="mr-2"> PATCH
-                                                        </label>
+                                                    
+                                                    <!-- Status Filter -->
+                                                    <div class="relative">
+                                                        <button id="api-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                            <span class="mr-1">Status</span>
+                                                            <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                            <span id="api-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
+                                                                <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                                            </span>
+                                                        </button>
+                                                        <div id="api-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="active" class="mr-2"> Active
+                                                            </label>
+                                                            <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
+                                                                <input type="checkbox" value="inactive" class="mr-2"> Inactive
+                                                            </label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 
-                                                <!-- Status Filter -->
-                                                <div class="relative">
-                                                    <button id="api-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Status</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                        <span id="api-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
-                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                        </span>
+                                                <div class="flex items-center">
+                                                    <button id="api-clear-all-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
+                                                        <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
+                                                        Clear All Filters
                                                     </button>
-                                                    <div id="api-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="active" class="mr-2"> Active
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="inactive" class="mr-2"> Inactive
-                                                        </label>
-                                                    </div>
                                                 </div>
-                                            </div>
-                                            
-                                            <div class="flex items-center">
-                                                <button id="api-clear-all-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
-                                                    <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
-                                                    Clear All Filters
-                                                </button>
                                             </div>
                                         </div>
-                                    </div>
 
                                         <!-- API Tree Table -->
                                         <div class="overflow-x-auto">
@@ -687,7 +687,7 @@
                                                         <td class="px-6 py-4 pl-0 whitespace-nowrap">
                                                             <div class="flex items-center">
                                                                 <button class="expand-collection-btn p-1 pr-5 pl-5 text-gray-400 hover:text-white transition duration-200 h-12 flex items-center" data-collection="1">
-                                                                    <span class="material-symbols-outlined text-xlg">chevron_right</span>
+                                                                    <span class="material-symbols-outlined text-xlg" style="transition: transform 0.2s ease-in-out;">chevron_right</span>
                                                                 </button>
                                                                 <div>
                                                                     <div class="text-sm font-medium text-white">Weather Services</div>
@@ -809,7 +809,7 @@
                                                         <td class="px-6 py-4 pl-0 whitespace-nowrap">
                                                             <div class="flex items-center">
                                                                 <button class="expand-collection-btn p-1 pr-5 pl-5 text-gray-400 hover:text-white transition duration-200 h-12 flex items-center" data-collection="2">
-                                                                    <span class="material-symbols-outlined text-xlg">chevron_right</span>
+                                                                    <span class="material-symbols-outlined text-xlg" style="transition: transform 0.2s ease-in-out;">chevron_right</span>
                                                                 </button>
                                                                 <div>
                                                                     <div class="text-sm font-medium text-white">Traffic Services</div>
@@ -917,11 +917,11 @@
                                     </div>
                                 </div>
 
-                                </div>
+                            </div>
 
                                 
-                            </div>
                         </div>
+                    </div>
                         
                         <!-- Right Column - Organization Statistics -->
                         <div class="w-64 bg-gray-800 border-l border-gray-700 h-full fixed right-0 top-0 overflow-y-auto" style="height: calc(100vh - 68px); margin-top: 68px;">
@@ -3262,14 +3262,23 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
             const requestRows = document.querySelectorAll(`[data-collection="${collectionId}"].api-request-row`);
             const chevron = expandBtn.querySelector('.material-symbols-outlined');
             
-            if (requestRows[0] && requestRows[0].classList.contains('hidden')) {
-                // Expand collection
-                requestRows.forEach(row => row.classList.remove('hidden'));
-                chevron.textContent = 'expand_more';
-            } else {
+            // Check if currently expanded (any request row is visible)
+            const isExpanded = Array.from(requestRows).some(row => !row.classList.contains('hidden'));
+            
+            if (isExpanded) {
                 // Collapse collection
                 requestRows.forEach(row => row.classList.add('hidden'));
-                chevron.textContent = 'chevron_right';
+                // Rotate chevron back to right
+                if (chevron) {
+                    chevron.style.transform = 'rotate(0deg)';
+                }
+            } else {
+                // Expand collection
+                requestRows.forEach(row => row.classList.remove('hidden'));
+                // Rotate chevron down
+                if (chevron) {
+                    chevron.style.transform = 'rotate(90deg)';
+                }
             }
         }
 

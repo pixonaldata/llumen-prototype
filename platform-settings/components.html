@@ -624,9 +624,9 @@
                                             <span class="material-symbols-outlined text-gray-400 text-4xl mb-3">grid_view</span>
                                             <h3 class="text-lg font-medium text-gray-300 mb-2">No components found</h3>
                                             <p class="text-gray-400 text-sm">Try adjusting your search terms or filters</p>
-                                                    </div>
-        </div>
-    </div>
+                                        </div>
+                                    </div>
+                                </div>
 
 
 
@@ -7456,8 +7456,8 @@
                     collectionRow.innerHTML = `
                         <td class="px-6 py-4 pl-0 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="expand-collection-indicator p-1 pr-5 pl-5 text-gray-400 transition duration-200 h-12 flex items-center" data-collection="${collection.id}">
-                                    <span class="material-symbols-outlined text-xlg">chevron_right</span>
+                                <div class="expand-collection-indicator p-1 pr-5 pl-5 text-gray-400 hover:text-white transition duration-200 h-12 flex items-center" data-collection="${collection.id}">
+                                    <span class="material-symbols-outlined text-xlg" style="transition: transform 0.2s ease-in-out;">chevron_right</span>
                                 </div>
                                 <div>
                                     <div class="text-sm font-medium text-white">${collection.name}</div>
@@ -7568,14 +7568,23 @@
                 const requestRows = document.querySelectorAll(`[data-collection="${collectionId}"].api-request-row`);
                 const chevron = expandIndicator.querySelector('.material-symbols-outlined');
                 
-                if (requestRows[0] && requestRows[0].classList.contains('hidden')) {
-                    // Expand collection
-                    requestRows.forEach(row => row.classList.remove('hidden'));
-                    chevron.textContent = 'expand_more';
-                } else {
+                // Check if currently expanded (any request row is visible)
+                const isExpanded = Array.from(requestRows).some(row => !row.classList.contains('hidden'));
+                
+                if (isExpanded) {
                     // Collapse collection
                     requestRows.forEach(row => row.classList.add('hidden'));
-                    chevron.textContent = 'chevron_right';
+                    // Rotate chevron back to right
+                    if (chevron) {
+                        chevron.style.transform = 'rotate(0deg)';
+                    }
+                } else {
+                    // Expand collection
+                    requestRows.forEach(row => row.classList.remove('hidden'));
+                    // Rotate chevron down
+                    if (chevron) {
+                        chevron.style.transform = 'rotate(90deg)';
+                    }
                 }
             }
 

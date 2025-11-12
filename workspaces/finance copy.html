@@ -175,10 +175,7 @@
                             <span class="material-symbols-outlined mr-3 text-[24px]">workspaces</span>
                             Finance
                         </h2>
-                        <div class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-600 text-white flex items-center space-x-1.5">
-                            <span class="material-symbols-outlined" style="font-size: 14px;">lock</span>
-                            <span>Private</span>
-                        </div>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
                     </div>
                     <div class="flex items-center space-x-4">
                         <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center" onclick="openWorkspaceConfigModal('members')">
@@ -189,14 +186,11 @@
                             <button id="database-actions-dropdown-btn" class="options-dropdown-button">
                                 <span class="material-symbols-outlined text-lg">more_vert</span>
                             </button>
-                            <div class="options-dropdown-menu right-auto hidden">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openWorkspaceConfigModal()">Workspace Info</a>
+                            <div class="options-dropdown-menu w-36 hidden">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openWorkspaceConfigModal()">Edit Workspace</a>
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openWorkspaceConfigModal('members')">Members</a>
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openWorkspaceConfigModal('settings')">Settings</a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openWorkspaceConfigModal('components')">Components</a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openWorkspaceConfigModal('filters')">Filters</a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openWorkspaceConfigModal('data-sources')">Data Sources</a>
-                                <a href="#" class="block px-4 py-2 text-sm active transition duration-150">Archive Workspace</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Archive</a>
                             </div>
                         </div>
                     </div>
@@ -3177,7 +3171,7 @@
 
     <!-- Workspace Configuration Modal -->
     <div id="workspace-config-modal" class="fixed inset-0 bg-black p-10 bg-opacity-50 flex justify-center items-start z-50 hidden">
-        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 h-full max-w-[1400px] flex flex-col">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-h-full max-w-[680px] flex flex-col">
             <!-- Modal Header -->
             <div class="py-4 px-6 border-b border-gray-700">
                 <div class="flex items-center justify-between">
@@ -3195,1566 +3189,238 @@
             </div>
 
             <!-- Modal Content -->
-            <div id="workspace-config-modal-content" class="flex-1 flex overflow-hidden">
+            <div id="workspace-config-modal-content" class="flex-1 overflow-y-auto flex flex-col">
                 <!-- Tabs -->
-                <aside class="w-56 bg-gray-800 border-r border-gray-700 overflow-y-auto">
-                    <div class="px-4 py-5">
-                        <nav class="space-y-3">
-                            <button class="workspace-config-tab-item platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 active" data-config-tab="general">
-                                <div class="flex items-center">
-                                    <span class="material-symbols-outlined mr-3 text-lg">info</span>General</div>
-                            </button>                            
-                            <button class="workspace-config-tab-item platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200" data-config-tab="members">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <span class="material-symbols-outlined mr-3 text-lg">people</span>
-                                        Members
-                                    </div>
-                                    <span class="text-gray-400">26</span>
-                                </div>
-                            </button>
-                            <button class="workspace-config-tab-item platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200" data-config-tab="settings">
-                                <div class="flex items-center">
-                                    <span class="material-symbols-outlined mr-3 text-lg">settings</span>
-                                    Settings
-                                </div>
-                            </button>
-                            <button class="workspace-config-tab-item platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200" data-config-tab="components">
-                                <div class="flex items-center">
-                                    <span class="material-symbols-outlined mr-3 text-lg">grid_view</span>
-                                    Components
-                                </div>
-                            </button>
-                            <button class="workspace-config-tab-item platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200" data-config-tab="filters">
-                                <div class="flex items-center">
-                                    <span class="material-symbols-outlined mr-3 text-lg">filter_list</span>
-                                    Filters
-                                </div>
-                            </button>
-                            <button class="workspace-config-tab-item platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200" data-config-tab="data-sources">
-                                <div class="flex items-center">
-                                    <span class="material-symbols-outlined mr-3 text-lg">storage</span>
-                                    Data Sources
-                                </div>
-                            </button>
-                        </nav>
-                    </div>
-                </aside>
+                <nav class="flex space-x-6 px-6 pt-4 border-b border-gray-700">
+                    <button class="workspace-config-tab-item pb-2 px-1 border-b-2 border-red-500 text-white font-medium text-sm" data-config-tab="general">General</button>
+                    <button class="workspace-config-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm flex items-center space-x-2" data-config-tab="members">
+                        <span>Members</span>
+                        <span class="text-gray-500">26</span>
+                    </button>
+                    <button class="workspace-config-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-config-tab="settings">Settings</button>
+                </nav>
 
                 <!-- Tab Content -->
-                <div class="flex-1 flex flex-col">
-
-                    <div id="workspace-config-general-tab" class="workspace-config-tab-content overflow-hidden flex flex-col">
-                        <div class="flex-1 overflow-y-auto p-6">
-                            <div class="space-y-6">
-                                <!-- Name Field -->
-                                <div>
-                                    <div class="text-sm text-gray-500 mb-2">Name</div>
-                                    <div class="flex items-center justify-between">
-                                        <div>Finance</div>
-                                        <button class="text-sm text-blue-400 hover:text-white transition duration-200 flex items-center">
-                                            <span class="material-symbols-outlined w-4.5 mr-1.5" style="font-size: 18px;">edit</span>
-                                            <span>Edit</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- Description Field -->
-                                <div>
-                                    <div class="text-sm text-gray-500 mb-2">Description</div>
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-gray-600">No description added</div>
-                                        <button class="text-sm text-blue-400 hover:text-white transition duration-200 flex items-center">
-                                            <span class="material-symbols-outlined w-4.5 mr-1.5" style="font-size: 18px;">add</span>
-                                            Add
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="workspace-config-members-tab" class="workspace-config-tab-content overflow-hidden flex flex-col hidden">
-                        <div class="flex-1 overflow-y-auto p-6">
+                <div class="flex-1 overflow-y-auto p-6">
+                    <!-- General Tab -->
+                    <div id="workspace-config-general-tab" class="workspace-config-tab-content">
+                        <div class="space-y-6">
+                            <!-- Name Field -->
                             <div>
-                                <div class="flex items-center space-x-3 mb-6">
-                                    <div class="flex-1">
-                                        <input type="text" placeholder="Add people" class="w-full px-3 py-1.5 h-9 bg-gray-800 border border-gray-600 rounded-md text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                                    </div>
-                                    <button class="flex items-center space-x-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-md transition-colors duration-200">
-                                        <span class="material-symbols-outlined text-[20px]">add</span>
-                                        <span>Invite</span>
+                                <div class="text-sm text-gray-500 mb-2">Name</div>
+                                <div class="flex items-center justify-between">
+                                    <div>Finance</div>
+                                    <button class="text-sm text-blue-400 hover:text-white transition duration-200 flex items-center">
+                                        <span class="material-symbols-outlined w-4.5 mr-1.5" style="font-size: 18px;">edit</span>
+                                        <span>Edit</span>
                                     </button>
                                 </div>
-        
-                                <div class="space-y-4">
-                                    <div>
-                                        <div class="space-y-3">
-                                            <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                                                <div class="flex items-center space-x-3">
-                                                    <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JD" alt="">
-                                                    <div>
-                                                        <div class="text-sm font-medium text-white flex items-center space-x-2">
-                                                            <span>John Doe</span>
-                                                        </div>
-                                                        <div class="text-xs text-gray-400">john.doe@company.com</div>
-                                                    </div>
-                                                </div>
-                                                <div class="relative">
-                                                    <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Admin</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                    </button>
-                                                    <div class="options-dropdown-menu right-auto hidden">
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Admin">Admin</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Editor">Editor</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Viewer">Viewer</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Guest">Guest</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                                                <div class="flex items-center space-x-3">
-                                                    <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JS" alt="">
-                                                    <div>
-                                                        <div class="text-sm font-medium text-white">Jane Smith</div>
-                                                        <div class="text-xs text-gray-400">jane.smith@company.com</div>
-                                                    </div>
-                                                </div>
-                                                <div class="relative">
-                                                    <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Editor</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                    </button>
-                                                    <div class="options-dropdown-menu right-auto hidden">
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admin">Admin</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Editor">Editor</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Viewer">Viewer</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Guest">Guest</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-    
-                                            <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                                                <div class="flex items-center space-x-3">
-                                                    <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=MB" alt="">
-                                                    <div>
-                                                        <div class="text-sm font-medium text-white">Mike Brown</div>
-                                                        <div class="text-xs text-gray-400">mike.brown@company.com</div>
-                                                    </div>
-                                                </div>
-                                                <div class="relative">
-                                                    <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Viewer</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                    </button>
-                                                    <div class="options-dropdown-menu right-auto hidden">
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admin">Admin</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Editor">Editor</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Viewer">Viewer</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Guest">Guest</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                                                <div class="flex items-center space-x-3">
-                                                    <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=SW" alt="">
-                                                    <div>
-                                                        <div class="text-sm font-medium text-white">Sarah Wilson</div>
-                                                        <div class="text-xs text-gray-400">sarah.wilson@company.com</div>
-                                                    </div>
-                                                </div>
-                                                <div class="relative">
-                                                    <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Guest</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                    </button>
-                                                    <div class="options-dropdown-menu right-auto hidden">
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admin">Admin</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Editor">Editor</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Viewer">Viewer</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Guest">Guest</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div id="workspace-config-settings-tab" class="workspace-config-tab-content overflow-hidden flex flex-col hidden">
-                        <div class="flex-1 overflow-y-auto p-6">
-                            <div class="space-y-6">
-                                <!-- Who can invite or remove members -->
+                            <!-- Description Field -->
+                            <div>
+                                <div class="text-sm text-gray-500 mb-2">Description</div>
                                 <div class="flex items-center justify-between">
-                                    <div class="text-sm text-gray-300">Who can invite or remove members</div>
-                                    <div class="relative">
-                                        <button id="invite-members-dropdown-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                            <span class="invite-members-selected-value mr-1">Admins Only</span>
-                                            <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                        </button>
-                                        <div id="invite-members-dropdown" class="options-dropdown-menu right-auto hidden">
-                                            <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150 active" data-value="Admins Only">Admins Only</a>
-                                            <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150" data-value="Admins and Editors">Admins and Editors</a>
-                                            <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150" data-value="Everyone">Everyone</a>
-                                        </div>
-                                    </div>
-                                </div>
-    
-                                <!-- Who can create and update content -->
-                                <div class="flex items-center justify-between">
-                                    <div class="text-sm text-gray-300">Who can create and update content</div>
-                                    <div class="relative">
-                                        <button id="create-content-dropdown-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                            <span class="create-content-selected-value mr-1">Admins and Editors</span>
-                                            <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                        </button>
-                                        <div id="create-content-dropdown" class="options-dropdown-menu hidden">
-                                            <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admins Only">Admins Only</a>
-                                            <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Admins and Editors">Admins and Editors</a>
-                                            <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Everyone">Everyone</a>
-                                        </div>
-                                    </div>
-                                </div>
-    
-                                <!-- Who can share content -->
-                                <div class="flex items-center justify-between">
-                                    <div class="text-sm text-gray-300">Who can share content</div>
-                                    <div class="relative">
-                                        <button id="share-content-dropdown-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                            <span class="share-content-selected-value mr-1">Admins and Editors</span>
-                                            <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                        </button>
-                                        <div id="share-content-dropdown" class="options-dropdown-menu right-auto hidden">
-                                            <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admins Only">Admins Only</a>
-                                            <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Admins and Editors">Admins and Editors</a>
-                                            <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Everyone">Everyone</a>
-                                        </div>
-                                    </div>
-                                </div>
-    
-                                <!-- Allow sharing content using magic links -->
-                                <div class="flex items-center justify-between">
-                                    <div class="text-sm text-gray-300">Allow sharing content using magic links</div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="magic-links-toggle" checked>
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-    
-                                <!-- Disable guests -->
-                                <div class="flex items-center justify-between">
-                                    <div class="text-sm text-gray-300">Disable guests</div>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="disable-guests-toggle">
-                                        <span class="toggle-slider"></span>
-                                    </label>
-                                </div>
-    
-                                <!-- Archive Workspace Button -->
-                                <div class="pt-6 border-t border-gray-800">
-                                    <button class="text-sm bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200 text-s flex items-center">
-                                        <span class="material-symbols-outlined w-5 mr-2" style="font-size: 20px;">delete</span>
-                                        <span>Archive Workspace</span>
+                                    <div class="text-gray-600">No description added</div>
+                                    <button class="text-sm text-blue-400 hover:text-white transition duration-200 flex items-center">
+                                        <span class="material-symbols-outlined w-4.5 mr-1.5" style="font-size: 18px;">add</span>
+                                        Add
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div id="workspace-config-components-tab" class="workspace-config-tab-content overflow-hidden flex flex-col hidden">
-                        <div class="flex-1 overflow-y-auto">
-                            <!-- Component Table -->
-                            <div class="overflow-hidden">
-                                <div class="px-6 py-4 border-b border-gray-700">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <button id="create-component-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
-                                                Create Component
-                                            </button>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <div class="relative">
-                                                <input type="text" id="components-search-input" placeholder="Search components..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
-                                                <button id="components-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
-                                                    <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
-                                                </button>
-                                                <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Filters Row -->
-                                <div class="px-6 py-4 border-b border-gray-700">
-                                    <div class="flex flex-wrap gap-4 justify-between">
-                                        <div class="flex flex-wrap gap-4">
-                                            <!-- Category Filter -->
-                                            <div class="relative">
-                                                <button id="category-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                    <span class="mr-1">Category</span>
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                    <span id="category-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Category Filter">
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                    </span>
-                                                </button>
-                                                <div id="category-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Sales" class="mr-2"> Sales
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Marketing" class="mr-2"> Marketing
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Finance" class="mr-2"> Finance
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Operations" class="mr-2"> Operations
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="HR" class="mr-2"> HR
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="IT" class="mr-2"> IT
-                                                    </label>
-                                                </div>
-                                            </div>
+                    <!-- Members Tab -->
+                    <div id="workspace-config-members-tab" class="workspace-config-tab-content hidden">
+                        <div>
 
-                                            <!-- Type Filter -->
-                                            <div class="relative">
-                                                <button id="type-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                    <span class="mr-1">Type</span>
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                    <span id="type-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Type Filter">
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                    </span>
-                                                </button>
-                                                <div id="type-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Chart" class="mr-2"> Chart
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="KPI" class="mr-2"> KPI
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Map" class="mr-2"> Map
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <!-- Status Filter -->
-                                            <div class="relative">
-                                                <button id="component-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                    <span class="mr-1">Status</span>
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                    <span id="component-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                    </span>
-                                                </button>
-                                                <div id="component-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Active" class="mr-2"> Active
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Pending Review" class="mr-2"> Pending Review
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Archived" class="mr-2"> Archived
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Clear All Filters Button -->
-                                        <button id="clear-all-component-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
-                                            <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
-                                            Clear All Filters
-                                        </button>
-                                    </div>
+                            <div class="flex items-center space-x-3 mb-6">
+                                <div class="flex-1">
+                                    <input type="text" placeholder="Add people" class="w-full px-3 py-1.5 h-9 bg-gray-800 border border-gray-600 rounded-md text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                                 </div>
-                                
-                                <div class="overflow-x-auto">
-                                    <table id="components-table" class="w-full">
-                                        <thead class="border-b border-gray-700">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">Component</th>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Category</th>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Type</th>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Status</th>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Last Updated</th>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-1"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-700 border-b border-gray-700">
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="text-white font-semibold text-sm">SG</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Sales Growth</div>
-                                                            <div class="text-sm text-gray-400">sales-growth-v1</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Sales</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Chart</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    2 hours ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="text-white font-semibold text-sm">ST</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Sales Team Performance</div>
-                                                            <div class="text-sm text-gray-400">sales-team-perf-v2</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Sales</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Chart</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    1 day ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="text-white font-semibold text-sm">LQ</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Lead Quality Metrics</div>
-                                                            <div class="text-sm text-gray-400">lead-quality-v1</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Sales</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">KPI</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-900 text-yellow-300">Pending Review</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    3 days ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="text-white font-semibold text-sm">CP</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Campaign Performance</div>
-                                                            <div class="text-sm text-gray-400">campaign-perf-v1</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Marketing</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">KPI</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    5 hours ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="text-white font-semibold text-sm">EM</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Email Marketing Analytics</div>
-                                                            <div class="text-sm text-gray-400">email-marketing-v2</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Marketing</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Chart</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Inactive</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    1 week ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Activate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="text-white font-semibold text-sm">GM</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Geographic Market Analysis</div>
-                                                            <div class="text-sm text-gray-400">geo-market-v1</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Sales</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Map</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    1 day ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
-                                <!-- No matches found message -->
-                                <div id="no-component-matches-message" class="hidden px-6 py-8 text-center">
-                                    <div class="flex flex-col items-center">
-                                        <span class="material-symbols-outlined text-gray-400 text-4xl mb-3">grid_view</span>
-                                        <h3 class="text-lg font-medium text-gray-300 mb-2">No components found</h3>
-                                        <p class="text-gray-400 text-sm">Try adjusting your search terms or filters</p>
-                                    </div>
-                                </div>
+                                <button class="flex items-center space-x-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-md transition-colors duration-200">
+                                    <span class="material-symbols-outlined text-[20px]">add</span>
+                                    <span>Invite</span>
+                                </button>
                             </div>
-                        </div>
-                    </div>
-
-                    <div id="workspace-config-filters-tab" class="workspace-config-tab-content overflow-hidden flex flex-col hidden">
-                        <div class="flex-1 overflow-y-auto">
-                            <div class="overflow-hidden">
-                                <div class="px-6 py-4 border-b border-gray-700">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
-                                                Create Filter
-                                            </button>
-                                        </div>
-                                        <div class="flex items-center">
+    
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                            <div class="flex items-center space-x-3">
+                                                <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JD" alt="">
+                                                <div>
+                                                    <div class="text-sm font-medium text-white flex items-center space-x-2">
+                                                        <span>John Doe</span>
+                                                    </div>
+                                                    <div class="text-xs text-gray-400">john.doe@company.com</div>
+                                                </div>
+                                            </div>
                                             <div class="relative">
-                                                <input type="text" id="filters-search-input" placeholder="Search filters..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
-                                                <button id="filters-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
-                                                    <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
-                                                </button>
-                                                <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Filter Row -->
-                                <div class="px-6 py-4 border-b border-gray-700">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-4">
-                                            <!-- Type Filter -->
-                                            <div class="relative">
-                                                <button id="filter-type-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                    <span class="mr-1">Type</span>
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                    <span id="filter-type-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Type Filter">
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                    </span>
-                                                </button>
-                                                <div id="filter-type-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="DateRange" class="mr-2"> DateRange
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Lookup" class="mr-2"> Lookup
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Dropdown" class="mr-2"> Dropdown
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Slider" class="mr-2"> Slider
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Text" class="mr-2"> Text
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Status Filter -->
-                                            <div class="relative">
-                                                <button id="filter-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                    <span class="mr-1">Status</span>
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                    <span id="filter-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                    </span>
-                                                </button>
-                                                <div id="filter-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Active" class="mr-2"> Active
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Pending Review" class="mr-2"> Pending Review
-                                                    </label>
-                                                    <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                        <input type="checkbox" value="Archived" class="mr-2"> Archived
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Clear All Filters Button -->
-                                        <button id="clear-all-filter-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
-                                            <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
-                                            Clear All Filters
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="overflow-x-auto">
-                                    <table id="filters-table" class="w-full">
-                                        <thead class="border-b border-gray-700">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">Filter</th>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Type</th>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Status</th>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Last Updated</th>
-                                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-1"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-700 border-b border-gray-700">
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="material-symbols-outlined text-white text-xl">date_range</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Date Range Filter</div>
-                                                            <div class="text-sm text-gray-400">date_range_filter</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">DateRange</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    2 hours ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="material-symbols-outlined text-white text-xl">location_on</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Location Filter</div>
-                                                            <div class="text-sm text-gray-400">location_filter</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Lookup</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    1 day ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="material-symbols-outlined text-white text-xl">category</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Category Filter</div>
-                                                            <div class="text-sm text-gray-400">category_filter</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Dropdown</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    3 days ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="material-symbols-outlined text-white text-xl">tune</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">Range Slider Filter</div>
-                                                            <div class="text-sm text-gray-400">range_slider_filter</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Slider</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-900 text-yellow-300">Pending Review</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    1 week ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            
-                                            <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center">
-                                                            <span class="material-symbols-outlined text-white text-xl">person</span>
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-white">User Filter</div>
-                                                            <div class="text-sm text-gray-400">user_filter</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="text-sm text-gray-300">Text</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    2 weeks ago
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="relative">
-                                                        <button class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                        </button>
-                                                        <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    
-                                    <!-- No matches found message -->
-                                    <div id="no-filter-matches-message" class="hidden px-6 py-8 text-center">
-                                        <div class="text-gray-400 text-sm">No filters found matching your search criteria.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="workspace-config-data-sources-tab" class="workspace-config-tab-content overflow-hidden flex flex-col hidden">
-                        <!-- DATA SOURCES Tabs -->
-                        <div class="px-6 pt-4 border-b border-gray-700">
-                            <nav class="flex space-x-6">
-                                <button class="pb-2 px-1 border-b-2 border-red-500 text-white font-medium text-sm" data-sources-tab="databases">
-                                    Databases
-                                </button>
-                                <button class="pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-sources-tab="apis">
-                                    APIs
-                                </button>
-                                <button class="pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-sources-tab="ai-models">
-                                    AI Models
-                                </button>
-                                <button class="pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-sources-tab="files">
-                                    Files
-                                </button>
-                                <button class="pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-sources-tab="data-flows">
-                                    Data Flows
-                                </button>
-                            </nav>
-                        </div>
-                        <!-- DATA SOURCES Tab Content -->
-                        <div class="flex-1 overflow-y-auto">
-                            <!-- Databases Tab Content -->
-                            <div id="databases-tab-content" class="tab-content">
-                                <!-- Database Management Grid -->
-                                <div class="overflow-hidden">
-                                    <div class="px-6 py-4 border-b border-gray-700">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center">
-                                                <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center" onclick="openCreateDatabaseModal()">
-                                                    <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
-                                                    Create Connection
-                                                </button>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <div class="relative">
-                                                    <input type="text" id="databases-search-input" placeholder="Search database connections..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
-                                                    <button id="databases-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
-                                                        <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
-                                                    </button>
-                                                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Filter Row -->
-                                    <div class="px-6 py-4 border-b border-gray-700">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-4">
-                                                <!-- Type Filter -->
-                                                <div class="relative">
-                                                    <button id="database-type-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Type</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                        <span id="database-type-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Type Filter">
-                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                        </span>
-                                                    </button>
-                                                    <div id="database-type-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="mysql" class="mr-2"> MySQL
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="postgresql" class="mr-2"> PostgreSQL
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="sqlserver" class="mr-2"> SQL Server
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="oracle" class="mr-2"> Oracle
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="sqlite" class="mr-2"> SQLite
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Status Filter -->
-                                                <div class="relative">
-                                                    <button id="database-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Status</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                        <span id="database-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
-                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                        </span>
-                                                    </button>
-                                                    <div id="database-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="Active" class="mr-2"> Active
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="Inactive" class="mr-2"> Inactive
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Clear All Filters Button -->
-                                            <button id="clear-all-database-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
-                                                <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
-                                                Clear All Filters
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="overflow-x-auto">
-                                        <table id="databases-table" class="w-full">
-                                            <thead class="border-b border-gray-700">
-                                                <tr>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">Database Connections</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Type</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Status</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Last Updated</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider w-1 whitespace-nowrap"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-700 border-b border-gray-700">
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Population Analytics</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Population and geographic data analysis results</p>
-                                                                    <p class="text-xs mt-1">population-analytics-db.company.com:3306 - population_analytics_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">MySQL</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        2 hours ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Analytics PostgreSQL</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Analytics and reporting database</p>
-                                                                    <p class="text-xs mt-1">analytics-reporting-db.company.com:3306 - analytics_reporting_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">PostgreSQL</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        1 day ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Data Warehouse</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Data warehouse for business intelligence</p>
-                                                                    <p class="text-xs mt-1">data-watehouse-db.company.com:3306 - data_watehouse_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">SQL Server</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        3 days ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Finance Oracle</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Financial data and transactions</p>
-                                                                    <p class="text-xs mt-1">finance-oracle-db.company.com:3306 - finance_oracle_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">Oracle</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        1 week ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Local Development</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Local development database</p>
-                                                                    <p class="text-xs mt-1">localhost - localdev_db</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="text-sm text-gray-300">SQLite</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Inactive</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        2 weeks ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Activate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        
-                                        <!-- No matches found message -->
-                                        <div id="no-database-matches-message" class="hidden px-6 py-8 text-center">
-                                            <div class="text-gray-400 text-sm">No databases found matching your search criteria.</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- APIs Tab Content -->
-                            <div id="apis-tab-content" class="tab-content hidden">
-                                <!-- API Management Grid -->
-                                <div class="overflow-hidden">
-                                    <div class="px-6 py-4 border-b border-gray-700">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center">
                                                 <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                    <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
-                                                    Create Collection
+                                                    <span class="mr-1">Admin</span>
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
                                                 </button>
+                                                <div class="options-dropdown-menu right-auto hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Admin">Admin</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Editor">Editor</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Viewer">Viewer</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Guest">Guest</a>
+                                                </div>
                                             </div>
-                                            <div class="flex items-center">
-                                                <div class="relative">
-                                                    <input type="text" id="apis-search-input" placeholder="Search collections & requests..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" style="width: 300px; padding-right: 3rem;" />
-                                                    <button id="apis-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
-                                                        <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
-                                                    </button>
-                                                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
+                                        </div>
+                                        
+                                        <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                            <div class="flex items-center space-x-3">
+                                                <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JS" alt="">
+                                                <div>
+                                                    <div class="text-sm font-medium text-white">Jane Smith</div>
+                                                    <div class="text-xs text-gray-400">jane.smith@company.com</div>
+                                                </div>
+                                            </div>
+                                            <div class="relative">
+                                                <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                    <span class="mr-1">Editor</span>
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                </button>
+                                                <div class="options-dropdown-menu right-auto hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admin">Admin</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Editor">Editor</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Viewer">Viewer</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Guest">Guest</a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                            <div class="flex items-center space-x-3">
+                                                <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=MB" alt="">
+                                                <div>
+                                                    <div class="text-sm font-medium text-white">Mike Brown</div>
+                                                    <div class="text-xs text-gray-400">mike.brown@company.com</div>
+                                                </div>
+                                            </div>
+                                            <div class="relative">
+                                                <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                    <span class="mr-1">Viewer</span>
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                </button>
+                                                <div class="options-dropdown-menu right-auto hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admin">Admin</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Editor">Editor</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Viewer">Viewer</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Guest">Guest</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                            <div class="flex items-center space-x-3">
+                                                <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=SW" alt="">
+                                                <div>
+                                                    <div class="text-sm font-medium text-white">Sarah Wilson</div>
+                                                    <div class="text-xs text-gray-400">sarah.wilson@company.com</div>
+                                                </div>
+                                            </div>
+                                            <div class="relative">
+                                                <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                                    <span class="mr-1">Guest</span>
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                                </button>
+                                                <div class="options-dropdown-menu right-auto hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admin">Admin</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Editor">Editor</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Viewer">Viewer</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Guest">Guest</a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <!-- Filter Row -->
-                                    <div class="px-6 py-4 border-b border-gray-700">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-4">
-                                                
-                                                <!-- Method Filter -->
-                                                <div class="relative">
-                                                    <button id="api-method-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Method</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                        <span id="api-method-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Method Filter">
-                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                        </span>
-                                                    </button>
-                                                    <div id="api-method-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="GET" class="mr-2"> GET
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="POST" class="mr-2"> POST
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="PUT" class="mr-2"> PUT
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="DELETE" class="mr-2"> DELETE
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="PATCH" class="mr-2"> PATCH
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Status Filter -->
-                                                <div class="relative">
-                                                    <button id="api-status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="mr-1">Status</span>
-                                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                        <span id="api-status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
-                                                            <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                        </span>
-                                                    </button>
-                                                    <div id="api-status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="active" class="mr-2"> Active
-                                                        </label>
-                                                        <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                            <input type="checkbox" value="inactive" class="mr-2"> Inactive
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="flex items-center">
-                                                <button id="api-clear-all-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
-                                                    <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
-                                                    Clear All Filters
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- API Tree Table -->
-                                    <div class="overflow-x-auto">
-                                        <table id="apis-table" class="w-full">
-                                            <thead class="border-b border-gray-700">
-                                                <tr>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">API Collections & Requests</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Status</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">Last Updated</th>
-                                                    <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider w-1 whitespace-nowrap"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-700 border-b border-gray-700">
-                                                <!-- API Collection 1 -->
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer api-collection-row" data-collection-id="1">
-                                                    <td class="px-6 py-4 pl-0 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <button class="expand-collection-btn p-1 pr-5 pl-5 text-gray-400 hover:text-white transition duration-200 h-12 flex items-center" data-collection="1">
-                                                                <span class="material-symbols-outlined text-xlg" style="transition: transform 0.2s ease-in-out;">chevron_right</span>
-                                                            </button>
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Weather Services</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Real-time weather data and forecasts</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        2 hours ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" data-dropdown="api-collection-1">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add Request</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <!-- API Request 1.1 (nested under Collection 1) -->
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer api-request-row hidden" data-collection="1" data-request-id="1.1">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div class="w-10"></div>
-                                                            <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center mr-4">
-                                                                <span class="material-symbols-outlined" style="font-size: 20px;">api</span>
-                                                            </div>
-                                                            <div>
-                                                                <div class="flex items-center space-x-2">
-                                                                <div class="text-sm font-medium text-white">Get Current Weather</div>
-                                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">GET</span>
-                                                                </div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Retrieve current weather conditions</p>
-                                                                    <div class="flex items-center mt-1">
-                                                                        <span class="material-symbols-outlined text-[16px] mr-1">link</span>
-                                                                        <span class="text-xs">https://weather.secureclient.com/api/v1/current</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        1 hour ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" data-dropdown="api-request-1.1">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <!-- API Request 1.2 (nested under Collection 1) -->
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer api-request-row hidden" data-collection="1" data-request-id="1.2">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div class="w-10"></div>
-                                                            <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center mr-4">
-                                                                <span class="material-symbols-outlined text-white" style="font-size: 20px;">api</span>
-                                                            </div>
-                                                            <div>
-                                                                <div class="flex items-center space-x-2">
-                                                                <div class="text-sm font-medium text-white">Get Weather Forecast</div>
-                                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-900 text-blue-300">POST</span>
-                                                                </div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Get 7-day weather forecast for location</p>
-                                                                    <div class="flex items-center mt-1">
-                                                                        <span class="material-symbols-outlined text-[16px] mr-1">link</span>
-                                                                        <span class="text-xs">https://weather.secureclient.com/api/v1/forecast</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        45 mins ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" data-dropdown="api-request-1.2">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-
-                                                <!-- API Collection 2 -->
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer api-collection-row" data-collection-id="2">
-                                                    <td class="px-6 py-4 pl-0 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <button class="expand-collection-btn p-1 pr-5 pl-5 text-gray-400 hover:text-white transition duration-200 h-12 flex items-center" data-collection="2">
-                                                                <span class="material-symbols-outlined text-xlg" style="transition: transform 0.2s ease-in-out;">chevron_right</span>
-                                                            </button>
-                                                            <div>
-                                                                <div class="text-sm font-medium text-white">Traffic Services</div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Real-time traffic data and route optimization</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        1 day ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" data-dropdown="api-collection-2">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add Request</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Export</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                
-                                                <!-- API Request 2.1 (nested under Collection 2) -->
-                                                <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer api-request-row hidden" data-collection="2" data-request-id="2.1">
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            <div class="w-10"></div>
-                                                            <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center mr-4">
-                                                                <span class="material-symbols-outlined text-white" style="font-size: 20px;">api</span>
-                                                            </div>
-                                                            <div>
-                                                                <div class="flex items-center space-x-2">
-                                                                <div class="text-sm font-medium text-white">Get Traffic Flow</div>
-                                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-900 text-blue-300">POST</span>
-                                                                </div>
-                                                                <div class="mt-1 text-gray-400">
-                                                                    <p class="text-sm">Retrieve real-time traffic flow data</p>
-                                                                    <div class="flex items-center mt-1">
-                                                                        <span class="material-symbols-outlined text-[16px] mr-1">link</span>
-                                                                        <span class="text-xs">https://weather.secureclient.com/api/vi/flow</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                        3 hours ago
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <div class="relative">
-                                                            <button class="options-dropdown-button" data-dropdown="api-request-2.1">
-                                                                <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                            </button>
-                                                            <div class="options-dropdown-menu hidden mt-0 right-auto">
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    
-                                    <!-- No matches found message -->
-                                    <div id="no-api-matches-message" class="hidden px-6 py-8 text-center">
-                                        <div class="text-gray-400 text-sm">No API collections or requests found matching your search criteria.</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- AI Models Tab Content -->
-                            <div id="ai-models-tab-content" class="tab-content hidden">
-                                <div class="p-6">
-                                    <p class="text-sm text-gray-400">AI models management functionality will be implemented here.</p>
-                                </div>
-                            </div>
-
-                            <!-- Files Tab Content -->
-                            <div id="files-tab-content" class="tab-content hidden">
-                                <div class="p-6">
-                                    <p class="text-sm text-gray-400">File management functionality will be implemented here.</p>
-                                </div>
-                            </div>
-
-                            <!-- Data Flows Tab Content -->
-                            <div id="data-flows-tab-content" class="tab-content hidden">
-                                <div class="p-6">
-                                    <p class="text-sm text-gray-400">Data flows management functionality will be implemented here.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Settings Tab -->
+                    <div id="workspace-config-settings-tab" class="workspace-config-tab-content hidden">
+                        <div class="space-y-6">
+                            <!-- Who can invite or remove members -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-300">Who can invite or remove members</div>
+                                <div class="relative">
+                                    <button id="invite-members-dropdown-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                        <span class="invite-members-selected-value mr-1">Admins Only</span>
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                    </button>
+                                    <div id="invite-members-dropdown" class="options-dropdown-menu right-auto hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150 active" data-value="Admins Only">Admins Only</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150" data-value="Admins and Editors">Admins and Editors</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150" data-value="Everyone">Everyone</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Who can create and update content -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-300">Who can create and update content</div>
+                                <div class="relative">
+                                    <button id="create-content-dropdown-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                        <span class="create-content-selected-value mr-1">Admins and Editors</span>
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                    </button>
+                                    <div id="create-content-dropdown" class="options-dropdown-menu hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admins Only">Admins Only</a>
+                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Admins and Editors">Admins and Editors</a>
+                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Everyone">Everyone</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Who can share content -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-300">Who can share content</div>
+                                <div class="relative">
+                                    <button id="share-content-dropdown-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                        <span class="share-content-selected-value mr-1">Admins and Editors</span>
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                    </button>
+                                    <div id="share-content-dropdown" class="options-dropdown-menu right-auto hidden">
+                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Admins Only">Admins Only</a>
+                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150 active" data-value="Admins and Editors">Admins and Editors</a>
+                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700 transition duration-150" data-value="Everyone">Everyone</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Allow sharing content using magic links -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-300">Allow sharing content using magic links</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="magic-links-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Disable guests -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-300">Disable guests</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="disable-guests-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Archive Workspace Button -->
+                            <div class="pt-6 border-t border-gray-800">
+                                <button class="text-sm bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200 text-s flex items-center">
+                                    <span class="material-symbols-outlined w-5 mr-2" style="font-size: 20px;">delete</span>
+                                    <span>Archive Workspace</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
             </div>
         </div>
     </div>
@@ -7215,7 +5881,8 @@
 
             // Remove active styling from all tab buttons
             document.querySelectorAll('.workspace-config-tab-item').forEach(button => {
-                button.classList.remove('active');
+                button.classList.remove('border-red-500', 'text-white');
+                button.classList.add('border-transparent', 'text-gray-400');
             });
 
             // Show selected tab content
@@ -7227,7 +5894,8 @@
             // Add active styling to selected tab button
             const selectedTabButton = document.querySelector(`[data-config-tab="${tabName}"]`);
             if (selectedTabButton) {
-                selectedTabButton.classList.add('active');
+                selectedTabButton.classList.add('border-red-500', 'text-white');
+                selectedTabButton.classList.remove('border-transparent', 'text-gray-400');
             }
         }
 
@@ -7519,123 +6187,6 @@
                 });
             });
             observer.observe(membersTab, { attributes: true });
-        }
-
-        // ========== DATA SOURCES TAB SWITCHING ==========
-        
-        const dataSourcesTabContainer = document.getElementById('workspace-config-data-sources-tab');
-        
-        if (dataSourcesTabContainer) {
-            function switchDataSourcesTab(tabName) {
-                // Hide all tab contents
-                dataSourcesTabContainer.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.add('hidden');
-                });
-
-                // Remove active styling from all tab buttons
-                dataSourcesTabContainer.querySelectorAll('[data-sources-tab]').forEach(button => {
-                    button.classList.remove('border-red-500', 'text-white');
-                    button.classList.add('border-transparent', 'text-gray-400');
-                });
-
-                // Show selected tab content
-                const selectedTabContent = document.getElementById(`${tabName}-tab-content`);
-                if (selectedTabContent) {
-                    selectedTabContent.classList.remove('hidden');
-                }
-
-                // Add active styling to selected tab button
-                const selectedTabButton = dataSourcesTabContainer.querySelector(`[data-sources-tab="${tabName}"]`);
-                if (selectedTabButton) {
-                    selectedTabButton.classList.add('border-red-500', 'text-white');
-                    selectedTabButton.classList.remove('border-transparent', 'text-gray-400');
-                }
-            }
-
-            // Tab button event listeners
-            dataSourcesTabContainer.querySelectorAll('[data-sources-tab]').forEach(button => {
-                button.addEventListener('click', () => {
-                    const tabName = button.getAttribute('data-sources-tab');
-                    if (tabName) {
-                        switchDataSourcesTab(tabName);
-                    }
-                });
-            });
-        }
-
-        // ========== API TREE VIEW FUNCTIONALITY ==========
-        
-        const apisTable = document.getElementById('apis-table');
-        
-        if (apisTable) {
-            // Initialize expand/collapse functionality for API collections
-            function initializeAPITreeView() {
-                const expandButtons = apisTable.querySelectorAll('.expand-collection-btn');
-                
-                expandButtons.forEach(button => {
-                    // Check if already initialized
-                    if (button.dataset.initialized === 'true') return;
-                    button.dataset.initialized = 'true';
-                    
-                    button.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Prevent row click event
-                        
-                        const collectionId = button.getAttribute('data-collection');
-                        if (!collectionId) return;
-                        
-                        // Find all request rows for this collection
-                        const requestRows = apisTable.querySelectorAll(`.api-request-row[data-collection="${collectionId}"]`);
-                        
-                        // Get the chevron icon
-                        const chevron = button.querySelector('.material-symbols-outlined');
-                        
-                        // Check if currently expanded (any request row is visible)
-                        const isExpanded = Array.from(requestRows).some(row => !row.classList.contains('hidden'));
-                        
-                        if (isExpanded) {
-                            // Collapse: hide all request rows
-                            requestRows.forEach(row => {
-                                row.classList.add('hidden');
-                            });
-                            // Rotate chevron back to right
-                            if (chevron) {
-                                chevron.style.transform = 'rotate(0deg)';
-                            }
-                        } else {
-                            // Expand: show all request rows
-                            requestRows.forEach(row => {
-                                row.classList.remove('hidden');
-                            });
-                            // Rotate chevron down
-                            if (chevron) {
-                                chevron.style.transform = 'rotate(90deg)';
-                            }
-                        }
-                    });
-                });
-            }
-            
-            // Initialize on page load
-            initializeAPITreeView();
-            
-            // Re-initialize when APIs tab becomes visible (in case it's dynamically loaded)
-            const apisTabContent = document.getElementById('apis-tab-content');
-            if (apisTabContent) {
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                            const isHidden = apisTabContent.classList.contains('hidden');
-                            if (!isHidden) {
-                                // Small delay to ensure DOM is ready
-                                setTimeout(() => {
-                                    initializeAPITreeView();
-                                }, 100);
-                            }
-                        }
-                    });
-                });
-                observer.observe(apisTabContent, { attributes: true });
-            }
         }
         });
     </script>
