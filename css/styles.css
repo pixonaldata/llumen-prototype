@@ -474,6 +474,7 @@ main.fullscreen-main {
     border: 1px solid rgba(71, 85, 105, 0.5);
     backdrop-filter: blur(5px);
     transition: background-color 0.2s, color 0.2s;
+    pointer-events: all;
 }
 
     .scroll-button:hover,
@@ -493,6 +494,7 @@ main.fullscreen-main {
     pointer-events: all;
     transition: opacity 0.3s ease-in-out;
     opacity: 1;
+    pointer-events: none;
 }
 
 .scroll-gradient-overlay.hidden {

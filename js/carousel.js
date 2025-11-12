@@ -50,13 +50,11 @@
             // Update left gradient overlay
             if (leftGradientOverlay) {
                 leftGradientOverlay.classList.toggle('hidden', !isScrollable || atLeftEnd);
-                leftGradientOverlay.style.pointerEvents = (!isScrollable || atLeftEnd) ? 'none' : 'all';
             }
 
             // Update right gradient overlay
             if (rightGradientOverlay) {
                 rightGradientOverlay.classList.toggle('hidden', !isScrollable || atRightEnd);
-                rightGradientOverlay.style.pointerEvents = (!isScrollable || atRightEnd) ? 'none' : 'all';
             }
         }
 
