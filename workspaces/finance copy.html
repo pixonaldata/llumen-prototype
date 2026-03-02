@@ -3536,7 +3536,7 @@
             if (!messageBox) {
                 messageBox = document.createElement('div');
                 messageBox.id = 'message-box';
-                messageBox.className = 'fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
+                messageBox.className = 'fixed bottom-8 left-8 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
                 container.appendChild(messageBox);
             }
 
@@ -3555,7 +3555,7 @@
                     break;
             }
 
-            messageBox.className = `fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
+            messageBox.className = `fixed bottom-8 left-8 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
             messageBox.textContent = message;
 
             // Show animation

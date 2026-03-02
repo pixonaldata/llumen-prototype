@@ -1207,7 +1207,7 @@
 
                 <!-- Grid View -->
                 <div id="briefings-grid-view" class="px-8 py-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="briefings-grid-content">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6" id="briefings-grid-content">
 
                         <div class="briefings-card-outer flex-shrink-0 h-80">
                             <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-red-800 to-red-950">
@@ -1223,7 +1223,7 @@
                                         <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
                                         <span class="font-medium">Operations</span>
                                     </div>
-                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Supply Chain Alert: Critical Component Shortage</h3>
+                                    <h3 class="font-semibold text-white line-clamp-2">Supply Chain Alert: Critical Component Shortage</h3>
                                     <p class="text-sm text-gray-400 mt-1">2 hours ago</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
@@ -1254,7 +1254,7 @@
                                         <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
                                         <span class="font-medium">Finance</span>
                                     </div>
-                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Market Volatility Impact on Q3 Forecasts</h3>
+                                    <h3 class="font-semibold text-white line-clamp-2">Market Volatility Impact on Q3 Forecasts</h3>
                                     <p class="text-sm text-gray-400 mt-1">Yesterday</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
@@ -1285,7 +1285,7 @@
                                         <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
                                         <span class="font-medium">HR</span>
                                     </div>
-                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Employee Feedback: Key Takeaways &amp; Action Plans</h3>
+                                    <h3 class="font-semibold text-white line-clamp-2">Employee Feedback: Key Takeaways &amp; Action Plans</h3>
                                     <p class="text-xs text-gray-400 mt-1">3 days ago</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
@@ -1316,7 +1316,7 @@
                                         <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
                                         <span class="font-medium">Sales</span>
                                     </div>
-                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Q1 Lead Generation: Performance &amp; Strategy</h3>
+                                    <h3 class="font-semibold text-white line-clamp-2">Q1 Lead Generation: Performance &amp; Strategy</h3>
                                     <p class="text-sm text-gray-400 mt-1">1 week ago</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
@@ -1347,7 +1347,7 @@
                                         <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
                                         <span class="font-medium">IT</span>
                                     </div>
-                                    <h3 class="text-xl font-semibold text-white line-clamp-2">System Upgrade: Upcoming Changes and Benefits</h3>
+                                    <h3 class="font-semibold text-white line-clamp-2">System Upgrade: Upcoming Changes and Benefits</h3>
                                     <p class="text-sm text-gray-400 mt-1">4 days ago</p>
                                     <!-- Options Dropdown -->
                                     <div class="absolute top-2 right-2 z-20">
@@ -3444,11 +3444,11 @@
                         <span class="material-symbols-outlined mr-3" style="font-size: 20px;">lock</span>
                         <span class="text-sm font-medium">Private</span>
                     </a>
+                    <div class="border-t border-gray-700 my-4"></div>
                 </div>
 
                 <!-- Workspaces Section -->
                 <div>
-                    <div class="border-t border-gray-700 my-4"></div>
                     <div id="workspaces-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Workspace links will be dynamically generated here -->
                     </div>
@@ -3779,6 +3779,7 @@
     </div>
 
     <script src="../js/ai-chat.js"></script>
+    <script src="../js/briefings.js"></script>
     <script src="../js/create-content-modal.js"></script>
     <script src="../js/carousel.js"></script>
 
@@ -3833,7 +3834,7 @@
             if (!messageBox) {
                 messageBox = document.createElement('div');
                 messageBox.id = 'message-box';
-                messageBox.className = 'fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
+                messageBox.className = 'fixed bottom-8 left-8 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
                 container.appendChild(messageBox);
             }
 
@@ -3852,7 +3853,7 @@
                     break;
             }
 
-            messageBox.className = `fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
+            messageBox.className = `fixed bottom-8 left-8 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
             messageBox.textContent = message;
 
             // Show animation
@@ -6485,6 +6486,151 @@
             });
             observer.observe(membersTab, { attributes: true });
         }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const samples = [
+                { id: 'briefing-operations-alert', owner: 'Operations', type: 'Alert', icon: 'warning', ring: 'border-red-600 text-red-600', title: 'Supply Chain Alert: Critical Component Shortage', date: '2 hours ago', slides: 2, cardBg: 'background:#7f1d1d;', thumb: 'https://placehold.co/192x256/7f1d1d/ffffff?text=Briefing+Thumbail', listThumb: 'https://placehold.co/192x256/7f1d1d/ffffff?text=Briefing+Thumbail' },
+                { id: 'briefing-finance-report', owner: 'Finance', type: 'Report', icon: 'description', ring: 'border-yellow-600 text-yellow-600', title: 'Market Volatility Impact on Q3 Forecasts', date: '1 day ago', slides: 1, cardBg: "background-image:url('https://placehold.co/192x256/172554/ffffff?text=Briefing+Thumbail'); background-size:cover; background-position:center;", thumb: 'https://placehold.co/192x256/172554/ffffff?text=Briefing+Thumbail', listThumb: 'https://placehold.co/192x256/172554/ffffff?text=Briefing+Thumbail' },
+                { id: 'briefing-hr-feedback', owner: 'HR', type: 'Feedback', icon: 'feedback', ring: 'border-green-600 text-green-600', title: 'Employee Feedback: Key Takeaways & Action Plans', date: '3 days ago', slides: 1, cardBg: 'background:#064e3b;', thumb: 'https://placehold.co/192x256/064e3b/ffffff?text=Briefing+Thumbail', listThumb: 'https://placehold.co/192x256/064e3b/ffffff?text=Briefing+Thumbail' },
+                { id: 'briefing-sales-report', owner: 'Sales', type: 'Report', icon: 'description', ring: 'border-yellow-600 text-yellow-600', title: 'Q1 Lead Generation: Performance & Strategy', date: '4 days ago', slides: 1, cardBg: 'background:#78350f;', thumb: 'https://placehold.co/192x256/78350f/ffffff?text=Briefing+Thumbail', listThumb: 'https://placehold.co/192x256/78350f/ffffff?text=Briefing+Thumbail' },
+                { id: 'briefing-it-update', owner: 'IT', type: 'Update', icon: 'notifications', ring: 'border-blue-600 text-blue-600', title: 'System Upgrade: Upcoming Changes and Benefits', date: '2 days ago', slides: 1, cardBg: 'background:linear-gradient(135deg,#0f172a,#1d4ed8);', thumb: 'https://placehold.co/192x256/222/fff?text=Briefing+Thumbnail', listThumb: 'https://placehold.co/192x256/222/fff?text=Briefing+Thumbnail' },
+                { id: 'briefing-marketing-report', owner: 'Marketing', type: 'Report', icon: 'description', ring: 'border-yellow-600 text-yellow-600', title: 'Campaign Performance: Deep Dive into Q1 Results', date: '4 days ago', slides: 1, cardBg: 'background:linear-gradient(135deg,#1e3a8a,#312e81);', thumb: 'https://placehold.co/192x256/222/fff?text=Briefing+Thumbnail', listThumb: 'https://placehold.co/192x256/222/fff?text=Briefing+Thumbnail' }
+            ];
+
+            const grid = document.getElementById('briefings-grid-content');
+            if (grid) {
+                grid.innerHTML = samples.map((item) => `
+                    <div class="briefings-card-outer flex-shrink-0 shared-briefing-grid-card cursor-pointer" style="aspect-ratio:9/16;" data-briefing-id="${item.id}">
+                        <div class="absolute inset-0 rounded-lg overflow-hidden shadow-lg" style="${item.cardBg}">
+                            <img src="${item.thumb}" alt="Briefing Thumbnail" class="w-full h-full object-cover absolute inset-0 opacity-40">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                            <div class="absolute top-3 left-3 bg-transparent border ${item.ring} text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                <span class="material-symbols-outlined mr-1 text-[16px]">${item.icon}</span>
+                                ${item.type}
+                            </div>
+                            <div class="relative p-4 flex flex-col justify-end h-full">
+                                <div class="flex items-center space-x-2 text-sm mb-1">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                    <span class="font-medium">${item.owner}</span>
+                                </div>
+                                <h3 class="font-semibold text-white line-clamp-2">${item.title}</h3>
+                                <p class="text-sm text-gray-400 mt-1">${item.date}</p>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button" type="button" data-shared-briefing-menu-toggle>
+                                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-8 hidden" data-shared-briefing-menu>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="view" data-briefing-id="${item.id}">View Details</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="share">Share</a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="delete">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const list = document.getElementById('briefings-content');
+            if (list) {
+                list.innerHTML = samples.map((item, idx) => `
+                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer shared-briefing-list-row" data-briefing-id="${item.id}">
+                        <td class="px-8 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                    <img src="${item.listThumb}" alt="Briefing Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-lg font-medium text-white">${item.title}</div>
+                                    <div class="flex items-center space-x-2 text-xs mt-1">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                        <span class="font-medium">${item.owner}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-4 whitespace-nowrap">
+                            <div class="inline-flex bg-transparent border ${item.ring} text-xs font-normal px-2 py-1 rounded-full z-20 flex items-center">
+                                <span class="material-symbols-outlined mr-1 text-[16px]">${item.icon}</span>
+                                ${item.type}
+                            </div>
+                        </td>
+                        <td class="px-8 py-4 whitespace-nowrap"><span class="text-sm text-gray-300">${item.slides} ${item.slides === 1 ? 'Slide' : 'Slides'}</span></td>
+                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300">${item.date}</td>
+                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="relative">
+                                <button class="options-dropdown-button" type="button" data-shared-briefing-menu-toggle>
+                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                </button>
+                                <div id="briefing-dropdown-${idx + 1}" class="options-dropdown-menu w-8 hidden" data-shared-briefing-menu>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="view" data-briefing-id="${item.id}">View Details</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="share">Share</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150" data-action="delete">Delete</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const wireSharedBriefingNodes = (selector) => {
+                document.querySelectorAll(selector).forEach((node) => {
+                    const briefingId = node.getAttribute('data-briefing-id');
+                    if (!briefingId) return;
+                    node.addEventListener('click', (event) => {
+                        if (event.target.closest('.options-dropdown-button') || event.target.closest('.options-dropdown-menu')) return;
+                        if (window.Briefings && typeof window.Briefings.openViewer === 'function') {
+                            window.Briefings.openViewer(briefingId);
+                        }
+                    });
+                });
+            };
+            wireSharedBriefingNodes('.shared-briefing-grid-card');
+            wireSharedBriefingNodes('.shared-briefing-list-row');
+
+            document.querySelectorAll('#briefings-tab-content .options-dropdown-menu a[data-action]').forEach((link) => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const action = link.getAttribute('data-action');
+                    const briefingId = link.getAttribute('data-briefing-id');
+                    if (action === 'view' && briefingId && window.Briefings && window.Briefings.openViewer) {
+                        window.Briefings.openViewer(briefingId);
+                    } else if (action === 'share' && window.alertMessage) {
+                        window.alertMessage('Share briefing (simulated).', 'info');
+                    } else if (action === 'delete' && window.alertMessage) {
+                        window.alertMessage('Delete briefing (simulated).', 'info');
+                    }
+                    const menu = link.closest('.options-dropdown-menu');
+                    if (menu) menu.classList.add('hidden');
+                });
+            });
+
+            const closeSharedBriefingMenus = () => {
+                document.querySelectorAll('[data-shared-briefing-menu], [data-briefing-menu]').forEach((menu) => {
+                    menu.classList.add('hidden');
+                });
+            };
+
+            document.addEventListener('click', (event) => {
+                const toggle = event.target.closest('[data-shared-briefing-menu-toggle], [data-briefing-menu-toggle]');
+                if (toggle) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const menu = toggle.parentElement ? toggle.parentElement.querySelector('[data-shared-briefing-menu], [data-briefing-menu]') : null;
+                    if (!menu) return;
+                    const willOpen = menu.classList.contains('hidden');
+                    closeSharedBriefingMenus();
+                    if (willOpen) menu.classList.remove('hidden');
+                    return;
+                }
+
+                const actionLink = event.target.closest('[data-shared-briefing-menu] a[data-action], [data-briefing-menu] a[data-briefing-menu-action]');
+                if (actionLink) return;
+                closeSharedBriefingMenus();
+            });
         });
     </script>
 </body>

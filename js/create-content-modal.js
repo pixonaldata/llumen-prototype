@@ -1,6 +1,15 @@
 // Create Content Modal functionality
 let selectedContentType = '';
 
+function updatePrivateWorkspaceVisibility() {
+    const privateLink = document.getElementById('private-workspace-link');
+    if (!privateLink) return;
+    const privateSection = privateLink.closest('div');
+    if (!privateSection) return;
+    const shouldHide = selectedContentType === 'Briefing';
+    privateSection.classList.toggle('hidden', shouldHide);
+}
+
 function openCreateContentModal(contentType) {
     selectedContentType = contentType;
     const modal = document.getElementById('create-content-modal');
@@ -14,6 +23,9 @@ function openCreateContentModal(contentType) {
     
     // Update modal title
     modalTitle.textContent = `Create ${contentType}`;
+
+    // Briefings skip the Private workspace option in this picker.
+    updatePrivateWorkspaceVisibility();
     
     // Generate workspace list
     generateWorkspaceList();
@@ -30,6 +42,7 @@ function closeCreateContentModal() {
         document.body.style.overflow = '';
     }
     selectedContentType = '';
+    updatePrivateWorkspaceVisibility();
 }
 
 function generateWorkspaceList() {
@@ -81,6 +94,13 @@ function generateWorkspaceList() {
 }
 
 function handleWorkspaceSelection(workspaceName) {
+    // If content type is Briefing, launch the dedicated Briefings create modal.
+    if (selectedContentType === 'Briefing' && window.Briefings && typeof window.Briefings.openCreateModal === 'function') {
+        closeCreateContentModal();
+        window.Briefings.openCreateModal({ workspace: workspaceName });
+        return;
+    }
+
     // If content type is Dashboard, navigate to the dashboard page
     if (selectedContentType === 'Dashboard') {
         // Calculate relative path based on current page location

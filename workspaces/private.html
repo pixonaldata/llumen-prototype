@@ -2927,11 +2927,11 @@
                         <span class="material-symbols-outlined mr-3" style="font-size: 20px;">lock</span>
                         <span class="text-sm font-medium">Private</span>
                     </a>
+                    <div class="border-t border-gray-700 my-4"></div>
                 </div>
 
                 <!-- Workspaces Section -->
                 <div>
-                    <div class="border-t border-gray-700 my-4"></div>
                     <div id="workspaces-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Workspace links will be dynamically generated here -->
                     </div>
@@ -3316,7 +3316,7 @@
             if (!messageBox) {
                 messageBox = document.createElement('div');
                 messageBox.id = 'message-box';
-                messageBox.className = 'fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
+                messageBox.className = 'fixed bottom-8 left-8 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
                 container.appendChild(messageBox);
             }
 
@@ -3335,7 +3335,7 @@
                     break;
             }
 
-            messageBox.className = `fixed top-4 left-1/2 -translate-x-1/2 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
+            messageBox.className = `fixed bottom-8 left-8 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
             messageBox.textContent = message;
 
             // Show animation
