@@ -1621,62 +1621,6 @@
         </div>
     </div>
 
-    <button id="ai-chat-button" class="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-3 rounded-full shadow-lg transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400 z-50">
-        <!-- Chat Bubble Icon SVG -->
-         <img src="../ai-icon.svg" alt="AI Chat Icon" class="w-6 h-6" />
-        <!-- <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
-        </svg> -->
-    </button>
-
-    <div id="ai-chat-window" class="fixed bg-gray-800 rounded-xl shadow-2xl flex overflow-hidden transition-all duration-300 ease-in-out z-50">
-        <div id="chat-content-wrapper" class="flex flex-col flex-shrink-0 w-80 h-full">
-            <div class="bg-gray-700 p-3 flex items-center justify-between">
-                <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
-                <div class="flex space-x-2">
-                    <button id="expand-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><path d="M21 3 14 10"></path><path d="M3 21 10 14"></path></svg>
-                    </button>
-                    <button id="close-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-            </div>
-            <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
-                <div class="flex justify-start">
-                    <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%]">
-                        Hello! I'm Lumen. How can I help you today?
-                    </div>
-                </div>
-                <div class="flex justify-end">
-                    <div class="bg-blue-600 text-white p-2 rounded-lg max-w-[80%]">
-                        Show me the latest Q2 Finance story.
-                    </div>
-                </div>
-            </div>
-            <div class="p-3 border-t border-gray-700 flex items-center">
-                <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm placeholder-gray-400">
-                <button id="send-chat-button" class="ml-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400" disabled>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </button>
-            </div>
-        </div>
-
-        <div id="ai-panel-separator" class="hidden"></div>
-
-        <div id="ai-interactive-panel" class="relative flex-shrink-0 h-full overflow-hidden transition-all duration-300 ease-in-out bg-gray-900 rounded-xl shadow-inner">
-            <div class="panel-header p-3 flex items-center justify-between rounded-tr-xl">
-                <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
-                <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg>
-                </button>
-            </div>
-            <div id="interactive-panel-content" class="flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
-                <p>Interactive content will appear here.</p>
-            </div>
-        </div>
-    </div>
-
     <script src="../js/ai-chat.js"></script>
     <script src="../js/create-content-modal.js"></script>
 

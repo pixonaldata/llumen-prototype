@@ -1,4 +1,83 @@
 // AI Chat Window functionality
+function ensureAiChatMarkup() {
+    if (!document.getElementById('ai-chat-button')) {
+        const chatButton = document.createElement('button');
+        chatButton.id = 'ai-chat-button';
+        chatButton.className = 'ai-chat-button transition duration-300 transform hover:scale-110';
+        chatButton.innerHTML = '<span class="material-symbols-outlined">auto_awesome</span>';
+        document.body.appendChild(chatButton);
+    }
+
+    if (!document.getElementById('ai-chat-window')) {
+        const chatWindow = document.createElement('div');
+        chatWindow.id = 'ai-chat-window';
+        chatWindow.className = 'chat-window main-chat-window';
+        chatWindow.innerHTML = `
+            <div id="chat-content-wrapper" class="chat-content-wrapper">
+                <div class="chat-window-header">
+                    <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
+                    <div class="flex space-x-2">
+                        <button id="expand-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <polyline points="9 21 3 21 3 15"></polyline>
+                                <path d="M21 3 14 10"></path>
+                                <path d="M3 21 10 14"></path>
+                            </svg>
+                        </button>
+                        <button id="close-chat-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
+                    <div class="flex justify-start">
+                        <div class="bg-gray-600 text-sm text-white px-3 py-2 rounded-lg max-w-[80%]">
+                            Hello! I'm Lumen. How can I help you today?
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <div class="bg-blue-800 text-sm text-white px-3 py-2 rounded-lg max-w-[80%]">
+                            Show me the latest Q2 Finance story.
+                        </div>
+                    </div>
+                </div>
+                <div class="send-message-container">
+                    <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm placeholder-gray-400">
+                    <button id="send-chat-button" class="ml-3 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400" disabled>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="ai-panel-separator" class="panel-separator hidden"></div>
+
+            <div id="ai-interactive-panel" class="interactive-panel">
+                <div class="panel-header">
+                    <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
+                    <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5" />
+                            <path d="m17 8-4 4 4 4" />
+                            <path d="M13 20V4" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="interactive-panel-content" class="interactive-panel-content flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
+                    <p>Interactive content will appear here.</p>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(chatWindow);
+    }
+}
+
+ensureAiChatMarkup();
+
 const aiChatButton = document.getElementById('ai-chat-button');
 const aiChatWindow = document.getElementById('ai-chat-window');
 const closeChatButton = document.getElementById('close-chat-button');
@@ -94,9 +173,9 @@ function toggleInteractivePanel(action, componentType = null) {
         aiChatWindow.classList.add('has-interactive-panel');
 
         if (componentType === 'chart') {
-            interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-600 rounded-md flex items-center justify-center"><p class="text-white text-lg">📈 Placeholder Chart Data</p></div>`;
+            interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-800 rounded-md flex items-center justify-center"><p class="text-white text-lg">📈 Placeholder Chart Data</p></div>`;
         } else if (componentType === 'map') {
-            interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-600 rounded-md flex items-center justify-center"><p class="text-white text-lg">🗺️ Placeholder Map Data</p></div>`;
+            interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-800 rounded-md flex items-center justify-center"><p class="text-white text-lg">🗺️ Placeholder Map Data</p></div>`;
         }
 
         if (lastToggleButtonElement) {
@@ -130,7 +209,7 @@ function addChatMessage(message, sender) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
     messageDiv.innerHTML = `
-        <div class="${sender === 'user' ? 'bg-blue-600' : 'bg-gray-600'} text-white p-2 rounded-lg max-w-[80%] break-words">
+        <div class="${sender === 'user' ? 'bg-blue-800' : 'bg-gray-600'} text-sm text-white px-3 py-2 rounded-lg max-w-[80%] break-words">
             ${message}
         </div>
     `;
