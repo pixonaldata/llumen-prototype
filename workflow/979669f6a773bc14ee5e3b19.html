@@ -155,7 +155,7 @@
             align-items: center;
             min-width: 128px;
             width: max-content;
-            max-width: 420px;
+            max-width: 320px;
             border-radius: 14px;
             border: 1px solid #334155;
             background: #111827;
@@ -2104,7 +2104,7 @@
                                                 </label>
                                                 <span class="text-sm text-gray-500">Optional</span>
                                             </div>
-                                            <input type="text" id="node-config-node-label" maxlength="50"
+                                            <input type="text" id="node-config-node-label" maxlength="100"
                                                 class="w-full bg-gray-800 border border-gray-700 rounded-md text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 transition duration-200"
                                                 placeholder="Enter label">
                                             <div class="text-xs text-gray-500 mt-2">Add a custom label for the node's display in the workflow</div>
@@ -3833,7 +3833,7 @@
                 ghost.style.fontFamily = 'Inter, sans-serif';
                 ghost.style.pointerEvents = 'none';
                 ghost.innerHTML = `
-                    <div class="px-3 py-4 pr-5">
+                    <div class="px-3 py-3.5 pr-5">
                         <div style="display:flex;align-items:center;gap:10px;">
                             <span class="material-symbols-outlined" style="font-size:32px;color:#d1d5db;">${node.icon}</span>
                             <div style="font-size:15px;">${node.name}</div>
@@ -5550,6 +5550,7 @@
                     node.sendChatMessageMessage = nextValue;
                 }, {
                     enableFixedSwitching: true,
+                    allowLineBreaks: true,
                     mode: node.sendChatMessageMessageFixedMode || 'string',
                     initialView: node.sendChatMessageMessageView || 'fixed',
                     minLines: 4,
@@ -7195,6 +7196,7 @@
                     node[valueKey] = nextValue;
                 }, {
                     enableFixedSwitching: true,
+                    allowLineBreaks: field.key === 'Body',
                     mode: node[modeKey] || 'string',
                     initialView: node[viewKey] || 'fixed',
                     minLines: field.key === 'Body' ? 4 : 1,
@@ -8616,6 +8618,7 @@
                 node.generalAgentInstructions = nextValue;
             }, {
                 enableFixedSwitching: true,
+                allowLineBreaks: true,
                 mode: node.generalAgentInstructionsFixedMode || 'string',
                 initialView: node.generalAgentInstructionsView || 'fixed',
                 minLines: 4,
@@ -8674,6 +8677,7 @@
                 node[config.valueKey] = nextValue;
             }, {
                 enableFixedSwitching: true,
+                allowLineBreaks: true,
                 mode: node[config.fixedModeKey] || 'string',
                 initialView: node[config.viewKey] || 'fixed',
                 minLines: 4,
@@ -8721,6 +8725,25 @@
             if (!stateOwner[logicalOperatorKey] || !['AND', 'OR'].includes(stateOwner[logicalOperatorKey])) {
                 stateOwner[logicalOperatorKey] = defaultLogicalOperator;
             }
+            stateOwner[conditionsKey] = stateOwner[conditionsKey].map((rawCondition, conditionIndex) => {
+                const condition = rawCondition && typeof rawCondition === 'object'
+                    ? rawCondition
+                    : createCondition();
+                condition.id = condition.id || `if-cond-${Date.now()}-${conditionIndex}-${Math.floor(Math.random() * 100000)}`;
+                if ('leftExpression' in condition) {
+                    condition.leftExpression = normalizeExpressionEditorTextValue(condition.leftExpression, {
+                        allowLineBreaks: false,
+                        trimWhenSingleLine: true
+                    });
+                }
+                if ('rightExpression' in condition) {
+                    condition.rightExpression = normalizeExpressionEditorTextValue(condition.rightExpression, {
+                        allowLineBreaks: false,
+                        trimWhenSingleLine: true
+                    });
+                }
+                return condition;
+            });
         }
 
         function moveConditionById(node, draggedConditionId, targetConditionId) {
@@ -12272,6 +12295,8 @@
                     return;
                 }
                 if (currentNode.nodeName === 'BR') {
+                    // Keep extraction aligned with caret offset math: any <br> is a line break,
+                    // except the empty-editor placeholder case handled below.
                     output += '\n';
                     return;
                 }
@@ -12282,7 +12307,16 @@
                 childNodes.forEach((childNode) => walk(childNode));
             };
             walk(rootElement);
-            return output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            const normalizedOutput = output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            // Guard against empty-editor placeholder markup resolving to a phantom newline value.
+            if (!normalizedOutput.trim()) {
+                const onlyPlaceholderBreak = rootElement.childNodes.length === 1
+                    && rootElement.firstChild
+                    && rootElement.firstChild.nodeName === 'BR'
+                    && !(rootElement.firstChild instanceof HTMLElement && rootElement.firstChild.hasAttribute('data-expression-editor-trailing-break'));
+                if (onlyPlaceholderBreak) return '';
+            }
+            return normalizedOutput;
         }
 
         function getContenteditableRawSelectionOffsets(element) {
@@ -12355,6 +12389,69 @@
             return Math.max(0, Math.min(textValue.length, caretOffset));
         }
 
+        function getTextareaCaretMetricsFromPoint(textareaElement, clientX, clientY) {
+            if (!textareaElement) return null;
+            const textareaRect = textareaElement.getBoundingClientRect();
+            const styles = window.getComputedStyle(textareaElement);
+            const mirror = document.createElement('div');
+            mirror.style.position = 'fixed';
+            mirror.style.left = `${textareaRect.left}px`;
+            mirror.style.top = `${textareaRect.top}px`;
+            mirror.style.width = `${textareaRect.width}px`;
+            mirror.style.height = `${textareaRect.height}px`;
+            mirror.style.padding = styles.padding;
+            mirror.style.border = styles.border;
+            mirror.style.boxSizing = styles.boxSizing;
+            mirror.style.font = styles.font;
+            mirror.style.lineHeight = styles.lineHeight;
+            mirror.style.letterSpacing = styles.letterSpacing;
+            mirror.style.textTransform = styles.textTransform;
+            mirror.style.textIndent = styles.textIndent;
+            mirror.style.textAlign = styles.textAlign;
+            mirror.style.tabSize = styles.tabSize;
+            mirror.style.whiteSpace = 'pre-wrap';
+            mirror.style.wordBreak = 'break-word';
+            mirror.style.overflow = 'hidden';
+            mirror.style.pointerEvents = 'auto';
+            mirror.style.opacity = '0';
+            mirror.style.zIndex = '2147483647';
+            const rawValue = String(textareaElement.value || '');
+            mirror.textContent = rawValue || '\u200b';
+            document.body.appendChild(mirror);
+            mirror.scrollTop = textareaElement.scrollTop;
+            mirror.scrollLeft = textareaElement.scrollLeft;
+            let range = null;
+            if (document.caretRangeFromPoint) {
+                range = document.caretRangeFromPoint(clientX, clientY);
+            } else if (document.caretPositionFromPoint) {
+                const caretPosition = document.caretPositionFromPoint(clientX, clientY);
+                if (caretPosition) {
+                    range = document.createRange();
+                    range.setStart(caretPosition.offsetNode, caretPosition.offset);
+                    range.collapse(true);
+                }
+            }
+            if (!range || !mirror.contains(range.startContainer)) {
+                const fallbackOffset = typeof textareaElement.selectionStart === 'number'
+                    ? textareaElement.selectionStart
+                    : rawValue.length;
+                mirror.remove();
+                return {
+                    caretOffset: Math.max(0, Math.min(rawValue.length, fallbackOffset)),
+                    caretRect: null
+                };
+            }
+            const caretOffset = getContenteditableRawTextOffset(mirror, range.startContainer, range.startOffset);
+            const collapsedRange = range.cloneRange();
+            collapsedRange.collapse(true);
+            const caretRect = collapsedRange.getClientRects()[0] || null;
+            mirror.remove();
+            return {
+                caretOffset: Math.max(0, Math.min(rawValue.length, caretOffset)),
+                caretRect
+            };
+        }
+
         function getExpressionEditorDropContext(editor, dropTarget, clientX, clientY) {
             if (!editor) return { caretOffset: null, insideToken: false };
             const currentView = getExpressionEditorView(editor);
@@ -12364,6 +12461,22 @@
             const fixedMode = getExpressionEditorFixedMode(editor);
             const controls = ensureExpressionEditorFixedControls(editor);
             if (fixedMode === 'string' && controls.string) {
+                if (controls.string instanceof HTMLInputElement || controls.string instanceof HTMLTextAreaElement) {
+                    if (controls.string instanceof HTMLTextAreaElement) {
+                        const textareaMetrics = getTextareaCaretMetricsFromPoint(controls.string, clientX, clientY);
+                        const textareaOffset = textareaMetrics && Number.isFinite(textareaMetrics.caretOffset)
+                            ? textareaMetrics.caretOffset
+                            : (typeof controls.string.selectionStart === 'number' ? controls.string.selectionStart : String(controls.string.value || '').length);
+                        return {
+                            caretOffset: textareaOffset,
+                            insideToken: false
+                        };
+                    }
+                    return {
+                        caretOffset: estimateTextInputCaretOffsetFromClientX(controls.string, clientX),
+                        insideToken: false
+                    };
+                }
                 return getContenteditableDropContext(controls.string, clientX, clientY);
             }
             if (fixedMode === 'number' && controls.number) {
@@ -12412,7 +12525,37 @@
                 return;
             }
 
-            if (caretHost instanceof HTMLInputElement) {
+            if (caretHost instanceof HTMLInputElement || caretHost instanceof HTMLTextAreaElement) {
+                if (caretHost instanceof HTMLTextAreaElement) {
+                    const textareaMetrics = getTextareaCaretMetricsFromPoint(caretHost, clientX, clientY);
+                    const fieldRect = field.getBoundingClientRect();
+                    const hostRect = caretHost.getBoundingClientRect();
+                    const relativeHostLeft = hostRect.left - fieldRect.left;
+                    const relativeHostRight = hostRect.right - fieldRect.left;
+                    const relativeHostTop = hostRect.top - fieldRect.top;
+                    const lineHeight = Number.parseFloat(window.getComputedStyle(caretHost).lineHeight || '0')
+                        || Number.parseFloat(window.getComputedStyle(caretHost).fontSize || '14') * 1.2;
+                    const caretLeft = textareaMetrics && textareaMetrics.caretRect
+                        ? (textareaMetrics.caretRect.left - fieldRect.left)
+                        : relativeHostLeft;
+                    const caretTop = textareaMetrics && textareaMetrics.caretRect
+                        ? (textareaMetrics.caretRect.top - fieldRect.top)
+                        : relativeHostTop;
+                    const caretHeight = textareaMetrics && textareaMetrics.caretRect && textareaMetrics.caretRect.height > 0
+                        ? textareaMetrics.caretRect.height
+                        : Math.max(12, lineHeight);
+                    let caret = editor.__expressionEditorDropCaret;
+                    if (!caret) {
+                        caret = document.createElement('div');
+                        caret.className = 'expression-editor-drop-caret';
+                        field.appendChild(caret);
+                        editor.__expressionEditorDropCaret = caret;
+                    }
+                    caret.style.left = `${Math.max(relativeHostLeft, Math.min(caretLeft, relativeHostRight))}px`;
+                    caret.style.top = `${Math.max(relativeHostTop, caretTop)}px`;
+                    caret.style.height = `${caretHeight}px`;
+                    return;
+                }
                 const hostRect = caretHost.getBoundingClientRect();
                 const styles = window.getComputedStyle(caretHost);
                 const paddingLeft = Number.parseFloat(styles.paddingLeft || '0') || 0;
@@ -13023,11 +13166,39 @@
             return { mode: 'string', label: 'String', icon: 'title' };
         }
 
+        function normalizeExpressionEditorTextValue(rawValue, options = {}) {
+            const allowLineBreaks = Boolean(options && options.allowLineBreaks === true);
+            const trimWhenSingleLine = options && options.trimWhenSingleLine === false ? false : true;
+            let normalized = rawValue === null || rawValue === undefined ? '' : String(rawValue);
+            normalized = normalized.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            if (!allowLineBreaks) {
+                normalized = normalized
+                    .replace(/<br\s*\/?>/gi, ' ')
+                    .replace(/<br[^>]*>/gi, ' ')
+                    .replace(/<\/?div[^>]*>/gi, ' ')
+                    .replace(/<\/?p[^>]*>/gi, ' ');
+                normalized = normalized.replace(/\n+/g, ' ');
+                if (trimWhenSingleLine) {
+                    normalized = normalized.trim();
+                }
+            }
+            return normalized;
+        }
+
+        function doesExpressionEditorAllowLineBreaks(editor) {
+            return Boolean(
+                editor &&
+                editor.__expressionEditorOptions &&
+                editor.__expressionEditorOptions.allowLineBreaks === true
+            );
+        }
+
         function normalizeExpressionEditorOptions(options = {}) {
             const enableFixedSwitching = options.enableFixedSwitching === true;
             const mode = normalizeExpressionEditorFixedMode(options.mode);
             const includeGlobalSandboxDefinitions = options.includeGlobalSandboxDefinitions !== false;
             const minLines = normalizeExpressionEditorMinLines(options.minLines);
+            const allowLineBreaks = options.allowLineBreaks === true;
             let initialView = (options.initialView === undefined || options.initialView === null)
                 ? 'fixed'
                 : normalizeExpressionEditorView(options.initialView);
@@ -13040,6 +13211,7 @@
                 mode,
                 initialView,
                 minLines,
+                allowLineBreaks,
                 includeGlobalSandboxDefinitions,
                 selectSourceJson: (() => {
                     const instanceSources = Array.isArray(options.selectSourceJson)
@@ -13080,8 +13252,12 @@
         function getExpressionEditorCurrentValue(editor) {
             if (!editor) return '';
             const view = getExpressionEditorView(editor);
+            const allowLineBreaks = doesExpressionEditorAllowLineBreaks(editor);
             if (view === 'expression') {
-                return editor.textContent || '';
+                return normalizeExpressionEditorTextValue(editor.textContent || '', {
+                    allowLineBreaks,
+                    trimWhenSingleLine: !allowLineBreaks
+                });
             }
 
             const fixedMode = getExpressionEditorFixedMode(editor);
@@ -13167,19 +13343,49 @@
 
         function getExpressionEditorFixedStringValue(stringControl) {
             if (!stringControl) return '';
-            return getContenteditableRawTextValue(stringControl);
+            const ownerEditor = stringControl.__expressionEditorOwner || null;
+            const allowLineBreaks = doesExpressionEditorAllowLineBreaks(ownerEditor);
+            if (stringControl instanceof HTMLInputElement || stringControl instanceof HTMLTextAreaElement) {
+                return normalizeExpressionEditorTextValue(stringControl.value || '', {
+                    allowLineBreaks,
+                    trimWhenSingleLine: !allowLineBreaks
+                });
+            }
+            return normalizeExpressionEditorTextValue(getContenteditableRawTextValue(stringControl), {
+                allowLineBreaks,
+                trimWhenSingleLine: !allowLineBreaks
+            });
         }
 
         function autoResizeExpressionEditorFixedStringControl(stringControl) {
             if (!stringControl) return;
-            // Let contenteditable size naturally (same behavior as expression editor).
+            if (stringControl instanceof HTMLTextAreaElement) {
+                stringControl.style.height = 'auto';
+                stringControl.style.height = `${Math.max(0, stringControl.scrollHeight)}px`;
+                return;
+            }
+            // Let input/contenteditable controls size naturally.
             stringControl.style.height = '';
         }
 
         function setExpressionEditorFixedStringValue(stringControl, value) {
             if (!stringControl) return;
-            const normalizedValue = value === null || value === undefined ? '' : String(value).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-            stringControl.innerHTML = buildExpressionEditorHtml(normalizedValue, 'fixed');
+            const ownerEditor = stringControl.__expressionEditorOwner || null;
+            const allowLineBreaks = doesExpressionEditorAllowLineBreaks(ownerEditor);
+            const normalizedValue = normalizeExpressionEditorTextValue(value, {
+                allowLineBreaks,
+                trimWhenSingleLine: !allowLineBreaks
+            });
+            if (stringControl instanceof HTMLInputElement || stringControl instanceof HTMLTextAreaElement) {
+                stringControl.value = normalizedValue;
+                autoResizeExpressionEditorFixedStringControl(stringControl);
+                return;
+            }
+            if (allowLineBreaks) {
+                stringControl.innerHTML = buildExpressionEditorHtml(normalizedValue, 'fixed', true);
+            } else {
+                stringControl.textContent = normalizedValue;
+            }
             autoResizeExpressionEditorFixedStringControl(stringControl);
         }
 
@@ -13245,14 +13451,28 @@
             const field = editor.closest('.custom-field-with-left-element, .expression-editor-field');
             if (!field) return {};
             let container = field.querySelector('[data-expression-editor-fixed-controls="true"]');
+            const allowLineBreaks = doesExpressionEditorAllowLineBreaks(editor);
+            if (container) {
+                const existingStringControl = container.querySelector('[data-expression-editor-fixed-input="string"]');
+                const isExpectedControlType = allowLineBreaks
+                    ? (existingStringControl instanceof HTMLTextAreaElement)
+                    : (existingStringControl instanceof HTMLInputElement);
+                if (!isExpectedControlType) {
+                    container.remove();
+                    container = null;
+                }
+            }
             if (!container) {
                 const baseClassName = getExpressionEditorInputClassName();
                 container = document.createElement('div');
                 container.dataset.expressionEditorFixedControls = 'true';
                 container.className = 'hidden';
                 const editorIdBase = (editor.id || 'expression-editor').replace(/[^a-zA-Z0-9_-]/g, '-');
+                const fixedStringMarkup = allowLineBreaks
+                    ? `<textarea id="${editorIdBase}-fixed-string" class="${baseClassName} resize-none overflow-hidden whitespace-pre-wrap break-words leading-relaxed" data-expression-editor-fixed-input="string" rows="1" placeholder="Enter text"></textarea>`
+                    : `<input id="${editorIdBase}-fixed-string" type="text" class="${baseClassName}" data-expression-editor-fixed-input="string" placeholder="Enter text">`;
                 container.innerHTML = `
-                    <div id="${editorIdBase}-fixed-string" class="${baseClassName} overflow-hidden whitespace-pre-wrap break-words leading-relaxed" data-expression-editor-fixed-input="string" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="false"></div>
+                    ${fixedStringMarkup}
                     <input id="${editorIdBase}-fixed-number" type="number" class="${baseClassName} hidden" data-expression-editor-fixed-input="number" placeholder="Enter number">
                     <div class="hidden" data-expression-editor-fixed-input="datetime">
                         <button id="${editorIdBase}-fixed-datetime-btn" type="button"
@@ -13293,6 +13513,9 @@
                 select: container.querySelector('[data-expression-editor-fixed-input="select"]'),
                 container
             };
+            if (inputs.string) {
+                inputs.string.__expressionEditorOwner = editor;
+            }
             if (inputs.string) {
                 autoResizeExpressionEditorFixedStringControl(inputs.string);
             }
@@ -13655,14 +13878,23 @@
             if (!controls.container) return;
             const view = getExpressionEditorView(editor);
             const fixedMode = getExpressionEditorFixedMode(editor);
+            const allowLineBreaks = doesExpressionEditorAllowLineBreaks(editor);
             controls.container.classList.toggle('hidden', view !== 'fixed');
             editor.classList.toggle('hidden', view !== 'expression');
+            editor.setAttribute('aria-multiline', allowLineBreaks ? 'true' : 'false');
 
             ['string', 'number', 'datetime', 'boolean', 'select'].forEach((mode) => {
                 const input = controls[mode];
                 if (!input) return;
                 input.classList.toggle('hidden', !(view === 'fixed' && fixedMode === mode));
             });
+            if (controls.string) {
+                if (!(controls.string instanceof HTMLInputElement)) {
+                    controls.string.classList.toggle('whitespace-pre-wrap', allowLineBreaks);
+                    controls.string.classList.toggle('break-words', allowLineBreaks);
+                    controls.string.setAttribute('aria-multiline', allowLineBreaks ? 'true' : 'false');
+                }
+            }
             if (view === 'fixed' && fixedMode === 'string' && controls.string) {
                 autoResizeExpressionEditorFixedStringControl(controls.string);
             }
@@ -13880,14 +14112,14 @@
 
         function bindExpressionEditorBehavior(editor, onChangeOrOptions = null, maybeOptions = {}) {
             if (!editor || editor.dataset.bound === 'true') return;
-            // Preserve new lines entered via contenteditable across all instances.
-            editor.classList.add('whitespace-pre-wrap', 'break-words');
             const onChange = typeof onChangeOrOptions === 'function' ? onChangeOrOptions : null;
             const optionsInput =
                 onChange
                     ? maybeOptions
                     : (onChangeOrOptions && typeof onChangeOrOptions === 'object' ? onChangeOrOptions : {});
             const options = normalizeExpressionEditorOptions(optionsInput);
+            editor.classList.toggle('whitespace-pre-wrap', Boolean(options.allowLineBreaks));
+            editor.classList.toggle('break-words', Boolean(options.allowLineBreaks));
             editor.__expressionEditorOptions = options;
             editor.__expressionEditorSelectConfig = buildExpressionEditorSelectDropdownFromJson(options.selectSourceJson);
             editor.dataset.expressionHasSelectSupport = editor.__expressionEditorSelectConfig.items.length > 0 ? 'true' : 'false';
@@ -13954,8 +14186,39 @@
                         emitExpressionEditorChange(reason);
                     };
                     if (mode === 'string') {
+                        if (modeInput instanceof HTMLInputElement || modeInput instanceof HTMLTextAreaElement) {
+                            modeInput.addEventListener('input', () => emitFixedControlChange('input'));
+                            modeInput.addEventListener('change', () => emitFixedControlChange('input'));
+                            modeInput.addEventListener('paste', (event) => {
+                                const allowLineBreaks = doesExpressionEditorAllowLineBreaks(editor);
+                                const rawPastedText = (event.clipboardData || window.clipboardData).getData('text') || '';
+                                const pasteText = normalizeExpressionEditorTextValue(rawPastedText, {
+                                    allowLineBreaks,
+                                    trimWhenSingleLine: false
+                                });
+                                if (pasteText === rawPastedText) return;
+                                event.preventDefault();
+                                const selectionStart = modeInput.selectionStart === null ? modeInput.value.length : modeInput.selectionStart;
+                                const selectionEnd = modeInput.selectionEnd === null ? selectionStart : modeInput.selectionEnd;
+                                modeInput.setRangeText(pasteText, selectionStart, selectionEnd, 'end');
+                                emitFixedControlChange('input');
+                            });
+                            if (modeInput instanceof HTMLInputElement) {
+                                modeInput.addEventListener('keydown', (event) => {
+                                    if (event.key === 'Enter') {
+                                        event.preventDefault();
+                                    }
+                                });
+                            }
+                            modeInput.dataset.bound = 'true';
+                            return;
+                        }
                         modeInput.addEventListener('keydown', (event) => {
                             if (event.key !== 'Enter' || event.isComposing) return;
+                            if (!doesExpressionEditorAllowLineBreaks(editor)) {
+                                event.preventDefault();
+                                return;
+                            }
                             const selectionOffsets = getContenteditableRawSelectionOffsets(modeInput) || { start: 0, end: 0 };
                             const currentRawValue = getExpressionEditorFixedStringValue(modeInput);
                             const nextRawValue = applyTextEditWithSelection(
@@ -13974,7 +14237,11 @@
                         modeInput.addEventListener('paste', (event) => {
                             // Keep fixed-string editor plain text only.
                             event.preventDefault();
-                            const pasteText = (event.clipboardData || window.clipboardData).getData('text') || '';
+                            const allowLineBreaks = doesExpressionEditorAllowLineBreaks(editor);
+                            const pasteText = normalizeExpressionEditorTextValue(
+                                (event.clipboardData || window.clipboardData).getData('text') || '',
+                                { allowLineBreaks, trimWhenSingleLine: false }
+                            );
                             const selectionOffsets = getContenteditableRawSelectionOffsets(modeInput);
                             if (selectionOffsets) {
                                 const currentRawValue = getExpressionEditorFixedStringValue(modeInput);
@@ -14013,6 +14280,7 @@
             editor.addEventListener('keydown', (event) => {
                 if (getExpressionEditorView(editor) !== 'expression') return;
                 const currentText = editor.textContent || '';
+                const allowLineBreaks = doesExpressionEditorAllowLineBreaks(editor);
                 const selectionOffsets = getContenteditableSelectionOffsets(editor);
                 const resolvedSelection = selectionOffsets || {
                     start: currentText.length,
@@ -14021,6 +14289,10 @@
                 const { start, end } = resolvedSelection;
 
                 if (event.key === 'Enter') {
+                    if (!allowLineBreaks) {
+                        event.preventDefault();
+                        return;
+                    }
                     // Handle line breaks explicitly so they survive content normalization.
                     event.preventDefault();
                     const nextText = `${currentText.slice(0, start)}\n${currentText.slice(end)}`;
@@ -14093,7 +14365,11 @@
             editor.addEventListener('paste', (event) => {
                 if (getExpressionEditorView(editor) !== 'expression') return;
                 event.preventDefault();
-                const pasteText = (event.clipboardData || window.clipboardData).getData('text') || '';
+                const allowLineBreaks = doesExpressionEditorAllowLineBreaks(editor);
+                const pasteText = normalizeExpressionEditorTextValue(
+                    (event.clipboardData || window.clipboardData).getData('text') || '',
+                    { allowLineBreaks, trimWhenSingleLine: false }
+                );
                 const selectionOffsets = getContenteditableSelectionOffsets(editor);
                 if (!selectionOffsets) return;
 
@@ -14110,7 +14386,11 @@
                 if (getExpressionEditorView(editor) !== 'expression') return;
                 if (editor.dataset.isFormatting === 'true') return;
                 const selectionOffsets = getContenteditableSelectionOffsets(editor);
-                const currentText = editor.textContent || '';
+                const allowLineBreaks = doesExpressionEditorAllowLineBreaks(editor);
+                const currentText = normalizeExpressionEditorTextValue(editor.textContent || '', {
+                    allowLineBreaks,
+                    trimWhenSingleLine: false
+                });
                 const caretOffset = selectionOffsets ? selectionOffsets.end : currentText.length;
                 updateExpressionEditorContent(editor, currentText, caretOffset, getExpressionEditorView(editor));
                 syncExpressionEditorSelectLock(editor);
@@ -14234,15 +14514,12 @@
             editor.dataset.bound = 'true';
         }
 
-        function buildExpressionEditorHtml(text, view = 'expression') {
-            if (!text) return '<br>';
-            const hasTrailingNewLine = typeof text === 'string' && text.endsWith('\n');
+        function buildExpressionEditorHtml(text, view = 'expression', allowLineBreaks = true) {
+            if (!text) return allowLineBreaks ? '<br>' : '';
             if (view === 'fixed') {
-                const escaped = escapeHtml(text);
-                return hasTrailingNewLine
-                    ? `${escaped}<br data-expression-editor-trailing-break="true">`
-                    : escaped;
+                return escapeHtml(text);
             }
+            const hasTrailingNewLine = Boolean(allowLineBreaks && typeof text === 'string' && text.endsWith('\n'));
             const expressionRegex = /\{\{[\s\S]*?\}\}/g;
             let html = '';
             let cursor = 0;
@@ -14264,8 +14541,13 @@
 
         function updateExpressionEditorContent(editor, text, caretOffset = null, view = null) {
             const resolvedView = normalizeExpressionEditorView(view || getExpressionEditorView(editor));
+            const allowLineBreaks = doesExpressionEditorAllowLineBreaks(editor);
+            const normalizedText = normalizeExpressionEditorTextValue(text, {
+                allowLineBreaks,
+                trimWhenSingleLine: false
+            });
             editor.dataset.isFormatting = 'true';
-            editor.innerHTML = buildExpressionEditorHtml(text, resolvedView);
+            editor.innerHTML = buildExpressionEditorHtml(normalizedText, resolvedView, allowLineBreaks);
             editor.dataset.isFormatting = 'false';
             if (typeof caretOffset === 'number') {
                 setContenteditableCaretOffset(editor, caretOffset);
@@ -17134,7 +17416,7 @@
                 const hasCustomLabel = Boolean((node.label || '').trim());
                 const nodeTitle = hasCustomLabel ? node.label : node.systemName;
                 const systemNameMeta = hasCustomLabel
-                    ? `<div class="text-sm text-gray-400 mt-1 leading-tight truncate">${node.systemName}</div>`
+                    ? `<div class="text-sm text-gray-400 mt-1">${node.systemName}</div>`
                     : '';
                 const scheduleSummaryMeta = (() => {
                     if (node.key !== 'schedule_trigger') return '';
@@ -17205,11 +17487,11 @@
                     }
                 } else {
                     nodeElement.innerHTML = `
-                        <div class="px-3 py-4 pr-5">
+                        <div class="px-3 py-3.5 pr-5">
                             <div class="flex items-center space-x-3">
                                 <span class="material-symbols-outlined text-gray-300 flex-shrink-0" style="font-size:32px;">${node.icon || 'account_tree'}</span>
                                 <div class="min-w-0">
-                                    <div class="text-white leading-tight truncate">${nodeTitle}</div>
+                                    <div class="text-white">${nodeTitle}</div>
                                     ${systemNameMeta}
                                     ${scheduleSummaryMeta}
                                     ${componentSelectionMeta}

@@ -1145,6 +1145,10 @@ main.fullscreen-main {
     transition: none;
 }
 
+.custom-field-with-left-element--expression-switcher textarea[data-expression-editor-fixed-input="string"] {
+    display: block;
+}
+
 .custom-field-with-left-element--expression .custom-field,
 .custom-field-with-left-element--expression-switcher .custom-field,
 .expression-editor-field .custom-field {
