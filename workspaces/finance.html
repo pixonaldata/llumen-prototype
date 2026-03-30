@@ -4706,22 +4706,32 @@
                                     <span class="material-symbols-outlined mr-2">filter_list</span>
                                     <span class="selected-value mr-1">Status</span>
                                     <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                    <span id="agents-workflows-status-clear-btn"
+                                        class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center"
+                                        title="Clear Status Filter">
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                    </span>
                                 </button>
                                 <div id="agents-workflows-status-filter-dropdown" class="options-dropdown-menu w-34 left hidden">
-                                    <label
-                                        class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
-                                        <input type="checkbox" value="Active" class="mr-2"> Active
-                                    </label>
                                     <label
                                         class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
                                         <input type="checkbox" value="Draft" class="mr-2"> Draft
                                     </label>
                                     <label
                                         class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
-                                        <input type="checkbox" value="Archived" class="mr-2"> Archived
+                                        <input type="checkbox" value="Published" class="mr-2"> Published
+                                    </label>
+                                    <label
+                                        class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Unpublished" class="mr-2"> Unpublished
                                     </label>
                                 </div>
                             </div>
+                            <button id="clear-all-workflow-filters-btn"
+                                class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
+                                <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
+                                Clear All Filters
+                            </button>
                         </div>
                         <div class="flex items-center space-x-4">
                             <div class="flex items-center rounded-md overflow-hidden">
@@ -4745,26 +4755,494 @@
                                 </button>
                                 <div id="agents-workflows-sort-dropdown" class="options-dropdown-menu w-8 hidden">
                                     <a href="#"
-                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150">Default</a>
+                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150"
+                                        data-sort="default">Default</a>
                                     <a href="#"
-                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150">Last
+                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150"
+                                        data-sort="last-updated">Last
                                         Updated</a>
                                     <a href="#"
-                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150">Name
+                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150"
+                                        data-sort="title-asc">Name
                                         (A-Z)</a>
+                                    <a href="#"
+                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150"
+                                        data-sort="title-desc">Name
+                                        (Z-A)</a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div id="agents-workflows-grid-view" class="px-8 py-8">
-                        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 text-center text-gray-400">
-                            Workflows grid view placeholder
+                    <div id="agents-workflows-grid-view" class="px-8 py-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                            id="agents-workflows-grid-content">
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer workflow-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Workflow Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Traffic Jam Workflow</h3>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-600 text-gray-300">Draft</span>
+                                        <span class="workflow-last-updated">2 hours ago</span>
+                                    </div>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20 flex items-center space-x-2">
+                                    <a href="#"
+                                        class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-md transition duration-200 text-xs font-medium whitespace-nowrap">
+                                        Execute Workflow
+                                    </a>
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Execute Workflow</a>
+                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open Workflow</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Unpublish</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer workflow-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Workflow Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Quarterly Forecast Consolidation</h3>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Published</span>
+                                        <span class="workflow-last-updated">6 hours ago</span>
+                                    </div>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open Workflow</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Publish</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer workflow-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Workflow Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Vendor Risk Escalation Flow</h3>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Published</span>
+                                        <span class="workflow-last-updated">1 day ago</span>
+                                    </div>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20 flex items-center space-x-2">
+                                    <a href="#"
+                                        class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-md transition duration-200 text-xs font-medium whitespace-nowrap">
+                                        Execute Workflow
+                                    </a>
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Execute Workflow</a>
+                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open Workflow</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Publish</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer workflow-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Workflow Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Expense Exception Triage</h3>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Published</span>
+                                        <span class="workflow-last-updated">2 days ago</span>
+                                    </div>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20 flex items-center space-x-2">
+                                    <a href="#"
+                                        class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-md transition duration-200 text-xs font-medium whitespace-nowrap">
+                                        Execute Workflow
+                                    </a>
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Execute Workflow</a>
+                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open Workflow</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Unpublish</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer workflow-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Workflow Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Cash Position Morning Brief</h3>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-600 text-gray-300">Draft</span>
+                                        <span class="workflow-last-updated">3 days ago</span>
+                                    </div>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open Workflow</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Publish</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer workflow-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Workflow Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-xl font-semibold text-white line-clamp-2">Budget Variance Alert Pipeline</h3>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-900 text-yellow-300">Unpublished</span>
+                                        <span class="workflow-last-updated">5 days ago</span>
+                                    </div>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open Workflow</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Publish</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="no-workflow-matches-message-grid" class="px-8 py-8 text-center text-gray-400 hidden">
+                            <p>No workflows match your search criteria.</p>
                         </div>
                     </div>
-                    <div id="agents-workflows-list-view" class="px-8 py-8 hidden">
-                        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 text-center text-gray-400">
-                            Workflows list view placeholder
+
+                    <div id="agents-workflows-list-view" class="hidden">
+                        <div class="overflow-x-auto">
+                            <table id="agents-workflows-table" class="w-full">
+                                <thead class="border-b border-gray-800">
+                                    <tr>
+                                        <th
+                                            class="px-8 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-full">
+                                            Workflow</th>
+                                        <th
+                                            class="px-8 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">
+                                            Status</th>
+                                        <th
+                                            class="px-8 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">
+                                            Last Updated</th>
+                                        <th
+                                            class="px-8 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-1">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agents-workflows-content" class="divide-y divide-gray-800 border-b border-gray-800">
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative workflow-list-row">
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                                    <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                                        alt="Workflow Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-white">Traffic Jam Workflow</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-600 text-gray-300">Draft</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 workflow-last-updated">
+                                            2 hours ago
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                            <div class="relative flex items-center gap-4">
+                                                <a href="#"
+                                                    class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-md transition duration-200 text-xs font-medium whitespace-nowrap inline-flex">
+                                                    Execute Workflow
+                                                </a>
+                                                <div class="relative flex items-center justify-end">
+                                                    <button class="options-dropdown-button">
+                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                    </button>
+                                                    <div class="options-dropdown-menu w-fit hidden">
+                                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Execute
+                                                            Workflow</a>
+                                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open
+                                                            Workflow</a>
+                                                        <a href="#"
+                                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Unpublish</a>
+                                                        <a href="#"
+                                                            class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative workflow-list-row">
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                                    <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                                        alt="Workflow Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-white">Quarterly Forecast Consolidation</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Published</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 workflow-last-updated">
+                                            6 hours ago
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                            <div class="relative flex items-center justify-end">
+                                                <button class="options-dropdown-button">
+                                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                </button>
+                                                <div class="options-dropdown-menu w-fit hidden">
+                                                    <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                                        class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open
+                                                        Workflow</a>
+                                                    <a href="#"
+                                                        class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Publish</a>
+                                                    <a href="#"
+                                                        class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative workflow-list-row">
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                                    <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                                        alt="Workflow Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-white">Vendor Risk Escalation Flow</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Published</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 workflow-last-updated">
+                                            1 day ago
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                            <div class="relative flex items-center gap-4">
+                                                <a href="#"
+                                                    class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-md transition duration-200 text-xs font-medium whitespace-nowrap inline-flex">
+                                                    Execute Workflow
+                                                </a>
+                                                <div class="relative flex items-center justify-end">
+                                                    <button class="options-dropdown-button">
+                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                    </button>
+                                                    <div class="options-dropdown-menu w-fit hidden">
+                                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Execute
+                                                            Workflow</a>
+                                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open
+                                                            Workflow</a>
+                                                        <a href="#"
+                                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Publish</a>
+                                                        <a href="#"
+                                                            class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative workflow-list-row">
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                                    <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                                        alt="Workflow Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-white">Expense Exception Triage</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Published</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 workflow-last-updated">
+                                            2 days ago
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                            <div class="relative flex items-center gap-4">
+                                                <a href="#"
+                                                    class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-md transition duration-200 text-xs font-medium whitespace-nowrap inline-flex">
+                                                    Execute Workflow
+                                                </a>
+                                                <div class="relative flex items-center justify-end">
+                                                    <button class="options-dropdown-button">
+                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                    </button>
+                                                    <div class="options-dropdown-menu w-fit hidden">
+                                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Execute
+                                                            Workflow</a>
+                                                        <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open
+                                                            Workflow</a>
+                                                        <a href="#"
+                                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Unpublish</a>
+                                                        <a href="#"
+                                                            class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative workflow-list-row">
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                                    <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                                        alt="Workflow Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-white">Cash Position Morning Brief</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-600 text-gray-300">Draft</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 workflow-last-updated">
+                                            3 days ago
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                            <div class="relative flex items-center justify-end">
+                                                <button class="options-dropdown-button">
+                                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                </button>
+                                                <div class="options-dropdown-menu w-fit hidden">
+                                                    <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                                        class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open
+                                                        Workflow</a>
+                                                    <a href="#"
+                                                        class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Publish</a>
+                                                    <a href="#"
+                                                        class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative workflow-list-row">
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="w-24 rounded-md bg-gray-600 flex items-center justify-center overflow-hidden">
+                                                    <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                                        alt="Workflow Thumbnail" class="w-full object-cover" style="aspect-ratio: 16/9">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-white">Budget Variance Alert Pipeline</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap">
+                                            <span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-900 text-yellow-300">Unpublished</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 workflow-last-updated">
+                                            5 days ago
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                            <div class="relative flex items-center justify-end">
+                                                <button class="options-dropdown-button">
+                                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                </button>
+                                                <div class="options-dropdown-menu w-fit hidden">
+                                                    <a href="../workflow/979669f6a773bc14ee5e3b19.html"
+                                                        class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Open
+                                                        Workflow</a>
+                                                    <a href="#"
+                                                        class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Publish</a>
+                                                    <a href="#"
+                                                        class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="no-workflow-matches-message-list" class="px-8 py-8 text-center text-gray-400 hidden">
+                            <p>No workflows match your search criteria.</p>
                         </div>
                     </div>
                 </div>
@@ -4773,20 +5251,60 @@
                     <div class="px-8 py-4 border-b border-gray-800 flex items-center justify-between">
                         <div class="flex flex-wrap gap-4">
                             <div class="relative">
+                                <button id="agents-executions-workflow-filter-btn"
+                                    class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
+                                    <span class="material-symbols-outlined mr-2">filter_list</span>
+                                    <span class="selected-value mr-1">Workflow</span>
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                    <span id="agents-executions-workflow-clear-btn"
+                                        class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center"
+                                        title="Clear Workflow Filter">
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                    </span>
+                                </button>
+                                <div id="agents-executions-workflow-filter-dropdown" class="options-dropdown-menu w-34 left hidden">
+                                    <label
+                                        class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Traffic Jam Workflow" class="mr-2"> Traffic Jam Workflow
+                                    </label>
+                                    <label
+                                        class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Quarterly Forecast Consolidation" class="mr-2"> Quarterly Forecast Consolidation
+                                    </label>
+                                    <label
+                                        class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Vendor Risk Escalation Flow" class="mr-2"> Vendor Risk Escalation Flow
+                                    </label>
+                                    <label
+                                        class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Expense Exception Triage" class="mr-2"> Expense Exception Triage
+                                    </label>
+                                    <label
+                                        class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Cash Position Morning Brief" class="mr-2"> Cash Position Morning Brief
+                                    </label>
+                                    <label
+                                        class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" value="Budget Variance Alert Pipeline" class="mr-2"> Budget Variance Alert Pipeline
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="relative">
                                 <button id="agents-executions-status-filter-btn"
                                     class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
                                     <span class="material-symbols-outlined mr-2">filter_list</span>
                                     <span class="selected-value mr-1">Status</span>
                                     <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
+                                    <span id="agents-executions-status-clear-btn"
+                                        class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center"
+                                        title="Clear Status Filter">
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
+                                    </span>
                                 </button>
                                 <div id="agents-executions-status-filter-dropdown" class="options-dropdown-menu w-34 left hidden">
                                     <label
                                         class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
-                                        <input type="checkbox" value="Running" class="mr-2"> Running
-                                    </label>
-                                    <label
-                                        class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
-                                        <input type="checkbox" value="Completed" class="mr-2"> Completed
+                                        <input type="checkbox" value="Succeeded" class="mr-2"> Succeeded
                                     </label>
                                     <label
                                         class="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">
@@ -4794,6 +5312,11 @@
                                     </label>
                                 </div>
                             </div>
+                            <button id="clear-all-execution-filters-btn"
+                                class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
+                                <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
+                                Clear All Filters
+                            </button>
                         </div>
                         <div class="flex items-center space-x-4">
                             <div class="flex items-center rounded-md overflow-hidden">
@@ -4817,26 +5340,350 @@
                                 </button>
                                 <div id="agents-executions-sort-dropdown" class="options-dropdown-menu w-8 hidden">
                                     <a href="#"
-                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150">Default</a>
+                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150"
+                                        data-sort="default">Default</a>
                                     <a href="#"
-                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150">Last
+                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150"
+                                        data-sort="last-updated">Last
                                         Updated</a>
                                     <a href="#"
-                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150">Name
+                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150"
+                                        data-sort="title-asc">Name
                                         (A-Z)</a>
+                                    <a href="#"
+                                        class="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition duration-150"
+                                        data-sort="title-desc">Name
+                                        (Z-A)</a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div id="agents-executions-grid-view" class="px-8 py-8">
-                        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 text-center text-gray-400">
-                            Executions grid view placeholder
+                    <div id="agents-executions-grid-view" class="px-8 py-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                            id="agents-executions-grid-content">
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer execution-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Execution Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-white line-clamp-2 execution-name">traffic-jam-workflow-1741100361000</h3>
+                                    <p class="text-sm text-gray-400 mt-1 execution-workflow">Traffic Jam Workflow</p>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Succeeded</span>
+                                        <span class="execution-duration">2.59s</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2 execution-date-time">2026-03-03 09:24:00</p>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer execution-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Execution Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-white line-clamp-2 execution-name">traffic-jam-workflow-1741100199000</h3>
+                                    <p class="text-sm text-gray-400 mt-1 execution-workflow">Quarterly Forecast Consolidation</p>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Failed</span>
+                                        <span class="execution-duration">4.12s</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2 execution-date-time">2026-03-03 09:21:40</p>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer execution-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Execution Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-white line-clamp-2 execution-name">traffic-jam-workflow-1741100017000</h3>
+                                    <p class="text-sm text-gray-400 mt-1 execution-workflow">Vendor Risk Escalation Flow</p>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Succeeded</span>
+                                        <span class="execution-duration">1.89s</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2 execution-date-time">2026-03-03 09:18:37</p>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer execution-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Execution Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-white line-clamp-2 execution-name">traffic-jam-workflow-1741099882000</h3>
+                                    <p class="text-sm text-gray-400 mt-1 execution-workflow">Expense Exception Triage</p>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Failed</span>
+                                        <span class="execution-duration">3.38s</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2 execution-date-time">2026-03-03 09:16:22</p>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer execution-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Execution Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-white line-clamp-2 execution-name">traffic-jam-workflow-1741099726000</h3>
+                                    <p class="text-sm text-gray-400 mt-1 execution-workflow">Cash Position Morning Brief</p>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Succeeded</span>
+                                        <span class="execution-duration">2.41s</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2 execution-date-time">2026-03-03 09:13:46</p>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition duration-300 cursor-pointer execution-card-container relative">
+                                <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+workflow"
+                                    alt="Execution Thumbnail" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-white line-clamp-2 execution-name">traffic-jam-workflow-1741099563000</h3>
+                                    <p class="text-sm text-gray-400 mt-1 execution-workflow">Budget Variance Alert Pipeline</p>
+                                    <div class="flex justify-between items-center mt-3 text-sm text-gray-400">
+                                        <span
+                                            class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Failed</span>
+                                        <span class="execution-duration">5.06s</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2 execution-date-time">2026-03-03 09:11:03</p>
+                                </div>
+                                <a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a>
+                                <div class="absolute top-2 right-2 z-20">
+                                    <button class="options-dropdown-button">
+                                        <span class="material-symbols-outlined text-white">more_vert</span>
+                                    </button>
+                                    <div class="options-dropdown-menu w-fit hidden">
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                        <a href="#"
+                                            class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="no-execution-matches-message-grid" class="px-8 py-8 text-center text-gray-400 hidden">
+                            <p>No executions match your search criteria.</p>
                         </div>
                     </div>
-                    <div id="agents-executions-list-view" class="px-8 py-8 hidden">
-                        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 text-center text-gray-400">
-                            Executions list view placeholder
+
+                    <div id="agents-executions-list-view" class="hidden">
+                        <div class="overflow-x-auto">
+                            <table id="agents-executions-table" class="w-full">
+                                <thead class="border-b border-gray-800">
+                                    <tr>
+                                        <th
+                                            class="px-8 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">
+                                            Date & Time</th>
+                                        <th
+                                            class="px-8 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">
+                                            Workflow</th>
+                                        <th
+                                            class="px-8 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">
+                                            Status</th>
+                                        <th
+                                            class="px-8 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap">
+                                            Duration</th>
+                                        <th
+                                            class="px-8 py-3 text-left text-sm font-medium text-gray-300 tracking-wider whitespace-nowrap w-1">
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agents-executions-content" class="divide-y divide-gray-800 border-b border-gray-800">
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative execution-list-row">
+                                        <td class="hidden px-8 py-4 whitespace-nowrap text-sm font-medium text-white execution-name">traffic-jam-workflow-1741100361000<a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a></td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-workflow">Traffic Jam Workflow</td>
+                                        <td class="px-8 py-4 whitespace-nowrap"><span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Succeeded</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-date-time">2026-03-03 09:24:00</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-duration">2.59s</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="relative">
+                                                <button class="options-dropdown-button"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+                                                <div class="options-dropdown-menu w-fit hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative execution-list-row">
+                                        <td class="hidden px-8 py-4 whitespace-nowrap text-sm font-medium text-white execution-name">traffic-jam-workflow-1741100199000<a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a></td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-workflow">Quarterly Forecast Consolidation</td>
+                                        <td class="px-8 py-4 whitespace-nowrap"><span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Failed</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-date-time">2026-03-03 09:21:40</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-duration">4.12s</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="relative">
+                                                <button class="options-dropdown-button"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+                                                <div class="options-dropdown-menu w-fit hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative execution-list-row">
+                                        <td class="hidden px-8 py-4 whitespace-nowrap text-sm font-medium text-white execution-name">traffic-jam-workflow-1741100017000<a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a></td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-workflow">Vendor Risk Escalation Flow</td>
+                                        <td class="px-8 py-4 whitespace-nowrap"><span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Succeeded</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-date-time">2026-03-03 09:18:37</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-duration">1.89s</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="relative">
+                                                <button class="options-dropdown-button"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+                                                <div class="options-dropdown-menu w-fit hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative execution-list-row">
+                                        <td class="hidden px-8 py-4 whitespace-nowrap text-sm font-medium text-white execution-name">traffic-jam-workflow-1741099882000<a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a></td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-workflow">Expense Exception Triage</td>
+                                        <td class="px-8 py-4 whitespace-nowrap"><span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Failed</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-date-time">2026-03-03 09:16:22</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-duration">3.38s</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="relative">
+                                                <button class="options-dropdown-button"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+                                                <div class="options-dropdown-menu w-fit hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative execution-list-row">
+                                        <td class="hidden px-8 py-4 whitespace-nowrap text-sm font-medium text-white execution-name">traffic-jam-workflow-1741099726000<a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a></td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-workflow">Cash Position Morning Brief</td>
+                                        <td class="px-8 py-4 whitespace-nowrap"><span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Succeeded</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-date-time">2026-03-03 09:13:46</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-duration">2.41s</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="relative">
+                                                <button class="options-dropdown-button"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+                                                <div class="options-dropdown-menu w-fit hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800 transition duration-200 cursor-pointer relative execution-list-row">
+                                        <td class="hidden px-8 py-4 whitespace-nowrap text-sm font-medium text-white execution-name">traffic-jam-workflow-1741099563000<a href="../workflow/979669f6a773bc14ee5e3b19.html" class="card-link"></a></td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-workflow">Budget Variance Alert Pipeline</td>
+                                        <td class="px-8 py-4 whitespace-nowrap"><span
+                                                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Failed</span>
+                                        </td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-date-time">2026-03-03 09:11:03</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-300 execution-duration">5.06s</td>
+                                        <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="relative">
+                                                <button class="options-dropdown-button"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+                                                <div class="options-dropdown-menu w-fit hidden">
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="no-execution-matches-message-list" class="px-8 py-8 text-center text-gray-400 hidden">
+                            <p>No executions match your search criteria.</p>
                         </div>
                     </div>
                 </div>
@@ -8883,6 +9730,699 @@
                     switchWhiteboardsView('list');
                 });
             }
+
+            // ========== WORKFLOWS SUB-TAB FUNCTIONALITY ==========
+            const workflowsSearchInput = document.getElementById('agents-workflows-search-input');
+            const workflowsSearchClear = document.getElementById('agents-workflows-search-clear');
+            const workflowStatusFilterBtn = document.getElementById('agents-workflows-status-filter-btn');
+            const workflowStatusFilterDropdown = document.getElementById('agents-workflows-status-filter-dropdown');
+            const workflowSortBtn = document.getElementById('agents-workflows-sort-btn');
+            const workflowSortDropdown = document.getElementById('agents-workflows-sort-dropdown');
+
+            const workflowFilterState = {
+                status: []
+            };
+
+            let currentWorkflowSort = 'default';
+            let originalWorkflowGridOrder = [];
+            let originalWorkflowListOrder = [];
+
+            function filterWorkflows() {
+                const searchTerm = workflowsSearchInput ? workflowsSearchInput.value.toLowerCase() : '';
+                const workflowCards = document.querySelectorAll('.workflow-card-container');
+                const workflowRows = document.querySelectorAll('#agents-workflows-content tr');
+                const noMatchesGrid = document.getElementById('no-workflow-matches-message-grid');
+                const noMatchesList = document.getElementById('no-workflow-matches-message-list');
+
+                let visibleCount = 0;
+
+                const matchesFilters = (name, status) => {
+                    const matchesSearch = searchTerm === '' || name.toLowerCase().includes(searchTerm);
+                    const matchesStatus = workflowFilterState.status.length === 0 || workflowFilterState.status.includes(status);
+                    return matchesSearch && matchesStatus;
+                };
+
+                workflowCards.forEach(card => {
+                    const workflowName = card.querySelector('h3')?.textContent.trim() || '';
+                    const status = card.querySelector('.rounded-full')?.textContent.trim() || '';
+                    const shouldShow = matchesFilters(workflowName, status);
+                    card.style.display = shouldShow ? '' : 'none';
+                    if (shouldShow) visibleCount++;
+                });
+
+                workflowRows.forEach(row => {
+                    const workflowName = row.querySelector('.text-sm.font-medium.text-white')?.textContent.trim() || '';
+                    const status = row.querySelector('.rounded-full')?.textContent.trim() || '';
+                    const shouldShow = matchesFilters(workflowName, status);
+                    row.style.display = shouldShow ? '' : 'none';
+                });
+
+                if ((searchTerm.length > 0 || workflowFilterState.status.length > 0) && visibleCount === 0) {
+                    if (noMatchesGrid) noMatchesGrid.classList.remove('hidden');
+                    if (noMatchesList) noMatchesList.classList.remove('hidden');
+                } else {
+                    if (noMatchesGrid) noMatchesGrid.classList.add('hidden');
+                    if (noMatchesList) noMatchesList.classList.add('hidden');
+                }
+            }
+
+            function updateWorkflowStatusFilterButton() {
+                if (!workflowStatusFilterBtn) return;
+                const label = workflowStatusFilterBtn.querySelector('.selected-value');
+                if (!label) return;
+                label.textContent = workflowFilterState.status.length > 0 ? workflowFilterState.status.join(', ') : 'Status';
+                const clearBtn = document.getElementById('agents-workflows-status-clear-btn');
+                if (clearBtn) {
+                    if (workflowFilterState.status.length > 0) {
+                        clearBtn.classList.remove('hidden');
+                    } else {
+                        clearBtn.classList.add('hidden');
+                    }
+                }
+                updateWorkflowClearAllFiltersButton();
+            }
+
+            function updateWorkflowClearAllFiltersButton() {
+                const clearAllBtn = document.getElementById('clear-all-workflow-filters-btn');
+                if (!clearAllBtn) return;
+                if (workflowFilterState.status.length > 0) {
+                    clearAllBtn.classList.remove('hidden');
+                } else {
+                    clearAllBtn.classList.add('hidden');
+                }
+            }
+
+            function clearWorkflowFilter(filterType) {
+                workflowFilterState[filterType] = [];
+                document.querySelectorAll(`#agents-workflows-${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                updateWorkflowStatusFilterButton();
+                const dropdown = document.getElementById(`agents-workflows-${filterType}-filter-dropdown`);
+                if (dropdown) dropdown.classList.add('hidden');
+                filterWorkflows();
+            }
+
+            function clearAllWorkflowFilters() {
+                clearWorkflowFilter('status');
+            }
+
+            function sortWorkflows(sortType) {
+                const gridContainer = document.getElementById('agents-workflows-grid-content');
+                if (gridContainer) {
+                    const cards = Array.from(gridContainer.querySelectorAll('.workflow-card-container'));
+                    if (originalWorkflowGridOrder.length === 0 && cards.length > 0) {
+                        originalWorkflowGridOrder = cards.map((card, index) => ({ card, index }));
+                    }
+
+                    if (sortType === 'default') {
+                        originalWorkflowGridOrder.sort((a, b) => a.index - b.index);
+                        originalWorkflowGridOrder.forEach(({ card }) => gridContainer.appendChild(card));
+                    } else {
+                        cards.sort((a, b) => {
+                            const nameA = a.querySelector('h3')?.textContent.trim() || '';
+                            const nameB = b.querySelector('h3')?.textContent.trim() || '';
+                            const timeA = parseTime(a.querySelector('.workflow-last-updated')?.textContent.trim() || '');
+                            const timeB = parseTime(b.querySelector('.workflow-last-updated')?.textContent.trim() || '');
+
+                            if (sortType === 'title-asc') return nameA.localeCompare(nameB);
+                            if (sortType === 'title-desc') return nameB.localeCompare(nameA);
+                            if (sortType === 'last-updated') return timeA - timeB;
+                            return 0;
+                        });
+                        cards.forEach(card => gridContainer.appendChild(card));
+                    }
+                }
+
+                const listBody = document.getElementById('agents-workflows-content');
+                if (listBody) {
+                    const rows = Array.from(listBody.querySelectorAll('tr'));
+                    if (originalWorkflowListOrder.length === 0 && rows.length > 0) {
+                        originalWorkflowListOrder = rows.map((row, index) => ({ row, index }));
+                    }
+
+                    if (sortType === 'default') {
+                        originalWorkflowListOrder.sort((a, b) => a.index - b.index);
+                        originalWorkflowListOrder.forEach(({ row }) => listBody.appendChild(row));
+                    } else {
+                        rows.sort((a, b) => {
+                            const nameA = a.querySelector('.text-sm.font-medium.text-white')?.textContent.trim() || '';
+                            const nameB = b.querySelector('.text-sm.font-medium.text-white')?.textContent.trim() || '';
+                            const timeA = parseTime(a.querySelector('.workflow-last-updated')?.textContent.trim() || '');
+                            const timeB = parseTime(b.querySelector('.workflow-last-updated')?.textContent.trim() || '');
+
+                            if (sortType === 'title-asc') return nameA.localeCompare(nameB);
+                            if (sortType === 'title-desc') return nameB.localeCompare(nameA);
+                            if (sortType === 'last-updated') return timeA - timeB;
+                            return 0;
+                        });
+                        rows.forEach(row => listBody.appendChild(row));
+                    }
+                }
+            }
+
+            if (workflowsSearchInput && workflowsSearchClear) {
+                workflowsSearchInput.addEventListener('input', (event) => {
+                    const searchTerm = event.target.value.toLowerCase();
+                    workflowsSearchClear.style.display = searchTerm.length > 0 ? 'flex' : 'none';
+                    filterWorkflows();
+                });
+
+                workflowsSearchClear.addEventListener('click', () => {
+                    workflowsSearchInput.value = '';
+                    workflowsSearchClear.style.display = 'none';
+                    filterWorkflows();
+                    workflowsSearchInput.focus();
+                });
+            }
+
+            if (workflowStatusFilterBtn && workflowStatusFilterDropdown) {
+                workflowStatusFilterBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    workflowStatusFilterDropdown.classList.toggle('hidden');
+                    if (workflowSortDropdown) workflowSortDropdown.classList.add('hidden');
+                });
+            }
+
+            document.querySelectorAll('#agents-workflows-status-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        if (!workflowFilterState.status.includes(checkbox.value)) {
+                            workflowFilterState.status.push(checkbox.value);
+                        }
+                    } else {
+                        workflowFilterState.status = workflowFilterState.status.filter(status => status !== checkbox.value);
+                    }
+                    updateWorkflowStatusFilterButton();
+                    filterWorkflows();
+                });
+            });
+
+            const workflowStatusClearBtn = document.getElementById('agents-workflows-status-clear-btn');
+            if (workflowStatusClearBtn) {
+                workflowStatusClearBtn.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    clearWorkflowFilter('status');
+                });
+            }
+
+            const clearAllWorkflowFiltersBtn = document.getElementById('clear-all-workflow-filters-btn');
+            if (clearAllWorkflowFiltersBtn) {
+                clearAllWorkflowFiltersBtn.addEventListener('click', () => {
+                    clearAllWorkflowFilters();
+                });
+            }
+
+            if (workflowSortBtn && workflowSortDropdown) {
+                workflowSortBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    workflowSortDropdown.classList.toggle('hidden');
+                    if (workflowStatusFilterDropdown) workflowStatusFilterDropdown.classList.add('hidden');
+                });
+
+                workflowSortDropdown.querySelectorAll('a[data-sort]').forEach(link => {
+                    link.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const sortType = link.getAttribute('data-sort');
+                        if (!sortType) return;
+
+                        currentWorkflowSort = sortType;
+                        workflowSortDropdown.querySelectorAll('a[data-sort]').forEach(item => item.classList.remove('active'));
+                        link.classList.add('active');
+
+                        const sortValueSpan = workflowSortBtn.querySelector('.sort-selected-value');
+                        if (sortValueSpan) {
+                            sortValueSpan.textContent = sortType === 'default' ? 'Sort' : link.textContent.trim();
+                        }
+
+                        workflowSortDropdown.classList.add('hidden');
+                        sortWorkflows(currentWorkflowSort);
+                        filterWorkflows();
+                    });
+                });
+
+                const defaultSortLink = workflowSortDropdown.querySelector('a[data-sort="default"]');
+                if (defaultSortLink) {
+                    defaultSortLink.classList.add('active');
+                }
+            }
+
+            document.addEventListener('click', (event) => {
+                if (event.target.type === 'checkbox' || event.target.closest('#agents-workflows-status-filter-dropdown label')) {
+                    return;
+                }
+
+                if (workflowStatusFilterDropdown &&
+                    !event.target.closest('#agents-workflows-status-filter-btn') &&
+                    !event.target.closest('#agents-workflows-status-filter-dropdown')) {
+                    workflowStatusFilterDropdown.classList.add('hidden');
+                }
+
+                if (workflowSortDropdown &&
+                    !event.target.closest('#agents-workflows-sort-btn') &&
+                    !event.target.closest('#agents-workflows-sort-dropdown')) {
+                    workflowSortDropdown.classList.add('hidden');
+                }
+            });
+
+            updateWorkflowStatusFilterButton();
+            sortWorkflows(currentWorkflowSort);
+            filterWorkflows();
+
+            // ========== EXECUTIONS SUB-TAB FUNCTIONALITY ==========
+            const executionsSearchInput = document.getElementById('agents-executions-search-input');
+            const executionsSearchClear = document.getElementById('agents-executions-search-clear');
+            const executionWorkflowFilterBtn = document.getElementById('agents-executions-workflow-filter-btn');
+            const executionWorkflowFilterDropdown = document.getElementById('agents-executions-workflow-filter-dropdown');
+            const executionStatusFilterBtn = document.getElementById('agents-executions-status-filter-btn');
+            const executionStatusFilterDropdown = document.getElementById('agents-executions-status-filter-dropdown');
+            const executionSortBtn = document.getElementById('agents-executions-sort-btn');
+            const executionSortDropdown = document.getElementById('agents-executions-sort-dropdown');
+
+            const executionFilterState = {
+                workflow: [],
+                status: []
+            };
+
+            let currentExecutionSort = 'default';
+            let originalExecutionGridOrder = [];
+            let originalExecutionListOrder = [];
+
+            function parseExecutionDateTime(dateTimeString) {
+                const normalized = String(dateTimeString || '').trim().replace(' ', 'T');
+                const parsed = new Date(normalized);
+                return Number.isFinite(parsed.getTime()) ? parsed.getTime() : 0;
+            }
+
+            function formatExecutionDateLabel(dateTimeString) {
+                const timestamp = parseExecutionDateTime(dateTimeString);
+                if (!timestamp) return String(dateTimeString || '');
+                return new Date(timestamp).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+
+            function normalizeExecutionGridTitles() {
+                document.querySelectorAll('.execution-card-container').forEach(card => {
+                    const dateTime = card.querySelector('.execution-date-time')?.textContent.trim() || '';
+                    const title = card.querySelector('.execution-name');
+                    if (title) {
+                        title.textContent = formatExecutionDateLabel(dateTime);
+                    }
+                    const dateLabel = card.querySelector('.execution-date-time');
+                    if (dateLabel) {
+                        dateLabel.classList.add('hidden');
+                    }
+                });
+            }
+
+            function normalizeExecutionActionMenus() {
+                const buildActionMarkup = (status) => {
+                    if (status === 'Succeeded') {
+                        return `
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Copy to Builder</a>
+                        `;
+                    }
+                    return `
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Retry</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Debug in Builder</a>
+                    `;
+                };
+
+                document.querySelectorAll('.execution-card-container').forEach(card => {
+                    const status = card.querySelector('.rounded-full')?.textContent.trim() || '';
+                    const menu = card.querySelector('.options-dropdown-menu');
+                    if (menu) {
+                        menu.innerHTML = buildActionMarkup(status);
+                    }
+                });
+
+                document.querySelectorAll('#agents-executions-content tr').forEach(row => {
+                    const status = row.querySelector('.rounded-full')?.textContent.trim() || '';
+                    const menu = row.querySelector('.options-dropdown-menu');
+                    if (menu) {
+                        menu.innerHTML = buildActionMarkup(status);
+                    }
+                });
+            }
+
+            function normalizeExecutionListColumns() {
+                const headerRow = document.querySelector('#agents-executions-table thead tr');
+                if (headerRow) {
+                    const headers = Array.from(headerRow.querySelectorAll('th'));
+                    const dateHeader = headers.find(th => th.textContent.trim() === 'Date & Time');
+                    const workflowHeader = headers.find(th => th.textContent.trim() === 'Workflow');
+                    if (dateHeader && workflowHeader) {
+                        headerRow.insertBefore(dateHeader, workflowHeader);
+                    }
+                }
+
+                document.querySelectorAll('#agents-executions-content tr').forEach(row => {
+                    const dateValue = row.querySelector('.execution-date-time');
+                    if (dateValue) {
+                        const rawDateTime = dateValue.dataset.rawDatetime || dateValue.textContent.trim();
+                        dateValue.dataset.rawDatetime = rawDateTime;
+                        dateValue.textContent = formatExecutionDateLabel(rawDateTime);
+                    }
+
+                    const dateCell = dateValue?.closest('td');
+                    const workflowCell = row.querySelector('.execution-workflow')?.closest('td');
+                    if (dateCell && workflowCell) {
+                        row.insertBefore(dateCell, workflowCell);
+                    }
+                });
+            }
+
+            function filterExecutions() {
+                const searchTerm = executionsSearchInput ? executionsSearchInput.value.toLowerCase() : '';
+                const executionCards = document.querySelectorAll('.execution-card-container');
+                const executionRows = document.querySelectorAll('#agents-executions-content tr');
+                const noMatchesGrid = document.getElementById('no-execution-matches-message-grid');
+                const noMatchesList = document.getElementById('no-execution-matches-message-list');
+
+                let visibleCount = 0;
+
+                const matchesFilters = (rowText, status, workflowName) => {
+                    const matchesSearch = searchTerm === '' || rowText.toLowerCase().includes(searchTerm);
+                    const matchesStatus = executionFilterState.status.length === 0 || executionFilterState.status.includes(status);
+                    const matchesWorkflow = executionFilterState.workflow.length === 0 || executionFilterState.workflow.includes(workflowName);
+                    return matchesSearch && matchesStatus && matchesWorkflow;
+                };
+
+                executionCards.forEach(card => {
+                    const executionName = card.querySelector('.execution-name')?.textContent.trim() || '';
+                    const workflowName = card.querySelector('.execution-workflow')?.textContent.trim() || '';
+                    const dateTime = card.querySelector('.execution-date-time')?.textContent.trim() || '';
+                    const status = card.querySelector('.rounded-full')?.textContent.trim() || '';
+                    const rowText = `${executionName} ${workflowName} ${dateTime} ${status}`;
+                    const shouldShow = matchesFilters(rowText, status, workflowName);
+                    card.style.display = shouldShow ? '' : 'none';
+                    if (shouldShow) visibleCount++;
+                });
+
+                executionRows.forEach(row => {
+                    const executionName = row.querySelector('.execution-name')?.textContent.trim() || '';
+                    const workflowName = row.querySelector('.execution-workflow')?.textContent.trim() || '';
+                    const dateTime = row.querySelector('.execution-date-time')?.textContent.trim() || '';
+                    const status = row.querySelector('.rounded-full')?.textContent.trim() || '';
+                    const rowText = `${executionName} ${workflowName} ${dateTime} ${status}`;
+                    const shouldShow = matchesFilters(rowText, status, workflowName);
+                    row.style.display = shouldShow ? '' : 'none';
+                });
+
+                if ((searchTerm.length > 0 || executionFilterState.status.length > 0 || executionFilterState.workflow.length > 0) && visibleCount === 0) {
+                    if (noMatchesGrid) noMatchesGrid.classList.remove('hidden');
+                    if (noMatchesList) noMatchesList.classList.remove('hidden');
+                } else {
+                    if (noMatchesGrid) noMatchesGrid.classList.add('hidden');
+                    if (noMatchesList) noMatchesList.classList.add('hidden');
+                }
+            }
+
+            function updateExecutionStatusFilterButton() {
+                if (!executionStatusFilterBtn) return;
+                const label = executionStatusFilterBtn.querySelector('.selected-value');
+                if (!label) return;
+                label.textContent = executionFilterState.status.length > 0 ? executionFilterState.status.join(', ') : 'Status';
+                const clearBtn = document.getElementById('agents-executions-status-clear-btn');
+                if (clearBtn) {
+                    if (executionFilterState.status.length > 0) {
+                        clearBtn.classList.remove('hidden');
+                    } else {
+                        clearBtn.classList.add('hidden');
+                    }
+                }
+                updateExecutionClearAllFiltersButton();
+            }
+
+            function updateExecutionWorkflowFilterButton() {
+                if (!executionWorkflowFilterBtn) return;
+                const label = executionWorkflowFilterBtn.querySelector('.selected-value');
+                if (!label) return;
+                label.textContent = executionFilterState.workflow.length > 0 ? executionFilterState.workflow.join(', ') : 'Workflow';
+                const clearBtn = document.getElementById('agents-executions-workflow-clear-btn');
+                if (clearBtn) {
+                    if (executionFilterState.workflow.length > 0) {
+                        clearBtn.classList.remove('hidden');
+                    } else {
+                        clearBtn.classList.add('hidden');
+                    }
+                }
+                updateExecutionClearAllFiltersButton();
+            }
+
+            function updateExecutionClearAllFiltersButton() {
+                const clearAllBtn = document.getElementById('clear-all-execution-filters-btn');
+                if (!clearAllBtn) return;
+                const hasAnyFilters = executionFilterState.workflow.length > 0 || executionFilterState.status.length > 0;
+                if (hasAnyFilters) {
+                    clearAllBtn.classList.remove('hidden');
+                } else {
+                    clearAllBtn.classList.add('hidden');
+                }
+            }
+
+            function clearExecutionFilter(filterType) {
+                executionFilterState[filterType] = [];
+                document.querySelectorAll(`#agents-executions-${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+
+                if (filterType === 'workflow') {
+                    updateExecutionWorkflowFilterButton();
+                } else if (filterType === 'status') {
+                    updateExecutionStatusFilterButton();
+                }
+
+                const dropdown = document.getElementById(`agents-executions-${filterType}-filter-dropdown`);
+                if (dropdown) dropdown.classList.add('hidden');
+                filterExecutions();
+            }
+
+            function clearAllExecutionFilters() {
+                clearExecutionFilter('workflow');
+                clearExecutionFilter('status');
+            }
+
+            function sortExecutions(sortType) {
+                const gridContainer = document.getElementById('agents-executions-grid-content');
+                if (gridContainer) {
+                    const cards = Array.from(gridContainer.querySelectorAll('.execution-card-container'));
+                    if (originalExecutionGridOrder.length === 0 && cards.length > 0) {
+                        originalExecutionGridOrder = cards.map((card, index) => ({ card, index }));
+                    }
+
+                    if (sortType === 'default') {
+                        originalExecutionGridOrder.sort((a, b) => a.index - b.index);
+                        originalExecutionGridOrder.forEach(({ card }) => gridContainer.appendChild(card));
+                    } else {
+                        cards.sort((a, b) => {
+                            const executionA = a.querySelector('.execution-name')?.textContent.trim() || '';
+                            const executionB = b.querySelector('.execution-name')?.textContent.trim() || '';
+                            const dateAValue = a.querySelector('.execution-date-time');
+                            const dateBValue = b.querySelector('.execution-date-time');
+                            const dateA = parseExecutionDateTime(dateAValue?.dataset.rawDatetime || dateAValue?.textContent.trim() || '');
+                            const dateB = parseExecutionDateTime(dateBValue?.dataset.rawDatetime || dateBValue?.textContent.trim() || '');
+
+                            if (sortType === 'title-asc') return executionA.localeCompare(executionB);
+                            if (sortType === 'title-desc') return executionB.localeCompare(executionA);
+                            if (sortType === 'last-updated') return dateB - dateA;
+                            return 0;
+                        });
+                        cards.forEach(card => gridContainer.appendChild(card));
+                    }
+                }
+
+                const listBody = document.getElementById('agents-executions-content');
+                if (listBody) {
+                    const rows = Array.from(listBody.querySelectorAll('tr'));
+                    if (originalExecutionListOrder.length === 0 && rows.length > 0) {
+                        originalExecutionListOrder = rows.map((row, index) => ({ row, index }));
+                    }
+
+                    if (sortType === 'default') {
+                        originalExecutionListOrder.sort((a, b) => a.index - b.index);
+                        originalExecutionListOrder.forEach(({ row }) => listBody.appendChild(row));
+                    } else {
+                        rows.sort((a, b) => {
+                            const executionA = a.querySelector('.execution-name')?.textContent.trim() || '';
+                            const executionB = b.querySelector('.execution-name')?.textContent.trim() || '';
+                            const dateA = parseExecutionDateTime(a.querySelector('.execution-date-time')?.textContent.trim() || '');
+                            const dateB = parseExecutionDateTime(b.querySelector('.execution-date-time')?.textContent.trim() || '');
+
+                            if (sortType === 'title-asc') return executionA.localeCompare(executionB);
+                            if (sortType === 'title-desc') return executionB.localeCompare(executionA);
+                            if (sortType === 'last-updated') return dateB - dateA;
+                            return 0;
+                        });
+                        rows.forEach(row => listBody.appendChild(row));
+                    }
+                }
+            }
+
+            if (executionsSearchInput && executionsSearchClear) {
+                executionsSearchInput.addEventListener('input', (event) => {
+                    const searchTerm = event.target.value.toLowerCase();
+                    executionsSearchClear.style.display = searchTerm.length > 0 ? 'flex' : 'none';
+                    filterExecutions();
+                });
+
+                executionsSearchClear.addEventListener('click', () => {
+                    executionsSearchInput.value = '';
+                    executionsSearchClear.style.display = 'none';
+                    filterExecutions();
+                    executionsSearchInput.focus();
+                });
+            }
+
+            if (executionStatusFilterBtn && executionStatusFilterDropdown) {
+                executionStatusFilterBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    executionStatusFilterDropdown.classList.toggle('hidden');
+                    if (executionWorkflowFilterDropdown) executionWorkflowFilterDropdown.classList.add('hidden');
+                    if (executionSortDropdown) executionSortDropdown.classList.add('hidden');
+                });
+            }
+
+            if (executionWorkflowFilterBtn && executionWorkflowFilterDropdown) {
+                executionWorkflowFilterBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    executionWorkflowFilterDropdown.classList.toggle('hidden');
+                    if (executionStatusFilterDropdown) executionStatusFilterDropdown.classList.add('hidden');
+                    if (executionSortDropdown) executionSortDropdown.classList.add('hidden');
+                });
+            }
+
+            document.querySelectorAll('#agents-executions-workflow-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        if (!executionFilterState.workflow.includes(checkbox.value)) {
+                            executionFilterState.workflow.push(checkbox.value);
+                        }
+                    } else {
+                        executionFilterState.workflow = executionFilterState.workflow.filter(workflow => workflow !== checkbox.value);
+                    }
+                    updateExecutionWorkflowFilterButton();
+                    filterExecutions();
+                });
+            });
+
+            const executionWorkflowClearBtn = document.getElementById('agents-executions-workflow-clear-btn');
+            if (executionWorkflowClearBtn) {
+                executionWorkflowClearBtn.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    clearExecutionFilter('workflow');
+                });
+            }
+
+            document.querySelectorAll('#agents-executions-status-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        if (!executionFilterState.status.includes(checkbox.value)) {
+                            executionFilterState.status.push(checkbox.value);
+                        }
+                    } else {
+                        executionFilterState.status = executionFilterState.status.filter(status => status !== checkbox.value);
+                    }
+                    updateExecutionStatusFilterButton();
+                    filterExecutions();
+                });
+            });
+
+            const executionStatusClearBtn = document.getElementById('agents-executions-status-clear-btn');
+            if (executionStatusClearBtn) {
+                executionStatusClearBtn.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    clearExecutionFilter('status');
+                });
+            }
+
+            const clearAllExecutionFiltersBtn = document.getElementById('clear-all-execution-filters-btn');
+            if (clearAllExecutionFiltersBtn) {
+                clearAllExecutionFiltersBtn.addEventListener('click', () => {
+                    clearAllExecutionFilters();
+                });
+            }
+
+            if (executionSortBtn && executionSortDropdown) {
+                executionSortBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    executionSortDropdown.classList.toggle('hidden');
+                    if (executionWorkflowFilterDropdown) executionWorkflowFilterDropdown.classList.add('hidden');
+                    if (executionStatusFilterDropdown) executionStatusFilterDropdown.classList.add('hidden');
+                });
+
+                executionSortDropdown.querySelectorAll('a[data-sort]').forEach(link => {
+                    link.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        const sortType = link.getAttribute('data-sort');
+                        if (!sortType) return;
+
+                        currentExecutionSort = sortType;
+                        executionSortDropdown.querySelectorAll('a[data-sort]').forEach(item => item.classList.remove('active'));
+                        link.classList.add('active');
+
+                        const sortValueSpan = executionSortBtn.querySelector('.sort-selected-value');
+                        if (sortValueSpan) {
+                            sortValueSpan.textContent = sortType === 'default' ? 'Sort' : link.textContent.trim();
+                        }
+
+                        executionSortDropdown.classList.add('hidden');
+                        sortExecutions(currentExecutionSort);
+                        filterExecutions();
+                    });
+                });
+
+                const defaultSortLink = executionSortDropdown.querySelector('a[data-sort="default"]');
+                if (defaultSortLink) {
+                    defaultSortLink.classList.add('active');
+                }
+            }
+
+            document.addEventListener('click', (event) => {
+                if (
+                    event.target.type === 'checkbox' ||
+                    event.target.closest('#agents-executions-status-filter-dropdown label') ||
+                    event.target.closest('#agents-executions-workflow-filter-dropdown label')
+                ) {
+                    return;
+                }
+
+                if (executionWorkflowFilterDropdown &&
+                    !event.target.closest('#agents-executions-workflow-filter-btn') &&
+                    !event.target.closest('#agents-executions-workflow-filter-dropdown')) {
+                    executionWorkflowFilterDropdown.classList.add('hidden');
+                }
+
+                if (executionStatusFilterDropdown &&
+                    !event.target.closest('#agents-executions-status-filter-btn') &&
+                    !event.target.closest('#agents-executions-status-filter-dropdown')) {
+                    executionStatusFilterDropdown.classList.add('hidden');
+                }
+
+                if (executionSortDropdown &&
+                    !event.target.closest('#agents-executions-sort-btn') &&
+                    !event.target.closest('#agents-executions-sort-dropdown')) {
+                    executionSortDropdown.classList.add('hidden');
+                }
+            });
+
+            updateExecutionWorkflowFilterButton();
+            updateExecutionStatusFilterButton();
+            normalizeExecutionGridTitles();
+            normalizeExecutionActionMenus();
+            normalizeExecutionListColumns();
+            sortExecutions(currentExecutionSort);
+            filterExecutions();
 
             // ========== COMMAND ROOMS FUNCTIONALITY ==========
 

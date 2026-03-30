@@ -5426,6 +5426,129 @@
             `;
         }
 
+        function getWorkflowIdFromCurrentFileName() {
+            const rawPathname = window && window.location && typeof window.location.pathname === 'string'
+                ? window.location.pathname
+                : '';
+            const fileName = rawPathname.split('/').pop() || '';
+            const workflowId = String(fileName || '').replace(/\.html$/i, '').trim();
+            return workflowId;
+        }
+
+        function getWebhookTriggerUrl() {
+            const workflowId = getWorkflowIdFromCurrentFileName();
+            return `https://webhook.llumen.io/${workflowId}`;
+        }
+
+        function ensureWebhookTriggerNodeConfigState(node) {
+            if (!node || node.key !== 'webhook_trigger') return;
+            const supportedMethods = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+            const nextMethod = String(node.webhookTriggerMethod || 'GET').trim().toUpperCase();
+            node.webhookTriggerMethod = supportedMethods.has(nextMethod) ? nextMethod : 'GET';
+            node.webhookTriggerAuthType = String(node.webhookTriggerAuthType || 'None').trim() || 'None';
+        }
+
+        function renderWebhookTriggerNodeConfigFields(container, node) {
+            if (!container || !node) return;
+            ensureWebhookTriggerNodeConfigState(node);
+            const fieldIdPrefix = `node-config-webhook-trigger-${node.id}`;
+            const methodButtonId = `${fieldIdPrefix}-method-btn`;
+            const methodMenuId = `${fieldIdPrefix}-method-menu`;
+            const authButtonId = `${fieldIdPrefix}-auth-btn`;
+            const authMenuId = `${fieldIdPrefix}-auth-menu`;
+            const webhookUrlInputId = `${fieldIdPrefix}-url`;
+            const webhookUrlCopyButtonId = `${fieldIdPrefix}-copy-btn`;
+            const webhookUrl = getWebhookTriggerUrl();
+            const authOptions = ['None', 'Basic Authentication', 'API Key', 'Bearer Token', 'OAuth 2.0'];
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="block text-sm font-medium text-gray-300">Webhook URL</label>
+                        </div>
+                        <div class="grid grid-cols-[140px_1fr_auto] gap-2">
+                            <div class="relative">
+                                <button id="${methodButtonId}" type="button"
+                                    class="w-full bg-gray-800 border border-gray-700 rounded-md text-white px-3 py-1.5 text-sm hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 flex items-center justify-between">
+                                    <span class="node-config-webhook-trigger-method-selected mr-2 text-ellipsis whitespace-nowrap overflow-hidden min-w-0">${escapeHtml(node.webhookTriggerMethod || 'GET')}</span>
+                                    <span class="material-symbols-outlined text-gray-400">expand_more</span>
+                                </button>
+                                <div id="${methodMenuId}" class="options-dropdown-menu right-auto hidden overflow-y-auto">
+                                    ${['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].map((method) => `<button type="button" class="options-dropdown-menu-item w-full text-left${node.webhookTriggerMethod === method ? ' active' : ''}" data-value="${method}">${method}</button>`).join('')}
+                                </div>
+                            </div>
+                            <input id="${webhookUrlInputId}" type="text"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-md text-gray-300 px-3 py-2 text-sm focus:outline-none placeholder-gray-500 transition duration-200"
+                                value="${escapeHtml(webhookUrl)}" readonly>
+                            <button id="${webhookUrlCopyButtonId}" type="button"
+                                class="bg-transparent border border-gray-600 text-gray-400 px-3 py-1.5 rounded-md transition duration-200 text-sm font-medium select-none flex items-center justify-center hover:bg-gray-600 hover:border-gray-600 hover:text-white"
+                                title="Copy webhook URL" aria-label="Copy webhook URL">
+                                <span class="material-symbols-outlined text-[1.125rem] leading-none">content_copy</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="block text-sm font-medium text-gray-300">Authentication</label>
+                        </div>
+                        <div class="relative">
+                            <button id="${authButtonId}" type="button"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-md text-white px-3 py-1.5 text-sm hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 flex items-center justify-between">
+                                <span class="node-config-webhook-trigger-auth-selected mr-2 text-ellipsis whitespace-nowrap overflow-hidden min-w-0">${escapeHtml(node.webhookTriggerAuthType || 'None')}</span>
+                                <span class="material-symbols-outlined text-gray-400">expand_more</span>
+                            </button>
+                            <div id="${authMenuId}" class="options-dropdown-menu right-auto hidden overflow-y-auto">
+                                ${authOptions.map((auth) => `<button type="button" class="options-dropdown-menu-item w-full text-left${node.webhookTriggerAuthType === auth ? ' active' : ''}" data-value="${escapeHtml(auth)}">${escapeHtml(auth)}</button>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            initializeComponentLibraryPortaledDropdown({
+                buttonId: methodButtonId,
+                menuId: methodMenuId,
+                selectedValueSelector: '.node-config-webhook-trigger-method-selected',
+                datasetFlag: `nodeConfigWebhookTriggerMethodBound${node.id.replace(/[^a-zA-Z0-9]/g, '')}`,
+                onValueChange: ({ value }) => {
+                    node.webhookTriggerMethod = String(value || 'GET').trim().toUpperCase() || 'GET';
+                    renderNodeConfigTypeSpecificFields(node.id);
+                }
+            });
+            initializeComponentLibraryPortaledDropdown({
+                buttonId: authButtonId,
+                menuId: authMenuId,
+                selectedValueSelector: '.node-config-webhook-trigger-auth-selected',
+                datasetFlag: `nodeConfigWebhookTriggerAuthBound${node.id.replace(/[^a-zA-Z0-9]/g, '')}`,
+                onValueChange: ({ value }) => {
+                    node.webhookTriggerAuthType = String(value || 'None').trim() || 'None';
+                    renderNodeConfigTypeSpecificFields(node.id);
+                }
+            });
+
+            const copyButton = document.getElementById(webhookUrlCopyButtonId);
+            const urlInput = document.getElementById(webhookUrlInputId);
+            if (copyButton && urlInput) {
+                copyButton.addEventListener('click', async () => {
+                    const valueToCopy = String(urlInput.value || '');
+                    if (!valueToCopy) return;
+                    try {
+                        if (navigator && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                            await navigator.clipboard.writeText(valueToCopy);
+                        } else {
+                            urlInput.focus();
+                            urlInput.select();
+                            document.execCommand('copy');
+                        }
+                        alertMessage('Webhook URL copied.', 'success');
+                    } catch (error) {
+                        alertMessage('Unable to copy webhook URL.', 'error');
+                    }
+                });
+            }
+        }
+
         function normalizeSendChatMessageMode(rawMode) {
             const normalized = String(rawMode || '').trim().toLowerCase();
             if (
@@ -10100,6 +10223,11 @@
             }
             if (node.key === 'chat_input_trigger') {
                 renderChatInputTriggerNodeConfigFields(container);
+                finalizeFieldValidationRender();
+                return;
+            }
+            if (node.key === 'webhook_trigger') {
+                renderWebhookTriggerNodeConfigFields(container, node);
                 finalizeFieldValidationRender();
                 return;
             }
