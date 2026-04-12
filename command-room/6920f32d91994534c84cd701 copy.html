@@ -1,0 +1,3184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llumen Prototype</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        #crimson-app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .command-room-nav {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translate(-50%);
+            z-index: 11;
+        }
+
+        .screens:has(*) {
+            border-left: 1px solid rgb(75 85 99 / var(--tw-border-opacity, 1))
+        }
+
+        #full-screen-view {
+            transition: top 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                left 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                border-radius 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.5s ease;
+            z-index: 100;
+            opacity: 0;
+        }
+
+        #full-screen-view.expanding {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+        }
+
+        /* Screen View Dashboard Grid (inside content-tab-custom) */
+        #screen-view-dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1.5rem;
+            grid-auto-rows: minmax(200px, auto);
+            min-height: 0;
+            position: relative;
+        }
+        #screen-view-dashboard-grid.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+        #screen-view-dashboard-grid.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        #screen-view-dashboard-grid.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        #screen-view-dashboard-grid.grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+        #screen-view-dashboard-grid.grid-cols-8 { grid-template-columns: repeat(8, 1fr); }
+        #screen-view-dashboard-grid.grid-cols-10 { grid-template-columns: repeat(10, 1fr); }
+        #screen-view-dashboard-grid.grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+        #screen-view-dashboard-grid.resizing-active { cursor: nwse-resize; }
+        #linked-existing-dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1.5rem;
+            grid-auto-rows: minmax(200px, auto);
+            min-height: 0;
+            position: relative;
+        }
+        #linked-existing-dashboard-grid.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+        #linked-existing-dashboard-grid.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        #linked-existing-dashboard-grid.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+        #linked-existing-dashboard-grid.grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+        #linked-existing-dashboard-grid.grid-cols-8 { grid-template-columns: repeat(8, 1fr); }
+        #linked-existing-dashboard-grid.grid-cols-10 { grid-template-columns: repeat(10, 1fr); }
+        #linked-existing-dashboard-grid.grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+        #linked-existing-grid-guide-boxes-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .screen-view-dashboard-component {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .screen-view-dashboard-component.dragging { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; }
+        .screen-view-dashboard-component.resizing { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        #screen-view-dashboard-grid.resizing-active .screen-view-dashboard-component:not(.resizing) { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+        .screen-view-dashboard-component.dragging:after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(25,118,210,0.5);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .screen-view-dashboard-component .resize-handle {
+            position: absolute;
+            bottom: -2px; right: -2px;
+            width: 18px; height: 18px;
+            cursor: nwse-resize;
+            z-index: 10;
+            border-right-width: 3px;
+            border-bottom-width: 3px;
+            border-color: #9ca3af;
+            border-bottom-right-radius: 50%;
+        }
+        .screen-view-dashboard-component .resize-handle:hover { border-color: #fff; }
+        .screen-view-dashboard-component .dashboard-component-header { padding: 0.75rem 1rem; }
+        .screen-view-dashboard-component .dashboard-component-body { flex-grow: 1; padding: 1rem; }
+        .screen-view-grid-guide-box {
+            position: absolute;
+            border: 1px dashed #374151;
+            pointer-events: none;
+            z-index: 0;
+        }
+        #screen-view-grid-guide-boxes-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body class="edit-mode">
+    <div id="crimson-app" class="bg-gray-900">
+        <header
+            class="command-room-header bg-gray-800 py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-30">
+
+            <div class="flex items-center w-1/3 space-x-6">
+
+                <a href="../workspaces/finance.html#?tab=command-rooms"
+                    class="bg-gray-700 hover:bg-gray-600 text-white w-12 h-12 rounded-full transition duration-200 text-sm flex items-center justify-center">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">arrow_back_ios_new</span>
+                </a>
+
+                <div>
+
+                    <div class="flex items-center space-x-4">
+
+                        <h2 class="text-lg font-medium text-white multi-line-editor focus:outline-none focus:ring-2 focus:ring-red-400"
+                            contenteditable="true">Q3 Crisis Room</h2>
+
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                <span class="font-semibold">Finance</span>
+                            </div>
+                            <div>
+                                <span
+                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <button class="options-dropdown-button">
+                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                            </button>
+                            <div class="options-dropdown-menu hidden right-auto">
+                                <a href="#"
+                                    class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                                <a href="#"
+                                    class="block px-4 py-2 text-sm text-red-400 transition duration-150">Archive</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="flex items-center justify-center w-1/3 space-x-8">
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm">Editing Situation</div>
+                    <div class="relative">
+                        <button id="editing-situation-dropdown-button"
+                            class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium rounded-lg transition duration-200 flex items-center space-x-2 max-w-80">
+                            <span class="whitespace-nowrap overflow-hidden text-ellipsis">Default</span>
+                            <span class="material-symbols-outlined text-lg">expand_more</span>
+                        </button>
+                        <div id="editing-situation-dropdown-menu"
+                            class="options-dropdown-menu hidden right-0 w-64 overflow-visible">
+                            <div class="situation-items-container editing-situation-items">
+                                <!-- Default Situation -->
+                                <div
+                                    class="situation-item editing-situation-item group flex items-center justify-between px-4 pr-2 py-2 hover:bg-gray-700 cursor-pointer active text-red-400">
+                                    <span
+                                        class="text-sm font-medium whitespace-nowrap text-ellipsis overflow-hidden">Default</span>
+                                    <div class="relative">
+                                        <button class="situation-options-button">
+                                            <span class="material-symbols-outlined text-lg">more_vert</span>
+                                        </button>
+                                        <div
+                                            class="situation-options-menu options-dropdown-menu hidden right-0 min-w-[120px] shadow-2xl">
+                                            <a href="#"
+                                                class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 transition">Configure</a>
+                                            <a href="#"
+                                                class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-600 transition">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-700 mt-2 pt-2">
+                                <button id="add-situation-button"
+                                    class="w-full flex items-center px-4 pl-3 py-2 text-sm text-blue-400 hover:bg-gray-700 transition duration-150">
+                                    <span class="material-symbols-outlined text-[20px] mr-1.5">add</span>
+                                    <span>Add Situation</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Situation Field (Hidden if <= 1 situation) -->
+                <div id="active-situation-container" class="flex items-center space-x-4 hidden">
+                    <div class="text-sm">Active Situation</div>
+                    <div class="relative">
+                        <button id="active-situation-dropdown-button"
+                            class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium rounded-lg transition duration-200 flex items-center space-x-2 max-w-80">
+                            <span class="whitespace-nowrap overflow-hidden text-ellipsis">Default</span>
+                            <span class="material-symbols-outlined text-lg">expand_more</span>
+                        </button>
+                        <div id="active-situation-dropdown-menu"
+                            class="options-dropdown-menu hidden right-0 max-w-64 overflow-visible">
+                            <div class="situation-items-container active-situation-items">
+                                <!-- Default Situation (No options menu) -->
+                                <div
+                                    class="situation-item active-situation-item group flex items-center justify-between px-4 py-2 hover:bg-gray-700 cursor-pointer active text-red-400">
+                                    <span
+                                        class="text-sm font-medium whitespace-nowrap text-ellipsis overflow-hidden">Default</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4 hidden">
+                    <div class="text-sm">Mode</div>
+                    <div class="flex items-center">
+                        <button id="mode-control-button"
+                            class="mode-toggle-button bg-red-600 active text-white px-3 py-1.5 text-sm font-medium rounded-l-lg transition duration-200 flex items-center space-x-2">
+                            <span class="material-symbols-outlined text-lg">tune</span>
+                            <span>Control</span>
+                        </button>
+                        <button id="mode-present-button"
+                            class="mode-toggle-button bg-gray-700   hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium rounded-r-lg transition duration-200 flex items-center space-x-2">
+                            <span class="material-symbols-outlined text-lg">airplay</span>
+                            <span>Present</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="command-room-save-area" class="flex items-center justify-end w-1/3 space-x-4 flex-wrap gap-y-2">
+                <div id="command-room-save-buttons" class="flex items-center gap-3 border-r border-gray-600 pr-4">
+                    <button type="button" id="command-room-revert-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium rounded-lg transition duration-200 flex items-center">
+                        <span class="material-symbols-outlined mr-1.5">undo</span>
+                        Revert
+                    </button>
+                    <button type="button" id="command-room-save-btn" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 text-sm font-medium rounded-lg transition duration-200 flex items-center disabled:opacity-60 disabled:cursor-not-allowed">
+                        <span class="material-symbols-outlined mr-1.5 save-btn-icon">save</span>
+                        <span class="save-btn-text">Save</span>
+                    </button>
+                </div>
+                <div>
+                    <label class="flex items-center justify-end gap-2 cursor-pointer select-none" for="command-room-autosave-toggle">
+                        <span class="text-sm">Auto-Save</span>
+                        <span class="toggle-switch">
+                            <input type="checkbox" id="command-room-autosave-toggle">
+                            <span class="toggle-slider"></span>
+                        </span>
+                    </label>
+                    <div id="command-room-save-message" class="text-xs text-gray-400 w-full text-right mt-1">Last saved 5 mins ago</div>
+                </div>
+            </div>
+
+        </header>
+
+        <div class="sticky-nav flex items-center justify-between bg-gray-800 shadow-md">
+
+            <nav id="workspace-nav-bar" class="relative flex-1 min-w-0 flex items-center py-3 px-6">
+
+                <div id="workspace-left-gradient-overlay"
+                    class="w-[3.75rem] scroll-gradient-overlay left workspace-gradient-overlay">
+                    <button id="scroll-left-button" class="workspace-scroll-button p-2 rounded-full text-gray-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+    
+                <div id="workspace-buttons-container"
+                    class="flex overflow-x-auto whitespace-nowrap space-x-2 sm:space-x-4 scrollbar-hide py-1">
+    
+                    <button id="all-screens-nav-item"
+                        class="workspace-nav-item flex items-center flex-shrink-0 px-3 py-2 rounded-lg text-white bg-red-600 active transition duration-200 text-sm">
+                        <span>All Screens</span>
+                    </button>
+    
+                    <button
+                        class="flex-shrink-0 px-3 py-1 flex items-center justify-center rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 relative group add-screen-trigger"
+                        id="add-screen-button-top" data-tooltip="Add Screen">
+                        <span class="material-symbols-outlined text-lg">add</span>
+                    </button>
+    
+                    <div class="screens items flex items-center space-x-2 sm:space-x-4 pl-4" id="workspace-screens-nav">
+                        <!-- Dynamic screen items will be inserted here -->
+                    </div>
+    
+                </div>
+    
+                <div id="workspace-right-gradient-overlay"
+                    class="w-[3.75rem] scroll-gradient-overlay right workspace-gradient-overlay">
+                    <button id="scroll-right-button" class="workspace-scroll-button p-2 rounded-full text-gray-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+    
+            </nav>
+
+            <div class="py-3 px-6">
+                <div class="flex itemx-center border-l border-gray-600 pl-4">
+                    <button class="text-sm bg-gray-700 text-white hover:bg-gray-600 py-2 px-3 pl-2 rounded-md transition duration-200 flex items-center space-x-1.5">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                        <span>Room Filters</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <main class="flex-grow z-10 px-6 pt-6 py-24 flex flex-col min-h-0 relative overflow-auto"
+            id="command-room-canvas-container">
+            <!-- Canvas Background (Optional Grid) -->
+            <div class="absolute inset-0 z-0 opacity-20 pointer-events-none"
+                style="background-image: radial-gradient(#4b5563 1px, transparent 1px); background-size: 20px 20px;">
+            </div>
+
+            <!-- Screens will be appended here -->
+            <div id="screens-canvas" class="absolute inset-0 z-10 w-full h-full"></div>
+
+            <div class="command-room-nav bg-gray-700 rounded-lg flex items-center space-x-2 p-2">
+
+                <!-- Add Screen Button -->
+                <button id="add-screen-button-bottom"
+                    class="text-sm text-white hover:bg-gray-600 py-1.5 px-3 pl-2 rounded-md transition duration-200 flex items-center space-x-1.5 add-screen-trigger">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                    <span>Screen</span>
+                </button>
+
+                <div class="h-8 border-l border-gray-600"></div>
+
+                <button class="w-8 h-8 text-white hover:bg-gray-600 p-1 rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">ios_share</span>
+                </button>
+
+                <div class="h-8 border-l border-gray-600"></div>
+
+                <div class="relative">
+                    <button class="options-dropdown-button" data-dropdown-id="dropdown-2">
+                        <span class="material-symbols-outlined text-lg">more_vert</span>
+                    </button>
+                    <div class="options-dropdown-menu bottom right-auto hidden" style="margin-top: -8px"
+                        data-dropdown-id="dropdown-2">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Share</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Archive</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Screen View Overlay -->
+            <div id="full-screen-view" class="bg-gray-900 hidden flex flex-col absolute inset-0 overflow-auto">
+                <!-- Content Area -->
+                <div class="flex-grow flex flex-col overflow-hidden">
+
+                    <!-- Screen View Header -->
+                    <div class="flex items-center justify-between space-x-4 px-6 py-4 border-b border-gray-800">
+                        <div class="flex items-center space-x-4">
+                            <button id="screen-view-close-button" type="button" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition duration-200" title="Close">
+                                <span class="material-symbols-outlined text-xl">close</span>
+                            </button>
+                            <span class="material-symbols-outlined text-3xl">monitor</span>
+                            <h1 id="screen-view-title" class="text-lg font-bold text-white leading-tight multi-line-editor focus:outline-none focus:ring-2 focus:ring-red-400" contenteditable="true">Screen Name</h1>
+                            <div id="screen-view-subtitle" class="text-gray-400 text-xs mt-0.5 flex space-x-2"><span>8K (7680 x 4320)</span>
+                            </div>
+                            <div class="relative">
+                                <button type="button" class="screen-view-header-options-btn options-dropdown-button">
+                                    <span class="material-symbols-outlined text-lg">more_vert</span>
+                                </button>   
+                                <div id="screen-view-header-menu" class="options-dropdown-menu absolute right-0 top-full mt-2 w-32 hidden">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition duration-150" data-action="refresh">Refresh</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition duration-150" data-action="get_link">Get Link</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition duration-150" data-action="configure">Configure</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 transition duration-150" data-action="delete">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-white">Screen Content</div>
+                            <div class="flex items-center">
+                                <button id="content-custom-button"
+                                    class="content-toggle-button flex items-center space-x-2 bg-red-600 active text-white px-3 py-1.5 text-sm font-medium rounded-l-lg transition duration-200">
+                                    <span class="material-symbols-outlined">dashboard</span>
+                                    <span>Custom</span>
+                                </button>
+                                <button id="content-existing-button"
+                                    class="content-toggle-button flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium rounded-r-lg transition duration-200">
+                                    <span class="material-symbols-outlined">link</span>
+                                    <span>Link Existing</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Screen View Content (tabbed by Content toggle) -->
+                    <div
+                        class="flex-grow bg-[#0d0d0d] flex flex-col relative overflow-hidden group shadow-2xl min-h-0">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none hidden">
+                        </div>
+                        <div id="content-tab-custom"
+                            class="content-tab-panel flex-grow flex flex-col overflow-hidden relative z-10 min-h-0">
+                            <!-- Dashboard toolbar: theme + grid size -->
+                            <div class="flex items-center space-x-6 shrink-0 px-6 py-4 border-b border-gray-800">
+                                <div class="flex items-center space-x-4">
+                                    <span class="material-symbols-outlined text-gray-400" style="font-size: 20px;">dark_mode</span>
+                                    <div class="flex items-center">
+                                        <button id="screen-view-theme-dark-button" class="screen-view-theme-toggle-button bg-red-600 active text-white px-3 py-1.5 text-sm font-medium rounded-l-lg transition duration-200">Dark</button>
+                                        <button id="screen-view-theme-light-button" class="screen-view-theme-toggle-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium rounded-r-lg transition duration-200">Light</button>
+                                    </div>
+                                </div>
+                                <div class="h-8 border-l border-gray-800"></div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="material-symbols-outlined text-gray-400" style="font-size: 20px;">view_module</span>
+                                    <div class="screen-view-grid-units-toggle-buttons flex items-center">
+                                        <button id="screen-view-grid-unit-1-btn" class="screen-view-grid-unit-toggle-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium rounded-l-lg transition duration-200" data-grid-cols="1">1</button>
+                                        <button id="screen-view-grid-unit-2-btn" class="screen-view-grid-unit-toggle-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="2">2</button>
+                                        <button id="screen-view-grid-unit-4-btn" class="screen-view-grid-unit-toggle-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="4">4</button>
+                                        <button id="screen-view-grid-unit-6-btn" class="screen-view-grid-unit-toggle-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="6">6</button>
+                                        <button id="screen-view-grid-unit-8-btn" class="screen-view-grid-unit-toggle-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="8">8</button>
+                                        <button id="screen-view-grid-unit-10-btn" class="screen-view-grid-unit-toggle-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium transition duration-200" data-grid-cols="10">10</button>
+                                        <button id="screen-view-grid-unit-12-btn" class="screen-view-grid-unit-toggle-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 text-sm font-medium rounded-r-lg transition duration-200" data-grid-cols="12">12</button>
+                                    </div>
+                                </div>
+                                <div class="h-8 border-l border-gray-800"></div>
+                                <label class="flex items-center gap-2 cursor-pointer select-none" for="screen-view-filters-visibility-toggle">
+                                    <span class="toggle-switch">
+                                        <input type="checkbox" id="screen-view-filters-visibility-toggle">
+                                        <span class="toggle-slider"></span>
+                                    </span>
+                                    <span class="text-sm text-gray-300">Enable Screen Filters</span>
+                                </label>
+                            </div>
+                            <!-- Dashboard grid area -->
+                            <div class="flex-grow min-h-0 flex flex-col p-6 overflow-auto">
+                                <div id="screen-view-filters-section" class="hidden w-full mx-auto mb-6 pb-6 border-b border-gray-800">
+                                    <div class="flex justify-center">
+                                        <button class="text-sm bg-gray-700 text-white hover:bg-gray-600 py-1.5 px-3 pl-2 rounded-md transition duration-200 flex items-center space-x-1.5">
+                                            <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                                            <span>Filter</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="screen-view-dashboard-grid" class="flex-grow min-h-0 w-full">
+                                    <div id="screen-view-grid-guide-boxes-container"></div>
+                                </div>
+                                <!-- Add Component button -->
+                                <div class="command-room-nav bg-gray-700 rounded-lg flex items-center space-x-2 p-2">
+                                    <button id="screen-view-add-component-button" class="text-sm bg-gray-700 text-white hover:bg-gray-600 py-1.5 px-3 pl-2 rounded-md transition duration-200 flex items-center space-x-1.5">
+                                        <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                                        <span>Component</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="content-tab-existing"
+                            class="content-tab-panel hidden flex-grow flex flex-col items-center justify-center overflow-auto relative z-10">
+                            <div class="text-center space-y-6">
+                                <span class="material-symbols-outlined text-gray-600 opacity-30 block" style="font-size: 80px;">link</span>
+                                <p class="text-gray-400 text-base">Link an existing Story or Dashboard from your workspace.</p>
+                                <div class="flex justify-center">
+                                    <button id="link-existing-content-button" class="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-200">
+                                        <span class="material-symbols-outlined text-lg">link</span>
+                                        <span>Link Existing Content</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Add Screen Modal -->
+    <div id="add-screen-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50 hidden p-10">
+        <form id="screen-form" class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-h-full max-w-[680px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-white" id="screen-modal-title">Add Screen</h2>
+                    <button id="close-add-screen-modal" type="button"
+                        class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4">
+                <!-- Screen Name -->
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label for="screen-name-input" class="block text-sm font-medium text-gray-300">Screen Name
+                            <span class="text-red-500">*</span></label>
+                        <span id="screen-name-counter" class="text-xs text-gray-400">0/20</span>
+                    </div>
+                    <input type="text" id="screen-name-input" required maxlength="20"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-md text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 transition duration-200"
+                        placeholder="Enter name">
+                </div>
+
+                <!-- Resolution -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Resolution</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="resolution-selector">
+                        <!-- Buttons will be generated or managed via JS, but hardcoding for structure clarity can be better. Let's hardcode the initial structure and manage state with JS. -->
+                        <button type="button" data-value="8K"
+                            class="resolution-btn bg-blue-900 border border-blue-500 text-white px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-start justify-center">
+                            <span class="font-medium">8K</span>
+                            <span class="text-xs opacity-70">7680 × 4320</span>
+                        </button>
+                        <button type="button" data-value="6K"
+                            class="resolution-btn bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-start justify-center">
+                            <span class="font-medium">6K</span>
+                            <span class="text-xs opacity-70">6144 × 3456</span>
+                        </button>
+                        <button type="button" data-value="5K"
+                            class="resolution-btn bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-start justify-center">
+                            <span class="font-medium">5K</span>
+                            <span class="text-xs opacity-70">5120 × 2880</span>
+                        </button>
+                        <button type="button" data-value="4K"
+                            class="resolution-btn bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-start justify-center">
+                            <span class="font-medium">4K</span>
+                            <span class="text-xs opacity-70">3840 × 2160</span>
+                        </button>
+                        <button type="button" data-value="2K"
+                            class="resolution-btn bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-start justify-center">
+                            <span class="font-medium">2K</span>
+                            <span class="text-xs opacity-70">2560 × 1440</span>
+                        </button>
+                        <button type="button" data-value="Full HD"
+                            class="resolution-btn bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-start justify-center">
+                            <span class="font-medium">Full HD</span>
+                            <span class="text-xs opacity-70">1920 × 1080</span>
+                        </button>
+                        <button type="button" data-value="HD"
+                            class="resolution-btn bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-start justify-center">
+                            <span class="font-medium">HD</span>
+                            <span class="text-xs opacity-70">1280 × 720</span>
+                        </button>
+                        <button type="button" data-value="Custom"
+                            class="resolution-btn bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-start justify-center">
+                            <span class="font-medium">Custom</span>
+                            <span class="text-xs opacity-70">Define size</span>
+                        </button>
+                    </div>
+
+                    <!-- Custom Resolution Fields -->
+                    <div id="custom-resolution-fields"
+                        class="grid grid-cols-2 gap-4 mt-3 hidden pl-3 border-l border-gray-600">
+                        <div>
+                            <label for="custom-width" class="block text-sm font-medium text-gray-300 mb-2">Width
+                                (px)</label>
+                            <input type="number" id="custom-width"
+                                class="w-full bg-gray-800 border border-gray-600 rounded-md text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                                placeholder="Enter width">
+                        </div>
+                        <div>
+                            <label for="custom-height" class="block text-sm font-medium text-gray-300 mb-2">Height
+                                (px)</label>
+                            <input type="number" id="custom-height"
+                                class="w-full bg-gray-800 border border-gray-600 rounded-md text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                                placeholder="Enter height">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orientation -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Orientation</label>
+                    <div class="flex space-x-2" id="orientation-selector">
+                        <button type="button" data-value="Horizontal"
+                            class="orientation-btn flex-1 bg-blue-900 border border-blue-500 text-white px-3 py-2 rounded-md text-sm transition duration-200 flex items-center justify-center">
+                            <span class="material-symbols-outlined mr-2">crop_landscape</span>
+                            Horizontal
+                        </button>
+                        <button type="button" data-value="Vertical"
+                            class="orientation-btn flex-1 bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm transition duration-200 flex items-center justify-center">
+                            <span class="material-symbols-outlined mr-2">crop_portrait</span>
+                            Vertical
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-700 flex justify-end space-x-3">
+                <button type="button" id="cancel-add-screen"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium">
+                    Cancel
+                </button>
+                <button type="submit" id="confirm-add-screen" disabled
+                    class="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium shadow-md">
+                    <span id="confirm-screen-btn-text">Add Screen</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-screen-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50 hidden p-10">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-[520px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-white">Delete Screen</h2>
+                    <button id="close-delete-modal" type="button"
+                        class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <p>Are you sure you want to delete this screen?</p>
+                <p class="mt-2">This action cannot be undone.</p>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-700 flex justify-end space-x-3">
+                <button type="button" id="cancel-delete-screen"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium">
+                    Cancel
+                </button>
+                <button type="button" id="confirm-delete-screen"
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium shadow-md">
+                    Delete Screen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revert Changes Confirmation Modal -->
+    <div id="revert-changes-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50 hidden p-10">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-[520px] flex flex-col">
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-white">Revert Changes</h2>
+                    <button id="close-revert-modal" type="button"
+                        class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <p>Are you sure you want to revert? All unsaved changes will be discarded.</p>
+            </div>
+            <div class="p-6 border-t border-gray-700 flex justify-end space-x-3">
+                <button type="button" id="cancel-revert-btn"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium">
+                    Cancel
+                </button>
+                <button type="button" id="confirm-revert-btn"
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium shadow-md">
+                    Revert
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Situation Confirmation Modal -->
+    <div id="delete-situation-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50 hidden p-10">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-[520px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-white">Delete Situation</h2>
+                    <button id="close-delete-situation-modal" type="button"
+                        class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <p>Are you sure you want to delete the situation "<span id="delete-situation-name"
+                        class="font-semibold text-white"></span>"?</p>
+                <p class="mt-2">This action cannot be undone.</p>
+
+                <!-- Active Situation Deletion Warning/Selector -->
+                <div id="delete-active-situation-info"
+                    class="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 hidden">
+                    <p id="delete-active-situation-message" class="text-sm text-gray-300"></p>
+
+                    <div id="next-active-situation-selector" class="mt-4 hidden relative">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Please select the situation you want
+                            to be active after the deletion:</label>
+
+                        <!-- Custom Select Wrapper -->
+                        <div class="relative">
+                            <button type="button" id="next-active-situation-custom-select"
+                                class="w-full bg-gray-900 border border-gray-700 rounded-md text-white px-3 py-2 text-sm text-left flex items-center justify-between hover:border-gray-500 transition duration-200">
+                                <span id="next-active-situation-selected-name">Select situation</span>
+                                <span class="material-symbols-outlined text-gray-500">expand_more</span>
+                            </button>
+
+                            <div id="next-active-situation-options-menu"
+                                class="options-dropdown-menu hidden absolute left-0 right-0 mt-1 max-h-48 overflow-y-auto z-50 shadow-2xl bg-gray-800 border border-gray-700 rounded-md py-1">
+                                <!-- Options will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-700 flex justify-end space-x-3">
+                <button type="button" id="cancel-delete-situation"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium">
+                    Cancel
+                </button>
+                <button type="button" id="confirm-delete-situation"
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium shadow-md">
+                    Delete Situation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Situation Modal -->
+    <div id="add-situation-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50 hidden p-10">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-[520px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-white" id="add-situation-modal-title">Add Situation</h2>
+                    <button id="close-add-situation-modal" type="button"
+                        class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <form id="situation-form" class="flex flex-col">
+                <div class="p-6 space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label for="situation-name-input" class="block text-sm font-medium text-gray-300">Situation
+                                Name
+                                <span class="text-red-500">*</span></label>
+                            <span id="situation-name-counter" class="text-xs text-gray-400">0/20</span>
+                        </div>
+                        <input type="text" id="situation-name-input" required maxlength="20"
+                            class="w-full bg-gray-800 border border-gray-700 rounded-md text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500 transition duration-200"
+                            placeholder="Enter situation name">
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="p-6 border-t border-gray-700 flex justify-end space-x-3">
+                    <button type="button" id="cancel-add-situation"
+                        class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" id="confirm-add-situation"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium shadow-md">
+                        <span id="add-situation-submit-text">Add Situation</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Change Active Situation Confirmation Modal -->
+    <div id="change-active-situation-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50 hidden p-10">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-[520px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-white">Change Active Situation</h2>
+                    <button id="close-change-active-situation-modal" type="button"
+                        class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <p>Are you sure you want to change the active situation to "<span id="new-active-situation-name"
+                        class="font-semibold text-white"></span>"?</p>
+                <p class="mt-2 text-gray-400">This will change the content currently being presented on the command room
+                    screens.</p>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-700 flex justify-end space-x-3">
+                <button type="button" id="cancel-change-active-situation"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium">
+                    Cancel
+                </button>
+                <button type="button" id="confirm-change-active-situation"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md transition duration-200 text-sm font-medium shadow-md">
+                    Change Situation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen View Component Browser Modal -->
+    <div id="screen-view-component-browser-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start p-10 z-[150] hidden">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-w-4xl max-h-[90vh] flex flex-col">
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-white">Component Browser</h2>
+                    <button id="screen-view-close-component-browser" class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="screen-view-component-list">
+                    <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="bar-chart">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">bar_chart</span>
+                            <h3 class="text-white font-semibold">Bar Chart</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm">Display data in vertical or horizontal bars</p>
+                    </div>
+                    <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="line-chart">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">show_chart</span>
+                            <h3 class="text-white font-semibold">Line Chart</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm">Display trends over time</p>
+                    </div>
+                    <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="pie-chart">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">pie_chart</span>
+                            <h3 class="text-white font-semibold">Pie Chart</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm">Display proportional data</p>
+                    </div>
+                    <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="table">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">table_chart</span>
+                            <h3 class="text-white font-semibold">Table</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm">Display data in tabular format</p>
+                    </div>
+                    <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="metric">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">analytics</span>
+                            <h3 class="text-white font-semibold">Metric</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm">Display a single key metric</p>
+                    </div>
+                    <div class="component-card bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-4 cursor-pointer transition duration-200" data-component-type="gauge">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <span class="material-symbols-outlined text-red-400" style="font-size: 24px;">speed</span>
+                            <h3 class="text-white font-semibold">Gauge</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm">Display progress or performance metrics</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-700">
+                <div class="flex justify-end">
+                    <button type="button" id="screen-view-cancel-component-browser" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/link-existing-content-modal.js"></script>
+    <script src="../js/ai-chat.js"></script>
+
+    <script>
+        console.log("Script loaded and starting..."); // Added for debugging
+
+        // Utility for toggling dropdowns with mutual exclusivity
+        function setupDropdown(buttonId, menuId, otherMenuId) {
+            const button = document.getElementById(buttonId);
+            const menu = document.getElementById(menuId);
+            const otherMenu = otherMenuId ? document.getElementById(otherMenuId) : null;
+
+            if (button && menu) {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent document click from immediately closing
+                    const wasHidden = menu.classList.contains('hidden');
+
+                    // Close the other dropdown if it exists
+                    if (otherMenu && !otherMenu.classList.contains('hidden')) {
+                        otherMenu.classList.add('hidden');
+                    }
+
+                    // Toggle this dropdown
+                    if (wasHidden) {
+                        menu.classList.remove('hidden');
+                    } else {
+                        menu.classList.add('hidden');
+                    }
+                });
+
+                // Close dropdown if clicked outside
+                document.addEventListener('click', (event) => {
+                    if (!button.contains(event.target) && !menu.contains(event.target)) {
+                        menu.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+
+        // Custom message box function instead of alert()
+        function alertMessage(message, type = "info") {
+            const container = document.getElementById('crimson-app');
+            let messageBox = document.getElementById('message-box');
+
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'message-box';
+                messageBox.className = 'fixed bottom-8 left-8 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 transform scale-0 opacity-0';
+                container.appendChild(messageBox);
+            }
+
+            // Set styles based on type
+            let bgColor = '';
+            switch (type) {
+                case 'success':
+                    bgColor = 'bg-green-500';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-500';
+                    break;
+                case 'info':
+                default:
+                    bgColor = 'bg-blue-500';
+                    break;
+            }
+
+            messageBox.className = `fixed bottom-8 left-8 p-3 rounded-lg shadow-lg text-white font-medium z-50 transition-all duration-300 ${bgColor}`;
+            messageBox.textContent = message;
+
+            // Show animation
+            setTimeout(() => {
+                messageBox.classList.remove('scale-0', 'opacity-0');
+                messageBox.classList.add('scale-100', 'opacity-100');
+            }, 50);
+
+            // Hide animation after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.remove('scale-100', 'opacity-100');
+                messageBox.classList.add('scale-0', 'opacity-0');
+                // Remove message box from DOM after transition
+                messageBox.addEventListener('transitionend', function handler() {
+                    if (messageBox.parentNode) {
+                        messageBox.parentNode.removeChild(messageBox);
+                    }
+                    messageBox.removeEventListener('transitionend', handler);
+                });
+            }, 3000);
+        }
+
+        if (window.initLinkExistingContentModal) {
+            window.initLinkExistingContentModal();
+        }
+
+        // Card Options Dropdown functionality
+        let openDropdownMenu = null;
+
+        document.addEventListener('click', (event) => {
+            if (openDropdownMenu) {
+                const targetButton = document.querySelector(`[data-dropdown-id="${openDropdownMenu.dataset.dropdownId}"]`);
+                // If it's a screen dropdown, it might not have a data-dropdown-id on a pre-existing query
+                // So we check if the click was outside the menu and its button
+                const isClickInsideMenu = openDropdownMenu.contains(event.target);
+                const isClickInsideButton = targetButton && targetButton.contains(event.target);
+
+                // For screen/nav menus, we check by class/closest since they are dynamic
+                const isDynamicButton = event.target.closest('.screen-options-btn') || event.target.closest('.nav-options-btn');
+
+                if (!isClickInsideMenu && !isClickInsideButton && !isDynamicButton) {
+                    openDropdownMenu.classList.add('hidden');
+                    openDropdownMenu = null;
+                }
+            }
+        });
+
+        let dropdownCounter = 0;
+
+        function toggleDropdown(button, menu) {
+            if (openDropdownMenu && openDropdownMenu !== menu) {
+                openDropdownMenu.classList.add('hidden');
+            }
+
+            if (!button.dataset.dropdownId) {
+                button.dataset.dropdownId = `dropdown-${dropdownCounter++}`;
+            }
+            menu.dataset.dropdownId = button.dataset.dropdownId;
+
+            const wasHidden = menu.classList.contains('hidden');
+            if (!wasHidden) {
+                menu.classList.add('hidden');
+                openDropdownMenu = null;
+                return;
+            }
+
+            // Temporarily show to measure
+            menu.classList.remove('hidden');
+            const menuWidth = menu.offsetWidth;
+            const menuHeight = menu.offsetHeight;
+            menu.classList.add('hidden');
+
+            document.body.appendChild(menu);
+
+            const buttonRect = button.getBoundingClientRect();
+            menu.style.position = 'absolute';
+            menu.style.left = `${buttonRect.left + buttonRect.width + window.scrollX - menuWidth}px`;
+
+            if (menu.classList.contains('bottom')) {
+                menu.style.top = `${buttonRect.top + window.scrollY - menuHeight}px`;
+            } else {
+                menu.style.top = `${buttonRect.bottom + window.scrollY + 5}px`;
+            }
+            menu.style.bottom = '';
+            menu.style.zIndex = '1000'; // Ensure it's above everything
+
+            menu.classList.remove('hidden');
+            openDropdownMenu = menu;
+        }
+
+        document.querySelectorAll('.options-dropdown-button').forEach(button => {
+            const menu = button.nextElementSibling;
+            if (menu && menu.classList.contains('options-dropdown-menu')) {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    toggleDropdown(button, menu);
+                });
+            }
+        });
+
+
+        // Update all story cards with random sections on load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.story-card-container .num-sections').forEach(span => {
+                span.textContent = `${getRandomInt(12, 20)} Sections`;
+            });
+            // Initial check for scroll button visibility on load
+            updateScrollButtons();
+        });
+
+        // Workspace Horizontal Scrolling Logic
+        const workspaceButtonsContainer = document.getElementById('workspace-buttons-container');
+        const workspaceLeftGradientOverlay = document.getElementById('workspace-left-gradient-overlay');
+        const workspaceRightGradientOverlay = document.getElementById('workspace-right-gradient-overlay');
+
+        const scrollStep = 150; // Pixels to scroll per arrow click
+        const scrollEndTolerance = 5; // Pixels from end to consider it "at the end" for hiding overlays
+
+        // Function to update the hidden state of scroll buttons
+        function updateScrollButtons() {
+            if (!workspaceButtonsContainer || !workspaceLeftGradientOverlay || !workspaceRightGradientOverlay) return;
+
+            const { scrollLeft, scrollWidth, clientWidth } = workspaceButtonsContainer;
+            const maxScrollLeft = scrollWidth - clientWidth;
+
+            const isScrollable = scrollWidth > clientWidth;
+
+            // Determine if at the left or right end with tolerance
+            const atLeftEnd = scrollLeft <= scrollEndTolerance;
+            const atRightEnd = scrollLeft >= (maxScrollLeft - scrollEndTolerance);
+
+            // Hide/show left gradient overlay for WORKSPACE
+            workspaceLeftGradientOverlay.classList.toggle('hidden', !isScrollable || atLeftEnd);
+            workspaceLeftGradientOverlay.style.pointerEvents = (!isScrollable || atLeftEnd) ? 'none' : 'all';
+
+            // Hide/show right gradient overlay for WORKSPACE
+            workspaceRightGradientOverlay.classList.toggle('hidden', !isScrollable || atRightEnd);
+            workspaceRightGradientOverlay.style.pointerEvents = (!isScrollable || atRightEnd) ? 'none' : 'all';
+        }
+
+        // Event listeners for arrow buttons
+        document.getElementById('scroll-left-button').addEventListener('click', () => {
+            workspaceButtonsContainer.scrollBy({
+                left: -scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        document.getElementById('scroll-right-button').addEventListener('click', () => {
+            workspaceButtonsContainer.scrollBy({
+                left: scrollStep,
+                behavior: 'smooth'
+            });
+        });
+
+        // Add scroll event listener to update buttons when scrolling
+        workspaceButtonsContainer.addEventListener('scroll', updateScrollButtons);
+
+        // Recalculate button states on window resize.
+        window.addEventListener('resize', updateScrollButtons);
+
+        // Workspace Navbar sticky behavior on scroll
+        const workspaceNavBar = document.getElementById('workspace-nav-bar');
+        let lastScrollY = 0;
+        const mainHeader = document.querySelector('header');
+
+        // Initial update of --header-height CSS variable
+        document.documentElement.style.setProperty('--header-height', `${mainHeader.offsetHeight}px`);
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const headerHeight = mainHeader.offsetHeight;
+
+            // Update the CSS variable for sticky-nav top calculation
+            document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+
+            // Check if scrolling past the header
+            if (currentScrollY > headerHeight) {
+                if (currentScrollY > lastScrollY) {
+                    // Scrolling down
+                    workspaceNavBar.classList.add('hidden-up');
+                } else {
+                    // Scrolling up
+                    workspaceNavBar.classList.remove('hidden-up');
+                }
+            } else {
+                // At or near the top, always show the nav bar
+                workspaceNavBar.classList.remove('hidden-up');
+            }
+            lastScrollY = currentScrollY;
+        });
+
+        // Also update header height on resize in case it changes dynamically
+        window.addEventListener('resize', () => {
+            document.documentElement.style.setProperty('--header-height', `${mainHeader.offsetHeight}px`);
+            updateScrollButtons(); // Re-check horizontal scroll buttons too
+        });
+
+        // Edit/View Mode Toggle Functionality
+        let editMode = true; // Default to edit mode
+
+        // Function to update the mode state and UI
+        function updateModeState() {
+            if (editMode) {
+                document.body.classList.remove('view-mode');
+                document.body.classList.add('edit-mode');
+            } else {
+                document.body.classList.remove('edit-mode');
+                document.body.classList.add('view-mode');
+            }
+
+            // Update header height CSS variable after mode change
+            // Use requestAnimationFrame to ensure DOM has updated before measuring
+            requestAnimationFrame(() => {
+                const header = document.querySelector('header');
+                if (header) {
+                    document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`);
+                }
+            });
+
+            // Update all "Switch to View Mode" / "Switch to Edit Mode" labels
+            document.querySelectorAll('.mode-toggle-link').forEach(link => {
+                link.textContent = editMode ? 'Switch to View Mode' : 'Switch to Edit Mode';
+            });
+        }
+
+        // Function to attach event listeners to mode toggle links
+        function attachModeToggleListeners() {
+            document.querySelectorAll('.mode-toggle-link').forEach(link => {
+                // Check if listener already attached
+                if (link.dataset.modeToggleListener === 'attached') {
+                    return;
+                }
+
+                // Mark as attached
+                link.dataset.modeToggleListener = 'attached';
+
+                // Add click listener directly to the link
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation(); // Stop before other handlers
+                    editMode = !editMode;
+                    updateModeState();
+                    // Close the dropdown menu
+                    const menu = link.closest('.options-dropdown-menu');
+                    if (menu) {
+                        menu.classList.add('hidden');
+                    }
+                }, true); // Use capture phase to run before other handlers
+            });
+        }
+
+        // Initialize mode state when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                updateModeState();
+                attachModeToggleListeners();
+            });
+        } else {
+            updateModeState();
+            attachModeToggleListeners();
+        }
+
+        // Adapt Dashboard toggle functionality
+        let isAdaptMode = false; // Track whether showing "Adapt Dashboard to Device" or "View as Designed"
+
+        function attachAdaptDashboardToggleListener() {
+            const adaptLink = document.getElementById('adapt-dashboard-toggle-link');
+            if (!adaptLink) {
+                return;
+            }
+
+            // Check if listener already attached
+            if (adaptLink.dataset.adaptToggleListener === 'attached') {
+                return;
+            }
+
+            // Mark as attached
+            adaptLink.dataset.adaptToggleListener = 'attached';
+
+            // Add click listener
+            adaptLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                // Toggle the state
+                isAdaptMode = !isAdaptMode;
+
+                // Update the text
+                adaptLink.textContent = isAdaptMode ? 'View as Designed' : 'Adapt Dashboard to Device';
+
+                // Close the dropdown menu
+                const menu = adaptLink.closest('.options-dropdown-menu');
+                if (menu) {
+                    menu.classList.add('hidden');
+                }
+            }, true);
+        }
+
+        // Initialize adapt dashboard toggle listener
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                attachAdaptDashboardToggleListener();
+            });
+        } else {
+            attachAdaptDashboardToggleListener();
+        }
+
+        // Re-attach listeners when menus are moved to body (using MutationObserver)
+        const observer = new MutationObserver(() => {
+            attachModeToggleListeners();
+            attachAdaptDashboardToggleListener();
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+
+        // -------------------------------------------------------------------------
+        // Add Screen Modal Logic
+        // -------------------------------------------------------------------------
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('screens-canvas');
+            const addScreenModal = document.getElementById('add-screen-modal');
+            const screenForm = document.getElementById('screen-form');
+            const closeAddScreenModalBtn = document.getElementById('close-add-screen-modal');
+            const cancelAddScreenBtn = document.getElementById('cancel-add-screen');
+            const confirmAddScreenBtn = document.getElementById('confirm-add-screen');
+            const addScreenTriggers = document.querySelectorAll('.add-screen-trigger');
+
+            const screenNameInput = document.getElementById('screen-name-input');
+            const resolutionButtons = document.querySelectorAll('.resolution-btn');
+            const orientationButtons = document.querySelectorAll('.orientation-btn');
+            const customResolutionFields = document.getElementById('custom-resolution-fields');
+            const customWidthInput = document.getElementById('custom-width');
+            const customHeightInput = document.getElementById('custom-height');
+
+            let selectedResolution = '8K';
+            let selectedOrientation = 'Horizontal';
+
+            // ... (rest of the file)
+
+            let isEditMode = false;
+            let currentEditCard = null;
+
+            // Functions to manage Button States
+            function updateButtonStyles(buttons, selectedValue) {
+                buttons.forEach(btn => {
+                    const value = btn.dataset.value;
+                    if (value === selectedValue) {
+                        // Selected Style
+                        btn.className = 'content-btn flex-1 bg-blue-900 border border-blue-500 text-white px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-center justify-center';
+                    } else {
+                        // Deselected Style
+                        btn.className = 'content-btn flex-1 bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm transition duration-200 flex flex-col items-center justify-center';
+                    }
+                });
+            }
+
+            // Updated Open Modal to Reset Content
+            let editingScreenId = null;
+
+            function openAddScreenModal() {
+                screenForm.reset();
+                const title = document.getElementById('screen-modal-title');
+                const btnText = document.getElementById('confirm-screen-btn-text');
+                const submitBtn = document.getElementById('confirm-add-screen');
+                const screenNameCounter = document.getElementById('screen-name-counter');
+
+                if (title) title.textContent = 'Add Screen';
+                if (btnText) btnText.textContent = 'Add Screen';
+                if (submitBtn) submitBtn.disabled = true;
+                if (screenNameCounter) screenNameCounter.textContent = '0/20';
+
+                // Reset Resolution/Orientation Styles (defaults)
+                selectedResolution = '8K';
+                updateButtonStyles(document.querySelectorAll('.resolution-btn'), selectedResolution);
+                const customFields = document.getElementById('custom-resolution-fields');
+                if (customFields) customFields.classList.add('hidden');
+
+                selectedOrientation = 'Horizontal';
+                updateButtonStyles(document.querySelectorAll('.orientation-btn'), selectedOrientation);
+
+                editingScreenId = null;
+                addScreenModal.classList.remove('hidden');
+                screenNameInput.focus();
+            }
+
+            function openConfigureModal(card) {
+                screenForm.reset();
+                const title = document.getElementById('screen-modal-title');
+                const btnText = document.getElementById('confirm-screen-btn-text');
+                const submitBtn = document.getElementById('confirm-add-screen');
+                const screenNameCounter = document.getElementById('screen-name-counter');
+
+                if (title) title.textContent = 'Configure Screen';
+                if (btnText) btnText.textContent = 'Save Changes';
+                if (submitBtn) submitBtn.disabled = false;
+
+                // Prefill Screen Name
+                editingScreenId = card.id;
+                screenNameInput.value = card.dataset.name || '';
+                if (screenNameCounter) screenNameCounter.textContent = `${screenNameInput.value.length}/20`;
+
+                // Prefill Resolution
+                const res = card.dataset.resolution || '8K';
+                selectedResolution = res;
+                updateButtonStyles(resolutionButtons, selectedResolution);
+                const customFields = document.getElementById('custom-resolution-fields');
+                if (res === 'Custom') {
+                    if (customFields) customFields.classList.remove('hidden');
+                    const customW = card.dataset.customWidth || card.dataset.width || '';
+                    const customH = card.dataset.customHeight || card.dataset.height || '';
+                    if (customWidthInput) customWidthInput.value = customW;
+                    if (customHeightInput) customHeightInput.value = customH;
+                } else {
+                    if (customFields) customFields.classList.add('hidden');
+                }
+
+                // Prefill Orientation
+                const orient = card.dataset.orientation || 'Horizontal';
+                selectedOrientation = orient;
+                updateButtonStyles(orientationButtons, selectedOrientation);
+
+                addScreenModal.classList.remove('hidden');
+                screenNameInput.focus();
+            }
+
+            // Input Listener for Counter and Validation
+            if (screenNameInput) {
+                screenNameInput.addEventListener('input', () => {
+                    const counter = document.getElementById('screen-name-counter');
+                    if (counter) {
+                        counter.textContent = `${screenNameInput.value.length}/20`;
+                    }
+                    const submitBtn = document.getElementById('confirm-add-screen');
+                    if (submitBtn) {
+                        submitBtn.disabled = screenNameInput.value.trim() === '';
+                    }
+                });
+            }
+
+            // Close Modal
+            function closeAddScreenModal() {
+                addScreenModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                resetForm();
+            }
+
+            // Reset Form
+            function resetForm() {
+                screenNameInput.value = '';
+                selectedResolution = '8K';
+                selectedOrientation = 'Horizontal';
+                customWidthInput.value = '';
+                customHeightInput.value = '';
+
+                updateButtonStyles(resolutionButtons, selectedResolution);
+                updateButtonStyles(orientationButtons, selectedOrientation);
+                customResolutionFields.classList.add('hidden');
+                validateForm();
+            }
+
+            // Validation Logic
+            function validateForm() {
+                const isFormValid = screenForm.checkValidity();
+                let customResValid = true;
+
+                if (selectedResolution === 'Custom') {
+                    const w = parseInt(customWidthInput.value);
+                    const h = parseInt(customHeightInput.value);
+                    customResValid = !isNaN(w) && w > 0 && !isNaN(h) && h > 0;
+                }
+
+                if (isFormValid && customResValid) {
+                    confirmAddScreenBtn.removeAttribute('disabled');
+                    confirmAddScreenBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    confirmAddScreenBtn.setAttribute('disabled', 'true');
+                    confirmAddScreenBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+                return isFormValid && customResValid;
+            }
+
+            // Event Listeners for Opening Modal
+            addScreenTriggers.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openAddScreenModal();
+                });
+            });
+
+            // Close/Cancel Listeners
+            if (closeAddScreenModalBtn) closeAddScreenModalBtn.addEventListener('click', closeAddScreenModal);
+            if (cancelAddScreenBtn) cancelAddScreenBtn.addEventListener('click', closeAddScreenModal);
+
+            // Close on click outside
+            addScreenModal.addEventListener('click', (e) => {
+                if (e.target === addScreenModal) closeAddScreenModal();
+            });
+
+            // Resolution Selection
+            resolutionButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedResolution = btn.dataset.value;
+                    updateButtonStyles(resolutionButtons, selectedResolution);
+
+                    if (selectedResolution === 'Custom') {
+                        customResolutionFields.classList.remove('hidden');
+                    } else {
+                        customResolutionFields.classList.add('hidden');
+                    }
+                    validateForm();
+                });
+            });
+
+            // Orientation Selection
+            orientationButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedOrientation = btn.dataset.value;
+                    updateButtonStyles(orientationButtons, selectedOrientation);
+                });
+            });
+
+            // Input Listeners for Validation
+            screenNameInput.addEventListener('input', validateForm);
+            customWidthInput.addEventListener('input', validateForm);
+            customHeightInput.addEventListener('input', validateForm);
+
+            // Handle Form Submission (Add/Configure)
+            screenForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                if (!validateForm()) return;
+
+                const name = screenNameInput.value.trim();
+                let width, height;
+
+                if (selectedResolution === 'Custom') {
+                    width = parseInt(customWidthInput.value);
+                    height = parseInt(customHeightInput.value);
+                } else {
+                    const resMap = {
+                        'HD': { w: 1280, h: 720 },
+                        'Full HD': { w: 1920, h: 1080 },
+                        '2K': { w: 2560, h: 1440 },
+                        '4K': { w: 3840, h: 2160 },
+                        '5K': { w: 5120, h: 2880 },
+                        '6K': { w: 6144, h: 3456 },
+                        '8K': { w: 7680, h: 4320 }
+                    };
+                    const res = resMap[selectedResolution] || resMap['HD'];
+                    width = res.w;
+                    height = res.h;
+                }
+
+                if (selectedOrientation === 'Vertical') {
+                    [width, height] = [height, width];
+                }
+
+                if (editingScreenId) {
+                    const card = document.getElementById(editingScreenId);
+                    if (card) {
+                        updateScreenCard(card, name, width, height, selectedResolution, selectedOrientation);
+                        if (typeof updateScreenViewHeaderFromCard === 'function') {
+                            updateScreenViewHeaderFromCard(card);
+                        }
+                        alertMessage(`Screen "${name}" updated`, "success");
+                    }
+                } else {
+                    addScreenCard(name, width, height, selectedResolution, selectedOrientation);
+                    alertMessage(`Screen "${name}" added`, "success");
+                }
+
+                closeAddScreenModal();
+            });
+
+
+            // -------------------------------------------------------------------------
+            // Delete Screen Modal Logic
+            // -------------------------------------------------------------------------
+            const deleteScreenModal = document.getElementById('delete-screen-modal');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-screen');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-screen');
+            let cardToDelete = null;
+
+            function openDeleteModal(card) {
+                cardToDelete = card;
+                if (!cardToDelete) return;
+                deleteScreenModal.classList.remove('hidden');
+            }
+
+            function closeDeleteModal() {
+                deleteScreenModal.classList.add('hidden');
+                cardToDelete = null;
+            }
+
+            const closeDeleteModalBtn = document.getElementById('close-delete-modal');
+
+            if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+            if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
+
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', () => {
+                    if (cardToDelete) {
+                        const id = cardToDelete.id;
+                        const wasOpenedScreen = lastOpenedCard && lastOpenedCard.id === id;
+                        cardToDelete.remove();
+
+                        // Also remove corresponding nav item
+                        const navItem = document.getElementById(`nav-item-${id}`);
+                        if (navItem) navItem.remove();
+
+                        adjustCanvasHeight(); // Recalculate height
+                        if (wasOpenedScreen && typeof closeScreenView === 'function') {
+                            closeScreenView();
+                        }
+                        alertMessage('Screen deleted successfully.', 'info');
+                    }
+                    closeDeleteModal();
+                });
+            }
+
+            // Close delete modal on click outside
+            deleteScreenModal.addEventListener('click', (e) => {
+                if (e.target === deleteScreenModal) closeDeleteModal();
+            });
+
+            // -------------------------------------------------------------------------
+            // Placement & Height Helpers
+            // -------------------------------------------------------------------------
+            function adjustCanvasHeight() {
+                const margin = 300;
+                let maxY = 0;
+
+                Array.from(canvas.children).forEach(el => {
+                    const top = parseFloat(el.style.top) || 0;
+                    const height = el.offsetHeight || 0;
+                    if (top + height > maxY) {
+                        maxY = top + height;
+                    }
+                });
+
+                // Set a minimum height if needed, otherwise just maxY + margin
+                const newHeight = Math.max(800, maxY + margin);
+                canvas.style.height = `${newHeight}px`;
+            }
+
+            // Initial call and on resize
+            adjustCanvasHeight();
+            window.addEventListener('resize', adjustCanvasHeight);
+
+            function findSmartPosition(width, height) {
+                const margin = 20; // minimal gap
+                const startX = 50;
+                const startY = 50;
+                // Use a fallback width if canvas isn't rendered or is zero width
+                const canvasW = canvas.clientWidth || window.innerWidth;
+
+                // 1. Gather all existing rects
+                const existingRects = Array.from(canvas.children).map(el => {
+                    const l = parseFloat(el.style.left) || 0;
+                    const t = parseFloat(el.style.top) || 0;
+                    return {
+                        left: l,
+                        top: t,
+                        right: l + el.offsetWidth,
+                        bottom: t + el.offsetHeight
+                    };
+                });
+
+                let x = startX;
+                let y = startY;
+                let safety = 0;
+
+                // 2. Scan for a valid spot
+                while (safety < 10000) { // Safety break
+                    const candidate = {
+                        left: x,
+                        top: y,
+                        right: x + width,
+                        bottom: y + height
+                    };
+
+                    // Check for overlap
+                    const collision = existingRects.find(r => checkRectOverlap(candidate, r));
+
+                    if (!collision) {
+                        return { x, y }; // Found a free spot!
+                    }
+
+                    // Collision detected: Move X past this obstacle
+                    x = collision.right + margin;
+
+                    // If we go off the right edge, wrap to next "row"
+                    if (x + width > canvasW) {
+                        x = startX;
+                        y += 20; // Scan line step
+                    }
+
+                    safety++;
+                }
+
+                return { x: startX + 20, y: startY + 20 };
+            }
+
+            function checkRectOverlap(r1, r2) {
+                return !(r2.left >= r1.right ||
+                    r2.right <= r1.left ||
+                    r2.top >= r1.bottom ||
+                    r2.bottom <= r1.top);
+            }
+
+            // -------------------------------------------------------------------------
+            // Full Screen View Logic
+            // -------------------------------------------------------------------------
+            const fullScreenView = document.getElementById('full-screen-view');
+            const canvasContainer = document.getElementById('command-room-canvas-container');
+            const allScreensNavItem = document.getElementById('all-screens-nav-item');
+            const screenViewTitle = document.getElementById('screen-view-title');
+            const screenViewSubtitle = document.getElementById('screen-view-subtitle');
+            const contentCustomButton = document.getElementById('content-custom-button');
+            const contentExistingButton = document.getElementById('content-existing-button');
+            let lastOpenedCard = null;
+            let contentMode = 'custom'; // 'custom' or 'existing'
+            const SCREEN_NAME_MAX_LENGTH = 20;
+
+            function getScreenViewSanitizedName(raw) {
+                if (!raw) return '';
+                return raw.replace(/\s+/g, ' ').trim().slice(0, SCREEN_NAME_MAX_LENGTH);
+            }
+
+            function commitScreenViewTitleEdit() {
+                if (!screenViewTitle || !lastOpenedCard) return;
+                const currentName = (lastOpenedCard.dataset.name || 'Screen').trim();
+                const editedName = getScreenViewSanitizedName(screenViewTitle.textContent || '');
+                if (!editedName) {
+                    screenViewTitle.textContent = currentName;
+                    return;
+                }
+                screenViewTitle.textContent = editedName;
+                if (editedName === currentName) return;
+                const width = parseInt(lastOpenedCard.dataset.width, 10) || 1920;
+                const height = parseInt(lastOpenedCard.dataset.height, 10) || 1080;
+                const resolutionLabel = lastOpenedCard.dataset.resolution || 'Full HD';
+                const orientation = lastOpenedCard.dataset.orientation || 'Horizontal';
+                updateScreenCard(lastOpenedCard, editedName, width, height, resolutionLabel, orientation);
+                updateScreenViewHeaderFromCard(lastOpenedCard);
+            }
+
+            function updateScreenViewHeaderFromCard(card) {
+                if (!card || !fullScreenView || fullScreenView.classList.contains('hidden')) return;
+                if (!lastOpenedCard || card.id !== lastOpenedCard.id) return;
+                if (screenViewTitle) screenViewTitle.textContent = card.dataset.name || 'Screen';
+                if (screenViewSubtitle) {
+                    const res = card.dataset.resolution || '8K';
+                    const dims = `${card.dataset.width || 0} x ${card.dataset.height || 0}`;
+                    const orientation = card.dataset.orientation || 'Horizontal';
+                    screenViewSubtitle.innerHTML = `<span>${res} (${dims})</span> <span>•</span> <span>${orientation}</span>`;
+                }
+            }
+
+            function updateContentToggleState(active) {
+                contentMode = active;
+                const buttons = [contentCustomButton, contentExistingButton];
+                const values = ['custom', 'existing'];
+                buttons.forEach((btn, i) => {
+                    if (!btn) return;
+                    if (values[i] === active) {
+                        btn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                        btn.classList.add('bg-red-600', 'active');
+                    } else {
+                        btn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                        btn.classList.remove('bg-red-600', 'active');
+                    }
+                });
+                // Toggle tab panels
+                const customTab = document.getElementById('content-tab-custom');
+                const existingTab = document.getElementById('content-tab-existing');
+                if (customTab && existingTab) {
+                    customTab.classList.toggle('hidden', active !== 'custom');
+                    existingTab.classList.toggle('hidden', active !== 'existing');
+                    if (active === 'custom') {
+                        // Re-measure after tab is visible; avoids zero-width guide boxes.
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                window.dispatchEvent(new Event('resize'));
+                            });
+                        });
+                    }
+                }
+            }
+
+            if (contentCustomButton) {
+                contentCustomButton.addEventListener('click', () => updateContentToggleState('custom'));
+            }
+            if (contentExistingButton) {
+                contentExistingButton.addEventListener('click', () => updateContentToggleState('existing'));
+            }
+
+            if (screenViewTitle) {
+                screenViewTitle.addEventListener('focus', () => {
+                    screenViewTitle.dataset.originalName = (screenViewTitle.textContent || '').trim();
+                });
+                screenViewTitle.addEventListener('blur', () => {
+                    commitScreenViewTitleEdit();
+                });
+                screenViewTitle.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        screenViewTitle.blur();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        const original = screenViewTitle.dataset.originalName || (lastOpenedCard ? (lastOpenedCard.dataset.name || 'Screen') : 'Screen');
+                        screenViewTitle.textContent = original;
+                        screenViewTitle.blur();
+                    }
+                });
+            }
+
+            // -------------------------------------------------------------------------
+            // Screen View Dashboard Grid (theme, grid size, Component Browser)
+            // Initializes when full-screen-view is first shown
+            // -------------------------------------------------------------------------
+            let screenViewDashboardInitialized = false;
+
+            function initScreenViewDashboard() {
+                if (screenViewDashboardInitialized) return;
+                screenViewDashboardInitialized = true;
+
+                const grid = document.getElementById('screen-view-dashboard-grid');
+                const themeDarkBtn = document.getElementById('screen-view-theme-dark-button');
+                const themeLightBtn = document.getElementById('screen-view-theme-light-button');
+                const gridUnitBtns = document.querySelectorAll('.screen-view-grid-unit-toggle-button');
+                const filtersVisibilityToggle = document.getElementById('screen-view-filters-visibility-toggle');
+                const filtersSection = document.getElementById('screen-view-filters-section');
+                const addComponentBtn = document.getElementById('screen-view-add-component-button');
+                const componentBrowserModal = document.getElementById('screen-view-component-browser-modal');
+                const closeComponentBrowser = document.getElementById('screen-view-close-component-browser');
+                const cancelComponentBrowser = document.getElementById('screen-view-cancel-component-browser');
+                const componentList = document.getElementById('screen-view-component-list');
+
+                if (!grid) return;
+
+                // Theme toggle
+                if (themeDarkBtn && themeLightBtn) {
+                    function setScreenViewTheme(theme) {
+                        if (theme === 'dark') {
+                            themeDarkBtn.classList.add('active', 'bg-red-600');
+                            themeDarkBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                            themeLightBtn.classList.remove('active', 'bg-red-600');
+                            themeLightBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                        } else {
+                            themeLightBtn.classList.add('active', 'bg-red-600');
+                            themeLightBtn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                            themeDarkBtn.classList.remove('active', 'bg-red-600');
+                            themeDarkBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                        }
+                    }
+                    themeDarkBtn.addEventListener('click', () => setScreenViewTheme('dark'));
+                    themeLightBtn.addEventListener('click', () => setScreenViewTheme('light'));
+                }
+
+                // Grid unit toggle
+                function getScreenViewDefaultGridCols() {
+                    const width = window.innerWidth;
+                    if (width < 768) return 1;
+                    if (width >= 768 && width < 1024) return 2;
+                    return 6;
+                }
+
+                function setScreenViewActiveGridUnit(cols) {
+                    grid.classList.remove('grid-cols-1', 'grid-cols-2', 'grid-cols-4', 'grid-cols-6', 'grid-cols-8', 'grid-cols-10', 'grid-cols-12');
+                    grid.classList.add(`grid-cols-${cols}`);
+                    gridUnitBtns.forEach(btn => {
+                        const btnCols = parseInt(btn.dataset.gridCols);
+                        btn.classList.toggle('bg-red-600', btnCols === cols);
+                        btn.classList.toggle('active', btnCols === cols);
+                        btn.classList.toggle('bg-gray-700', btnCols !== cols);
+                        btn.classList.toggle('hover:bg-gray-600', btnCols !== cols);
+                    });
+                    screenViewUpdateComponentHeights();
+                }
+
+                setScreenViewActiveGridUnit(getScreenViewDefaultGridCols());
+
+                gridUnitBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        setScreenViewActiveGridUnit(parseInt(btn.dataset.gridCols));
+                    });
+                });
+
+                // Filters visibility toggle
+                if (filtersVisibilityToggle && filtersSection) {
+                    const updateFiltersVisibility = () => {
+                        filtersSection.classList.toggle('hidden', !filtersVisibilityToggle.checked);
+                    };
+                    // Keep filters hidden by default on initial load.
+                    filtersVisibilityToggle.checked = false;
+                    updateFiltersVisibility();
+                    filtersVisibilityToggle.addEventListener('change', updateFiltersVisibility);
+                }
+
+                // Component browser modal
+                function openScreenViewComponentBrowser() {
+                    componentBrowserModal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+                function closeScreenViewComponentBrowser() {
+                    componentBrowserModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+
+                if (addComponentBtn) addComponentBtn.addEventListener('click', openScreenViewComponentBrowser);
+                if (closeComponentBrowser) closeComponentBrowser.addEventListener('click', closeScreenViewComponentBrowser);
+                if (cancelComponentBrowser) cancelComponentBrowser.addEventListener('click', closeScreenViewComponentBrowser);
+                componentBrowserModal.addEventListener('click', (e) => {
+                    if (e.target === componentBrowserModal) closeScreenViewComponentBrowser();
+                });
+
+                // Add component to grid
+                const componentTypeNames = { 'bar-chart': 'Bar Chart', 'line-chart': 'Line Chart', 'pie-chart': 'Pie Chart', 'table': 'Table', 'metric': 'Metric', 'gauge': 'Gauge' };
+                const componentIcons = { 'bar-chart': 'bar_chart', 'line-chart': 'show_chart', 'pie-chart': 'pie_chart', 'table': 'table_chart', 'metric': 'analytics', 'gauge': 'speed' };
+                let screenViewComponentCounter = 0;
+
+                function getScreenViewGridColumnCount() {
+                    for (let i = 1; i <= 12; i++) {
+                        if (grid.classList.contains(`grid-cols-${i}`)) return i;
+                    }
+                    return 6;
+                }
+
+                function screenViewCalculateGridUnitSize(gridWidth, gap) {
+                    const cols = getScreenViewGridColumnCount();
+                    return (gridWidth - (cols - 1) * gap) / cols;
+                }
+
+                function screenViewUpdateComponentHeights() {
+                    if (!grid) return;
+                    const rect = grid.getBoundingClientRect();
+                    const gridWidth = rect.width;
+                    if (!gridWidth || gridWidth <= 0) return;
+                    const gap = 24;
+                    const gridUnitSize = screenViewCalculateGridUnitSize(gridWidth, gap);
+                    if (!Number.isFinite(gridUnitSize) || gridUnitSize <= 0) return;
+                    grid.style.gridAutoRows = `${gridUnitSize}px`;
+                    grid.querySelectorAll('.screen-view-dashboard-component').forEach(comp => {
+                        const colSpan = parseInt(comp.dataset.colSpan) || 2;
+                        const rowSpan = parseInt(comp.dataset.rowSpan) || 1;
+                        const h = (gridUnitSize * rowSpan) + (gap * (rowSpan - 1));
+                        if (!Number.isFinite(h) || h <= 0) return;
+                        comp.style.height = `${h}px`;
+                        comp.style.gridColumn = `span ${colSpan}`;
+                        comp.style.gridRow = `span ${rowSpan}`;
+                    });
+                    screenViewUpdateGridGuideBoxes();
+                }
+
+                function screenViewUpdateGridGuideBoxes() {
+                    const guideContainer = document.getElementById('screen-view-grid-guide-boxes-container');
+                    if (!grid || !guideContainer) return;
+                    const rect = grid.getBoundingClientRect();
+                    const gridWidth = rect.width;
+                    if (!gridWidth || gridWidth <= 0) return;
+                    const gap = 24;
+                    const gridUnitSize = screenViewCalculateGridUnitSize(gridWidth, gap);
+                    if (!Number.isFinite(gridUnitSize) || gridUnitSize <= 0) return;
+                    const cols = getScreenViewGridColumnCount();
+                    const minRows = Math.max(4, Math.ceil((window.innerHeight - rect.top) / (gridUnitSize + gap)));
+                    guideContainer.innerHTML = '';
+                    for (let row = 0; row < minRows; row++) {
+                        for (let col = 0; col < cols; col++) {
+                            const box = document.createElement('div');
+                            box.className = 'screen-view-grid-guide-box rounded-lg';
+                            box.style.left = `${col * (gridUnitSize + gap)}px`;
+                            box.style.top = `${row * (gridUnitSize + gap)}px`;
+                            box.style.width = `${gridUnitSize}px`;
+                            box.style.height = `${gridUnitSize}px`;
+                            guideContainer.appendChild(box);
+                        }
+                    }
+                    guideContainer.style.height = `${(minRows * gridUnitSize) + ((minRows - 1) * gap) + 96}px`;
+                }
+
+                function addScreenViewComponent(componentType) {
+                    const compId = `screen-view-component-${screenViewComponentCounter++}`;
+                    const comp = document.createElement('div');
+                    comp.id = compId;
+                    comp.className = 'screen-view-dashboard-component bg-gray-800 rounded-lg border border-gray-700 relative';
+                    comp.style.gridColumn = 'span 2';
+                    comp.style.gridRow = 'span 1';
+                    comp.dataset.colSpan = '2';
+                    comp.dataset.rowSpan = '1';
+
+                    const header = document.createElement('div');
+                    header.className = 'dashboard-component-header flex items-center justify-between border-b border-gray-700 cursor-move';
+                    header.draggable = true;
+                    const title = document.createElement('h3');
+                    title.className = 'text-white font-semibold text-sm';
+                    title.textContent = componentTypeNames[componentType] || componentType;
+                    const dropdown = document.createElement('div');
+                    dropdown.className = 'relative';
+                    const dropdownBtn = document.createElement('button');
+                    dropdownBtn.className = 'options-dropdown-button';
+                    dropdownBtn.innerHTML = '<span class="material-symbols-outlined text-lg">more_vert</span>';
+                    const dropdownMenu = document.createElement('div');
+                    dropdownMenu.className = 'options-dropdown-menu hidden';
+                    dropdownMenu.innerHTML = '<a href="#" class="remove-screen-view-component block px-4 py-2 text-sm text-red-400">Remove</a>';
+                    dropdown.appendChild(dropdownBtn);
+                    dropdown.appendChild(dropdownMenu);
+                    header.appendChild(title);
+                    header.appendChild(dropdown);
+
+                    dropdownBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        dropdownMenu.classList.toggle('hidden');
+                    });
+
+                    const body = document.createElement('div');
+                    body.className = 'dashboard-component-body rounded flex items-center justify-center';
+                    body.innerHTML = `<div class="text-center"><span class="material-symbols-outlined text-gray-500" style="font-size: 48px;">${componentIcons[componentType] || 'dashboard'}</span><p class="text-gray-500 text-sm mt-2">Chart Placeholder</p></div>`;
+
+                    const resizeHandle = document.createElement('div');
+                    resizeHandle.className = 'resize-handle';
+                    resizeHandle.dataset.handle = 'se';
+
+                    comp.appendChild(resizeHandle);
+                    comp.appendChild(header);
+                    comp.appendChild(body);
+
+                    dropdownMenu.querySelector('.remove-screen-view-component').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        comp.remove();
+                        screenViewUpdateComponentHeights();
+                    });
+
+                    // Resize handle
+                    let resizeStartX = 0, resizeStartY = 0, resizeStartColSpan = 2, resizeStartRowSpan = 1;
+                    resizeHandle.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        resizeStartX = e.clientX;
+                        resizeStartY = e.clientY;
+                        resizeStartColSpan = parseInt(comp.dataset.colSpan) || 2;
+                        resizeStartRowSpan = parseInt(comp.dataset.rowSpan) || 1;
+                        comp.classList.add('resizing');
+                        grid.classList.add('resizing-active');
+
+                        function onResizeMove(ev) {
+                            const rect = grid.getBoundingClientRect();
+                            const gap = 24;
+                            const unitSize = screenViewCalculateGridUnitSize(rect.width, gap);
+                            const deltaCols = Math.round((ev.clientX - resizeStartX) / (unitSize + gap));
+                            const deltaRows = Math.round((ev.clientY - resizeStartY) / (unitSize + gap));
+                            let newColSpan = Math.max(1, Math.min(getScreenViewGridColumnCount(), resizeStartColSpan + deltaCols));
+                            let newRowSpan = Math.max(1, Math.min(4, resizeStartRowSpan + deltaRows));
+                            comp.dataset.colSpan = newColSpan;
+                            comp.dataset.rowSpan = newRowSpan;
+                            comp.style.gridColumn = `span ${newColSpan}`;
+                            comp.style.gridRow = `span ${newRowSpan}`;
+                            comp.style.height = `${(unitSize * newRowSpan) + (gap * (newRowSpan - 1))}px`;
+                            comp.style.width = `${(unitSize * newColSpan) + (gap * (newColSpan - 1))}px`;
+                        }
+                        function onResizeUp() {
+                            comp.classList.remove('resizing');
+                            grid.classList.remove('resizing-active');
+                            comp.style.width = '';
+                            comp.style.height = '';
+                            document.removeEventListener('mousemove', onResizeMove);
+                            document.removeEventListener('mouseup', onResizeUp);
+                            screenViewUpdateComponentHeights();
+                        }
+                        document.addEventListener('mousemove', onResizeMove);
+                        document.addEventListener('mouseup', onResizeUp);
+                    });
+
+                    grid.appendChild(comp);
+                    screenViewUpdateComponentHeights();
+                    closeScreenViewComponentBrowser();
+                }
+
+                if (componentList) {
+                    componentList.querySelectorAll('.component-card').forEach(card => {
+                        card.addEventListener('click', () => addScreenViewComponent(card.dataset.componentType));
+                    });
+                }
+
+                window.addEventListener('resize', screenViewUpdateComponentHeights);
+
+                // Close component dropdowns when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.screen-view-dashboard-component .options-dropdown-button') && !e.target.closest('.screen-view-dashboard-component .options-dropdown-menu')) {
+                        grid.querySelectorAll('.options-dropdown-menu').forEach(menu => menu.classList.add('hidden'));
+                    }
+                });
+            }
+
+            function updateNavState(activeId) {
+                // Handle "All Screens" button
+                if (activeId === 'all') {
+                    allScreensNavItem.className = 'workspace-nav-item flex items-center flex-shrink-0 px-3 py-2 rounded-lg text-white bg-red-600 active transition duration-200 text-sm';
+                } else {
+                    allScreensNavItem.className = 'workspace-nav-item flex items-center flex-shrink-0 px-3 py-2 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm';
+                }
+
+                // Handle individual screen nav items
+                document.querySelectorAll('.workspace-nav-item').forEach(item => {
+                    if (item.id === 'all-screens-nav-item') return;
+
+                    const itemId = item.id.replace('nav-item-', '');
+                    if (itemId === activeId) {
+                        item.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                        item.classList.add('bg-red-600', 'active');
+                    } else {
+                        item.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                        item.classList.remove('bg-red-600', 'active');
+                    }
+                });
+            }
+
+            if (allScreensNavItem) {
+                allScreensNavItem.addEventListener('click', () => {
+                    if (!fullScreenView.classList.contains('hidden')) {
+                        closeScreenView();
+                    }
+                });
+            }
+
+            const screenViewCloseBtn = document.getElementById('screen-view-close-button');
+            if (screenViewCloseBtn) {
+                screenViewCloseBtn.addEventListener('click', () => closeScreenView());
+            }
+
+            const screenViewHeaderMenu = document.getElementById('screen-view-header-menu');
+            if (screenViewHeaderMenu) {
+                screenViewHeaderMenu.addEventListener('click', (e) => {
+                    const actionLink = e.target.closest('a');
+                    if (!actionLink) return;
+                    e.preventDefault();
+                    const action = actionLink.dataset.action;
+                    screenViewHeaderMenu.classList.add('hidden');
+                    if (!lastOpenedCard) return;
+                    if (action === 'delete') {
+                        openDeleteModal(lastOpenedCard);
+                    } else if (action === 'configure') {
+                        openConfigureModal(lastOpenedCard);
+                    } else if (action === 'get_link') {
+                        alertMessage(`Screen link copied to clipboard`, 'success');
+                    } else if (action === 'refresh') {
+                        alertMessage('Screen refreshed successfully', 'success');
+                    }
+                });
+            }
+
+            function openScreenView(card) {
+                if (!fullScreenView || !canvasContainer) return;
+
+                const isAlreadyOpen = !fullScreenView.classList.contains('hidden');
+                lastOpenedCard = card;
+
+                // Update content
+                if (screenViewTitle) screenViewTitle.textContent = card.dataset.name || 'Screen';
+                if (screenViewSubtitle) {
+                    const res = card.dataset.resolution || '8K';
+                    const dims = `${card.dataset.width || 0} x ${card.dataset.height || 0}`;
+                    const orientation = card.dataset.orientation || 'Horizontal';
+                    screenViewSubtitle.innerHTML = `<span>${res} (${dims})</span> <span>•</span> <span>${orientation}</span>`;
+                }
+
+                if (isAlreadyOpen) {
+                    // Update navigation state and switch content immediately
+                    updateNavState(card.id);
+                    return;
+                }
+
+                // Get positions
+                const containerRect = canvasContainer.getBoundingClientRect();
+                const cardRect = card.getBoundingClientRect();
+
+                // Calculate relative position within the container coordinates
+                const relTop = cardRect.top - containerRect.top + canvasContainer.scrollTop;
+                const relLeft = cardRect.left - containerRect.left + canvasContainer.scrollLeft;
+
+                // Set initial position for animation (absolute inside container)
+                fullScreenView.style.top = `${relTop}px`;
+                fullScreenView.style.left = `${relLeft}px`;
+                fullScreenView.style.width = `${cardRect.width}px`;
+                fullScreenView.style.height = `${cardRect.height}px`;
+                fullScreenView.style.borderRadius = '0.5rem';
+                fullScreenView.style.opacity = '0'; // Start transparent
+                fullScreenView.classList.remove('hidden');
+
+                // Trigger expansion
+                requestAnimationFrame(() => {
+                    fullScreenView.classList.add('expanding');
+                    fullScreenView.style.opacity = '1'; // Fade in
+                    // Set final pixel size for transition
+                    fullScreenView.style.top = `${canvasContainer.scrollTop}px`;
+                    fullScreenView.style.left = `${canvasContainer.scrollLeft}px`;
+                    fullScreenView.style.width = `${canvasContainer.clientWidth}px`;
+                    fullScreenView.style.height = `${canvasContainer.clientHeight}px`;
+                    fullScreenView.style.borderRadius = '0';
+
+                    // After transition, remove explicit sizes and cleanup class
+                    setTimeout(() => {
+                        if (fullScreenView.classList.contains('expanding')) {
+                            fullScreenView.style.top = '';
+                            fullScreenView.style.left = '';
+                            fullScreenView.style.width = '';
+                            fullScreenView.style.height = '';
+                            fullScreenView.classList.remove('expanding');
+                        }
+                        // Initialize screen view dashboard (theme, grid, Component Browser) now that view is visible
+                        initScreenViewDashboard();
+                    }, 500);
+                });
+
+                // Disable container scrolling while view is open
+                canvasContainer.style.overflow = 'hidden';
+
+                // Update navigation state
+                updateNavState(card.id);
+            }
+
+            function closeScreenView() {
+                if (!fullScreenView || !lastOpenedCard || !canvasContainer) return;
+
+                // Update navigation state instantly
+                updateNavState('all');
+
+                // 1. Set current state in pixels to ensure a smooth transition start
+                fullScreenView.style.top = `${canvasContainer.scrollTop}px`;
+                fullScreenView.style.left = `${canvasContainer.scrollLeft}px`;
+                fullScreenView.style.width = `${canvasContainer.clientWidth}px`;
+                fullScreenView.style.height = `${canvasContainer.clientHeight}px`;
+
+                // 2. Remove expanding class to revert to relative/fixed targets
+                // and apply target pixel values
+                requestAnimationFrame(() => {
+                    fullScreenView.classList.remove('expanding');
+
+                    const containerRect = canvasContainer.getBoundingClientRect();
+                    const cardRect = lastOpenedCard.getBoundingClientRect();
+                    const relTop = cardRect.top - containerRect.top + canvasContainer.scrollTop;
+                    const relLeft = cardRect.left - containerRect.left + canvasContainer.scrollLeft;
+
+                    fullScreenView.style.top = `${relTop}px`;
+                    fullScreenView.style.left = `${relLeft}px`;
+                    fullScreenView.style.width = `${cardRect.width}px`;
+                    fullScreenView.style.height = `${cardRect.height}px`;
+                    fullScreenView.style.borderRadius = '0.5rem';
+                    fullScreenView.style.opacity = '0'; // Fade out
+                });
+
+                setTimeout(() => {
+                    fullScreenView.classList.add('hidden');
+                    // Reset positions for next open
+                    fullScreenView.style.top = '';
+                    fullScreenView.style.left = '';
+                    fullScreenView.style.width = '';
+                    fullScreenView.style.height = '';
+                    fullScreenView.style.opacity = ''; // Reset for next open
+                    lastOpenedCard = null;
+                    canvasContainer.style.overflow = 'auto'; // Re-enable scrolling
+                }, 500); // Wait for transition
+            }
+
+
+            // -------------------------------------------------------------------------
+            // Screen Canvas & Card Logic
+            // -------------------------------------------------------------------------
+
+            function addScreenCard(name, width, height, resolutionLabel, orientation) {
+                let displayWidth, displayHeight;
+
+                // Use explicit orientation to determine scaling mode
+                if (orientation === 'Vertical') {
+                    // Vertical / Portrait: Fixed Width (Small)
+                    const fixedWidth = 180;
+                    displayWidth = fixedWidth;
+                    displayHeight = fixedWidth * (height / width);
+                } else {
+                    // Horizontal / Landscape: Fixed Width (Standard)
+                    const fixedWidth = 320;
+                    displayWidth = fixedWidth;
+                    displayHeight = fixedWidth * (height / width);
+                }
+
+                const cardId = 'screen-' + Date.now();
+
+                // Create Card Element
+                const card = document.createElement('div');
+                card.id = cardId;
+                card.className = 'absolute bg-gray-800 border border-gray-700 rounded-lg shadow-xl flex flex-col group';
+
+                // Find smart position using TOTAL height (body + 40px header)
+                const totalHeight = displayHeight + 40;
+                const pos = findSmartPosition(displayWidth, totalHeight);
+                card.style.left = `${pos.x}px`;
+                card.style.top = `${pos.y}px`;
+
+                // Add Nav Item as well
+                addWorkspaceNavItem(cardId, name, card);
+
+                // Remove generic min-measurements to respect aspect ratio, but keep safe limits if needed
+                card.style.minWidth = '50px';
+
+                // Store metadata for re-configuring
+                card.dataset.name = name;
+                card.dataset.width = width;
+                card.dataset.height = height;
+                card.dataset.resolution = resolutionLabel;
+                card.dataset.orientation = orientation;
+                if (resolutionLabel === 'Custom') {
+                    card.dataset.customWidth = width;
+                    card.dataset.customHeight = height;
+                }
+
+                card.innerHTML = `
+                    <!-- Card Header (Drag Handle) -->
+                    <div class="screen-card-header p-2 rounded-t-lg cursor-move flex items-center justify-between border-b border-gray-700 h-10 shrink-0"
+                         style="max-width: ${displayWidth}px;">
+                        <div class="flex items-center space-x-2 overflow-hidden">
+                            <span class="material-symbols-outlined text-[20px]">monitor</span>
+                            <span class="text-sm font-semibold text-white truncate max-w-full card-title-text" title="${name}">${name}</span>
+                        </div>
+                        
+                        <!-- Dropdown Trigger -->
+                        <div class="relative">
+                            <button class="screen-options-btn options-dropdown-button" data-card-id="${cardId}">
+                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                            </button>
+                            <!-- Dropdown Menu -->
+                            <div class="screen-dropdown-menu options-dropdown-menu absolute right-0 top-full mt-2 w-32 hidden">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="open">Open Screen</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="refresh">Refresh</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="get_link">Get Link</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="configure">Configure</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150" data-action="delete">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Body (Visual representation) -->
+                    <div class="flex-grow flex items-center justify-center relative overflow-hidden bg-[#111111] cursor-pointer" 
+                         style="width: ${displayWidth}px; height: ${displayHeight}px;">
+                        <img class="w-full h-full object-fit" alt="Screen Thumbnail" src="https://placehold.co/400x225/transparent/f7fafc?text=Screenshot+of+screen">
+                    </div>
+
+                    <!-- Card Footer (Screen Info) -->
+                    <div class="text-xs p-2 card-body-info cursor-pointer">
+                        <div class="res-label">${resolutionLabel}</div>
+                        <div class="dims-label text-gray-400">${width} x ${height} (${orientation})</div>
+                    </div>
+                `;
+
+                canvas.appendChild(card);
+                makeDraggable(card);
+                setupCardDropdown(card);
+                adjustCanvasHeight(); // Recalculate height
+
+                // View Triggers
+                const body = card.querySelector('.flex-grow');
+                const footer = card.querySelector('.card-body-info');
+
+                if (body) body.addEventListener('click', () => openScreenView(card));
+                if (footer) footer.addEventListener('click', () => openScreenView(card));
+            }
+
+            function updateScreenCard(card, name, width, height, resolutionLabel, orientation) {
+                let displayWidth, displayHeight;
+                if (orientation === 'Vertical') {
+                    const fixedWidth = 180;
+                    displayWidth = fixedWidth;
+                    displayHeight = fixedWidth * (height / width);
+                } else {
+                    const fixedWidth = 320;
+                    displayWidth = fixedWidth;
+                    displayHeight = fixedWidth * (height / width);
+                }
+
+                // Update metadata
+                card.dataset.name = name;
+                card.dataset.width = width;
+                card.dataset.height = height;
+                card.dataset.resolution = resolutionLabel;
+                card.dataset.orientation = orientation;
+                if (resolutionLabel === 'Custom') {
+                    card.dataset.customWidth = orientation === 'Vertical' ? height : width;
+                    card.dataset.customHeight = orientation === 'Vertical' ? width : height;
+                }
+
+                // Update UI elements
+                const titleText = card.querySelector('.card-title-text');
+                if (titleText) {
+                    titleText.textContent = name;
+                    titleText.title = name;
+                }
+
+                const resLabel = card.querySelector('.res-label');
+                if (resLabel) resLabel.textContent = resolutionLabel;
+
+                const dimsLabel = card.querySelector('.dims-label');
+                if (dimsLabel) dimsLabel.textContent = `${width} x ${height} (${orientation})`;
+
+                const bodyDiv = card.querySelector('.flex-grow');
+                if (bodyDiv) {
+                    bodyDiv.style.width = `${displayWidth}px`;
+                    bodyDiv.style.height = `${displayHeight}px`;
+                }
+
+                const headerDiv = card.querySelector('.screen-card-header');
+                if (headerDiv) headerDiv.style.maxWidth = `${displayWidth}px`;
+
+                // Update Nav Item
+                const navItem = document.getElementById(`nav-item-${card.id}`);
+                if (navItem) {
+                    const navSpan = navItem.querySelector('span');
+                    if (navSpan) navSpan.textContent = name;
+                }
+
+                adjustCanvasHeight(); // Recalculate height
+            }
+
+            function makeDraggable(element) {
+                const header = element.querySelector('.screen-card-header');
+                let isDragging = false;
+                let startX, startY, initialLeft, initialTop;
+
+                header.addEventListener('mousedown', (e) => {
+                    // Prevent drag if clicking buttons inside header or dropdown items
+                    if (e.target.closest('button') || e.target.closest('.screen-dropdown-menu')) return;
+
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+
+                    const rect = element.getBoundingClientRect();
+                    const parentRect = canvas.getBoundingClientRect();
+
+                    // Calculate position relative to parent
+                    initialLeft = rect.left - parentRect.left;
+                    initialTop = rect.top - parentRect.top;
+
+                    element.classList.add('z-50', 'ring-2', 'ring-blue-500');
+                    document.body.style.cursor = 'move';
+
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+
+                    let newLeft = initialLeft + dx;
+                    let newTop = initialTop + dy;
+
+                    // Boundary checks to keep screen within canvas
+                    const maxLeft = canvas.clientWidth - element.offsetWidth;
+                    const maxTop = canvas.clientHeight - element.offsetHeight;
+
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+
+                    element.style.left = `${newLeft}px`;
+                    element.style.top = `${newTop}px`;
+
+                    adjustCanvasHeight(); // Recalculate height while dragging
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        element.classList.remove('z-50', 'ring-2', 'ring-blue-500');
+                        document.body.style.cursor = '';
+                    }
+                });
+            }
+
+            function setupCardDropdown(card) {
+                const btn = card.querySelector('.screen-options-btn');
+                const menu = card.querySelector('.screen-dropdown-menu');
+
+                if (!btn || !menu) return;
+
+                // Toggle Menu
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleDropdown(btn, menu);
+                });
+
+                // Handle Actions
+                menu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const actionLink = e.target.closest('a');
+                    if (!actionLink) return;
+
+                    e.preventDefault();
+                    const action = actionLink.dataset.action;
+
+                    // Hide menu
+                    menu.classList.add('hidden');
+
+                    if (action === 'delete') {
+                        // Use Custom Modal now
+                        openDeleteModal(card);
+                    } else if (action === 'configure') {
+                        openConfigureModal(card);
+                    } else if (action === 'open') {
+                        openScreenView(card);
+                    } else if (action === 'get_link') {
+                        alertMessage(`Screen link copied to clipboard`, 'success');
+                    } else if (action === 'refresh') {
+                        alertMessage(`Screen refreshed successfully`, 'success');
+                    } else {
+                        alertMessage(`${action.charAt(0).toUpperCase() + action.slice(1)} functionality coming soon!`, 'info');
+                    }
+                });
+            }
+
+            // The global click listener already handles closing dropdowns
+            // but we keep this as a secondary check if needed for specific logic.
+
+            // -------------------------------------------------------------------------
+            // Workspace Nav Synchronization & Reordering
+            // -------------------------------------------------------------------------
+            function addWorkspaceNavItem(id, name, cardElement) {
+                const navContainer = document.getElementById('workspace-screens-nav');
+                if (!navContainer) return;
+
+                const navItem = document.createElement('div');
+                navItem.id = `nav-item-${id}`;
+                navItem.className = 'workspace-nav-item flex items-center flex-shrink-0 px-3 py-1.5 pr-1 rounded-lg text-white bg-gray-700 hover:bg-gray-600 transition duration-200 text-sm cursor-pointer group/nav max-w-80';
+                navItem.draggable = true;
+
+                navItem.innerHTML = `
+                    <span class="mr-2 whitespace-nowrap overflow-hidden text-ellipsis">${name}</span>
+                    <div class="relative flex items-center">
+                        <button class="nav-options-btn options-dropdown-button w-6 h-6 hover:bg-gray-500 opacity-60 group-hover/nav:opacity-100 transition" 
+                                data-target-id="${id}">
+                            <span class="material-symbols-outlined text-base">more_vert</span>
+                        </button>
+                        <!-- Menu hidden initially, will be used by toggleDropdown -->
+                        <div class="options-dropdown-menu absolute right-0 top-full mt-2 w-32 hidden">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="open">Open Screen</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="refresh">Refresh</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="get_link">Get Link</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-action="configure">Configure</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-red-400 font-medium transition duration-150" data-action="delete">Delete</a>
+                        </div>
+                    </div>
+                `;
+
+                navContainer.appendChild(navItem);
+                setupNavItemMenu(navItem, cardElement);
+                setupNavItemDrag(navItem);
+
+                // Open screen view on click
+                navItem.addEventListener('click', (e) => {
+                    if (e.target.closest('button')) return;
+                    openScreenView(cardElement);
+                });
+            }
+
+            function setupNavItemMenu(navItem, cardElement) {
+                const btn = navItem.querySelector('.nav-options-btn');
+                const menu = navItem.querySelector('.options-dropdown-menu');
+
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleDropdown(btn, menu);
+                });
+
+                menu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const actionLink = e.target.closest('a');
+                    if (!actionLink) return;
+
+                    e.preventDefault();
+                    const action = actionLink.dataset.action;
+                    menu.classList.add('hidden');
+
+                    if (action === 'delete') {
+                        openDeleteModal(cardElement);
+                    } else if (action === 'configure') {
+                        openConfigureModal(cardElement);
+                    } else if (action === 'open') {
+                        openScreenView(cardElement);
+                    } else if (action === 'refresh') {
+                        alertMessage(`Screen refreshed successfully`, 'success');
+                    } else if (action === 'get_link') {
+                        alertMessage(`Screen link copied to clipboard`, 'success');
+                    } else {
+                        alertMessage(`${action.charAt(0).toUpperCase() + action.slice(1)} functionality coming soon!`, 'info');
+                    }
+                });
+            }
+
+            // Situation Dropdown Logic
+            const editingSituationButton = document.getElementById('editing-situation-dropdown-button');
+            const editingSituationMenu = document.getElementById('editing-situation-dropdown-menu');
+            const editingSituationContainer = document.querySelector('.editing-situation-items');
+
+            const activeSituationContainer = document.getElementById('active-situation-container');
+            const activeSituationButton = document.getElementById('active-situation-dropdown-button');
+            const activeSituationMenu = document.getElementById('active-situation-dropdown-menu');
+            const activeSituationItemsContainer = document.querySelector('.active-situation-items');
+
+            const addSituationBtn = document.getElementById('add-situation-button');
+
+            let situations = ['Default'];
+            let currentEditingSituation = 'Default';
+            let currentActiveSituation = 'Default';
+
+            function updateActiveSituationVisibility() {
+                if (situations.length > 1) {
+                    activeSituationContainer.classList.remove('hidden');
+                } else {
+                    activeSituationContainer.classList.add('hidden');
+                }
+            }
+
+            function setupDropdownToggle(button, menu, optionsMenuSelector) {
+                if (button && menu) {
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isHidden = menu.classList.contains('hidden');
+                        document.querySelectorAll('.options-dropdown-menu').forEach(m => m.classList.add('hidden'));
+                        document.querySelectorAll('.situation-options-menu').forEach(m => m.classList.add('hidden'));
+                        if (isHidden) {
+                            menu.classList.remove('hidden');
+                        }
+                    });
+
+                    // Close inner options menu when clicking inside the main dropdown
+                    if (optionsMenuSelector) {
+                        menu.addEventListener('click', (e) => {
+                            if (!e.target.closest(optionsMenuSelector) && !e.target.closest('.situation-options-button')) {
+                                document.querySelectorAll(optionsMenuSelector).forEach(m => m.classList.add('hidden'));
+                            }
+                        });
+                    }
+
+                    document.addEventListener('click', (e) => {
+                        const isModalClick = e.target.closest('#add-situation-modal') ||
+                            e.target.closest('#delete-situation-modal') ||
+                            e.target.closest('#change-active-situation-modal');
+
+                        if (!button.contains(e.target) && !menu.contains(e.target) && !isModalClick) {
+                            menu.classList.add('hidden');
+                            if (optionsMenuSelector) {
+                                document.querySelectorAll(optionsMenuSelector).forEach(m => m.classList.add('hidden'));
+                            }
+                        }
+                    });
+                }
+            }
+
+            setupDropdownToggle(editingSituationButton, editingSituationMenu, '.situation-options-menu');
+            setupDropdownToggle(activeSituationButton, activeSituationMenu);
+
+
+            // Delete Situation Modal Logic
+            const deleteSituationModal = document.getElementById('delete-situation-modal');
+            const deleteSituationNameSpan = document.getElementById('delete-situation-name');
+            const confirmDeleteSituationBtn = document.getElementById('confirm-delete-situation');
+            const cancelDeleteSituationBtn = document.getElementById('cancel-delete-situation');
+            const closeDeleteSituationModalBtn = document.getElementById('close-delete-situation-modal');
+            const deleteActiveInfo = document.getElementById('delete-active-situation-info');
+            const deleteActiveMessage = document.getElementById('delete-active-situation-message');
+            const nextActiveSelector = document.getElementById('next-active-situation-selector');
+            const nextActiveCustomSelect = document.getElementById('next-active-situation-custom-select');
+            const nextActiveSelectedName = document.getElementById('next-active-situation-selected-name');
+            const nextActiveOptionsMenu = document.getElementById('next-active-situation-options-menu');
+            let situationToDelete = null;
+            let selectedNextActive = null;
+
+            function openDeleteSituationModal(item) {
+                situationToDelete = item;
+                const name = item.querySelector('.text-sm').textContent;
+                deleteSituationNameSpan.textContent = name;
+
+                // Reset visibility
+                deleteActiveInfo.classList.add('hidden');
+                nextActiveSelector.classList.add('hidden');
+                nextActiveSelector.classList.add('hidden');
+
+                if (name === currentActiveSituation) {
+                    deleteActiveInfo.classList.remove('hidden');
+                    const otherSituations = situations.filter(s => s !== name);
+
+                    if (situations.length === 2) {
+                        const otherName = otherSituations[0];
+                        deleteActiveMessage.textContent = `If you choose to proceed with the deletion of this situation, the currently active situation will be changed to "${otherName}".`;
+                        selectedNextActive = otherName;
+                    } else if (situations.length > 2) {
+                        deleteActiveMessage.textContent = `The situation you are deleting is currently active.`;
+                        nextActiveSelector.classList.remove('hidden');
+
+                        // Default to the first available other situation
+                        selectedNextActive = otherSituations[0];
+                        nextActiveSelectedName.textContent = selectedNextActive;
+
+                        // Clear and render custom options
+                        nextActiveOptionsMenu.innerHTML = '';
+                        otherSituations.forEach(s => {
+                            const option = document.createElement('div');
+                            option.className = 'px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 cursor-pointer transition';
+                            option.textContent = s;
+                            option.addEventListener('click', () => {
+                                selectedNextActive = s;
+                                nextActiveSelectedName.textContent = s;
+                                nextActiveOptionsMenu.classList.add('hidden');
+                            });
+                            nextActiveOptionsMenu.appendChild(option);
+                        });
+                    }
+                }
+
+                deleteSituationModal.classList.remove('hidden');
+            }
+
+            function closeDeleteSituationModal() {
+                deleteSituationModal.classList.add('hidden');
+                situationToDelete = null;
+            }
+
+            if (confirmDeleteSituationBtn) {
+                confirmDeleteSituationBtn.addEventListener('click', () => {
+                    if (situationToDelete) {
+                        const situationName = situationToDelete.querySelector('.text-sm').textContent;
+                        situationToDelete.remove();
+                        if (situationButton.querySelector('span:first-child').textContent === situationName) {
+                            const firstItem = document.querySelector('.situation-item');
+                            if (firstItem) firstItem.click();
+                        }
+                        alertMessage(`${situationName} deleted`, "success");
+                        closeDeleteSituationModal();
+                    }
+                });
+            }
+
+            if (cancelDeleteSituationBtn) cancelDeleteSituationBtn.addEventListener('click', closeDeleteSituationModal);
+            if (closeDeleteSituationModalBtn) closeDeleteSituationModalBtn.addEventListener('click', closeDeleteSituationModal);
+
+            // Change Active Situation Modal Logic
+            const changeActiveModal = document.getElementById('change-active-situation-modal');
+            const newActiveNameSpan = document.getElementById('new-active-situation-name');
+            const confirmChangeActiveBtn = document.getElementById('confirm-change-active-situation');
+            const cancelChangeActiveBtn = document.getElementById('cancel-change-active-situation');
+            const closeChangeActiveBtn = document.getElementById('close-change-active-situation-modal');
+            let pendingActiveSituation = null;
+
+            function openChangeActiveModal(name) {
+                pendingActiveSituation = name;
+                newActiveNameSpan.textContent = name;
+                changeActiveModal.classList.remove('hidden');
+            }
+
+            function closeChangeActiveModal() {
+                changeActiveModal.classList.add('hidden');
+                pendingActiveSituation = null;
+            }
+
+            if (confirmChangeActiveBtn) {
+                confirmChangeActiveBtn.addEventListener('click', () => {
+                    if (pendingActiveSituation) {
+                        currentActiveSituation = pendingActiveSituation;
+                        activeSituationButton.querySelector('span:first-child').textContent = currentActiveSituation;
+                        renderSituations();
+                        alertMessage(`Active situation changed to "${currentActiveSituation}"`, "success");
+                        closeChangeActiveModal();
+                    }
+                });
+            }
+
+            if (cancelChangeActiveBtn) cancelChangeActiveBtn.addEventListener('click', closeChangeActiveModal);
+            if (closeChangeActiveBtn) closeChangeActiveBtn.addEventListener('click', closeChangeActiveModal);
+
+
+            // Add Situation Modal Logic
+            const addSituationModal = document.getElementById('add-situation-modal');
+            const situationForm = document.getElementById('situation-form');
+            const situationNameInput = document.getElementById('situation-name-input');
+            const closeAddSituationModalBtn = document.getElementById('close-add-situation-modal');
+            const cancelAddSituationBtn = document.getElementById('cancel-add-situation');
+
+            let editingSituationOriginalName = null;
+
+            function openAddSituationModal(situationName = null) {
+                situationForm.reset();
+
+                const title = document.getElementById('add-situation-modal-title');
+                const submitBtnText = document.getElementById('add-situation-submit-text');
+                const situationNameCounter = document.getElementById('situation-name-counter');
+
+                if (situationName) {
+                    editingSituationOriginalName = situationName;
+                    if (title) title.textContent = 'Configure Situation';
+                    if (submitBtnText) submitBtnText.textContent = 'Save Changes';
+                    situationNameInput.value = situationName;
+                    if (situationNameCounter) situationNameCounter.textContent = `${situationName.length}/20`;
+                } else {
+                    editingSituationOriginalName = null;
+                    if (title) title.textContent = 'Add Situation';
+                    if (submitBtnText) submitBtnText.textContent = 'Add Situation';
+                    if (situationNameCounter) situationNameCounter.textContent = '0/20';
+                }
+
+                addSituationModal.classList.remove('hidden');
+                situationNameInput.focus();
+            }
+
+            function closeAddSituationModal() {
+                addSituationModal.classList.add('hidden');
+                editingSituationOriginalName = null;
+            }
+
+            // Custom Select Toggle for Deletion Modal
+            if (nextActiveCustomSelect) {
+                nextActiveCustomSelect.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    nextActiveOptionsMenu.classList.toggle('hidden');
+                });
+            }
+
+            if (addSituationBtn) {
+                addSituationBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.situation-options-menu').forEach(m => m.classList.add('hidden'));
+                    openAddSituationModal();
+                });
+            }
+
+            if (closeAddSituationModalBtn) closeAddSituationModalBtn.addEventListener('click', closeAddSituationModal);
+            if (cancelAddSituationBtn) cancelAddSituationBtn.addEventListener('click', closeAddSituationModal);
+
+            if (situationNameInput) {
+                situationNameInput.addEventListener('input', () => {
+                    const counter = document.getElementById('situation-name-counter');
+                    if (counter) {
+                        counter.textContent = `${situationNameInput.value.length}/20`;
+                    }
+                });
+            }
+
+            if (situationForm) {
+                situationForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const newName = situationNameInput.value.trim();
+                    if (newName) {
+                        // Check if name exists (excluding current name if editing)
+                        if (situations.includes(newName) && newName !== editingSituationOriginalName) {
+                            alertMessage("Situation name already exists", "error");
+                            return;
+                        }
+
+                        if (editingSituationOriginalName) {
+                            // Update existing situation
+                            const index = situations.indexOf(editingSituationOriginalName);
+                            if (index !== -1) {
+                                situations[index] = newName;
+
+                                // Update active/editing references
+                                if (currentEditingSituation === editingSituationOriginalName) {
+                                    currentEditingSituation = newName;
+                                    editingSituationButton.querySelector('span:first-child').textContent = currentEditingSituation;
+                                }
+                                if (currentActiveSituation === editingSituationOriginalName) {
+                                    currentActiveSituation = newName;
+                                    activeSituationButton.querySelector('span:first-child').textContent = currentActiveSituation;
+                                }
+
+                                renderSituations();
+                                alertMessage(`Situation renamed to "${newName}"`, "success");
+                            }
+                        } else {
+                            // Add new situation
+                            situations.push(newName);
+                            currentEditingSituation = newName;
+                            editingSituationButton.querySelector('span:first-child').textContent = currentEditingSituation;
+                            renderSituations();
+                            alertMessage(`Situation "${newName}" added`, "success");
+                        }
+
+                        closeAddSituationModal();
+                        editingSituationMenu.classList.add('hidden');
+                    }
+                });
+            }
+
+
+
+
+            // Function to render all situations in both dropdowns
+            function renderSituations() {
+                // Render Editing Situations
+                editingSituationContainer.innerHTML = '';
+                situations.forEach(name => {
+                    const item = document.createElement('div');
+                    item.className = `situation-item editing-situation-item group flex items-center justify-between px-4 pr-2 py-2 cursor-pointer ${name === currentEditingSituation ? 'active bg-gray-600 text-white' : 'hover:bg-gray-700'}`;
+                    item.innerHTML = `
+                        <div class="flex items-center space-x-2 min-w-0">
+                            <span class="text-sm font-medium whitespace-nowrap text-ellipsis overflow-hidden">${name}</span>
+                            ${name === currentActiveSituation ? '<span class="inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full bg-red-900 text-red-200 tracking-wider">Active</span>' : ''}
+                        </div>
+                        <div class="relative">
+                            <button class="situation-options-button">
+                                <span class="material-symbols-outlined text-lg">more_vert</span>
+                            </button>
+                            <div class="situation-options-menu options-dropdown-menu hidden right-0 min-w-[120px] shadow-2xl">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 transition">Configure</a>
+                                ${situations.length > 1 ? '<a href="#" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-600 transition">Delete</a>' : ''}
+                            </div>
+                        </div>
+                    `;
+                    setupEditingSituationItem(item, name);
+                    editingSituationContainer.appendChild(item);
+                });
+
+                // Render Active Situations
+                activeSituationItemsContainer.innerHTML = '';
+                situations.forEach(name => {
+                    const item = document.createElement('div');
+                    item.className = `situation-item active-situation-item group flex items-center justify-between px-4 py-2 cursor-pointer ${name === currentActiveSituation ? 'active bg-gray-600 text-white' : 'hover:bg-gray-700'}`;
+                    item.innerHTML = `<span class="text-sm font-medium whitespace-nowrap text-ellipsis overflow-hidden">${name}</span>`;
+                    item.addEventListener('click', () => {
+                        if (name !== currentActiveSituation) {
+                            openChangeActiveModal(name);
+                        }
+                        activeSituationMenu.classList.add('hidden');
+                    });
+                    activeSituationItemsContainer.appendChild(item);
+                });
+
+                updateActiveSituationVisibility();
+            }
+
+            function setupEditingSituationItem(item, name) {
+                const optionsButton = item.querySelector('.situation-options-button');
+                const optionsMenu = item.querySelector('.situation-options-menu');
+
+                item.addEventListener('click', (e) => {
+                    if (optionsButton.contains(e.target) || (optionsMenu && optionsMenu.contains(e.target))) return;
+                    currentEditingSituation = name;
+                    editingSituationButton.querySelector('span:first-child').textContent = name;
+                    renderSituations();
+                    editingSituationMenu.classList.add('hidden');
+                });
+
+                if (optionsButton && optionsMenu) {
+                    optionsButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isHidden = optionsMenu.classList.contains('hidden');
+                        document.querySelectorAll('.situation-options-menu').forEach(m => {
+                            if (m !== optionsMenu) m.classList.add('hidden');
+                        });
+                        optionsMenu.classList.toggle('hidden');
+                    });
+                }
+
+                optionsMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const action = link.textContent;
+
+                        if (action === 'Delete') {
+                            openDeleteSituationModal(item);
+                        } else if (action === 'Configure') {
+                            openAddSituationModal(name);
+                        } else {
+                            alertMessage(`${action} ${name} functionality coming soon!`, "info");
+                        }
+                        optionsMenu.classList.add('hidden');
+                    });
+                });
+            }
+
+            // Sync confirm delete
+            const originalConfirmDelete = confirmDeleteSituationBtn.onclick; // Wait, I used addEventListener
+            // I'll rewrite the confirmDelete listener logic inside the existing block or just replace it.
+            // Actually, I'll just replace the original confirm listener to use the 'situations' array.
+
+            confirmDeleteSituationBtn.replaceWith(confirmDeleteSituationBtn.cloneNode(true));
+            const newConfirmDeleteBtn = document.getElementById('confirm-delete-situation');
+            newConfirmDeleteBtn.addEventListener('click', () => {
+                if (situationToDelete) {
+                    const name = situationToDelete.querySelector('.text-sm').textContent;
+
+                    // Determine new active situation before filtering
+                    let newActive = currentActiveSituation;
+                    if (name === currentActiveSituation) {
+                        if (situations.length >= 2) {
+                            newActive = selectedNextActive;
+                        }
+                    }
+
+                    situations = situations.filter(s => s !== name);
+
+                    if (currentEditingSituation === name) {
+                        currentEditingSituation = situations[0];
+                        editingSituationButton.querySelector('span:first-child').textContent = currentEditingSituation;
+                    }
+
+                    // Update active situation
+                    currentActiveSituation = newActive;
+                    activeSituationButton.querySelector('span:first-child').textContent = currentActiveSituation;
+
+                    renderSituations();
+                    alertMessage(`${name} deleted`, "success");
+                    closeDeleteSituationModal();
+                }
+            });
+
+            // Initial render
+            renderSituations();
+
+
+
+            // Drag and Drop reordering logic for nav items
+            let draggedNavItem = null;
+
+            function setupNavItemDrag(item) {
+                item.addEventListener('dragstart', (e) => {
+                    draggedNavItem = item;
+                    item.classList.add('opacity-40');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('opacity-40');
+                    draggedNavItem = null;
+
+                    // Clean up highlight from all items
+                    document.querySelectorAll('.workspace-nav-item').forEach(el => el.classList.remove('border-l-2', 'border-blue-500'));
+                });
+
+                item.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+
+                    const container = item.parentNode;
+                    const rect = item.getBoundingClientRect();
+                    const next = (e.clientX - rect.left) > (rect.width / 2);
+
+                    // Simple logic: insert before or after based on pointer
+                    if (item !== draggedNavItem) {
+                        if (next) {
+                            if (item.nextSibling) {
+                                container.insertBefore(draggedNavItem, item.nextSibling);
+                            } else {
+                                container.appendChild(draggedNavItem);
+                            }
+                        } else {
+                            container.insertBefore(draggedNavItem, item);
+                        }
+                    }
+                });
+            }
+
+            // -------------------------------------------------------------------------
+            // Command Room Save / Revert / Auto-Save
+            // -------------------------------------------------------------------------
+            const saveButtons = document.getElementById('command-room-save-buttons');
+            const saveBtn = document.getElementById('command-room-save-btn');
+            const revertBtn = document.getElementById('command-room-revert-btn');
+            const autosaveToggle = document.getElementById('command-room-autosave-toggle');
+            const saveMessage = document.getElementById('command-room-save-message');
+
+            const AUTOSAVE_STORAGE_KEY = 'command-room-autosave';
+            const LAST_SAVED_KEY = 'command-room-last-saved';
+            const SAVE_SPINNER_DURATION_MS = 1500;
+
+            let lastSavedAt = null;
+
+            function getLastSavedMessage() {
+                if (!lastSavedAt) return 'Last saved 5 mins ago';
+                const diffMs = Date.now() - lastSavedAt;
+                if (diffMs < 60000) return 'Last saved just now';
+                const mins = Math.floor(diffMs / 60000);
+                if (mins < 60) return 'Last saved ' + mins + ' min' + (mins === 1 ? '' : 's') + ' ago';
+                const hours = Math.floor(mins / 60);
+                return 'Last saved ' + hours + ' hour' + (hours === 1 ? '' : 's') + ' ago';
+            }
+
+            function updateLastSavedMessage() {
+                if (saveMessage && !(autosaveToggle && autosaveToggle.checked)) {
+                    saveMessage.textContent = getLastSavedMessage();
+                }
+            }
+
+            function updateSaveUIVisibility() {
+                const autoSaveOn = autosaveToggle && autosaveToggle.checked;
+                if (saveButtons) saveButtons.classList.toggle('hidden', !!autoSaveOn);
+                if (saveMessage) {
+                    saveMessage.textContent = autoSaveOn
+                        ? 'Changes are saved automatically'
+                        : getLastSavedMessage();
+                }
+            }
+
+            if (autosaveToggle) {
+                const stored = localStorage.getItem(AUTOSAVE_STORAGE_KEY);
+                if (stored === 'true') autosaveToggle.checked = true;
+                autosaveToggle.addEventListener('change', () => {
+                    localStorage.setItem(AUTOSAVE_STORAGE_KEY, autosaveToggle.checked ? 'true' : 'false');
+                    updateSaveUIVisibility();
+                });
+                updateSaveUIVisibility();
+            }
+
+            if (saveBtn) {
+                saveBtn.addEventListener('click', () => {
+                    if (saveBtn.disabled) return;
+                    const iconSpan = saveBtn.querySelector('.save-btn-icon');
+                    const textSpan = saveBtn.querySelector('.save-btn-text');
+                    const originalIcon = iconSpan ? iconSpan.textContent : 'save';
+                    const originalText = textSpan ? textSpan.textContent : 'Save';
+                    if (iconSpan) {
+                        iconSpan.textContent = 'progress_activity';
+                        iconSpan.classList.add('animate-spin');
+                    }
+                    if (textSpan) textSpan.textContent = 'Saving...';
+                    saveBtn.disabled = true;
+                    saveBtn.classList.remove('hover:bg-red-500');
+
+                    setTimeout(() => {
+                        if (iconSpan) {
+                            iconSpan.textContent = originalIcon;
+                            iconSpan.classList.remove('animate-spin');
+                        }
+                        if (textSpan) textSpan.textContent = originalText;
+                        lastSavedAt = Date.now();
+                        localStorage.setItem(LAST_SAVED_KEY, String(lastSavedAt));
+                        updateLastSavedMessage();
+                        updateSaveUIVisibility();
+                        if (revertBtn) revertBtn.classList.add('hidden');
+                        if (typeof alertMessage === 'function') {
+                            alertMessage('Command room saved.', 'success');
+                        }
+                    }, SAVE_SPINNER_DURATION_MS);
+                });
+            }
+            const revertModal = document.getElementById('revert-changes-modal');
+            const closeRevertModalBtn = document.getElementById('close-revert-modal');
+            const cancelRevertBtn = document.getElementById('cancel-revert-btn');
+            const confirmRevertBtn = document.getElementById('confirm-revert-btn');
+
+            function openRevertModal() {
+                if (revertModal) revertModal.classList.remove('hidden');
+            }
+            function closeRevertModal() {
+                if (revertModal) revertModal.classList.add('hidden');
+            }
+
+            if (revertBtn) {
+                revertBtn.addEventListener('click', openRevertModal);
+            }
+            if (closeRevertModalBtn) closeRevertModalBtn.addEventListener('click', closeRevertModal);
+            if (cancelRevertBtn) cancelRevertBtn.addEventListener('click', closeRevertModal);
+            if (confirmRevertBtn) {
+                confirmRevertBtn.addEventListener('click', () => {
+                    closeRevertModal();
+                    if (typeof alertMessage === 'function') {
+                        alertMessage('Changes reverted to last saved state.', 'info');
+                    } else {
+                        console.log('Reverted');
+                    }
+                });
+            }
+            if (revertModal) {
+                revertModal.addEventListener('click', (e) => {
+                    if (e.target === revertModal) closeRevertModal();
+                });
+            }
+
+        });
+
+    </script>
+    </div>
+</body>
+
+</html>

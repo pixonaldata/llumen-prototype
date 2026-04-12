@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "build:tailwind": "npx @tailwindcss/cli -i ./css/styles.tailwind.css -o ./css/tailwind.css",
+    "watch:tailwind": "npx @tailwindcss/cli -i ./css/styles.tailwind.css -o ./css/tailwind.css --watch",
+    "build:llumen-components-css": "npm run build:tailwind",
+    "watch:llumen-components-css": "npm run watch:tailwind"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.2.2",
+    "tailwindcss": "^4.2.2"
+  }
+}
