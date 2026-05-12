@@ -46,8 +46,7 @@ body {
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    color: #e0e0e0;
+    font-family: 'Innovator Grotesk', 'Inter', sans-serif;
 }
 
 body,
@@ -60,7 +59,6 @@ body,
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #0d0d0d;
 }
 
 /* ===== LAYOUT STYLES ===== */
@@ -1253,178 +1251,6 @@ main.fullscreen-main {
     min-width: 3.9375rem;
 }
 
-/*FLATPICKR*/
-body .flatpickr-calendar {
-    width: auto;
-    background-color: #1f2937;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    border: 1px solid #475569;
-}
-
-body .flatpickr-calendar.ll-flatpickr-offset-enabled.arrowTop {
-    margin-top: 8px;
-}
-
-body .flatpickr-calendar.ll-flatpickr-offset-enabled.arrowBottom {
-    margin-top: -10px;
-}
-
-body .flatpickr-calendar:before,
-body .flatpickr-calendar:after {
-    display: none;
-}
-
-body .flatpickr-calendar.hasTime .flatpickr-time {
-    border-top-color: #475569;
-}
-
-body .flatpickr-current-month .flatpickr-monthDropdown-months,
-body span.flatpickr-weekday,
-body .flatpickr-calendar .flatpickr-months .flatpickr-month {
-    background-color: transparent;
-}
-
-body .flatpickr-months .flatpickr-prev-month:hover,
-body .flatpickr-months .flatpickr-next-month:hover,
-body .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
-body .numInputWrapper:hover,
-body .flatpickr-time input:hover,
-body .flatpickr-time .flatpickr-am-pm:hover,
-body .flatpickr-time input:focus,
-body .flatpickr-time .flatpickr-am-pm:focus,
-body .flatpickr-day.inRange,
-body .flatpickr-day.prevMonthDay.inRange,
-body .flatpickr-day.nextMonthDay.inRange,
-body .flatpickr-day.today.inRange,
-body .flatpickr-day.prevMonthDay.today.inRange,
-body .flatpickr-day.nextMonthDay.today.inRange,
-body .flatpickr-day:hover,
-body .flatpickr-day.prevMonthDay:hover,
-body .flatpickr-day.nextMonthDay:hover,
-body .flatpickr-day:focus,
-body .flatpickr-day.prevMonthDay:focus,
-body .flatpickr-day.nextMonthDay:focus {
-    background-color: #374151;
-    border-color: #374151;
-}
-
-body .flatpickr-months .flatpickr-prev-month:hover svg,
-body .flatpickr-months .flatpickr-next-month:hover svg {
-    fill: #fff;
-}
-
-body .flatpickr-day.selected,
-body .flatpickr-day.selected,
-body .flatpickr-day.startRange,
-body .flatpickr-day.endRange,
-body .flatpickr-day.selected.inRange,
-body .flatpickr-day.startRange.inRange,
-body .flatpickr-day.endRange.inRange,
-body .flatpickr-day.selected:focus,
-body .flatpickr-day.startRange:focus,
-body .flatpickr-day.endRange:focus,
-body .flatpickr-day.selected:hover,
-body .flatpickr-day.startRange:hover,
-body .flatpickr-day.endRange:hover,
-body .flatpickr-day.selected.prevMonthDay,
-body .flatpickr-day.startRange.prevMonthDay,
-body .flatpickr-day.endRange.prevMonthDay,
-body .flatpickr-day.selected.nextMonthDay,
-body .flatpickr-day.startRange.nextMonthDay,
-body .flatpickr-day.endRange.nextMonthDay {
-    background-color: #2663eb;
-    border-color: #2663eb;
-}
-
-body .flatpickr-months {
-    padding-top: 0.25rem;
-}
-
-body .flatpickr-months .flatpickr-prev-month,
-body .flatpickr-months .flatpickr-next-month {
-    margin: 0.375rem 0.375rem 0;
-    border-radius: 50%;
-}
-
-body .flatpickr-current-month {
-    padding-top: 0.5rem;
-    font-size: 1.125rem;
-}
-
-body .flatpickr-current-month .flatpickr-monthDropdown-months,
-body .numInputWrapper {
-    border-radius: 0.25rem;
-}
-
-body .flatpickr-current-month .flatpickr-monthDropdown-months,
-body .flatpickr-current-month input.cur-year {
-    height: 1.5rem;
-}
-
-body .flatpickr-current-month .flatpickr-monthDropdown-months {
-    margin-right: 0.5rem;
-    padding: 0;
-}
-
-body .flatpickr-innerContainer {
-    padding: 0.25rem 0.25rem 0.375rem;
-}
-
-body span.flatpickr-weekday {
-    font-weight: 500;
-}
-
-body .flatpickr-time .numInputWrapper,
-body .flatpickr-time input.flatpickr-hour {
-    border-bottom-left-radius: 8px;
-}
-
-body .flatpickr-time .flatpickr-am-pm {
-    border-bottom-right-radius: 8px;
-}
-
-.flatpickr-calendar.flatpickr-time-only {
-    padding: 0;
-}
-
-    body .flatpickr-calendar.flatpickr-time-only .flatpickr-time {
-        width: 307.875px;
-        background-color: transparent;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    body .flatpickr-calendar.flatpickr-time-only .flatpickr-time .numInputWrapper,
-    body .flatpickr-calendar.flatpickr-time-only .flatpickr-time input.flatpickr-hour {
-        border-top-left-radius: 8px;
-    }
-
-    body .flatpickr-calendar.flatpickr-time-only .flatpickr-time .flatpickr-am-pm {
-        border-top-right-radius: 8px;
-    }
-
-/* ===== DATETIMEPICKER INMENU CONTAINER ===== */
-.datetimepicker-inmenu-container .flatpickr-calendar.inline {
-    top: 0;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-}
-
-.datetimepicker-inmenu-container .flatpickr-time input.flatpickr-hour {
-    border-bottom-left-radius: 0;
-}
-
-.datetimepicker-inmenu-container .flatpickr-time .flatpickr-am-pm {
-    border-bottom-right-radius: 0;
-}
-
-.datetimepicker-inmenu-container .selection-preview {
-    padding: 0.625rem 0.75rem;
-    border-top: 1px solid #475569;
-}
 
 .node-config-json-highlight {
     background: transparent;
@@ -1494,4 +1320,137 @@ cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     top: 0.25rem;
     margin-right: 0.1875rem;
+}
+
+/* ===== COMPONENT LIBRARY: DND COMPONENT BROWSER MODAL ===== */
+.cl-dnd-component-browser-list {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .cl-dnd-component-browser-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .cl-dnd-component-browser-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.cl-dnd-component-card__content {
+    min-height: 100%;
+}
+
+.cl-dnd-component-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.cl-dnd-component-card__icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.cl-dnd-component-card__title {
+    margin: 0;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.cl-dnd-component-card__description {
+    margin: 0;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+/* ===== COMPONENT LIBRARY: HORIZONTAL CAROUSEL DEMOS ===== */
+.cl-carousel-demo-card-freeform {
+    width: 10rem;
+}
+
+.cl-carousel-demo-card-grid {
+    min-height: 8rem;
+}
+
+.cl-carousel-demo-card-content {
+    padding: 1rem;
+}
+
+.cl-carousel-demo-card-content--compact {
+    padding: 0.75rem;
+}
+
+.cl-carousel-demo-card-title {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: #fff;
+}
+
+.cl-carousel-demo-card-meta {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--ll-color-muted);
+}
+
+/* ===== COMPONENT LIBRARY: DRAG & DROP DEMOS ===== */
+.ll-cl-dnd-grid-surface {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1rem;
+    /*
+     * Fixed implicit row size (not minmax(..., auto)): with `auto`, one tall tile inflates the row
+     * track and every item in that row stretches to match. Equal min+max keeps row height stable so
+     * neighbors don’t jump when another tile’s span/content changes, while default `align-items:
+     * stretch` still lets row-span resize fill the combined row bands visually.
+     */
+    grid-auto-rows: minmax(6rem, 6rem);
+    align-content: start;
+    /* Contain drag preview layers so abs ghost/placeholder do not grow ancestor scroll height. */
+    overflow: hidden;
+}
+
+.ll-cl-dnd-placeholder {
+    border-radius: var(--radius-md, 0.375rem);
+    border: 2px dashed color-mix(in oklab, var(--color-blue-500) 50%, transparent);
+    background-color: color-mix(in oklab, var(--color-blue-900) 20%, transparent);
+}
+
+.ll-cl-dnd-ghost {
+    opacity: 0.95;
+    pointer-events: none;
+    z-index: 120;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.42);
+}
+
+/* Grid + row DnD demos: content slot flex box in `ll-card__content` (wired from `component-library-drag-drop-demos.js`). */
+.ll-cl-dnd-component-placeholder {
+    width: 100%;
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ll-cl-dnd-component-placeholder--chart {
+    aspect-ratio: 16 / 9;
+    max-width: 100%;
+    
+}
+
+.ll-cl-dnd-component-placeholder.ll-cl-dnd-component-placeholder--text {
+    max-width: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
 }

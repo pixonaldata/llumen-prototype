@@ -2307,6 +2307,7 @@
     <script src="../js/link-existing-content-modal.js"></script>
     <script src="../js/ai-chat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="../js/llumen-sortable-engine.js"></script>
     <script src="../js/llumen-components.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-json.min.js"></script>
@@ -9205,7 +9206,7 @@
                 cardBlock.draggable = false;
                 cardBlock.innerHTML = `
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-300 node-config-card-heading">${escapeHtml(itemHeadingLabel)} ${index + 1}</span>
+                        <span class="text-sm ll-dragdrop-card-list__card-heading">${escapeHtml(itemHeadingLabel)} ${index + 1}</span>
                         ${(showDragAction || showDeleteAction) ? `
                             <div class="flex items-center gap-1.5 my-[-0.25rem]">
                                 ${showDragAction ? `
@@ -16779,6 +16780,9 @@
 
         function getNodeVisualBounds(node) {
             const metrics = getNodeVisualMetrics(node);
+            if (window.LlumenComponents && typeof window.LlumenComponents.llumenSurfaceRectVisualBounds === 'function') {
+                return window.LlumenComponents.llumenSurfaceRectVisualBounds(node, metrics);
+            }
             return {
                 left: node.x - metrics.leftOverflow,
                 right: node.x + node.width + metrics.rightOverflow,
@@ -16787,66 +16791,19 @@
             };
         }
 
-        function areNodesOverlappingWithMargin(a, b, margin = NODE_MARGIN) {
-            const aBounds = getNodeVisualBounds(a);
-            const bBounds = getNodeVisualBounds(b);
-            return !(
-                aBounds.right + margin <= bBounds.left ||
-                bBounds.right + margin <= aBounds.left ||
-                aBounds.bottom + margin <= bBounds.top ||
-                bBounds.bottom + margin <= aBounds.top
-            );
-        }
-
-        function moveNodeAwayFromBase(baseNode, movingNode, margin = NODE_MARGIN) {
-            const baseBounds = getNodeVisualBounds(baseNode);
-            const movingBounds = getNodeVisualBounds(movingNode);
-            const movingMetrics = getNodeVisualMetrics(movingNode);
-
-            const baseCenterX = (baseBounds.left + baseBounds.right) / 2;
-            const baseCenterY = (baseBounds.top + baseBounds.bottom) / 2;
-            const movingCenterX = (movingBounds.left + movingBounds.right) / 2;
-            const movingCenterY = (movingBounds.top + movingBounds.bottom) / 2;
-            const dx = movingCenterX - baseCenterX;
-            const dy = movingCenterY - baseCenterY;
-            const horizontalPriority = Math.abs(dx) >= Math.abs(dy);
-
-            if (horizontalPriority) {
-                movingNode.x = dx >= 0
-                    ? baseBounds.right + margin + movingMetrics.leftOverflow
-                    : baseBounds.left - margin - movingNode.width - movingMetrics.rightOverflow;
-            } else {
-                movingNode.y = dy >= 0
-                    ? baseBounds.bottom + margin + NODE_VERTICAL_SHIFT_BONUS + movingMetrics.topOverflow
-                    : baseBounds.top - margin - NODE_VERTICAL_SHIFT_BONUS - movingNode.height - movingMetrics.bottomOverflow;
-            }
-
-            movingNode.x = Math.max(20, movingNode.x);
-            movingNode.y = Math.max(20, movingNode.y);
-        }
-
         function resolveNodeOverlaps(anchorNodeIds, margin = NODE_MARGIN) {
             if (!anchorNodeIds || anchorNodeIds.length === 0) return;
-
-            const fixedNodeIds = new Set(anchorNodeIds);
-            const queue = [...anchorNodeIds];
-            let safetyCounter = 0;
-            const maxIterations = 1200;
-
-            while (queue.length > 0 && safetyCounter < maxIterations) {
-                safetyCounter += 1;
-                const baseNodeId = queue.shift();
-                const baseNode = getNodeById(baseNodeId);
-                if (!baseNode) continue;
-
-                state.nodes.forEach(candidate => {
-                    if (!candidate || candidate.id === baseNodeId) return;
-                    if (fixedNodeIds.has(candidate.id)) return;
-                    if (!areNodesOverlappingWithMargin(baseNode, candidate, margin)) return;
-                    moveNodeAwayFromBase(baseNode, candidate, margin);
-                    queue.push(candidate.id);
-                });
+            const lc = window.LlumenComponents;
+            if (!lc || typeof lc.resolveLlumenSurfaceRectOverlaps !== 'function') {
+                return;
             }
+            lc.resolveLlumenSurfaceRectOverlaps(state.nodes, anchorNodeIds, {
+                getVisualMetrics: getNodeVisualMetrics,
+                margin,
+                verticalShiftBonus: NODE_VERTICAL_SHIFT_BONUS,
+                minX: 20,
+                minY: 20
+            });
         }
 
         function isValidConnectionTarget(fromNodeId, toNodeId, fromPortId = 'out_1', toPortId = 'in_1', existingConnectionId = null) {

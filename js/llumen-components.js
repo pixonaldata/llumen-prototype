@@ -123,13 +123,45 @@
             onInput = null,
             onClear = null
         } = options;
-        const clearButton = clearButtonId ? document.getElementById(clearButtonId) : null;
         if (input.dataset[datasetFlag] === 'true') return;
+        let clearButton = clearButtonId ? document.getElementById(clearButtonId) : null;
+        if (!clearButton) {
+            const wrapper = input.closest('.ll-input-with-left-icon');
+            if (wrapper) {
+                clearButton = document.createElement('button');
+                clearButton.type = 'button';
+                clearButton.id = clearButtonId || `${inputId}-clear`;
+                clearButton.className = 'll-icon-btn ll-clear-btn hidden';
+                clearButton.setAttribute('aria-label', 'Clear search');
+                clearButton.setAttribute('data-tooltip', 'Clear Search');
+                clearButton.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>';
+                wrapper.appendChild(clearButton);
+            }
+        }
+        if (clearButton) {
+            const normalizedClearButtonClasses = String(clearButton.className || '')
+                .split(/\s+/)
+                .filter((token) => token
+                    && token !== 'll-icon-btn'
+                    && token !== 'll-clear-btn'
+                    && token !== 'll-search-clear-btn'
+                    && token !== 'll-datetime-clear-btn'
+                    && token !== 'll-dropdown__selection-clear');
+            clearButton.className = ['ll-icon-btn', 'll-clear-btn', ...normalizedClearButtonClasses].join(' ');
+            const clearIcon = clearButton.querySelector('.material-symbols-outlined');
+            if (clearIcon) {
+                clearIcon.classList.add('ll-icon-btn__icon');
+            }
+        }
 
         const updateClearVisibility = () => {
-            if (!clearButton) return;
             const hasValue = input.value.trim().length > 0;
-            clearButton.classList.toggle('hidden', !hasValue);
+            if (clearButton) {
+                clearButton.classList.toggle('hidden', !hasValue);
+            }
+            if (input.classList.contains('ll-input--search')) {
+                input.classList.toggle('ll-input--search__has-value', Boolean(clearButton && hasValue));
+            }
         };
 
         input.addEventListener('input', () => {
@@ -261,6 +293,12 @@
         if (!input || input.dataset.datetimeInputBound === 'true') return;
         if (typeof globalScope.flatpickr !== 'function') return;
         input.readOnly = true;
+        const {
+            clearable = false,
+            onChange: userOnChange = null,
+            onValueUpdate: userOnValueUpdate = null,
+            ...flatpickrOptions
+        } = options || {};
         const datetimeField = input.closest('.ll-input-with-left-icon, .ll-datetime-field, .custom-field-with-left-element--datetime');
         if (datetimeField) {
             const iconElement = datetimeField.querySelector('.ll-input-with-left-icon__icon, .ll-datetime-field__icon, .calendar-icon, .ll-expression-field__fx-icon, .expression-editor-fx-icon');
@@ -283,14 +321,77 @@
             }
         }
 
+        let clearButton = null;
+        const updateClearVisibility = () => {
+            if (!clearButton) return;
+            const hasValue = input.value.trim().length > 0;
+            clearButton.classList.toggle('hidden', !hasValue);
+            if (input.classList.contains('ll-input--datetime')) {
+                input.classList.toggle('ll-input--datetime__has-value', hasValue);
+            }
+        };
+        if (clearable && datetimeField) {
+            clearButton = datetimeField.querySelector('.ll-clear-btn, .ll-datetime-clear-btn');
+            if (!clearButton) {
+                clearButton = document.createElement('button');
+                clearButton.type = 'button';
+                clearButton.id = `${inputId}-clear`;
+                clearButton.className = 'll-icon-btn ll-clear-btn hidden';
+                clearButton.setAttribute('aria-label', 'Clear date and time');
+                clearButton.setAttribute('data-tooltip', 'Clear date and time');
+                clearButton.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>';
+                datetimeField.appendChild(clearButton);
+            }
+            const normalizedClearButtonClasses = String(clearButton.className || '')
+                .split(/\s+/)
+                .filter((token) => token
+                    && token !== 'll-icon-btn'
+                    && token !== 'll-clear-btn'
+                    && token !== 'll-search-clear-btn'
+                    && token !== 'll-datetime-clear-btn'
+                    && token !== 'll-dropdown__selection-clear');
+            clearButton.className = ['ll-icon-btn', 'll-clear-btn', ...normalizedClearButtonClasses].join(' ');
+        }
+
+        const runFlatpickrHook = (hook, selectedDates, dateStr, instance) => {
+            if (typeof hook === 'function') {
+                hook(selectedDates, dateStr, instance);
+                return;
+            }
+            if (!Array.isArray(hook)) return;
+            hook.forEach((callback) => {
+                if (typeof callback === 'function') {
+                    callback(selectedDates, dateStr, instance);
+                }
+            });
+        };
         const config = {
             enableTime: true,
             time_24hr: false,
             dateFormat: 'F j, Y \\a\\t h:i K',
             allowInput: true,
-            ...options
+            ...flatpickrOptions,
+            onChange: (selectedDates, dateStr, instance) => {
+                runFlatpickrHook(userOnChange, selectedDates, dateStr, instance);
+                updateClearVisibility();
+            },
+            onValueUpdate: (selectedDates, dateStr, instance) => {
+                runFlatpickrHook(userOnValueUpdate, selectedDates, dateStr, instance);
+                updateClearVisibility();
+            }
         };
-        initializeToggleableFlatpickrOnInput(input, config);
+        const pickerInstance = initializeToggleableFlatpickrOnInput(input, config);
+        if (clearButton && pickerInstance && clearButton.dataset.datetimeClearBound !== 'true') {
+            clearButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                pickerInstance.clear();
+                updateClearVisibility();
+                input.focus();
+            });
+            clearButton.dataset.datetimeClearBound = 'true';
+            updateClearVisibility();
+        }
         input.dataset.datetimeInputBound = 'true';
     }
 
@@ -1507,6 +1608,19 @@
             return `{{ ${jsonPath} }}`;
         }
 
+        function getExpressionEditorTokenFromDatetimeValue(datetimeValue) {
+            const normalized = datetimeValue === null || datetimeValue === undefined
+                ? ''
+                : String(datetimeValue).trim();
+            if (!normalized) return '';
+            if (normalized.startsWith('specific:')) {
+                const specificRawValue = normalized.slice('specific:'.length).trim();
+                if (!specificRawValue) return '';
+                return `{{ new Date(${JSON.stringify(specificRawValue)}) }}`;
+            }
+            return `{{ ${normalized} }}`;
+        }
+
         function getExpressionEditorDatetimeDynamicOptionItems() {
             return [
                 { label: 'Now', value: 'dynamic_now' },
@@ -1888,7 +2002,7 @@
                             <span class="ll-expression-fixed-datetime-selected ll-expression-fixed-selected">Select date and time</span>
                             <span class="material-symbols-outlined ll-expression-fixed-chevron">expand_more</span>
                         </button>
-                        <div id="${editorIdBase}-fixed-datetime-menu" class="ll-dropdown__menu right-auto hidden overflow-y-auto"></div>
+                        <div id="${editorIdBase}-fixed-datetime-menu" class="ll-dropdown__menu hidden"></div>
                     </div>
                     <div class="hidden" data-expression-editor-fixed-input="boolean">
                         <button id="${editorIdBase}-fixed-boolean-btn" type="button"
@@ -1896,7 +2010,7 @@
                             <span class="ll-expression-fixed-boolean-selected ll-expression-fixed-selected">True</span>
                             <span class="material-symbols-outlined ll-expression-fixed-chevron">expand_more</span>
                         </button>
-                        <div id="${editorIdBase}-fixed-boolean-menu" class="ll-dropdown__menu right-auto hidden overflow-y-auto">
+                        <div id="${editorIdBase}-fixed-boolean-menu" class="ll-dropdown__menu hidden">
                             <button type="button" class="ll-dropdown__item ll-active" data-value="true">True</button>
                             <button type="button" class="ll-dropdown__item" data-value="false">False</button>
                         </div>
@@ -1907,7 +2021,7 @@
                             <span class="ll-expression-fixed-select-selected ll-expression-fixed-selected">Select property</span>
                             <span class="material-symbols-outlined ll-expression-fixed-chevron">expand_more</span>
                         </button>
-                        <div id="${editorIdBase}-fixed-select-menu" class="ll-dropdown__menu right-auto hidden overflow-y-auto"></div>
+                        <div id="${editorIdBase}-fixed-select-menu" class="ll-dropdown__menu hidden"></div>
                     </div>
                 `;
                 field.appendChild(container);
@@ -1940,6 +2054,8 @@
                         menuId: datetimeMenu.id,
                         selectedValueSelector: '.ll-expression-fixed-datetime-selected',
                         datasetFlag: 'expressionEditorDatetimeDropdownBound',
+                        menuType: 'selection',
+                        clearable: true,
                         defaultValue: editor.dataset.expressionDatetimeValue || '',
                         emptySelectionLabel: 'Select date and time',
                         multiLevelConfig: {
@@ -1957,7 +2073,7 @@
                                         container.appendChild(wrapper);
                                         const datetimeInput = document.createElement('input');
                                         datetimeInput.type = 'text';
-                                        datetimeInput.className = 'absolute opacity-0 pointer-events-none w-0 h-0';
+                                        datetimeInput.className = 'll-expression-datetime-native-input';
                                         wrapper.appendChild(datetimeInput);
                                         const calendarMount = document.createElement('div');
                                         calendarMount.className = '';
@@ -1965,10 +2081,10 @@
                                         const selectedValueSection = document.createElement('div');
                                         selectedValueSection.className = 'selection-preview';
                                         const selectedValueLabel = document.createElement('div');
-                                        selectedValueLabel.className = 'text-xs text-gray-400';
+                                        selectedValueLabel.className = 'selection-label';
                                         selectedValueLabel.textContent = 'Selected date and time:';
                                         const selectedValueText = document.createElement('div');
-                                        selectedValueText.className = 'mt-1 text-sm text-gray-200 break-words';
+                                        selectedValueText.className = 'selection-value';
                                         selectedValueSection.appendChild(selectedValueLabel);
                                         selectedValueSection.appendChild(selectedValueText);
                                         wrapper.appendChild(selectedValueSection);
@@ -2018,10 +2134,17 @@
                         onValueChange: ({ value, label }) => {
                             const nextValue = String(value || '');
                             const nextLabel = String(label || '');
-                            if (nextValue !== EXPRESSION_EDITOR_DATETIME_SPECIFIC_SELECTION_VALUE) {
-                                editor.dataset.expressionDatetimeValue = nextValue;
-                                editor.dataset.expressionDatetimeLabel = nextLabel;
-                            }
+                            const resolvedDatetimeValue = nextValue === EXPRESSION_EDITOR_DATETIME_SPECIFIC_SELECTION_VALUE
+                                ? String(editor.dataset.expressionDatetimeValue || '')
+                                : nextValue;
+                            const resolvedDatetimeLabel = nextValue === EXPRESSION_EDITOR_DATETIME_SPECIFIC_SELECTION_VALUE
+                                ? String(editor.dataset.expressionDatetimeLabel || nextLabel)
+                                : nextLabel;
+                            editor.dataset.expressionDatetimeValue = resolvedDatetimeValue;
+                            editor.dataset.expressionDatetimeLabel = resolvedDatetimeLabel;
+                            const tokenText = getExpressionEditorTokenFromDatetimeValue(resolvedDatetimeValue);
+                            updateExpressionEditorContent(editor, tokenText, null, 'expression');
+                            syncExpressionEditorSelectLock(editor);
                             if (typeof editor.__expressionEditorOnChange === 'function') {
                                 editor.__expressionEditorOnChange(getExpressionEditorCurrentValue(editor));
                             }
@@ -2043,6 +2166,8 @@
                         menuId: selectMenu.id,
                         selectedValueSelector: '.ll-expression-fixed-select-selected',
                         datasetFlag: 'expressionEditorSelectDropdownBound',
+                        menuType: 'selection',
+                        clearable: true,
                         defaultValue: editor.dataset.expressionSelectValue || '',
                         emptySelectionLabel: 'Select property',
                         multiLevelConfig: {
@@ -2060,7 +2185,9 @@
                         onValueChange: ({ value }) => {
                             editor.dataset.expressionSelectValue = String(value || '');
                             editor.dataset.expressionSelectOrphanPath = '';
-                            const tokenText = getExpressionEditorTokenFromJsonPath(editor.dataset.expressionSelectValue);
+                            const tokenText = editor.dataset.expressionSelectValue
+                                ? getExpressionEditorTokenFromJsonPath(editor.dataset.expressionSelectValue)
+                                : '';
                             updateExpressionEditorContent(editor, tokenText, null, 'expression');
                             if (typeof editor.__expressionEditorOnChange === 'function') {
                                 editor.__expressionEditorOnChange(getExpressionEditorCurrentValue(editor));
@@ -2090,6 +2217,7 @@
                         menuId: booleanMenu.id,
                         selectedValueSelector: '.ll-expression-fixed-boolean-selected',
                         datasetFlag: 'expressionEditorBooleanDropdownBound',
+                        menuType: 'selection',
                         onValueChange: ({ value }) => {
                             const nextValue = String(value || 'true').trim().toLowerCase() === 'false'
                                 ? 'false'
@@ -2660,7 +2788,7 @@
                     </span>
                     <span class="ll-expression-mode-switch__chevron material-symbols-outlined">expand_more</span>
                 </button>
-                <div id="${switchMenuId}" class="ll-dropdown__menu right-auto hidden overflow-y-auto">
+                <div id="${switchMenuId}" class="ll-dropdown__menu hidden">
                     <button type="button" class="ll-dropdown__item${currentView === 'fixed' ? ' ll-active' : ''}" data-expression-editor-switch-option="fixed" data-value="fixed">
                         <span class="ll-dropdown__label-wrap">
                             <span class="material-symbols-outlined ll-dropdown__item-icon ll-dropdown__icon-color-muted">${escapeHtml(fixedModeDef.icon)}</span>
@@ -2681,6 +2809,7 @@
                 buttonId: switchButtonId,
                 menuId: switchMenuId,
                 datasetFlag: 'expressionEditorModeSwitchBound',
+                menuType: 'selection',
                 align: 'left',
                 matchTriggerWidth: false,
                 minMenuWidthPx: 170,
@@ -2739,12 +2868,12 @@
             }
             if (field && field.dataset.expressionEditorFocusBound !== 'true') {
                 field.addEventListener('focusin', () => {
-                    field.classList.add('ring-2', 'ring-blue-500');
+                    field.classList.add('ll-expression-field--focus');
                 });
                 field.addEventListener('focusout', () => {
                     window.setTimeout(() => {
                         if (!field.contains(document.activeElement)) {
-                            field.classList.remove('ring-2', 'ring-blue-500');
+                            field.classList.remove('ll-expression-field--focus');
                         }
                     }, 0);
                 });
@@ -3149,18 +3278,9 @@
             const createDragGhost = (propertyLabel, propertyIcon) => {
                 const ghost = document.createElement('div');
                 ghost.dataset.expressionDragGhost = 'true';
-                ghost.className = 'inline-flex items-center rounded-full border border-gray-600 bg-gray-900 text-gray-200 shadow-md ll-expression-font';
-                ghost.style.position = 'fixed';
-                ghost.style.top = '-9999px';
-                ghost.style.left = '-9999px';
-                ghost.style.pointerEvents = 'none';
-                ghost.style.padding = '0.25rem 0.5rem';
-                ghost.style.gap = '0.375rem';
-                ghost.style.fontSize = '0.75rem';
-                ghost.style.lineHeight = '1rem';
-                ghost.style.whiteSpace = 'nowrap';
+                ghost.className = 'll-expression-drag-ghost ll-expression-font';
                 ghost.innerHTML = `
-                    <span class="material-symbols-outlined text-blue-300" style="font-size: 1rem; line-height: 1rem;">${escapeHtml(propertyIcon || 'title')}</span>
+                    <span class="material-symbols-outlined ll-expression-drag-ghost__icon">${escapeHtml(propertyIcon || 'title')}</span>
                     <span>${escapeHtml(propertyLabel || '')}</span>
                 `;
                 return ghost;
@@ -3174,7 +3294,7 @@
                     if (item.dataset.expressionDropSourceBound === 'true') return;
                     item.classList.add('ll-expression-font');
                     item.draggable = true;
-                    item.classList.add('cursor-grab');
+                    item.classList.add('ll-expression-drop-source-item');
                     item.addEventListener('dragstart', (event) => {
                         let path = normalizeDroppedExpressionJsonPath(item.dataset.expressionDemoPath || '');
                         const rootTransformer = rootPathTransformers[treeRoot.id];
@@ -3268,15 +3388,21 @@
             selectedValueSelector = null,
             datasetFlag = 'dropdownBound',
             align = 'left',
-            matchTriggerWidth = true,
+            matchTriggerWidth = false,
             multiLevelConfig = null,
             groupedOptions = null,
             defaultValue = '',
             emptySelectionLabel = '',
             onValueChange = null,
-            minMenuWidthPx = 220,
+            minMenuWidthPx = 128,
             selectedPrefixWrapperClassName = '',
-            containerClassName = ''
+            containerClassName = '',
+            menuType = 'action',
+            selectionType = 'single',
+            clearable = false,
+            dropdownIcon = '',
+            dropdownLabel = '',
+            showLabel = true
         }) {
             const dropdownButton = document.getElementById(buttonId);
             const escapedMenuId = typeof CSS !== 'undefined' && CSS.escape
@@ -3351,6 +3477,16 @@
                 : (groupedOptions && Array.isArray(groupedOptions.groups) ? groupedOptions.groups : null);
             const hasGroupedOptions = Boolean(!isMultiLevel && Array.isArray(groupedOptionGroupsInput));
             const allowEmptySelection = Boolean(multiLevelConfig && multiLevelConfig.allowEmptySelection === true);
+            const menuTypeNormalized = String(menuType == null ? '' : menuType).trim().toLowerCase();
+            const isSelectionMenuType = menuTypeNormalized === 'selection';
+            const selectionTypeNormalized = String(selectionType == null ? '' : selectionType).trim().toLowerCase() === 'multiple'
+                ? 'multiple'
+                : 'single';
+            const isMultiSelection = isSelectionMenuType && selectionTypeNormalized === 'multiple';
+            const isClearableSelection = isSelectionMenuType && (isMultiSelection || Boolean(clearable));
+            const resolvedDropdownIcon = String(dropdownIcon || '').trim();
+            const resolvedDropdownLabel = String(dropdownLabel || '').trim();
+            const shouldShowDropdownLabel = Boolean(showLabel) && Boolean(resolvedDropdownLabel);
             const resolvedDefaultValue = typeof defaultValue === 'string'
                 ? defaultValue
                 : String(defaultValue || '');
@@ -3372,7 +3508,6 @@
                 : '';
             const showItemIconsAtAllLevels = Boolean(multiLevelConfig && multiLevelConfig.showItemIconsAtAllLevels === true);
             const enableRootAccordion = Boolean(multiLevelConfig && multiLevelConfig.rootAccordionMode === true);
-            const rootAccordionFixedWidthPx = enableRootAccordion ? 320 : null;
             const submenuLevelGap = 6;
             const openSubmenus = [];
             const resolveDropdownIconColorClass = (rawColorClass, fallbackVariant = 'muted') => {
@@ -3402,6 +3537,8 @@
             let selectedLeafLabel = '';
             let selectedPrefixHtml = '';
             let selectedAncestorTriggerKeys = [];
+            const selectedSimpleValues = new Set();
+            let clearSelectionButton = null;
             let suppressOnValueChange = false;
             let rootItemsContainer = null;
             let searchResultsContainer = null;
@@ -3447,7 +3584,7 @@
                 }
                 dropdownMenu.classList.add('hidden');
                 dropdownButton.setAttribute('aria-expanded', 'false');
-                removeDropdownFromStack(dropdownStackKey);
+                removeOverlayDropdownEntry(dropdownStackKey);
             };
 
             const getOpenMenuContainers = () => {
@@ -3462,7 +3599,7 @@
             };
 
             const registerDropdownAsOpen = () => {
-                pushDropdownToStack({
+                pushOverlayDropdownEntry({
                     key: dropdownStackKey,
                     trigger: dropdownButton,
                     close: closeDropdown,
@@ -3505,7 +3642,9 @@
                 const visualGap = 10;
                 const viewportPadding = 8;
                 const buttonRect = dropdownButton.getBoundingClientRect();
-                const isFullWidthMenu = dropdownMenu.classList.contains('w-full');
+                const shouldMatchTriggerWidth = !isMultiLevel && Boolean(matchTriggerWidth);
+                const isFullWidthMenu = shouldMatchTriggerWidth
+                    || dropdownMenu.classList.contains('w-full');
                 const hasInlineMinWidthOverride = typeof minMenuWidthPx === 'number' && Number.isFinite(minMenuWidthPx);
                 const effectiveMinWidth = hasInlineMinWidthOverride ? Math.max(0, minMenuWidthPx) : 0;
                 const maxAllowedWidth = Math.max(effectiveMinWidth, Math.min(420, window.innerWidth - (viewportPadding * 2)));
@@ -3517,10 +3656,6 @@
                     dropdownMenu.style.width = `${buttonRect.width}px`;
                     dropdownMenu.style.minWidth = `${buttonRect.width}px`;
                     dropdownMenu.style.maxWidth = `${buttonRect.width}px`;
-                } else if (typeof rootAccordionFixedWidthPx === 'number' && Number.isFinite(rootAccordionFixedWidthPx)) {
-                    dropdownMenu.style.width = `${rootAccordionFixedWidthPx}px`;
-                    dropdownMenu.style.minWidth = `${rootAccordionFixedWidthPx}px`;
-                    dropdownMenu.style.maxWidth = `${rootAccordionFixedWidthPx}px`;
                 } else {
                     dropdownMenu.style.width = 'max-content';
                     dropdownMenu.style.minWidth = hasInlineMinWidthOverride ? `${effectiveMinWidth}px` : '';
@@ -3592,7 +3727,26 @@
                 `;
             };
 
+            const clearAllPortaledSelectionHighlight = () => {
+                const menuRoots = [dropdownMenu].concat(
+                    openSubmenus.map((record) => (record && record.element) || null).filter(Boolean)
+                );
+                menuRoots.forEach((menuElement) => {
+                    if (!menuElement || menuElement.nodeType !== 1) return;
+                    menuElement.querySelectorAll('[data-dropdown-leaf-value], [data-dropdown-trigger-key], [data-dropdown-middle-parent-option="true"]').forEach((el) => {
+                        el.classList.remove('ll-active');
+                    });
+                    menuElement.querySelectorAll('[data-dropdown-middle-parent-button="true"]').forEach((btn) => {
+                        btn.classList.remove('ll-active');
+                    });
+                });
+            };
+
             const markSelectedLeafClasses = () => {
+                if (!isSelectionMenuType) {
+                    clearAllPortaledSelectionHighlight();
+                    return;
+                }
                 const applySelectionClasses = (menuElement) => {
                     if (!menuElement) return;
                     menuElement.querySelectorAll('[data-dropdown-leaf-value]').forEach((itemEl) => {
@@ -3600,6 +3754,10 @@
                         itemEl.classList.toggle('ll-active', isSelected);
                     });
                     menuElement.querySelectorAll('[data-dropdown-trigger-key]').forEach((triggerEl) => {
+                        if (triggerEl.classList.contains('ll-dropdown__submenu-icon-trigger')) {
+                            triggerEl.classList.remove('ll-active');
+                            return;
+                        }
                         const triggerKey = triggerEl.dataset.dropdownTriggerKey || '';
                         const isSelectedAncestor = selectedAncestorTriggerKeys.some((selectedKey) => {
                             if (selectedKey === triggerKey) return true;
@@ -3637,8 +3795,13 @@
                 selectedLeafValue = value;
                 selectedPrefixHtml = prefixHtml || '';
                 selectedAncestorTriggerKeys = Array.isArray(ancestorTriggerKeys) ? ancestorTriggerKeys : [];
-                renderSelectedValue(selectedLeafLabel, selectedPrefixHtml, false);
-                markSelectedLeafClasses();
+                if (isSelectionMenuType) {
+                    renderSelectedValue(selectedLeafLabel, selectedPrefixHtml, false);
+                    markSelectedLeafClasses();
+                } else {
+                    clearAllPortaledSelectionHighlight();
+                }
+                syncSharedClearButtonVisibility(Boolean(selectedLeafValue));
                 if (!suppressOnValueChange && typeof onValueChange === 'function') {
                     onValueChange({
                         label: selectedLeafLabel,
@@ -3649,6 +3812,66 @@
             };
             const selectValueDirect = (label, value, prefixHtml = '', ancestorTriggerKeys = []) => {
                 updateSelection(label, value, prefixHtml, ancestorTriggerKeys);
+            };
+            const ensureSharedClearButton = () => {
+                if (!isClearableSelection || !dropdownButton) return null;
+                if (clearSelectionButton && clearSelectionButton.isConnected) return clearSelectionButton;
+                let triggerShell = dropdownButton.parentElement;
+                if (!triggerShell || !triggerShell.classList || !triggerShell.classList.contains('ll-dropdown__trigger-shell')) {
+                    const shell = document.createElement('div');
+                    shell.className = 'll-dropdown__trigger-shell';
+                    if (dropdownButton.parentElement) {
+                        dropdownButton.parentElement.insertBefore(shell, dropdownButton);
+                    }
+                    shell.appendChild(dropdownButton);
+                    triggerShell = shell;
+                }
+                triggerShell.classList.add('ll-dropdown__trigger-shell');
+                const shouldFillTriggerShell = dropdownButton.classList.contains('ll-dropdown__button')
+                    || dropdownButton.classList.contains('ll-input')
+                    || dropdownButton.classList.contains('w-full');
+                triggerShell.classList.toggle('ll-dropdown__trigger-shell--fill', shouldFillTriggerShell);
+                clearSelectionButton = document.createElement('button');
+                clearSelectionButton.type = 'button';
+                clearSelectionButton.className = 'll-icon-btn ll-clear-btn hidden';
+                clearSelectionButton.setAttribute('aria-label', 'Clear selections');
+                clearSelectionButton.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>';
+                clearSelectionButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (typeof dropdownButton.__clearPortaledDropdownSelection === 'function') {
+                        dropdownButton.__clearPortaledDropdownSelection();
+                    }
+                    if (typeof onValueChange === 'function') {
+                        if (isMultiSelection) {
+                            onValueChange({
+                                label: '',
+                                labels: [],
+                                value: [],
+                                values: [],
+                                prefixHtml: ''
+                            });
+                        } else {
+                            onValueChange({
+                                label: '',
+                                value: '',
+                                prefixHtml: ''
+                            });
+                        }
+                    }
+                    closeDropdown();
+                });
+                if (triggerShell) {
+                    triggerShell.appendChild(clearSelectionButton);
+                }
+                return clearSelectionButton;
+            };
+            const syncSharedClearButtonVisibility = (hasSelection) => {
+                if (!isClearableSelection) return;
+                const clearBtn = ensureSharedClearButton();
+                if (!clearBtn) return;
+                clearBtn.classList.toggle('hidden', !Boolean(hasSelection));
+                dropdownButton.classList.toggle('ll-dropdown__trigger--clear-visible', Boolean(hasSelection));
             };
 
             const positionSubmenu = (submenuElement, triggerElement) => {
@@ -3913,10 +4136,10 @@
                 container.innerHTML = '';
                 if (enableRootAccordion && level === 0) {
                     const rootTree = document.createElement('ul');
-                    rootTree.className = 'text-sm';
+                    rootTree.className = 'll-dropdown__tree-root';
                     rootTree.dataset.treeExpandMode = 'accordion';
                     rootTree.dataset.treeAnimate = 'false';
-                    rootTree.dataset.treeChildIndentClass = 'ml-[1.875rem]';
+                    rootTree.dataset.treeChildIndentClass = 'll-dropdown__tree-child-indent';
                     const accordionIdBase = String(buttonId || 'dropdown').replace(/[^a-zA-Z0-9_-]/g, '-');
                     items.forEach((item, index) => {
                         const li = document.createElement('li');
@@ -3947,12 +4170,12 @@
 
                             const childList = document.createElement('ul');
                             childList.id = childListId;
-                            childList.className = 'ml-11 overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out hidden';
+                            childList.className = 'll-dropdown__tree-child-list ll-dropdown__tree-child-list--root hidden';
                             childList.style.maxHeight = '0px';
                             childList.style.opacity = '0';
 
                             const childContent = document.createElement('div');
-                            childContent.className = 'py-1';
+                            childContent.className = 'll-dropdown__tree-child-content';
                             const rootPrefix = inheritedTopLevelPrefixHtml || item.selectionPrefixHtml || '';
                             renderMenuItems(
                                 childContent,
@@ -4075,6 +4298,7 @@
                     selectedAncestorTriggerKeys = [];
                     renderSelectedValue('', '', true);
                     markSelectedLeafClasses();
+                    syncSharedClearButtonVisibility(false);
                 };
 
                 const setMultiLevelValue = (value, emitChange = false) => {
@@ -4110,22 +4334,21 @@
                             <input id="${searchInputId}" type="text" placeholder="${escapeHtml(searchPlaceholder)}"
                                 class="ll-input ll-input--search ll-input-with-left-icon__input">
                             <button id="${searchClearId}" type="button"
-                                class="ll-search-clear-btn hidden"
+                                class="ll-icon-btn ll-clear-btn hidden"
                                 data-tooltip="Clear Search">
-                                <span class="material-symbols-outlined">close</span>
+                                <span class="material-symbols-outlined ll-icon-btn__icon">close</span>
                             </button>
                         </div>
                     `;
                     const outerWrapper = document.createElement('div');
-                    outerWrapper.className = 'flex flex-col h-full overflow-hidden';
+                    outerWrapper.className = 'll-dropdown__search-layout';
                     const contentWrapper = document.createElement('div');
-                    contentWrapper.className = 'flex-1 overflow-y-auto';
+                    contentWrapper.className = 'll-dropdown__search-content';
                     rootItemsContainer = document.createElement('div');
-                    rootItemsContainer.className = 'py-2';
+                    rootItemsContainer.className = 'll-dropdown__search-root-items';
                     searchResultsContainer = document.createElement('div');
-                    searchResultsContainer.className = 'hidden py-2';
+                    searchResultsContainer.className = 'll-dropdown__search-results hidden';
                     dropdownMenu.innerHTML = '';
-                    dropdownMenu.classList.remove('overflow-y-auto');
                     dropdownMenu.classList.add('ll-dropdown__menu--searchable');
                     contentWrapper.appendChild(rootItemsContainer);
                     contentWrapper.appendChild(searchResultsContainer);
@@ -4184,10 +4407,10 @@
                                 });
 
                                 const groupedTree = document.createElement('ul');
-                                groupedTree.className = 'text-sm';
+                                groupedTree.className = 'll-dropdown__tree-root';
                                 groupedTree.dataset.treeExpandMode = 'tree';
                                 groupedTree.dataset.treeAnimate = 'false';
-                                groupedTree.dataset.treeChildIndentClass = 'ml-[1.875rem]';
+                                groupedTree.dataset.treeChildIndentClass = 'll-dropdown__tree-child-indent';
                                 const searchTreeBase = `${searchIdBase}-search-group`;
                                 let rootIndex = 0;
                                 groupedByRoot.forEach((groupItems, rootLabel) => {
@@ -4212,7 +4435,7 @@
 
                                     const childList = document.createElement('ul');
                                     childList.id = childListId;
-                                    childList.className = 'ml-9 overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out hidden';
+                                    childList.className = 'll-dropdown__tree-child-list ll-dropdown__tree-child-list--search hidden';
                                     childList.style.maxHeight = '0px';
                                     childList.style.opacity = '0';
 
@@ -4296,14 +4519,14 @@
                     }
                     triggerButton.classList.add('ll-dropdown__item--parent-active');
                     const submenu = document.createElement('div');
-                    submenu.className = 'll-dropdown__menu right-auto hidden overflow-y-auto';
+                    submenu.className = 'll-dropdown__menu hidden';
                     submenu.style.position = 'absolute';
                     submenu.style.right = 'auto';
                     submenu.style.zIndex = '10000';
                     submenu.style.marginTop = '0';
                     submenu.style.width = 'max-content';
-                    submenu.style.minWidth = '220px';
-                    submenu.style.maxWidth = `${Math.max(220, Math.min(420, window.innerWidth - 16))}px`;
+                    submenu.style.minWidth = '128px';
+                    submenu.style.maxWidth = `${Math.max(128, Math.min(420, window.innerWidth - 16))}px`;
 
                     const submenuAncestorTriggerKeys = [];
                     const triggerKey = triggerButton.dataset.dropdownTriggerKey || '';
@@ -4378,17 +4601,22 @@
 
                 // Initial dropdown state should not emit change callbacks while controls are still mounting.
                 suppressOnValueChange = true;
-                if (fallbackLeaf && (resolvedDefaultValue || !allowEmptySelection)) {
+                if (
+                    isSelectionMenuType
+                    && fallbackLeaf
+                    && (resolvedDefaultValue || !allowEmptySelection)
+                ) {
                     updateSelection(
                         fallbackLeaf.selectionLabel || fallbackLeaf.label,
                         fallbackLeaf.value,
                         fallbackLeaf.topLevelPrefixHtml || '',
                         fallbackLeaf.ancestorTriggerKeys || []
                     );
-                } else if (allowEmptySelection) {
+                } else if (allowEmptySelection || !isSelectionMenuType) {
                     clearMultiLevelSelection();
                 }
                 suppressOnValueChange = false;
+                syncSharedClearButtonVisibility(Boolean(selectedLeafValue));
 
                 dropdownButton.addEventListener('click', (event) => {
                     event.stopPropagation();
@@ -4461,6 +4689,17 @@
                 if (!item) return '';
                 const explicitLabel = String(item.dataset.valueLabel || '').trim();
                 if (explicitLabel) return explicitLabel;
+                const multiContentRoot = item.querySelector('.ll-dropdown__multi-content');
+                if (multiContentRoot) {
+                    const multiContentLabel = multiContentRoot.querySelector('[data-dropdown-label]');
+                    if (multiContentLabel) {
+                        return String(multiContentLabel.textContent || '').trim();
+                    }
+                    if (item.classList.contains('ll-dropdown__item--with-description') && multiContentRoot.firstElementChild) {
+                        return String(multiContentRoot.firstElementChild.textContent || '').trim();
+                    }
+                    return String(multiContentRoot.textContent || '').trim();
+                }
                 const primaryLabelElement = item.querySelector('[data-dropdown-label]');
                 if (primaryLabelElement) {
                     return String(primaryLabelElement.textContent || '').trim();
@@ -4469,6 +4708,112 @@
                     return String(item.firstElementChild.textContent || '').trim();
                 }
                 return String(item.textContent || '').trim();
+            };
+
+            const getSimpleMenuItems = () => Array.from(dropdownMenu.querySelectorAll('[data-value]'));
+            const parseIncomingValues = (value) => {
+                if (Array.isArray(value)) {
+                    return value
+                        .map((entry) => String(entry || '').trim())
+                        .filter(Boolean);
+                }
+                if (value && typeof value === 'object' && Array.isArray(value.values)) {
+                    return value.values
+                        .map((entry) => String(entry || '').trim())
+                        .filter(Boolean);
+                }
+                return String(value || '')
+                    .split(',')
+                    .map((entry) => entry.trim())
+                    .filter(Boolean);
+            };
+            const syncSimpleClearButtonVisibility = () => {
+                const activeSingleValue = isMultiSelection
+                    ? ''
+                    : String(selectedLeafValue || ((dropdownMenu.querySelector('[data-value].ll-active') || {}).dataset || {}).value || '').trim();
+                const hasSelection = isMultiSelection
+                    ? Array.from(selectedSimpleValues).length > 0
+                    : Boolean(activeSingleValue);
+                syncSharedClearButtonVisibility(hasSelection);
+            };
+            const renderSimpleSelectedValue = () => {
+                if (!selectedValueSpan || !isSelectionMenuType) return;
+                if (!isMultiSelection) return;
+                const values = Array.from(selectedSimpleValues);
+                const selectedLabels = values
+                    .map((value) => {
+                        const escapedValue = typeof CSS !== 'undefined' && CSS.escape
+                            ? CSS.escape(value)
+                            : value.replace(/([ #;?%&,.+*~\\':"!^$[\]()=>|/@])/g, '\\$1');
+                        const item = dropdownMenu.querySelector(`[data-value="${escapedValue}"]`);
+                        return resolveSimpleItemLabel(item || null);
+                    })
+                    .filter(Boolean);
+                const hasSelection = selectedLabels.length > 0;
+                const textValue = hasSelection
+                    ? (shouldShowDropdownLabel
+                        ? `${resolvedDropdownLabel}: ${selectedLabels.join(', ')}`
+                        : selectedLabels.join(', '))
+                    : (shouldShowDropdownLabel ? resolvedDropdownLabel : (resolvedEmptySelectionLabel || ''));
+                const iconHtml = resolvedDropdownIcon
+                    ? `<span class="material-symbols-outlined ll-dropdown__selection-leading-icon">${escapeHtml(resolvedDropdownIcon)}</span>`
+                    : '';
+                selectedValueSpan.innerHTML = `${iconHtml}<span class="truncate">${escapeHtml(textValue)}</span>`;
+                setSelectedPlaceholderState(!hasSelection && !shouldShowDropdownLabel && Boolean(resolvedEmptySelectionLabel));
+                syncSimpleClearButtonVisibility();
+            };
+            const renderSimpleSingleSelectedValue = (label, isPlaceholder = false) => {
+                if (!selectedValueSpan || !isSelectionMenuType || isMultiSelection) return;
+                const normalizedLabel = String(label || '').trim();
+                const textValue = isPlaceholder
+                    ? (shouldShowDropdownLabel ? resolvedDropdownLabel : (resolvedEmptySelectionLabel || ''))
+                    : (shouldShowDropdownLabel
+                        ? `${resolvedDropdownLabel}: ${normalizedLabel}`
+                        : normalizedLabel);
+                if (resolvedDropdownIcon) {
+                    selectedValueSpan.innerHTML = `
+                        <span class="material-symbols-outlined ll-dropdown__selection-leading-icon">${escapeHtml(resolvedDropdownIcon)}</span>
+                        <span class="truncate">${escapeHtml(textValue)}</span>
+                    `;
+                } else {
+                    selectedValueSpan.textContent = textValue;
+                }
+                setSelectedPlaceholderState(Boolean(isPlaceholder && !shouldShowDropdownLabel && resolvedEmptySelectionLabel));
+            };
+            const updateSimpleMenuSelectionState = () => {
+                if (!isSelectionMenuType) return;
+                const items = getSimpleMenuItems();
+                if (isMultiSelection) {
+                    items.forEach((item) => {
+                        const isSelected = selectedSimpleValues.has(String(item.dataset.value || '').trim());
+                        item.classList.toggle('ll-active', isSelected);
+                        const checkbox = item.querySelector('[data-dropdown-multi-checkbox="true"]');
+                        if (checkbox) {
+                            checkbox.classList.toggle('ll-dropdown__multi-checkbox--checked', isSelected);
+                        }
+                    });
+                    renderSimpleSelectedValue();
+                    return;
+                }
+                items.forEach((item) => {
+                    item.classList.toggle('ll-active', selectedLeafValue === String(item.dataset.value || '').trim());
+                });
+                syncSimpleClearButtonVisibility();
+            };
+            const ensureSimpleMultiSelectItemMarkup = () => {
+                if (!isMultiSelection) return;
+                getSimpleMenuItems().forEach((item) => {
+                    if (item.dataset.dropdownMultiDecorated === 'true') return;
+                    const existingHtml = item.innerHTML;
+                    item.classList.add('ll-dropdown__item--multi-select');
+                    item.innerHTML = `
+                        <span class="ll-dropdown__multi-checkbox" data-dropdown-multi-checkbox="true" aria-hidden="true">
+                            <span class="material-symbols-outlined ll-dropdown__multi-checkbox-icon">check</span>
+                        </span>
+                        <span class="ll-dropdown__multi-content">${existingHtml}</span>
+                    `;
+                    item.dataset.dropdownMultiDecorated = 'true';
+                });
             };
 
             if (hasGroupedOptions) {
@@ -4534,7 +4879,7 @@
                             const optionElement = document.createElement('button');
                             optionElement.type = 'button';
                             const hasDescription = Boolean(option.description);
-                            optionElement.className = `ll-dropdown__item${hasDescription ? ' ll-dropdown__item--with-description' : ''}${option.active ? ' ll-active' : ''}`;
+                            optionElement.className = `ll-dropdown__item${hasDescription ? ' ll-dropdown__item--with-description' : ''}${option.active && isSelectionMenuType ? ' ll-active' : ''}`;
                             optionElement.dataset.value = option.value;
                             optionElement.innerHTML = hasDescription
                                 ? `<div data-dropdown-label>${escapeHtml(option.label)}</div><div class="ll-dropdown__item-description">${escapeHtml(option.description)}</div>`
@@ -4544,6 +4889,11 @@
                         dropdownMenu.appendChild(groupElement);
                     });
                 }
+            }
+
+            ensureSimpleMultiSelectItemMarkup();
+            if (isMultiSelection && selectedValueSpan) {
+                renderSimpleSelectedValue();
             }
 
             dropdownButton.addEventListener('click', (event) => {
@@ -4561,23 +4911,65 @@
                 const item = event.target.closest('[data-value]');
                 if (!item || !dropdownMenu.contains(item)) return;
                 event.preventDefault();
-                dropdownMenu.querySelectorAll('[data-value]').forEach((otherItem) => {
-                    otherItem.classList.remove('ll-active');
-                });
-                item.classList.add('ll-active');
+                if (isSelectionMenuType) {
+                    const selectedValue = String(item.dataset.value || '').trim();
+                    if (isMultiSelection) {
+                        if (selectedSimpleValues.has(selectedValue)) {
+                            selectedSimpleValues.delete(selectedValue);
+                        } else if (selectedValue) {
+                            selectedSimpleValues.add(selectedValue);
+                        }
+                    } else {
+                        dropdownMenu.querySelectorAll('[data-value]').forEach((otherItem) => {
+                            otherItem.classList.remove('ll-active');
+                        });
+                        item.classList.add('ll-active');
+                    }
+                } else if (typeof item.blur === 'function') {
+                    try {
+                        item.blur();
+                    } catch (_e) {
+                        /* ignore */
+                    }
+                }
                 const selectedLabel = resolveSimpleItemLabel(item);
-                if (selectedValueSpan) {
-                    setSelectedPlaceholderState(false);
-                    selectedValueSpan.textContent = selectedLabel;
+                if (selectedValueSpan && isSelectionMenuType && !isMultiSelection) {
+                    renderSimpleSingleSelectedValue(selectedLabel, false);
+                }
+                if (isSelectionMenuType) {
+                    if (isMultiSelection) {
+                        updateSimpleMenuSelectionState();
+                    } else {
+                        selectedLeafValue = String(item.dataset.value || selectedLabel || '');
+                        selectedLeafLabel = selectedLabel;
+                        syncSimpleClearButtonVisibility();
+                    }
                 }
                 if (typeof onValueChange === 'function') {
-                    onValueChange({
-                        label: selectedLabel,
-                        value: item.dataset.value || selectedLabel,
-                        prefixHtml: ''
-                    });
+                    if (isMultiSelection) {
+                        const values = Array.from(selectedSimpleValues);
+                        const labels = getSimpleMenuItems()
+                            .filter((menuItem) => values.includes(String(menuItem.dataset.value || '').trim()))
+                            .map((menuItem) => resolveSimpleItemLabel(menuItem))
+                            .filter(Boolean);
+                        onValueChange({
+                            label: labels.join(', '),
+                            labels,
+                            value: values,
+                            values,
+                            prefixHtml: ''
+                        });
+                    } else {
+                        onValueChange({
+                            label: selectedLabel,
+                            value: item.dataset.value || selectedLabel,
+                            prefixHtml: ''
+                        });
+                    }
                 }
-                closeDropdown();
+                if (!isMultiSelection) {
+                    closeDropdown();
+                }
             });
 
             document.addEventListener('click', (event) => {
@@ -4598,15 +4990,40 @@
                 getFocusContainers: getOpenMenuContainers
             });
             dropdownButton.__setPortaledDropdownValue = (value, emitChange = false) => {
+                if (isMultiSelection) {
+                    const targetValues = parseIncomingValues(value);
+                    selectedSimpleValues.clear();
+                    targetValues.forEach((entry) => {
+                        selectedSimpleValues.add(entry);
+                    });
+                    updateSimpleMenuSelectionState();
+                    if (emitChange && typeof onValueChange === 'function') {
+                        const values = Array.from(selectedSimpleValues);
+                        const labels = getSimpleMenuItems()
+                            .filter((menuItem) => values.includes(String(menuItem.dataset.value || '').trim()))
+                            .map((menuItem) => resolveSimpleItemLabel(menuItem))
+                            .filter(Boolean);
+                        onValueChange({
+                            label: labels.join(', '),
+                            labels,
+                            value: values,
+                            values,
+                            prefixHtml: ''
+                        });
+                    }
+                    return true;
+                }
                 const targetValue = String(value || '');
                 if (!targetValue) {
                     dropdownMenu.querySelectorAll('[data-value]').forEach((otherItem) => {
                         otherItem.classList.remove('ll-active');
                     });
                     if (selectedValueSpan) {
-                        selectedValueSpan.textContent = resolvedEmptySelectionLabel || '';
-                        setSelectedPlaceholderState(Boolean(resolvedEmptySelectionLabel));
+                        renderSimpleSingleSelectedValue('', true);
                     }
+                    selectedLeafValue = '';
+                    selectedLeafLabel = '';
+                    syncSimpleClearButtonVisibility();
                     return true;
                 }
                 const escapedTargetValue = typeof CSS !== 'undefined' && CSS.escape
@@ -4614,15 +5031,19 @@
                     : targetValue.replace(/([ #;?%&,.+*~\\':"!^$[\]()=>|/@])/g, '\\$1');
                 const targetItem = dropdownMenu.querySelector(`[data-value="${escapedTargetValue}"]`);
                 if (!targetItem) return false;
-                dropdownMenu.querySelectorAll('[data-value]').forEach((otherItem) => {
-                    otherItem.classList.remove('ll-active');
-                });
-                targetItem.classList.add('ll-active');
-                const selectedLabel = resolveSimpleItemLabel(targetItem);
-                if (selectedValueSpan) {
-                    setSelectedPlaceholderState(false);
-                    selectedValueSpan.textContent = selectedLabel;
+                if (isSelectionMenuType) {
+                    dropdownMenu.querySelectorAll('[data-value]').forEach((otherItem) => {
+                        otherItem.classList.remove('ll-active');
+                    });
+                    targetItem.classList.add('ll-active');
                 }
+                const selectedLabel = resolveSimpleItemLabel(targetItem);
+                if (selectedValueSpan && isSelectionMenuType) {
+                    renderSimpleSingleSelectedValue(selectedLabel, false);
+                }
+                selectedLeafValue = String(targetItem.dataset.value || selectedLabel || '');
+                selectedLeafLabel = selectedLabel;
+                syncSimpleClearButtonVisibility();
                 if (emitChange && typeof onValueChange === 'function') {
                     onValueChange({
                         label: selectedLabel,
@@ -4633,31 +5054,48 @@
                 return true;
             };
             dropdownButton.__getPortaledDropdownValue = () => {
+                if (isMultiSelection) {
+                    return Array.from(selectedSimpleValues);
+                }
                 const activeItem = dropdownMenu.querySelector('[data-value].ll-active');
                 return activeItem ? (activeItem.dataset.value || activeItem.textContent.trim()) : '';
             };
             dropdownButton.__clearPortaledDropdownSelection = () => {
+                if (isMultiSelection) {
+                    selectedSimpleValues.clear();
+                    updateSimpleMenuSelectionState();
+                    syncSimpleClearButtonVisibility();
+                    return;
+                }
                 dropdownMenu.querySelectorAll('[data-value]').forEach((otherItem) => {
                     otherItem.classList.remove('ll-active');
                 });
                 if (selectedValueSpan) {
-                    selectedValueSpan.textContent = resolvedEmptySelectionLabel || '';
-                    setSelectedPlaceholderState(Boolean(resolvedEmptySelectionLabel));
+                    renderSimpleSingleSelectedValue('', true);
                 }
+                selectedLeafValue = '';
+                selectedLeafLabel = '';
+                syncSimpleClearButtonVisibility();
             };
             const initialActiveItem = dropdownMenu.querySelector('[data-value].ll-active');
-            if (resolvedDefaultValue) {
+            if (isMultiSelection) {
+                const defaultValues = parseIncomingValues(defaultValue);
+                if (defaultValues.length > 0) {
+                    dropdownButton.__setPortaledDropdownValue(defaultValues, false);
+                } else {
+                    dropdownButton.__clearPortaledDropdownSelection();
+                }
+            } else if (resolvedDefaultValue) {
                 const didSetDefault = dropdownButton.__setPortaledDropdownValue(resolvedDefaultValue, false);
                 if (!didSetDefault) {
                     dropdownButton.__clearPortaledDropdownSelection();
                 }
-            } else if (initialActiveItem && selectedValueSpan) {
-                setSelectedPlaceholderState(false);
-                selectedValueSpan.textContent = resolveSimpleItemLabel(initialActiveItem);
+            } else if (isSelectionMenuType && initialActiveItem && selectedValueSpan) {
+                renderSimpleSingleSelectedValue(resolveSimpleItemLabel(initialActiveItem), false);
             } else if (selectedValueSpan && resolvedEmptySelectionLabel) {
-                selectedValueSpan.textContent = resolvedEmptySelectionLabel;
-                setSelectedPlaceholderState(true);
+                renderSimpleSingleSelectedValue('', true);
             }
+            syncSimpleClearButtonVisibility();
             dropdownButton.dataset[datasetFlag] = 'true';
         }
 
@@ -4756,17 +5194,10 @@
                     const alreadyWrapped = existingIconWrapper && existingIconWrapper.dataset.treeIconWrapper === 'true';
                     if (!alreadyWrapped) {
                         const iconWrapper = document.createElement('div');
-                        iconWrapper.className = 'flex items-center w-6 h-6 mr-1.5';
+                        iconWrapper.className = 'll-tree__icon-wrapper';
                         iconWrapper.dataset.treeIconWrapper = 'true';
                         icon.replaceWith(iconWrapper);
                         iconWrapper.appendChild(icon);
-                    }
-                } else {
-                    button.classList.remove('w-5', 'h-5');
-                    button.classList.add('w-6', 'h-6');
-                    const wrapperRow = button.parentElement;
-                    if (wrapperRow) {
-                        wrapperRow.classList.remove('px-2', 'py-1');
                     }
                 }
 
@@ -4774,7 +5205,6 @@
             };
             const applyTreeTriggerSpacing = (button, target) => {
                 if (!button || !target) return;
-                target.classList.remove('mt-1', 'space-y-1');
                 const triggerMode = button.dataset.treeTriggerMode;
                 const hasBlockVariantClass = target.classList.contains('ll-tree__children--block');
                 const hasArrowVariantClass = target.classList.contains('ll-tree__children--arrow');
@@ -4782,22 +5212,22 @@
                 const customBlockChildIndentClass = rootList && rootList.dataset
                     ? String(rootList.dataset.treeChildIndentClass || '').trim()
                     : '';
-                const blockChildIndentClass = customBlockChildIndentClass || 'ml-9';
+                const blockChildIndentClass = customBlockChildIndentClass || 'll-tree__children--block';
                 if (triggerMode === 'block') {
                     if (!hasBlockVariantClass && !hasArrowVariantClass) {
-                        target.classList.remove('ml-6', 'ml-11', 'ml-9', 'ml-[1.875rem]');
+                        target.classList.remove('ll-tree__children--arrow');
                         target.classList.add(blockChildIndentClass);
                     }
                     target.querySelectorAll('li').forEach((item) => {
                         const hasChildList = Array.from(item.children).some((child) => child.tagName === 'UL');
-                        item.classList.toggle('pl-4', !hasChildList);
+                        item.classList.toggle('ll-tree__item--leaf-spaced', !hasChildList);
                     });
                     return;
                 }
                 if (triggerMode === 'arrow') {
                     if (!hasBlockVariantClass && !hasArrowVariantClass) {
-                        target.classList.remove('ml-6', 'ml-9');
-                        target.classList.add('ml-11');
+                        target.classList.remove('ll-tree__children--block');
+                        target.classList.add('ll-tree__children--arrow');
                     }
                 }
             };
@@ -4843,9 +5273,6 @@
                 if (!target) return;
                 applyTreeTriggerSpacing(button, target);
                 const rootElement = getTreeRootElement(button, toggleTargetIdSet);
-                if (rootElement && rootElement.classList) {
-                    rootElement.classList.remove('space-y-1');
-                }
                 const expandMode = getTreeExpandMode(button, rootElement);
                 const animationEnabled = getTreeAnimationEnabled(button, rootElement);
                 if (button.dataset.treeBound === 'true') return;
@@ -4988,6 +5415,3471 @@
             });
         }
 
+        let llumenActivePointerInteraction = null;
+
+        function unregisterLlumenActivePointerInteraction(token) {
+            if (llumenActivePointerInteraction === token) {
+                if (token && typeof token === 'object') {
+                    token.onEscape = null;
+                }
+                llumenActivePointerInteraction = null;
+            }
+        }
+
+        function registerLlumenPointerDragInteraction() {
+            if (llumenActivePointerInteraction) {
+                return null;
+            }
+            const token = { kind: 'drag' };
+            llumenActivePointerInteraction = token;
+            return token;
+        }
+
+        function registerLlumenResizeInteraction() {
+            if (llumenActivePointerInteraction) {
+                return null;
+            }
+            const token = { kind: 'resize' };
+            llumenActivePointerInteraction = token;
+            return token;
+        }
+
+        function unregisterLlumenPointerDragInteraction(token) {
+            unregisterLlumenActivePointerInteraction(token);
+        }
+
+        function sanitizeLlDragDropClone(root) {
+            if (!root || !root.querySelectorAll) return;
+            root.querySelectorAll('[id]').forEach((node) => {
+                node.removeAttribute('id');
+            });
+        }
+
+        function collectPointerDragScrollRoots(originElement) {
+            const roots = [];
+            let el = originElement;
+            while (el && el !== document.body) {
+                if (el === document.documentElement) break;
+                const style = windowScope.getComputedStyle(el);
+                const overflowY = style.overflowY;
+                const overflowX = style.overflowX;
+                const scrollableY = (overflowY === 'auto' || overflowY === 'scroll')
+                    && el.scrollHeight > el.clientHeight + 1;
+                const scrollableX = (overflowX === 'auto' || overflowX === 'scroll')
+                    && el.scrollWidth > el.clientWidth + 1;
+                if (scrollableY || scrollableX) {
+                    roots.push(el);
+                }
+                el = el.parentElement;
+            }
+            roots.push(document.documentElement);
+            return roots;
+        }
+
+        function applyPointerDragAutoScroll(scrollRoots, clientX, clientY, edgePx, maxSpeed) {
+            if (!scrollRoots || !scrollRoots.length || !Number.isFinite(edgePx) || edgePx <= 0) return;
+            scrollRoots.forEach((root) => {
+                if (!root) return;
+                if (root === document.documentElement) {
+                    const vh = windowScope.innerHeight;
+                    const vw = windowScope.innerWidth;
+                    let dy = 0;
+                    let dx = 0;
+                    if (clientY < edgePx) {
+                        dy = -maxSpeed * (1 - clientY / edgePx);
+                    } else if (clientY > vh - edgePx) {
+                        dy = maxSpeed * (1 - (vh - clientY) / edgePx);
+                    }
+                    if (clientX < edgePx) {
+                        dx = -maxSpeed * (1 - clientX / edgePx);
+                    } else if (clientX > vw - edgePx) {
+                        dx = maxSpeed * (1 - (vw - clientX) / edgePx);
+                    }
+                    if (dy !== 0 || dx !== 0) {
+                        windowScope.scrollBy(dx, dy);
+                    }
+                    return;
+                }
+                const rect = root.getBoundingClientRect();
+                const scrollableY = root.scrollHeight > root.clientHeight + 1;
+                const scrollableX = root.scrollWidth > root.clientWidth + 1;
+                let dy = 0;
+                let dx = 0;
+                if (scrollableY) {
+                    if (clientY < rect.top + edgePx) {
+                        dy = -maxSpeed * (1 - (clientY - rect.top) / edgePx);
+                    } else if (clientY > rect.bottom - edgePx) {
+                        dy = maxSpeed * (1 - (rect.bottom - clientY) / edgePx);
+                    }
+                }
+                if (scrollableX) {
+                    if (clientX < rect.left + edgePx) {
+                        dx = -maxSpeed * (1 - (clientX - rect.left) / edgePx);
+                    } else if (clientX > rect.right - edgePx) {
+                        dx = maxSpeed * (1 - (rect.right - clientX) / edgePx);
+                    }
+                }
+                if (dy !== 0) {
+                    root.scrollTop += dy;
+                }
+                if (dx !== 0) {
+                    root.scrollLeft += dx;
+                }
+            });
+        }
+
+        /**
+         * @returns {boolean} **true** when the session arms (listeners + capture); **false** if another
+         *   pointer interaction is already active or arguments are invalid — callers that created UI
+         *   before this call should clean up when **false**.
+         */
+        function runLlumenPointerDragSession({
+            handleElement,
+            pointerCaptureTarget = null,
+            startEvent,
+            scrollRootOriginElement,
+            onMove,
+            onCommit,
+            onCancel,
+            autoScroll = { edgePx: 28, maxSpeed: 18 },
+            cancelOnEscape = true,
+            onSessionEnd = null,
+            onAfterStart = null
+        }) {
+            if (!handleElement || !startEvent || startEvent.isPrimary !== true) return false;
+            const interactionToken = registerLlumenPointerDragInteraction();
+            if (!interactionToken) return false;
+
+            const captureElement = pointerCaptureTarget && pointerCaptureTarget.nodeType === 1
+                ? pointerCaptureTarget
+                : handleElement;
+
+            const pointerId = startEvent.pointerId;
+            let sessionEnded = false;
+            let rafId = 0;
+            const lastPointer = {
+                x: startEvent.clientX,
+                y: startEvent.clientY
+            };
+            const scrollRoots = scrollRootOriginElement
+                ? collectPointerDragScrollRoots(scrollRootOriginElement)
+                : [];
+            const autoScrollEnabled = Boolean(autoScroll);
+            const edgePx = autoScrollEnabled && autoScroll && typeof autoScroll === 'object'
+                ? (Number(autoScroll.edgePx) || 28)
+                : 28;
+            const maxSpeed = autoScrollEnabled && autoScroll && typeof autoScroll === 'object'
+                ? (Number(autoScroll.maxSpeed) || 18)
+                : 18;
+
+            const applyEndFocus = (reason) => {
+                if (typeof onSessionEnd === 'function') {
+                    onSessionEnd({ reason, handleElement });
+                    return;
+                }
+                if (!handleElement || !handleElement.isConnected) return;
+                try {
+                    if (typeof handleElement.focus === 'function' && !handleElement.matches(':disabled')) {
+                        handleElement.focus({ preventScroll: true });
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+            };
+
+            const cleanupCaptureAndClass = () => {
+                handleElement.classList.remove('ll-dnd__capture-target--active');
+                try {
+                    if (captureElement.hasPointerCapture(pointerId)) {
+                        captureElement.releasePointerCapture(pointerId);
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+            };
+
+            const detachListeners = () => {
+                document.removeEventListener('visibilitychange', onVisibilityChange);
+                captureElement.removeEventListener('pointermove', onPointerMove);
+                captureElement.removeEventListener('pointerup', onPointerUp);
+                captureElement.removeEventListener('pointercancel', onPointerCancel);
+                captureElement.removeEventListener('lostpointercapture', onLostCapture);
+            };
+
+            const endSession = (kind, cancelReason) => {
+                if (sessionEnded) return;
+                sessionEnded = true;
+                if (cancelOnEscape && interactionToken) {
+                    interactionToken.onEscape = null;
+                }
+                if (rafId) {
+                    windowScope.cancelAnimationFrame(rafId);
+                    rafId = 0;
+                }
+                detachListeners();
+                cleanupCaptureAndClass();
+                try {
+                    if (kind === 'commit') {
+                        if (typeof onCommit === 'function') {
+                            onCommit();
+                        }
+                    } else if (typeof onCancel === 'function') {
+                        onCancel({ reason: cancelReason || 'cancel' });
+                    }
+                } finally {
+                    unregisterLlumenPointerDragInteraction(interactionToken);
+                    applyEndFocus(kind === 'commit' ? 'commit' : 'cancel');
+                }
+            };
+
+            if (cancelOnEscape && interactionToken) {
+                interactionToken.onEscape = () => {
+                    if (sessionEnded) return;
+                    endSession('cancel', 'escape');
+                };
+            }
+
+            const onPointerMove = (ev) => {
+                if (sessionEnded) return;
+                if (ev.pointerId !== pointerId) return;
+                lastPointer.x = ev.clientX;
+                lastPointer.y = ev.clientY;
+                if (typeof onMove === 'function') {
+                    onMove({ clientX: ev.clientX, clientY: ev.clientY, event: ev });
+                }
+            };
+
+            const onPointerUp = (ev) => {
+                if (sessionEnded) return;
+                if (ev.pointerId !== pointerId) return;
+                endSession('commit');
+            };
+
+            const onPointerCancel = (ev) => {
+                if (sessionEnded) return;
+                if (ev.pointerId !== pointerId) return;
+                endSession('cancel', 'pointercancel');
+            };
+
+            const onLostCapture = (ev) => {
+                if (sessionEnded) return;
+                if (ev.pointerId !== pointerId) return;
+                endSession('cancel', 'lostpointercapture');
+            };
+
+            const onVisibilityChange = () => {
+                if (sessionEnded) return;
+                if (document.hidden) {
+                    endSession('cancel', 'visibility');
+                }
+            };
+
+            const tickAutoScroll = () => {
+                if (sessionEnded || !autoScrollEnabled) return;
+                applyPointerDragAutoScroll(scrollRoots, lastPointer.x, lastPointer.y, edgePx, maxSpeed);
+                rafId = windowScope.requestAnimationFrame(tickAutoScroll);
+            };
+
+            try {
+                captureElement.setPointerCapture(pointerId);
+            } catch (e) {
+                /* ignore */
+            }
+            handleElement.classList.add('ll-dnd__capture-target--active');
+            captureElement.addEventListener('pointermove', onPointerMove);
+            captureElement.addEventListener('pointerup', onPointerUp);
+            captureElement.addEventListener('pointercancel', onPointerCancel);
+            captureElement.addEventListener('lostpointercapture', onLostCapture);
+            document.addEventListener('visibilitychange', onVisibilityChange);
+            if (autoScrollEnabled) {
+                rafId = windowScope.requestAnimationFrame(tickAutoScroll);
+            }
+            if (typeof onAfterStart === 'function') {
+                try {
+                    onAfterStart({
+                        clientX: startEvent.clientX,
+                        clientY: startEvent.clientY,
+                        pointerId,
+                        lastPointer
+                    });
+                } catch (e) {
+                    /* ignore */
+                }
+            }
+            return true;
+        }
+
+        function llumenSurfacePointerClientToLocalContent(surfaceElement, clientX, clientY) {
+            if (!surfaceElement || surfaceElement.nodeType !== 1) {
+                return { left: 0, top: 0 };
+            }
+            const br = surfaceElement.getBoundingClientRect();
+            const sl = surfaceElement.scrollLeft || 0;
+            const st = surfaceElement.scrollTop || 0;
+            const cl = surfaceElement.clientLeft || 0;
+            const ct = surfaceElement.clientTop || 0;
+            return {
+                left: sl + (clientX - br.left) - cl,
+                top: st + (clientY - br.top) - ct
+            };
+        }
+
+        function llumenSurfaceClampContentLocalBox(surfaceElement, left, top, width, height, padMin) {
+            const pad = Math.max(0, padMin || 0);
+            const w = Math.max(1, width);
+            const h = Math.max(1, height);
+            const maxX = Math.max(
+                pad,
+                surfaceElement.scrollWidth - w - pad
+            );
+            const maxY = Math.max(
+                pad,
+                surfaceElement.scrollHeight - h - pad
+            );
+            return {
+                left: Math.max(pad, Math.min(maxX, left)),
+                top: Math.max(pad, Math.min(maxY, top))
+            };
+        }
+
+        /**
+         * Pointer-driven **insert** onto a **position: relative** surface: a **`.ll-dnd__ghost`** follows the
+         * cursor; on **commit** (pointer up) with the hotspot inside the surface’s viewport rect,
+         * **`onDropCommit`** runs with **content-local** **`left` / `top`** (px), clamped with **`padMin`**.
+         *
+         * @param {object} options
+         * @param {HTMLElement} options.surfaceElement
+         * @param {(detail: { left: number, top: number, clientX: number, clientY: number, payload: unknown, sourceElement: HTMLElement|null }) => void} options.onDropCommit
+         * @param {(detail: { left: number, top: number, clientX: number, clientY: number, payload: unknown, sourceElement: HTMLElement|null }) => boolean} [options.validateDrop]
+         * @param {number} [options.padMin=8]
+         * @param {number} [options.defaultGhostWidth=128]
+         * @param {number} [options.defaultGhostHeight=48]
+         * @param {HTMLElement|null} [options.scrollRootOriginElement=null]
+         * @param {HTMLElement|null} [options.pointerCaptureTarget=null]
+         * @param {HTMLElement|null} [options.ghostMountRoot=null]
+         * @param {(source: HTMLElement|null, payload: unknown) => HTMLElement|null} [options.buildInsertGhost]
+         */
+        function initCanvasDropContext(options = {}) {
+            const {
+                surfaceElement,
+                onDropCommit,
+                validateDrop = null,
+                padMin = 8,
+                defaultGhostWidth = 128,
+                defaultGhostHeight = 48,
+                scrollRootOriginElement = null,
+                pointerCaptureTarget = null,
+                ghostMountRoot = null,
+                buildInsertGhost = null
+            } = options;
+
+            const noopApi = {
+                destroy() {},
+                beginInsertPointerDrag() {}
+            };
+
+            if (!surfaceElement || surfaceElement.nodeType !== 1 || typeof onDropCommit !== 'function') {
+                return noopApi;
+            }
+
+            const mountRoot = (ghostMountRoot && ghostMountRoot.nodeType === 1)
+                ? ghostMountRoot
+                : ((surfaceElement.ownerDocument && surfaceElement.ownerDocument.body) || surfaceElement);
+
+            const scrollRoot = (scrollRootOriginElement && scrollRootOriginElement.nodeType === 1)
+                ? scrollRootOriginElement
+                : surfaceElement;
+
+            let activeGhost = null;
+
+            const removeGhost = (ghostEl) => {
+                if (ghostEl && ghostEl.parentNode) {
+                    ghostEl.parentNode.removeChild(ghostEl);
+                }
+            };
+
+            const destroy = () => {
+                removeGhost(activeGhost);
+                activeGhost = null;
+            };
+
+            const beginInsertPointerDrag = (dragOpts) => {
+                const {
+                    startEvent,
+                    sourceElement = null,
+                    payload = null,
+                    ghostWidth,
+                    ghostHeight
+                } = dragOpts || {};
+
+                if (!startEvent || startEvent.isPrimary !== true) return;
+
+                startEvent.preventDefault();
+                startEvent.stopPropagation();
+
+                const doc = surfaceElement.ownerDocument || document;
+                const captureRoot = (pointerCaptureTarget && pointerCaptureTarget.nodeType === 1)
+                    ? pointerCaptureTarget
+                    : ((doc.body) || surfaceElement);
+
+                let ghost = null;
+                let gw = typeof ghostWidth === 'number' && ghostWidth > 0 ? ghostWidth : defaultGhostWidth;
+                let gh = typeof ghostHeight === 'number' && ghostHeight > 0 ? ghostHeight : defaultGhostHeight;
+
+                if (typeof buildInsertGhost === 'function') {
+                    try {
+                        const g = buildInsertGhost(sourceElement, payload);
+                        if (g && g.nodeType === 1) {
+                            ghost = g;
+                        }
+                    } catch (e) {
+                        /* ignore */
+                    }
+                }
+                if (!ghost) {
+                    ghost = doc.createElement('div');
+                    ghost.className = 'll-dnd__ghost';
+                    const labelAttr = sourceElement && typeof sourceElement.getAttribute === 'function'
+                        ? sourceElement.getAttribute('data-ll-insert-drag-label')
+                        : null;
+                    const label = labelAttr && String(labelAttr).trim()
+                        ? String(labelAttr).trim().slice(0, 48)
+                        : (sourceElement && sourceElement.textContent)
+                            ? String(sourceElement.textContent).trim().slice(0, 48)
+                            : 'Drop here';
+                    ghost.textContent = label;
+                    ghost.style.width = `${gw}px`;
+                    ghost.style.height = `${gh}px`;
+                    ghost.style.display = 'flex';
+                    ghost.style.alignItems = 'center';
+                    ghost.style.justifyContent = 'center';
+                    ghost.style.padding = '8px';
+                    ghost.style.fontSize = '12px';
+                } else {
+                    ghost.classList.add('ll-dnd__ghost');
+                }
+
+                mountRoot.appendChild(ghost);
+                activeGhost = ghost;
+                gw = Math.max(1, ghost.offsetWidth || gw);
+                gh = Math.max(1, ghost.offsetHeight || gh);
+
+                const ghostOffX = gw / 2;
+                const ghostOffY = gh / 2;
+                ghost.style.position = 'fixed';
+                ghost.style.pointerEvents = 'none';
+                ghost.style.left = `${startEvent.clientX - ghostOffX}px`;
+                ghost.style.top = `${startEvent.clientY - ghostOffY}px`;
+
+                const lastPointer = {
+                    x: startEvent.clientX,
+                    y: startEvent.clientY
+                };
+
+                const handleEl = (sourceElement && sourceElement.nodeType === 1) ? sourceElement : surfaceElement;
+
+                const started = runLlumenPointerDragSession({
+                    handleElement: handleEl,
+                    pointerCaptureTarget: captureRoot,
+                    startEvent,
+                    scrollRootOriginElement: scrollRoot,
+                    onMove: ({ clientX, clientY }) => {
+                        lastPointer.x = clientX;
+                        lastPointer.y = clientY;
+                        if (ghost && ghost.parentNode) {
+                            ghost.style.left = `${clientX - ghostOffX}px`;
+                            ghost.style.top = `${clientY - ghostOffY}px`;
+                        }
+                    },
+                    onCommit: () => {
+                        const cx = lastPointer.x;
+                        const cy = lastPointer.y;
+                        const br = surfaceElement.getBoundingClientRect();
+                        const inside = cx >= br.left && cx <= br.right && cy >= br.top && cy <= br.bottom;
+                        if (!inside) return;
+
+                        const pt = llumenSurfacePointerClientToLocalContent(surfaceElement, cx, cy);
+                        const rawLeft = pt.left - ghostOffX;
+                        const rawTop = pt.top - ghostOffY;
+                        const clamped = llumenSurfaceClampContentLocalBox(
+                            surfaceElement,
+                            rawLeft,
+                            rawTop,
+                            gw,
+                            gh,
+                            padMin
+                        );
+                        const detail = {
+                            left: clamped.left,
+                            top: clamped.top,
+                            clientX: cx,
+                            clientY: cy,
+                            payload,
+                            sourceElement
+                        };
+                        if (typeof validateDrop === 'function') {
+                            let ok = true;
+                            try {
+                                ok = validateDrop(detail) !== false;
+                            } catch (e) {
+                                ok = false;
+                            }
+                            if (!ok) return;
+                        }
+                        try {
+                            onDropCommit(detail);
+                        } catch (e) {
+                            /* ignore */
+                        }
+                    },
+                    onSessionEnd: ({ handleElement: he }) => {
+                        removeGhost(ghost);
+                        if (activeGhost === ghost) {
+                            activeGhost = null;
+                        }
+                        ghost = null;
+                        if (he && he.isConnected && typeof he.focus === 'function') {
+                            try {
+                                if (!he.matches(':disabled')) {
+                                    he.focus({ preventScroll: true });
+                                }
+                            } catch (e2) {
+                                /* ignore */
+                            }
+                        }
+                    }
+                });
+
+                if (!started) {
+                    removeGhost(ghost);
+                    if (activeGhost === ghost) {
+                        activeGhost = null;
+                    }
+                }
+            };
+
+            return { destroy, beginInsertPointerDrag };
+        }
+
+        const sortableListController = (typeof windowScope.LlumenSortableEngine !== 'undefined'
+            && typeof windowScope.LlumenSortableEngine.createSortableListController === 'function')
+            ? windowScope.LlumenSortableEngine.createSortableListController({
+                windowScope,
+                runPointerDragSession: runLlumenPointerDragSession,
+                sanitizeClone: sanitizeLlDragDropClone,
+                canStartSortableDrag: () => !llumenActivePointerInteraction
+            })
+            : null;
+
+        function initSortableList(options = {}) {
+            if (sortableListController) {
+                return sortableListController.mountSortableList(options);
+            }
+            if (!windowScope.__llumenSortableEngineWarned) {
+                windowScope.__llumenSortableEngineWarned = true;
+                console.warn(
+                    'LlumenComponents.initSortableList: load js/llumen-sortable-engine.js before js/llumen-components.js.'
+                );
+            }
+            return { destroy() {} };
+        }
+
+        function initVerticalSortableList(options = {}) {
+            const { onReorder, ...rest } = options;
+            return initSortableList({
+                ...rest,
+                axis: 'vertical',
+                onReorder: typeof onReorder === 'function'
+                    ? (detail) => {
+                        if (detail.fromContainer !== detail.toContainer) return;
+                        onReorder(detail.id, detail.toIndex);
+                    }
+                    : null
+            });
+        }
+
+        function ensureLlResizeHandleUnfocusable(handleEl) {
+            if (!handleEl || handleEl.nodeType !== 1) return;
+            handleEl.setAttribute('tabindex', '-1');
+            if (handleEl.dataset.llResizeHandleNoFocusBound === 'true') return;
+            handleEl.addEventListener('focus', () => {
+                const doc = handleEl.ownerDocument;
+                if (doc && doc.activeElement === handleEl && typeof handleEl.blur === 'function') {
+                    try {
+                        handleEl.blur();
+                    } catch (e) {
+                        /* ignore */
+                    }
+                }
+            });
+            handleEl.dataset.llResizeHandleNoFocusBound = 'true';
+        }
+
+        function parseLlumenCssLengthToPx(value, doc) {
+            if (value == null) return null;
+            const s = String(value).trim();
+            if (!s || s === 'none' || s === 'auto') return null;
+            const n = parseFloat(s);
+            if (!Number.isFinite(n)) return null;
+            if (/px$/i.test(s)) return n;
+            if (/rem$/i.test(s)) {
+                const root = doc && doc.documentElement;
+                const rootFont = root ? parseFloat(windowScope.getComputedStyle(root).fontSize) || 16 : 16;
+                return n * rootFont;
+            }
+            return null;
+        }
+
+        function parseLlumenGridAutoRowsMinPx(gridAutoRows, doc) {
+            if (!gridAutoRows) return null;
+            const s = String(gridAutoRows).trim();
+            const mm = /minmax\(\s*([^,]+)\s*,/i.exec(s);
+            if (mm) {
+                return parseLlumenCssLengthToPx(mm[1].trim(), doc);
+            }
+            return parseLlumenCssLengthToPx(s, doc);
+        }
+
+        /**
+         * Read column count, gaps, and a row step from a CSS grid container (repeat() columns + grid-auto-rows).
+         * Used by grid span resize and optional placement helpers; metrics refresh each pointer frame.
+         * `trackOriginViewportX/Y` is the top-left of the grid track area (inside border + padding).
+         * `innerWidthPx` / `innerHeightPx` are the track-area dimensions (content box).
+         */
+        function readLlumenGridSurfaceLayout(gridSurface) {
+            if (!gridSurface || gridSurface.nodeType !== 1) return null;
+            const doc = gridSurface.ownerDocument;
+            const cs = windowScope.getComputedStyle(gridSurface);
+            const br = gridSurface.getBoundingClientRect();
+            const borderL = parseFloat(cs.borderLeftWidth) || 0;
+            const borderR = parseFloat(cs.borderRightWidth) || 0;
+            const borderT = parseFloat(cs.borderTopWidth) || 0;
+            const borderB = parseFloat(cs.borderBottomWidth) || 0;
+            const padL = parseFloat(cs.paddingLeft) || 0;
+            const padR = parseFloat(cs.paddingRight) || 0;
+            const padT = parseFloat(cs.paddingTop) || 0;
+            const padB = parseFloat(cs.paddingBottom) || 0;
+            const innerWidthPx = Math.max(0, br.width - borderL - borderR - padL - padR);
+            const innerHeightPx = Math.max(0, br.height - borderT - borderB - padT - padB);
+            const trackOriginViewportX = br.left + borderL + padL;
+            const trackOriginViewportY = br.top + borderT + padT;
+            const templateCols = cs.gridTemplateColumns;
+            let columnCount = 1;
+            if (templateCols && templateCols !== 'none') {
+                columnCount = Math.max(1, templateCols.split(/\s+/).filter(Boolean).length);
+            }
+            const gapCombined = cs.gap || '0px';
+            const columnGapPx = parseFloat(cs.columnGap || gapCombined) || 0;
+            const rowGapPx = parseFloat(cs.rowGap || gapCombined) || columnGapPx;
+            const columnUnitWidthPx = columnCount > 0
+                ? (innerWidthPx - Math.max(0, columnCount - 1) * columnGapPx) / columnCount
+                : 0;
+            const rowTrackPx = parseLlumenGridAutoRowsMinPx(cs.gridAutoRows, doc) || 80;
+            return {
+                rect: br,
+                innerWidthPx,
+                innerHeightPx,
+                trackOriginViewportX,
+                trackOriginViewportY,
+                columnCount,
+                columnGapPx,
+                rowGapPx,
+                columnUnitWidthPx,
+                rowTrackPx
+            };
+        }
+
+        function llumenGridPlaceFromClient(clientX, clientY, metrics, colSpan, rowSpan, maxGridRow) {
+            if (!metrics || !Number.isFinite(metrics.columnUnitWidthPx) || colSpan < 1 || rowSpan < 1) {
+                return null;
+            }
+            const maxR = Math.max(1, Number(maxGridRow) || 48);
+            const colStride = metrics.columnUnitWidthPx + metrics.columnGapPx;
+            const rowStride = metrics.rowTrackPx + metrics.rowGapPx;
+            if (colStride <= 0 || rowStride <= 0) return null;
+            const relX = clientX - metrics.trackOriginViewportX;
+            const relY = clientY - metrics.trackOriginViewportY;
+            if (relX < 0 || relY < 0 || relX > metrics.innerWidthPx) return null;
+            const col0 = Math.floor(relX / colStride);
+            const row0 = Math.floor(relY / rowStride);
+            const maxColStart = Math.max(1, metrics.columnCount - colSpan + 1);
+            const colStart = Math.max(1, Math.min(maxColStart, col0 + 1));
+            const rowStart = Math.max(1, Math.min(maxR, row0 + 1));
+            return { colStart, rowStart };
+        }
+
+        function llumenRectIntersectionArea(a, b) {
+            if (!a || !b || !Number.isFinite(a.width) || !Number.isFinite(a.height)
+                || !Number.isFinite(b.width) || !Number.isFinite(b.height)) {
+                return 0;
+            }
+            const x1 = Math.max(a.left, b.left);
+            const y1 = Math.max(a.top, b.top);
+            const x2 = Math.min(a.left + a.width, b.left + b.width);
+            const y2 = Math.min(a.top + a.height, b.top + b.height);
+            const w = x2 - x1;
+            const h = y2 - y1;
+            return w > 0 && h > 0 ? w * h : 0;
+        }
+
+        /** `occupied` is a Set of `"col,row"` keys (1-based). True if the colSpan×rowSpan footprint uses none of them. */
+        function llumenGridFootprintFreeOfOccupied(occupied, colStart, rowStart, colSpan, rowSpan) {
+            if (!occupied || occupied.size === 0) return true;
+            for (let rj = rowStart; rj < rowStart + rowSpan; rj++) {
+                for (let ci = colStart; ci < colStart + colSpan; ci++) {
+                    if (occupied.has(`${ci},${rj}`)) return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Shrink `(colSpan, rowSpan)` until the footprint at `(colStart, rowStart)` avoids `occupied`,
+         * never going below `(minColSpan, minRowSpan)`. Prefers shrinking width first (stable, cheap).
+         */
+        function llumenGridClampSpansToOccupancy(occupied, colStart, rowStart, colSpan, rowSpan, minColSpan, minRowSpan) {
+            if (!occupied || occupied.size === 0) {
+                return { colSpan, rowSpan };
+            }
+            let c = colSpan;
+            let r = rowSpan;
+            while (!llumenGridFootprintFreeOfOccupied(occupied, colStart, rowStart, c, r)) {
+                if (c > minColSpan) {
+                    c -= 1;
+                } else if (r > minRowSpan) {
+                    r -= 1;
+                } else {
+                    break;
+                }
+            }
+            return { colSpan: c, rowSpan: r };
+        }
+
+        /**
+         * Pick `{ colStart, rowStart }` from the ghost viewport rect: maximize overlap with the
+         * footprint (dnd-kit-style rectIntersection). On ties (or zero overlap over gaps), use closest
+         * footprint center to the ghost center. Returns null if the ghost does not intersect the
+         * grid track inner rect (caller keeps last sticky slot).
+         * @param {Set<string>|null} occupiedCells — if non-empty, placements overlapping these cells are skipped.
+         */
+        function llumenGridPlaceFromGhostRect(gRect, metrics, colSpan, rowSpan, maxGridRow, preferPlace, occupiedCells) {
+            if (!gRect || !metrics || colSpan < 1 || rowSpan < 1) return null;
+            const colStride = metrics.columnUnitWidthPx + metrics.columnGapPx;
+            const rowStride = metrics.rowTrackPx + metrics.rowGapPx;
+            if (colStride <= 0 || rowStride <= 0) return null;
+            const maxR = Math.max(1, Number(maxGridRow) || 48);
+            const maxColStart = Math.max(1, metrics.columnCount - colSpan + 1);
+            const trackRect = {
+                left: metrics.trackOriginViewportX,
+                top: metrics.trackOriginViewportY,
+                width: metrics.innerWidthPx,
+                height: metrics.innerHeightPx
+            };
+            if (llumenRectIntersectionArea(gRect, trackRect) <= 0) {
+                return null;
+            }
+            const gcx = gRect.left + gRect.width / 2;
+            const gcy = gRect.top + gRect.height / 2;
+            const items = [];
+            for (let rowStart = 1; rowStart <= maxR; rowStart++) {
+                for (let colStart = 1; colStart <= maxColStart; colStart++) {
+                    const fp = llumenGridFootprintViewportRect(metrics, colStart, rowStart, colSpan, rowSpan);
+                    const area = llumenRectIntersectionArea(gRect, fp);
+                    const fcx = fp.left + fp.width / 2;
+                    const fcy = fp.top + fp.height / 2;
+                    const dist = (gcx - fcx) * (gcx - fcx) + (gcy - fcy) * (gcy - fcy);
+                    items.push({ colStart, rowStart, area, dist });
+                }
+            }
+            if (!items.length) return null;
+            const candidates = occupiedCells && occupiedCells.size
+                ? items.filter((it) => llumenGridFootprintFreeOfOccupied(
+                    occupiedCells,
+                    it.colStart,
+                    it.rowStart,
+                    colSpan,
+                    rowSpan
+                ))
+                : items;
+            if (!candidates.length) return null;
+            let maxArea = candidates[0].area;
+            for (let i = 1; i < candidates.length; i++) {
+                if (candidates[i].area > maxArea) maxArea = candidates[i].area;
+            }
+            const strong = candidates.filter((it) => it.area >= maxArea - 1e-6);
+            let minDist = strong[0].dist;
+            for (let i = 1; i < strong.length; i++) {
+                if (strong[i].dist < minDist) minDist = strong[i].dist;
+            }
+            const narrowed = strong.filter((it) => it.dist <= minDist + 1e-6);
+            if (preferPlace) {
+                const hit = narrowed.find(
+                    (it) => it.colStart === preferPlace.colStart && it.rowStart === preferPlace.rowStart
+                );
+                if (hit) {
+                    return { colStart: hit.colStart, rowStart: hit.rowStart };
+                }
+            }
+            narrowed.sort((x, y) => x.rowStart - y.rowStart || x.colStart - y.colStart);
+            const pick = narrowed[0];
+            return { colStart: pick.colStart, rowStart: pick.rowStart };
+        }
+
+        /**
+         * Which cells are occupied by other tiles (excludes `excludeTile`, e.g. the one being dragged).
+         * Ignores nodes inside `.ll-dnd__placeholder` (mirror clones reuse tile classes).
+         */
+        function collectLlumenGridOccupiedCells(gridSurface, tileSelector, excludeTile, metrics, maxGridRow) {
+            if (!gridSurface || !tileSelector || !metrics) return null;
+            const occupied = new Set();
+            const nodes = gridSurface.querySelectorAll(tileSelector);
+            for (let i = 0; i < nodes.length; i++) {
+                const el = nodes[i];
+                if (!el || el.nodeType !== 1 || el === excludeTile) continue;
+                if (typeof el.closest === 'function' && el.closest('.ll-dnd__placeholder')) continue;
+                const cs = Math.max(1, parseInt(el.dataset.colSpan, 10) || 1);
+                const rs = Math.max(1, parseInt(el.dataset.rowSpan, 10) || 1);
+                const br = el.getBoundingClientRect();
+                const w = Math.max(1, br.width);
+                const h = Math.max(1, br.height);
+                const p = llumenGridPlaceFromGhostRect(
+                    { left: br.left, top: br.top, width: w, height: h },
+                    metrics,
+                    cs,
+                    rs,
+                    maxGridRow,
+                    null,
+                    null
+                );
+                if (!p) continue;
+                for (let rj = p.rowStart; rj < p.rowStart + rs; rj++) {
+                    for (let ci = p.colStart; ci < p.colStart + cs; ci++) {
+                        occupied.add(`${ci},${rj}`);
+                    }
+                }
+            }
+            return occupied;
+        }
+
+        function llumenGridFootprintViewportRect(metrics, colStart, rowStart, colSpan, rowSpan) {
+            const cw = metrics.columnUnitWidthPx;
+            const ch = metrics.rowTrackPx;
+            const cg = metrics.columnGapPx;
+            const rg = metrics.rowGapPx;
+            const left = metrics.trackOriginViewportX + (colStart - 1) * (cw + cg);
+            const top = metrics.trackOriginViewportY + (rowStart - 1) * (ch + rg);
+            const width = colSpan * cw + Math.max(0, colSpan - 1) * cg;
+            const height = rowSpan * ch + Math.max(0, rowSpan - 1) * rg;
+            return { left, top, width, height };
+        }
+
+        /** `vRect` in viewport coordinates; `hostEl` is `position: relative` (absolute children use padding-box origin). */
+        function llumenSyncResizeRubberBandFromViewportRect(previewEl, hostEl, vRect) {
+            if (!previewEl || !hostEl || !vRect) return;
+            const hr = hostEl.getBoundingClientRect();
+            const padLeft = hr.left + (hostEl.clientLeft || 0);
+            const padTop = hr.top + (hostEl.clientTop || 0);
+            previewEl.style.left = `${vRect.left - padLeft}px`;
+            previewEl.style.top = `${vRect.top - padTop}px`;
+            previewEl.style.width = `${vRect.width}px`;
+            previewEl.style.height = `${vRect.height}px`;
+        }
+
+        /**
+         * Map the tile’s on-screen box to `{ colStart, rowStart }` (not pointer-based).
+         * Uses the same overlap rule as drag preview: the tile center alone is wrong for tall/wide
+         * multi-cell items (it can sit in a later row/column band than the item’s top-left anchor).
+         */
+        function llumenGridAnchorCellFromTile(tile, metrics, colSpan, rowSpan, maxGridRow) {
+            if (!tile || !metrics) return null;
+            const r = tile.getBoundingClientRect();
+            const w = Math.max(1, r.width);
+            const h = Math.max(1, r.height);
+            let p = llumenGridPlaceFromGhostRect(
+                { left: r.left, top: r.top, width: w, height: h },
+                metrics,
+                colSpan,
+                rowSpan,
+                maxGridRow,
+                null,
+                null
+            );
+            if (p) return p;
+            p = llumenGridPlaceFromClient(r.left + 2, r.top + 2, metrics, colSpan, rowSpan, maxGridRow);
+            if (p) return p;
+            return llumenGridPlaceFromClient(
+                r.left + r.width / 2,
+                r.top + r.height / 2,
+                metrics,
+                colSpan,
+                rowSpan,
+                maxGridRow
+            );
+        }
+
+        /** `grid-column` / `grid-row` like `3 / span 2` → starting line `3`; `span 2` only → null. */
+        function llumenGridParseShorthandAxisStart(shorthand) {
+            const s = String(shorthand || '').trim();
+            if (!s) return null;
+            const m = /^\s*([+-]?\d+)\s*\//.exec(s);
+            if (!m) return null;
+            const n = parseInt(m[1], 10);
+            return Number.isFinite(n) && n > 0 ? n : null;
+        }
+
+        function llumenGridParseComputedAxisStart(computedValue) {
+            const s = String(computedValue || '').trim();
+            if (!s || /^auto$/i.test(s)) return null;
+            const n = parseInt(s, 10);
+            return Number.isFinite(n) && n > 0 ? n : null;
+        }
+
+        /** `startColSpan` / `startRowSpan` are the tile’s current span counts (not grid line indices). */
+        function llumenGridSpansFromDelta(dx, dy, startColSpan, startRowSpan, metrics, maxColSpan, maxRowSpan) {
+            if (!metrics) return { colSpan: startColSpan, rowSpan: startRowSpan };
+            const colStride = metrics.columnUnitWidthPx + metrics.columnGapPx;
+            const rowStride = metrics.rowTrackPx + metrics.rowGapPx;
+            const addCol = colStride > 0 ? Math.round(dx / colStride) : 0;
+            const addRow = rowStride > 0 ? Math.round(dy / rowStride) : 0;
+            const maxC = Number.isFinite(maxColSpan) && maxColSpan > 0 ? maxColSpan : metrics.columnCount;
+            const maxR = Number.isFinite(maxRowSpan) && maxRowSpan > 0 ? maxRowSpan : 6;
+            const nextCol = Math.max(1, Math.min(maxC, startColSpan + addCol));
+            const nextRow = Math.max(1, Math.min(maxR, startRowSpan + addRow));
+            return { colSpan: nextCol, rowSpan: nextRow };
+        }
+
+        /**
+         * Pointer-based SE resize for grid items: maps pointer delta to integer column/row spans.
+         * Uses the same mutex as initResizableElement (registerLlumenResizeInteraction).
+         *
+         * When the tile’s **start column and row** are known, the default UX is a **rubber-band**
+         * preview (`.ll-resize-rubber-band`) inside `gridSurface`: the tile’s **span** updates
+         * only on **commit** so heavy content (charts/maps) is not relayouted every move. If anchors
+         * cannot be resolved, falls back to **live** span updates on the tile (legacy behavior).
+         */
+        function initGridTileSpanResize(options = {}) {
+            const {
+                gridSurface,
+                tile,
+                resizeHandle,
+                maxColSpan = null,
+                maxRowSpan = 6,
+                layoutMaxGridRow = 48,
+                occupancyTileSelector = null,
+                resolveMetrics = null,
+                onSpanCommit = null,
+                onSpanPreview = null,
+                pointerCaptureTarget = null
+            } = options;
+
+            if (!gridSurface || !tile || !resizeHandle) {
+                return { destroy() {} };
+            }
+            if (!gridSurface.contains(tile) || !tile.contains(resizeHandle)) {
+                return { destroy() {} };
+            }
+            ensureLlResizeHandleUnfocusable(resizeHandle);
+
+            const captureRoot = (pointerCaptureTarget && pointerCaptureTarget.nodeType === 1)
+                ? pointerCaptureTarget
+                : (tile.ownerDocument && tile.ownerDocument.body) || tile;
+
+            const getMetrics = typeof resolveMetrics === 'function'
+                ? () => resolveMetrics()
+                : () => readLlumenGridSurfaceLayout(gridSurface);
+
+            let activeEndSession = null;
+            let detachAll = null;
+
+            const applyEndFocus = (handleEl) => {
+                if (!handleEl || !handleEl.isConnected) return;
+                if (handleEl.classList && handleEl.classList.contains('ll-resize-handle--se')) return;
+                try {
+                    if (typeof handleEl.focus === 'function' && !handleEl.matches(':disabled')) {
+                        handleEl.focus({ preventScroll: true });
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+            };
+
+            const pointerDownHandler = (startEvent) => {
+                if (!startEvent.isPrimary) return;
+                if (startEvent.pointerType === 'mouse' && startEvent.button !== 0) return;
+                if (typeof detachAll === 'function') return;
+
+                const token = registerLlumenResizeInteraction();
+                if (!token) {
+                    return;
+                }
+
+                startEvent.preventDefault();
+                startEvent.stopPropagation();
+
+                const pointerId = startEvent.pointerId;
+                const startX = startEvent.clientX;
+                const startY = startEvent.clientY;
+                const startCol = Math.max(1, parseInt(tile.dataset.colSpan, 10) || 1);
+                const startRow = Math.max(1, parseInt(tile.dataset.rowSpan, 10) || 1);
+                const prevColSpan = tile.dataset.colSpan;
+                const prevRowSpan = tile.dataset.rowSpan;
+                const prevGridColumn = tile.style.gridColumn;
+                const prevGridRow = tile.style.gridRow;
+
+                const winForTile = (tile.ownerDocument && tile.ownerDocument.defaultView)
+                    || windowScope;
+                let resizeFixedColStart = llumenGridParseShorthandAxisStart(tile.style.gridColumn);
+                let resizeFixedRowStart = llumenGridParseShorthandAxisStart(tile.style.gridRow);
+                if (resizeFixedColStart == null || resizeFixedRowStart == null) {
+                    const csp = winForTile.getComputedStyle(tile);
+                    if (resizeFixedColStart == null) {
+                        resizeFixedColStart = llumenGridParseComputedAxisStart(csp.gridColumnStart);
+                    }
+                    if (resizeFixedRowStart == null) {
+                        resizeFixedRowStart = llumenGridParseComputedAxisStart(csp.gridRowStart);
+                    }
+                }
+                if (resizeFixedColStart == null || resizeFixedRowStart == null) {
+                    const m0 = getMetrics();
+                    const ap0 = m0 && llumenGridAnchorCellFromTile(
+                        tile,
+                        m0,
+                        startCol,
+                        startRow,
+                        layoutMaxGridRow
+                    );
+                    if (ap0) {
+                        if (resizeFixedColStart == null) resizeFixedColStart = ap0.colStart;
+                        if (resizeFixedRowStart == null) resizeFixedRowStart = ap0.rowStart;
+                    }
+                }
+
+                const rubberBand = resizeFixedColStart != null && resizeFixedRowStart != null;
+                const doc = tile.ownerDocument || document;
+                let previewEl = null;
+                let lastPreviewCol = startCol;
+                let lastPreviewRow = startRow;
+                let lastNotifiedCol = startCol;
+                let lastNotifiedRow = startRow;
+
+                const removeRubberBand = () => {
+                    if (previewEl && previewEl.parentNode) {
+                        previewEl.parentNode.removeChild(previewEl);
+                    }
+                    previewEl = null;
+                };
+
+                const syncRubberBand = (m, c, r) => {
+                    if (!rubberBand || !previewEl || !m) return;
+                    const vr = llumenGridFootprintViewportRect(
+                        m,
+                        resizeFixedColStart,
+                        resizeFixedRowStart,
+                        c,
+                        r
+                    );
+                    llumenSyncResizeRubberBandFromViewportRect(previewEl, gridSurface, vr);
+                };
+
+                let sessionEnded = false;
+
+                const restoreSpan = () => {
+                    if (prevColSpan != null && prevColSpan !== '') {
+                        tile.dataset.colSpan = prevColSpan;
+                    } else {
+                        tile.removeAttribute('data-col-span');
+                    }
+                    if (prevRowSpan != null && prevRowSpan !== '') {
+                        tile.dataset.rowSpan = prevRowSpan;
+                    } else {
+                        tile.removeAttribute('data-row-span');
+                    }
+                    tile.style.gridColumn = prevGridColumn;
+                    tile.style.gridRow = prevGridRow;
+                };
+
+                const applySpan = (col, row, opts) => {
+                    const suppressPreview = opts && opts.suppressPreview;
+                    tile.dataset.colSpan = String(col);
+                    tile.dataset.rowSpan = String(row);
+                    const gc = resizeFixedColStart != null
+                        ? `${resizeFixedColStart} / span ${col}`
+                        : `span ${col}`;
+                    const gr = resizeFixedRowStart != null
+                        ? `${resizeFixedRowStart} / span ${row}`
+                        : `span ${row}`;
+                    tile.style.gridColumn = gc;
+                    tile.style.gridRow = gr;
+                    if (!suppressPreview && typeof onSpanPreview === 'function') {
+                        onSpanPreview({ colSpan: col, rowSpan: row, tile });
+                    }
+                };
+
+                const cleanupCaptureAndClass = () => {
+                    tile.classList.remove('ll-grid-span-tile--resizing');
+                    resizeHandle.classList.remove('ll-dnd__capture-target--active');
+                    try {
+                        if (captureRoot.hasPointerCapture && captureRoot.hasPointerCapture(pointerId)) {
+                            captureRoot.releasePointerCapture(pointerId);
+                        }
+                    } catch (e) {
+                        /* ignore */
+                    }
+                };
+
+                const endSession = (kind, cancelReason) => {
+                    if (sessionEnded) return;
+                    sessionEnded = true;
+                    if (token) {
+                        token.onEscape = null;
+                    }
+                    activeEndSession = null;
+                    if (typeof detachAll === 'function') {
+                        detachAll();
+                        detachAll = null;
+                    }
+                    cleanupCaptureAndClass();
+                    removeRubberBand();
+                    try {
+                        if (kind === 'commit') {
+                            if (rubberBand) {
+                                applySpan(lastPreviewCol, lastPreviewRow, { suppressPreview: true });
+                            }
+                            const col = Math.max(1, parseInt(tile.dataset.colSpan, 10) || startCol);
+                            const row = Math.max(1, parseInt(tile.dataset.rowSpan, 10) || startRow);
+                            if (typeof onSpanCommit === 'function') {
+                                onSpanCommit({ colSpan: col, rowSpan: row, tile });
+                            }
+                        } else {
+                            restoreSpan();
+                        }
+                    } finally {
+                        unregisterLlumenPointerDragInteraction(token);
+                        applyEndFocus(resizeHandle);
+                    }
+                };
+
+                const onPointerMove = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    const m = getMetrics();
+                    if (!m || !Number.isFinite(m.columnUnitWidthPx)) return;
+                    let maxC = maxColSpan != null && Number.isFinite(maxColSpan) && maxColSpan > 0
+                        ? maxColSpan
+                        : m.columnCount;
+                    let maxR = maxRowSpan != null && Number.isFinite(maxRowSpan) && maxRowSpan > 0
+                        ? maxRowSpan
+                        : 6;
+                    if (resizeFixedColStart != null) {
+                        maxC = Math.min(maxC, Math.max(1, m.columnCount - resizeFixedColStart + 1));
+                    }
+                    if (resizeFixedRowStart != null) {
+                        maxR = Math.min(maxR, Math.max(1, layoutMaxGridRow - resizeFixedRowStart + 1));
+                    }
+                    let { colSpan, rowSpan } = llumenGridSpansFromDelta(
+                        ev.clientX - startX,
+                        ev.clientY - startY,
+                        startCol,
+                        startRow,
+                        m,
+                        maxC,
+                        maxR
+                    );
+                    if (occupancyTileSelector && resizeFixedColStart != null && resizeFixedRowStart != null) {
+                        const occ = collectLlumenGridOccupiedCells(
+                            gridSurface,
+                            occupancyTileSelector,
+                            tile,
+                            m,
+                            layoutMaxGridRow
+                        );
+                        const clamped = llumenGridClampSpansToOccupancy(
+                            occ,
+                            resizeFixedColStart,
+                            resizeFixedRowStart,
+                            colSpan,
+                            rowSpan,
+                            startCol,
+                            startRow
+                        );
+                        colSpan = clamped.colSpan;
+                        rowSpan = clamped.rowSpan;
+                    }
+                    lastPreviewCol = colSpan;
+                    lastPreviewRow = rowSpan;
+                    if (rubberBand) {
+                        if (colSpan !== lastNotifiedCol || rowSpan !== lastNotifiedRow) {
+                            lastNotifiedCol = colSpan;
+                            lastNotifiedRow = rowSpan;
+                            if (typeof onSpanPreview === 'function') {
+                                onSpanPreview({ colSpan, rowSpan, tile });
+                            }
+                        }
+                        syncRubberBand(m, colSpan, rowSpan);
+                    } else {
+                        applySpan(colSpan, rowSpan);
+                    }
+                };
+
+                const onPointerUp = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('commit');
+                };
+
+                const onPointerCancel = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('cancel', 'pointercancel');
+                };
+
+                const onLostCapture = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('cancel', 'lostpointercapture');
+                };
+
+                const onVisibilityChange = () => {
+                    if (sessionEnded) return;
+                    if (tile.ownerDocument.hidden) {
+                        endSession('cancel', 'visibility');
+                    }
+                };
+
+                detachAll = () => {
+                    tile.ownerDocument.removeEventListener('visibilitychange', onVisibilityChange);
+                    captureRoot.removeEventListener('pointermove', onPointerMove);
+                    captureRoot.removeEventListener('pointerup', onPointerUp);
+                    captureRoot.removeEventListener('pointercancel', onPointerCancel);
+                    captureRoot.removeEventListener('lostpointercapture', onLostCapture);
+                };
+
+                if (rubberBand) {
+                    previewEl = doc.createElement('div');
+                    previewEl.className = 'll-resize-rubber-band';
+                    previewEl.setAttribute('aria-hidden', 'true');
+                    gridSurface.appendChild(previewEl);
+                    syncRubberBand(getMetrics(), startCol, startRow);
+                }
+
+                tile.classList.add('ll-grid-span-tile--resizing');
+                resizeHandle.classList.add('ll-dnd__capture-target--active');
+
+                try {
+                    captureRoot.setPointerCapture(pointerId);
+                } catch (e) {
+                    /* ignore */
+                }
+
+                captureRoot.addEventListener('pointermove', onPointerMove);
+                captureRoot.addEventListener('pointerup', onPointerUp);
+                captureRoot.addEventListener('pointercancel', onPointerCancel);
+                captureRoot.addEventListener('lostpointercapture', onLostCapture);
+                tile.ownerDocument.addEventListener('visibilitychange', onVisibilityChange);
+
+                token.onEscape = () => {
+                    if (sessionEnded) return;
+                    endSession('cancel', 'escape');
+                };
+
+                activeEndSession = endSession;
+            };
+
+            resizeHandle.addEventListener('pointerdown', pointerDownHandler);
+
+            return {
+                destroy() {
+                    if (typeof activeEndSession === 'function') {
+                        activeEndSession('cancel', 'destroy');
+                    }
+                    activeEndSession = null;
+                    resizeHandle.removeEventListener('pointerdown', pointerDownHandler);
+                    tile.classList.remove('ll-grid-span-tile--resizing');
+                }
+            };
+        }
+
+        const LL_BAND_WIDTH_CLASS_RE = /^ll-band-c\d+-u\d+$/;
+
+        /**
+         * Apply a single **`.ll-band-c{context}-u{units}`** width token (see **`css/styles.tailwind.css`**).
+         * Removes any prior **`ll-band-c*-u*`** class on **`widthElement`**, then adds **`ll-band-c${contextMaxUnits}-u${elementUnits}`**
+         * (clamped). Use on **`ll-row-element-container`** (padded shell) or on the unit when no shell exists.
+         *
+         * @param {HTMLElement} widthElement
+         * @param {number} contextMaxUnits — Row budget (must match shipped CSS tokens, typically **2–8**).
+         * @param {number} elementUnits
+         */
+        function setLlumenBandWidthClass(widthElement, contextMaxUnits, elementUnits) {
+            if (!widthElement || !widthElement.classList) return;
+            const c = Math.max(1, Math.floor(Number(contextMaxUnits)) || 1);
+            const u = Math.max(1, Math.min(c, Math.floor(Number(elementUnits)) || 1));
+            const list = Array.from(widthElement.classList);
+            for (let i = 0; i < list.length; i++) {
+                if (LL_BAND_WIDTH_CLASS_RE.test(list[i])) {
+                    widthElement.classList.remove(list[i]);
+                }
+            }
+            widthElement.classList.add(`ll-band-c${c}-u${u}`);
+        }
+
+        /**
+         * SE handle: resize a **flex-row width unit** by integer **units** (e.g. 1–4 columns of a
+         * shared `maxUnits` budget). Uses **`registerLlumenResizeInteraction`** (same mutex as grid
+         * span resize / `initResizableElement`). **Rubber-band** preview (`.ll-resize-rubber-band`)
+         * inside `rowContainer`; **`applyUnits`** runs on **pointer-up** only so heavy content
+         * (charts/maps) does not relayout every move.
+         *
+         * @param {object} options
+         * @param {HTMLElement} options.rowContainer — Host for `position: absolute` preview; **`position: relative`**. With defaults, the row is a **flex** row (**no `gap`**); each unit sits in **`ll-row-element-container`** (horizontal padding for gutters). Width uses **`setLlumenBandWidthClass`** (**`ll-band-c{maxUnits}-u{units}`**).
+         * @param {HTMLElement} options.unitElement — Inner **`ll-flex-band-unit`** (resize handle lives here).
+         * @param {string} options.unitSelector — Query siblings for capacity (e.g. `'.ll-flex-band-unit'`).
+         * @param {HTMLElement} [options.resizeHandle] — If omitted, `unitElement.querySelector(resizeHandleSelector)`.
+         * @param {string} [options.resizeHandleSelector='.ll-resize-handle--se']
+         * @param {number} [options.maxUnits=4]
+         * @param {string|null} [options.widthShellSelector='.ll-row-element-container'] — Element that receives **`ll-band-c*-u*`**; **`closest()`** from **`unitElement`**. Pass **`null`** to apply width class on **`unitElement`** itself.
+         * @param {(el: HTMLElement) => number} [options.readUnits]
+         * @param {(el: HTMLElement, units: number, maxUnits: number) => void} [options.applyUnits] — Default: **`setLlumenBandWidthClass`** on the width shell (or unit), **`dataset.units`**, clears **`grid-column` / legacy flex**.
+         * @param {(detail: { units: number, unitElement: HTMLElement }) => void} [options.onWidthPreview]
+         * @param {(detail: { units: number, unitElement: HTMLElement }) => void} [options.onWidthCommit]
+         * @param {HTMLElement} [options.pointerCaptureTarget]
+         */
+        function initLlumenFlexBandUnitResize(options = {}) {
+            const {
+                rowContainer,
+                unitElement,
+                unitSelector,
+                resizeHandle: resizeHandleOpt = null,
+                resizeHandleSelector = '.ll-resize-handle--se',
+                maxUnits = 4,
+                widthShellSelector = '.ll-row-element-container',
+                readUnits = (el) => {
+                    if (!el || !el.dataset) return 1;
+                    return Math.max(1, parseInt(el.dataset.units, 10) || 1);
+                },
+                applyUnits = null,
+                onWidthPreview = null,
+                onWidthCommit = null,
+                pointerCaptureTarget = null
+            } = options;
+
+            if (!rowContainer || !unitElement || !unitSelector) {
+                return { destroy() {} };
+            }
+            if (!rowContainer.contains(unitElement)) {
+                return { destroy() {} };
+            }
+
+            const resizeHandle = resizeHandleOpt
+                || (typeof resizeHandleSelector === 'string'
+                    ? unitElement.querySelector(resizeHandleSelector)
+                    : resizeHandleSelector);
+            if (!resizeHandle || !unitElement.contains(resizeHandle)) {
+                return { destroy() {} };
+            }
+            ensureLlResizeHandleUnfocusable(resizeHandle);
+
+            const resolveWidthElement = (el) => {
+                if (widthShellSelector == null || widthShellSelector === '') {
+                    return el;
+                }
+                return el.closest(widthShellSelector) || el;
+            };
+
+            const applyUnitsFn = typeof applyUnits === 'function'
+                ? applyUnits
+                : (el, u, maxU) => {
+                    el.dataset.units = String(u);
+                    el.style.gridColumn = '';
+                    el.style.flex = '';
+                    el.style.maxWidth = '';
+                    el.style.minWidth = '0';
+                    setLlumenBandWidthClass(resolveWidthElement(el), maxU, u);
+                };
+
+            const captureRoot = (pointerCaptureTarget && pointerCaptureTarget.nodeType === 1)
+                ? pointerCaptureTarget
+                : (unitElement.ownerDocument && unitElement.ownerDocument.body) || unitElement;
+
+            let activeEndSession = null;
+            let detachAll = null;
+
+            const applyEndFocus = (handleEl) => {
+                if (!handleEl || !handleEl.isConnected) return;
+                if (handleEl.classList && handleEl.classList.contains('ll-resize-handle--se')) return;
+                try {
+                    if (typeof handleEl.focus === 'function' && !handleEl.matches(':disabled')) {
+                        handleEl.focus({ preventScroll: true });
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+            };
+
+            const othersUsedExcluding = (exclude) => {
+                const nodes = rowContainer.querySelectorAll(unitSelector);
+                let s = 0;
+                for (let i = 0; i < nodes.length; i++) {
+                    const el = nodes[i];
+                    if (!el || el.nodeType !== 1 || el === exclude) continue;
+                    s += readUnits(el);
+                }
+                return s;
+            };
+
+            const pointerDownHandler = (startEvent) => {
+                if (!startEvent.isPrimary) return;
+                if (startEvent.pointerType === 'mouse' && startEvent.button !== 0) return;
+                if (typeof detachAll === 'function') return;
+
+                const token = registerLlumenResizeInteraction();
+                if (!token) {
+                    return;
+                }
+
+                startEvent.preventDefault();
+                startEvent.stopPropagation();
+
+                const pointerId = startEvent.pointerId;
+                const startX = startEvent.clientX;
+                const startUnits = readUnits(unitElement);
+                const prevUnitsAttr = unitElement.dataset.units;
+                const prevFlex = unitElement.style.flex;
+                const prevMaxWidth = unitElement.style.maxWidth;
+                const prevMinWidth = unitElement.style.minWidth;
+
+                const doc = unitElement.ownerDocument || document;
+                const shellEl = resolveWidthElement(unitElement);
+                const startShellRect = shellEl.getBoundingClientRect();
+                const startShellWidth = Math.max(1, startShellRect.width);
+                const startUnitRect = unitElement.getBoundingClientRect();
+                const startUnitWidth = Math.max(1, startUnitRect.width);
+                /* Band width applies to the shell (border-box); inner unit ≈ shell width minus fixed
+                 * horizontal padding. Linear scaling of the unit alone ignores that, so preview > post-commit. */
+                const shellPadInlineTotalPx = Math.max(0, startShellWidth - startUnitWidth);
+                let previewEl = null;
+                let lastPreviewUnits = startUnits;
+                let lastNotifiedUnits = startUnits;
+                let sessionEnded = false;
+
+                const removeRubberBand = () => {
+                    if (previewEl && previewEl.parentNode) {
+                        previewEl.parentNode.removeChild(previewEl);
+                    }
+                    previewEl = null;
+                };
+
+                const syncRubberBand = (previewUnits) => {
+                    if (!previewEl) return;
+                    const unitR = unitElement.getBoundingClientRect();
+                    const shellW = startShellWidth * (previewUnits / startUnits);
+                    const w = Math.max(1, shellW - shellPadInlineTotalPx);
+                    llumenSyncResizeRubberBandFromViewportRect(previewEl, rowContainer, {
+                        left: unitR.left,
+                        top: unitR.top,
+                        width: w,
+                        height: unitR.height
+                    });
+                };
+
+                const restoreUnits = () => {
+                    if (prevUnitsAttr != null && prevUnitsAttr !== '') {
+                        unitElement.dataset.units = prevUnitsAttr;
+                    } else {
+                        unitElement.removeAttribute('data-units');
+                    }
+                    unitElement.style.flex = prevFlex;
+                    unitElement.style.maxWidth = prevMaxWidth;
+                    unitElement.style.minWidth = prevMinWidth;
+                    setLlumenBandWidthClass(resolveWidthElement(unitElement), maxUnits, startUnits);
+                };
+
+                const cleanupCaptureAndClass = () => {
+                    unitElement.classList.remove('ll-flex-band-unit--resizing');
+                    resizeHandle.classList.remove('ll-dnd__capture-target--active');
+                    try {
+                        if (captureRoot.hasPointerCapture && captureRoot.hasPointerCapture(pointerId)) {
+                            captureRoot.releasePointerCapture(pointerId);
+                        }
+                    } catch (e) {
+                        /* ignore */
+                    }
+                };
+
+                const endSession = (kind) => {
+                    if (sessionEnded) return;
+                    sessionEnded = true;
+                    if (token) {
+                        token.onEscape = null;
+                    }
+                    activeEndSession = null;
+                    if (typeof detachAll === 'function') {
+                        detachAll();
+                        detachAll = null;
+                    }
+                    cleanupCaptureAndClass();
+                    removeRubberBand();
+                    try {
+                        if (kind === 'commit') {
+                            applyUnitsFn(unitElement, lastPreviewUnits, maxUnits);
+                            if (typeof onWidthCommit === 'function') {
+                                onWidthCommit({ units: lastPreviewUnits, unitElement });
+                            }
+                        } else {
+                            restoreUnits();
+                        }
+                    } finally {
+                        unregisterLlumenActivePointerInteraction(token);
+                        applyEndFocus(resizeHandle);
+                    }
+                };
+
+                const onPointerMove = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    const rowR = rowContainer.getBoundingClientRect();
+                    const rw = rowR.width || 1;
+                    const unitPx = rw / maxUnits;
+                    const deltaUnits = unitPx > 0 ? Math.round((ev.clientX - startX) / unitPx) : 0;
+                    const cap = Math.max(1, maxUnits - othersUsedExcluding(unitElement));
+                    const next = Math.max(1, Math.min(cap, startUnits + deltaUnits));
+                    lastPreviewUnits = next;
+                    if (next !== lastNotifiedUnits) {
+                        lastNotifiedUnits = next;
+                        if (typeof onWidthPreview === 'function') {
+                            onWidthPreview({ units: next, unitElement });
+                        }
+                    }
+                    syncRubberBand(next);
+                };
+
+                const onPointerUp = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('commit');
+                };
+
+                const onPointerCancel = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('cancel');
+                };
+
+                const onLostCapture = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('cancel');
+                };
+
+                const onVisibilityChange = () => {
+                    if (sessionEnded) return;
+                    if (unitElement.ownerDocument.hidden) {
+                        endSession('cancel');
+                    }
+                };
+
+                detachAll = () => {
+                    unitElement.ownerDocument.removeEventListener('visibilitychange', onVisibilityChange);
+                    captureRoot.removeEventListener('pointermove', onPointerMove);
+                    captureRoot.removeEventListener('pointerup', onPointerUp);
+                    captureRoot.removeEventListener('pointercancel', onPointerCancel);
+                    captureRoot.removeEventListener('lostpointercapture', onLostCapture);
+                };
+
+                previewEl = doc.createElement('div');
+                previewEl.className = 'll-resize-rubber-band';
+                previewEl.setAttribute('aria-hidden', 'true');
+                rowContainer.appendChild(previewEl);
+                syncRubberBand(startUnits);
+
+                unitElement.classList.add('ll-flex-band-unit--resizing');
+                resizeHandle.classList.add('ll-dnd__capture-target--active');
+
+                try {
+                    captureRoot.setPointerCapture(pointerId);
+                } catch (e) {
+                    /* ignore */
+                }
+
+                captureRoot.addEventListener('pointermove', onPointerMove);
+                captureRoot.addEventListener('pointerup', onPointerUp);
+                captureRoot.addEventListener('pointercancel', onPointerCancel);
+                captureRoot.addEventListener('lostpointercapture', onLostCapture);
+                unitElement.ownerDocument.addEventListener('visibilitychange', onVisibilityChange);
+
+                token.onEscape = () => {
+                    if (sessionEnded) return;
+                    endSession('cancel');
+                };
+
+                activeEndSession = endSession;
+            };
+
+            resizeHandle.addEventListener('pointerdown', pointerDownHandler);
+
+            return {
+                destroy() {
+                    if (typeof activeEndSession === 'function') {
+                        activeEndSession('cancel');
+                    }
+                    activeEndSession = null;
+                    resizeHandle.removeEventListener('pointerdown', pointerDownHandler);
+                    unitElement.classList.remove('ll-flex-band-unit--resizing');
+                }
+            };
+        }
+
+        /**
+         * Map viewport rects / client points to coordinates for `position: absolute` children of
+         * `mountRoot` (e.g. overflow panel). Use the mount's border-box origin in viewport space only —
+         * do not add scrollLeft/scrollTop (absolute layers are anchored to the scrollport, not scrolled
+         * document content offsets).
+         */
+        function llumenViewportRectToMountLocal(mountRoot, vRect) {
+            const mr = mountRoot.getBoundingClientRect();
+            return {
+                left: vRect.left - mr.left,
+                top: vRect.top - mr.top,
+                width: vRect.width,
+                height: vRect.height
+            };
+        }
+
+        function llumenClientPointToMountLocal(mountRoot, clientX, clientY) {
+            const mr = mountRoot.getBoundingClientRect();
+            return {
+                x: clientX - mr.left,
+                y: clientY - mr.top
+            };
+        }
+
+        function applyLlumenGhostLayoutFromSource(ghostEl, sourceEl) {
+            if (!ghostEl || !sourceEl) return;
+            const ghostComputed = windowScope.getComputedStyle(sourceEl);
+            const disp = ghostComputed.display || 'block';
+            ghostEl.style.display = disp;
+            if (disp === 'flex' || disp === 'inline-flex') {
+                ghostEl.style.flexDirection = ghostComputed.flexDirection;
+                ghostEl.style.flexWrap = ghostComputed.flexWrap;
+                ghostEl.style.alignItems = ghostComputed.alignItems;
+                ghostEl.style.justifyContent = ghostComputed.justifyContent;
+                ghostEl.style.gap = ghostComputed.gap;
+            }
+            ghostEl.style.boxSizing = 'border-box';
+            ghostEl.style.minWidth = ghostComputed.minWidth && ghostComputed.minWidth !== '0px'
+                ? ghostComputed.minWidth
+                : '';
+            ghostEl.style.minHeight = ghostComputed.minHeight && ghostComputed.minHeight !== '0px'
+                ? ghostComputed.minHeight
+                : '';
+        }
+
+        /**
+         * Grid tile move: shared pointer session (capture, Escape, visibility, auto-scroll) + **ghost** on
+         * `document.body` with **`position: fixed`** and viewport `left`/`top` (always cursor-anchored, never
+         * clipped by the grid/panel overflow). **Placeholder** stays under **`previewMountRoot`** (default:
+         * grid surface) with mirror + overlay; size is at least the snapped cell and at least the tile’s
+         * start rect so the wash covers the clone. Source uses `.ll-grid-tile--move-source` (dim only).
+         */
+        function initGridTilePointerMove(options = {}) {
+            const {
+                gridSurface,
+                tile,
+                dragHandle,
+                dragIgnoreWithinTileSelector = null,
+                resolveMetrics = null,
+                maxGridRow = 48,
+                scrollRootOriginElement = null,
+                previewMountRoot = null,
+                pointerCaptureTarget = null,
+                ghostStripSelector = null,
+                buildGhost = null,
+                onMoveCommit = null,
+                occupancyTileSelector = null
+            } = options;
+
+            const handleEl = dragHandle;
+            if (!gridSurface || !tile || !handleEl || !gridSurface.contains(tile) || !tile.contains(handleEl)) {
+                return { destroy() {} };
+            }
+
+            const docBody = tile.ownerDocument && tile.ownerDocument.body;
+            const mountRoot = (previewMountRoot && previewMountRoot.nodeType === 1
+                && previewMountRoot.contains(gridSurface))
+                ? previewMountRoot
+                : gridSurface;
+
+            const getMetrics = typeof resolveMetrics === 'function'
+                ? () => resolveMetrics()
+                : () => readLlumenGridSurfaceLayout(gridSurface);
+
+            const captureRoot = (pointerCaptureTarget && pointerCaptureTarget.nodeType === 1)
+                ? pointerCaptureTarget
+                : (tile.ownerDocument && tile.ownerDocument.body) || tile;
+
+            const pointerDownHandler = (startEvent) => {
+                if (!startEvent.isPrimary) return;
+                if (startEvent.pointerType === 'mouse' && startEvent.button !== 0) return;
+                if (llumenActivePointerInteraction) return;
+                if (dragIgnoreWithinTileSelector && startEvent.target.closest(dragIgnoreWithinTileSelector)) {
+                    return;
+                }
+
+                startEvent.preventDefault();
+                startEvent.stopPropagation();
+
+                const colSpan = Math.max(1, parseInt(tile.dataset.colSpan, 10) || 1);
+                const rowSpan = Math.max(1, parseInt(tile.dataset.rowSpan, 10) || 1);
+                const startRect = tile.getBoundingClientRect();
+                const ox = startEvent.clientX - startRect.left;
+                const oy = startEvent.clientY - startRect.top;
+                const ghostW = Math.max(1, Math.ceil(startRect.width));
+                const ghostH = Math.max(1, Math.ceil(startRect.height));
+
+                let ghost = null;
+                let placeholder = null;
+                let lastPointerX = startEvent.clientX;
+                let lastPointerY = startEvent.clientY;
+                const startClientX = startEvent.clientX;
+                const startClientY = startEvent.clientY;
+                /* Small move = tap vs drag; larger arm = keep preview on anchor until deliberate motion. */
+                const GRID_DRAG_PLACEHOLDER_MOVE_PX = 6;
+                const GRID_DRAG_PLACEHOLDER_ARM_PX = 14;
+                const mAnchor = getMetrics();
+                const anchorPlace = llumenGridAnchorCellFromTile(tile, mAnchor, colSpan, rowSpan, maxGridRow);
+                let stickyPlace = anchorPlace;
+                let lastPlaceholderPlace = anchorPlace;
+                const ghostStartL = startEvent.clientX - ox;
+                const ghostStartT = startEvent.clientY - oy;
+                const teardownPreview = () => {
+                    if (ghost && ghost.parentNode) {
+                        ghost.parentNode.removeChild(ghost);
+                    }
+                    ghost = null;
+                    if (placeholder && placeholder.parentNode) {
+                        placeholder.parentNode.removeChild(placeholder);
+                    }
+                    placeholder = null;
+                    tile.classList.remove('ll-grid-tile--move-source');
+                };
+
+                ghost = typeof buildGhost === 'function'
+                    ? buildGhost(tile)
+                    : tile.cloneNode(true);
+                if (ghost) {
+                    sanitizeLlDragDropClone(ghost);
+                    if (typeof ghostStripSelector === 'string' && ghostStripSelector) {
+                        ghost.querySelectorAll(ghostStripSelector).forEach((n) => n.remove());
+                    }
+                    ghost.classList.add('ll-dnd__ghost');
+                    ghost.classList.remove('ll-dnd__ghost--scroll-mount');
+                    applyLlumenGhostLayoutFromSource(ghost, tile);
+                    ghost.style.width = `${ghostW}px`;
+                    ghost.style.height = `${ghostH}px`;
+                    /*
+                     * Inline fixed + z-index so the ghost stays visible even if `.ll-dnd__ghost` is missing
+                     * from a Tailwind build (class only appears from JS) or loses the cascade to utilities.
+                     */
+                    ghost.style.position = 'fixed';
+                    ghost.style.pointerEvents = 'none';
+                    ghost.style.zIndex = '260';
+                    ghost.style.opacity = '0.95';
+                    ghost.style.boxShadow = '0 14px 28px rgba(0, 0, 0, 0.42)';
+                    ghost.style.left = `${startEvent.clientX - ox}px`;
+                    ghost.style.top = `${startEvent.clientY - oy}px`;
+                    const mountBody = docBody || (tile.ownerDocument && tile.ownerDocument.body);
+                    if (mountBody) {
+                        mountBody.appendChild(ghost);
+                    }
+                }
+
+                const doc = tile.ownerDocument;
+                placeholder = doc.createElement('div');
+                placeholder.className = 'll-dnd__placeholder ll-dnd__placeholder--mirror ll-dnd__placeholder--grid-mount ll-dnd__wash-surface';
+                placeholder.style.visibility = 'hidden';
+                placeholder.setAttribute('aria-hidden', 'true');
+                const mirror = tile.cloneNode(true);
+                sanitizeLlDragDropClone(mirror);
+                if (typeof ghostStripSelector === 'string' && ghostStripSelector) {
+                    mirror.querySelectorAll(ghostStripSelector).forEach((n) => n.remove());
+                }
+                /*
+                 * The live tile is sized by the parent grid; the clone is not a grid item here, so
+                 * `grid-column` / `grid-row` would not stretch it — fill the placeholder box explicitly.
+                 */
+                mirror.style.gridColumn = 'auto';
+                mirror.style.gridRow = 'auto';
+                mirror.style.gridArea = 'auto';
+                mirror.style.width = '100%';
+                mirror.style.height = '100%';
+                mirror.style.boxSizing = 'border-box';
+                mirror.style.maxWidth = '100%';
+                mirror.style.maxHeight = '100%';
+                /* Clone copies tile inline `z-index` (stacking); wash must paint above the mirror. */
+                mirror.style.removeProperty('z-index');
+                applyLlumenGhostLayoutFromSource(mirror, tile);
+                placeholder.appendChild(mirror);
+                mountRoot.appendChild(placeholder);
+
+                /* Dim source only; slot wash is `.ll-dnd__wash-surface::after` on the placeholder host (same as sortable). */
+                tile.classList.add('ll-grid-tile--move-source');
+
+                const paintPreview = (clientX, clientY) => {
+                    lastPointerX = clientX;
+                    lastPointerY = clientY;
+                    if (ghost) {
+                        ghost.style.left = `${clientX - ox}px`;
+                        ghost.style.top = `${clientY - oy}px`;
+                    }
+                    const m = getMetrics();
+                    if (!m || !placeholder || !anchorPlace) return;
+                    const occupiedCells = occupancyTileSelector
+                        ? collectLlumenGridOccupiedCells(
+                            gridSurface,
+                            occupancyTileSelector,
+                            tile,
+                            m,
+                            maxGridRow
+                        )
+                        : null;
+                    if (occupiedCells && occupiedCells.size && stickyPlace
+                        && !llumenGridFootprintFreeOfOccupied(
+                            occupiedCells,
+                            stickyPlace.colStart,
+                            stickyPlace.rowStart,
+                            colSpan,
+                            rowSpan
+                        )) {
+                        stickyPlace = anchorPlace;
+                    }
+                    /*
+                     * Slot preview from ghost viewport rect: max overlap with each valid footprint,
+                     * then closest footprint center among ties (not single-point grid floor).
+                     */
+                    let hasMoved = false;
+                    let slotArmPassed = false;
+                    let glNum = ghostStartL;
+                    let gtNum = ghostStartT;
+                    let gwGhost = ghostW;
+                    let ghGhost = ghostH;
+                    if (ghost && ghost.isConnected) {
+                        const gl = parseFloat(ghost.style.left);
+                        const gt = parseFloat(ghost.style.top);
+                        gwGhost = parseFloat(ghost.style.width) || ghostW;
+                        ghGhost = parseFloat(ghost.style.height) || ghostH;
+                        glNum = Number.isFinite(gl) ? gl : ghostStartL;
+                        gtNum = Number.isFinite(gt) ? gt : ghostStartT;
+                        const movedSq = (glNum - ghostStartL) * (glNum - ghostStartL)
+                            + (gtNum - ghostStartT) * (gtNum - ghostStartT);
+                        const moveTh = GRID_DRAG_PLACEHOLDER_MOVE_PX * GRID_DRAG_PLACEHOLDER_MOVE_PX;
+                        const armTh = GRID_DRAG_PLACEHOLDER_ARM_PX * GRID_DRAG_PLACEHOLDER_ARM_PX;
+                        hasMoved = movedSq >= moveTh;
+                        slotArmPassed = movedSq >= armTh;
+                    }
+
+                    let place = null;
+                    let dispPlace = anchorPlace;
+                    if (hasMoved && ghost && ghost.isConnected) {
+                        if (slotArmPassed) {
+                            const ghostRect = {
+                                left: glNum,
+                                top: gtNum,
+                                width: gwGhost,
+                                height: ghGhost
+                            };
+                            place = llumenGridPlaceFromGhostRect(
+                                ghostRect,
+                                m,
+                                colSpan,
+                                rowSpan,
+                                maxGridRow,
+                                stickyPlace,
+                                occupiedCells
+                            );
+                            if (place) {
+                                stickyPlace = place;
+                            }
+                            dispPlace = place || stickyPlace;
+                        } else {
+                            dispPlace = anchorPlace;
+                            stickyPlace = anchorPlace;
+                        }
+                    } else {
+                        stickyPlace = anchorPlace;
+                    }
+                    if (occupiedCells && occupiedCells.size && dispPlace
+                        && !llumenGridFootprintFreeOfOccupied(
+                            occupiedCells,
+                            dispPlace.colStart,
+                            dispPlace.rowStart,
+                            colSpan,
+                            rowSpan
+                        )) {
+                        dispPlace = llumenGridFootprintFreeOfOccupied(
+                            occupiedCells,
+                            anchorPlace.colStart,
+                            anchorPlace.rowStart,
+                            colSpan,
+                            rowSpan
+                        )
+                            ? anchorPlace
+                            : null;
+                    }
+                    if (!dispPlace) {
+                        placeholder.style.visibility = 'hidden';
+                        return;
+                    }
+                    const box = llumenGridFootprintViewportRect(
+                        m,
+                        dispPlace.colStart,
+                        dispPlace.rowStart,
+                        colSpan,
+                        rowSpan
+                    );
+                    const vw = Math.max(box.width, Math.ceil(startRect.width));
+                    const vh = Math.max(box.height, Math.ceil(startRect.height));
+                    const expanded = {
+                        left: box.left,
+                        top: box.top,
+                        width: vw,
+                        height: vh
+                    };
+                    const local = llumenViewportRectToMountLocal(mountRoot, expanded);
+                    placeholder.style.visibility = 'visible';
+                    placeholder.style.left = `${local.left}px`;
+                    placeholder.style.top = `${local.top}px`;
+                    placeholder.style.width = `${local.width}px`;
+                    placeholder.style.height = `${local.height}px`;
+                    lastPlaceholderPlace = dispPlace;
+                };
+
+                paintPreview(startEvent.clientX, startEvent.clientY);
+
+                const applyGridTileMovePlace = (m, finalPlace) => {
+                    if (!finalPlace || !m) return;
+                    if (typeof onMoveCommit === 'function') {
+                        onMoveCommit({
+                            tile,
+                            columnStart: finalPlace.colStart,
+                            rowStart: finalPlace.rowStart,
+                            colSpan,
+                            rowSpan
+                        });
+                    } else {
+                        tile.style.gridColumn = `${finalPlace.colStart} / span ${colSpan}`;
+                        tile.style.gridRow = `${finalPlace.rowStart} / span ${rowSpan}`;
+                    }
+                };
+
+                const gridTileMoveSessionStarted = runLlumenPointerDragSession({
+                    handleElement: handleEl,
+                    pointerCaptureTarget: captureRoot,
+                    startEvent,
+                    scrollRootOriginElement: scrollRootOriginElement || gridSurface,
+                    onMove: ({ clientX, clientY }) => {
+                        paintPreview(clientX, clientY);
+                    },
+                    onCommit: () => {
+                        const m = getMetrics();
+                        const lastGl = lastPointerX - ox;
+                        const lastGt = lastPointerY - oy;
+                        const movedSq = (lastGl - ghostStartL) * (lastGl - ghostStartL)
+                            + (lastGt - ghostStartT) * (lastGt - ghostStartT);
+                        const hasMoved = movedSq >= GRID_DRAG_PLACEHOLDER_MOVE_PX * GRID_DRAG_PLACEHOLDER_MOVE_PX;
+                        const armPassed = movedSq
+                            >= GRID_DRAG_PLACEHOLDER_ARM_PX * GRID_DRAG_PLACEHOLDER_ARM_PX;
+                        teardownPreview();
+                        if (!hasMoved || !m || !armPassed) {
+                            return;
+                        }
+                        const ghostAtCommit = {
+                            left: lastGl,
+                            top: lastGt,
+                            width: ghostW,
+                            height: ghostH
+                        };
+                        const occCommit = occupancyTileSelector
+                            ? collectLlumenGridOccupiedCells(
+                                gridSurface,
+                                occupancyTileSelector,
+                                tile,
+                                m,
+                                maxGridRow
+                            )
+                            : null;
+                        const pickFreeCommit = (p) => (
+                            p && (!occCommit || !occCommit.size
+                                || llumenGridFootprintFreeOfOccupied(
+                                    occCommit,
+                                    p.colStart,
+                                    p.rowStart,
+                                    colSpan,
+                                    rowSpan
+                                ))
+                                ? p
+                                : null
+                        );
+                        const finalPlace = pickFreeCommit(llumenGridPlaceFromGhostRect(
+                            ghostAtCommit,
+                            m,
+                            colSpan,
+                            rowSpan,
+                            maxGridRow,
+                            stickyPlace,
+                            occCommit
+                        ))
+                            || pickFreeCommit(stickyPlace)
+                            || pickFreeCommit(lastPlaceholderPlace)
+                            || pickFreeCommit(anchorPlace);
+                        if (finalPlace) {
+                            applyGridTileMovePlace(m, finalPlace);
+                        }
+                    },
+                    onCancel: ({ reason } = {}) => {
+                        const m = getMetrics();
+                        const lastGl = lastPointerX - ox;
+                        const lastGt = lastPointerY - oy;
+                        const movedSq = (lastGl - ghostStartL) * (lastGl - ghostStartL)
+                            + (lastGt - ghostStartT) * (lastGt - ghostStartT);
+                        const hadMeaningfulMove = movedSq
+                            >= GRID_DRAG_PLACEHOLDER_MOVE_PX * GRID_DRAG_PLACEHOLDER_MOVE_PX;
+                        const armPassedCancel = movedSq
+                            >= GRID_DRAG_PLACEHOLDER_ARM_PX * GRID_DRAG_PLACEHOLDER_ARM_PX;
+                        teardownPreview();
+                        /*
+                         * Sortable-style: `pointercancel` / `lostpointercapture` often fire when the pointer
+                         * leaves a scroll surface or capture is dropped even though the user intended to
+                         * drop — commit the last preview slot. Escape / visibility stay a true cancel.
+                         */
+                        const commitLastPreview = reason === 'pointercancel' || reason === 'lostpointercapture';
+                        if (!commitLastPreview || !hadMeaningfulMove || !armPassedCancel || !m || !lastPlaceholderPlace) {
+                            return;
+                        }
+                        const occStale = occupancyTileSelector
+                            ? collectLlumenGridOccupiedCells(
+                                gridSurface,
+                                occupancyTileSelector,
+                                tile,
+                                m,
+                                maxGridRow
+                            )
+                            : null;
+                        if (occStale && occStale.size
+                            && !llumenGridFootprintFreeOfOccupied(
+                                occStale,
+                                lastPlaceholderPlace.colStart,
+                                lastPlaceholderPlace.rowStart,
+                                colSpan,
+                                rowSpan
+                            )) {
+                            return;
+                        }
+                        applyGridTileMovePlace(m, lastPlaceholderPlace);
+                    }
+                });
+                if (!gridTileMoveSessionStarted) {
+                    teardownPreview();
+                }
+            };
+
+            handleEl.addEventListener('pointerdown', pointerDownHandler);
+
+            return {
+                destroy() {
+                    handleEl.removeEventListener('pointerdown', pointerDownHandler);
+                }
+            };
+        }
+
+        /**
+         * Wire **SE span resize** and/or **pointer tile move** for tiles in a CSS grid surface.
+         *
+         * @param {Object} options
+         * @param {HTMLElement} options.gridElement — Grid container (`display: grid`); metrics from
+         *   `readLlumenGridSurfaceLayout(gridElement)` unless `resolveMetrics` is passed.
+         * @param {string} options.tileSelector — Query selector for tile roots inside `gridElement`
+         *   (also used as **`occupancyTileSelector`** for resize and move so footprints avoid other tiles).
+         * @param {string} [options.resizeHandleSelector='.ll-resize-handle--se'] — Handle within each tile for span resize.
+         * @param {string|null} [options.tileMoveHandleSelector=null] — If set, enables pointer move + ghost/placeholder.
+         * @param {string|null} [options.tileMoveDragIgnoreSelector=null] — Subtree that should not start a tile drag.
+         * @param {number} [options.tileMoveMaxGridRow=48] — Max 1-based row index for placement math (resize + move).
+         * @param {string|null} [options.tileMoveGhostStripSelector=null] — Strip width from ghost for hit-tests.
+         * @param {HTMLElement|null} [options.tileMoveScrollRoot=null] — Scrollport for auto-scroll during move.
+         * @param {HTMLElement|null} [options.tileMovePreviewMountRoot=null] — Where the mirror placeholder mounts.
+         * @param {HTMLElement|null} [options.tileMovePointerCaptureTarget=null] — Pointer capture root for move.
+         * @param {function|null} [options.tileMoveBuildGhost=null] — Optional custom ghost builder.
+         * @param {function|null} [options.tileMoveOnCommit=null] — Called when a tile move commits.
+         * **Span resize** (passed through to `initGridTileSpanResize`):
+         * @param {number|null} [options.maxColSpan=null] — Hard cap on column span (default: grid column count).
+         * @param {number} [options.maxRowSpan=6] — Hard cap on row span (also clamped by `tileMoveMaxGridRow` − row start + 1).
+         * @param {function|null} [options.resolveMetrics=null] — `() => metrics` override; default reads `gridElement`.
+         * @param {function|null} [options.onSpanPreview=null] — Fires on each resize pointer move with `{ colSpan, rowSpan, tile }`.
+         * @param {function|null} [options.onSpanCommit=null] — Fires on successful resize commit.
+         * @param {HTMLElement|null} [options.pointerCaptureTarget=null] — Capture root for resize pointer session.
+         *
+         * **Resize rules:** Once the tile’s **start column/row** is resolved, span cannot extend past the grid
+         * edge from that anchor. If other tiles occupy cells, span growth is clamped so the new footprint stays free.
+         * With resolved anchors, resize uses a **`.ll-resize-rubber-band`** footprint inside `gridElement` until pointer-up.
+         */
+        function initGridDropContext(options = {}) {
+            const {
+                gridElement,
+                tileSelector,
+                resizeHandleSelector = '.ll-resize-handle--se',
+                tileMoveHandleSelector = null,
+                tileMoveDragIgnoreSelector = null,
+                tileMoveMaxGridRow = 48,
+                tileMoveGhostStripSelector = null,
+                tileMoveScrollRoot = null,
+                tileMovePreviewMountRoot = null,
+                tileMovePointerCaptureTarget = null,
+                tileMoveBuildGhost = null,
+                tileMoveOnCommit = null,
+                ...spanOpts
+            } = options;
+
+            if (!gridElement || !tileSelector || typeof tileSelector !== 'string') {
+                return {
+                    destroy() {},
+                    wireTile() {}
+                };
+            }
+
+            const disposers = new Map();
+
+            const wireTile = (tile) => {
+                if (!tile || tile.nodeType !== 1 || !gridElement.contains(tile)) return;
+                if (disposers.has(tile)) {
+                    disposers.get(tile).destroy();
+                    disposers.delete(tile);
+                }
+                const parts = [];
+                const rh = tile.querySelector(resizeHandleSelector);
+                if (rh) {
+                    parts.push(initGridTileSpanResize({
+                        gridSurface: gridElement,
+                        tile,
+                        resizeHandle: rh,
+                        ...spanOpts,
+                        layoutMaxGridRow: tileMoveMaxGridRow,
+                        occupancyTileSelector: tileSelector
+                    }));
+                }
+                if (tileMoveHandleSelector) {
+                    const mh = tile.querySelector(tileMoveHandleSelector);
+                    if (mh) {
+                        parts.push(initGridTilePointerMove({
+                            gridSurface: gridElement,
+                            tile,
+                            dragHandle: mh,
+                            dragIgnoreWithinTileSelector: tileMoveDragIgnoreSelector,
+                            maxGridRow: tileMoveMaxGridRow,
+                            ghostStripSelector: tileMoveGhostStripSelector,
+                            scrollRootOriginElement: tileMoveScrollRoot || gridElement,
+                            previewMountRoot: tileMovePreviewMountRoot,
+                            pointerCaptureTarget: tileMovePointerCaptureTarget,
+                            buildGhost: tileMoveBuildGhost,
+                            onMoveCommit: tileMoveOnCommit,
+                            occupancyTileSelector: tileSelector
+                        }));
+                    }
+                }
+                if (!parts.length) return;
+                disposers.set(tile, {
+                    destroy() {
+                        parts.forEach((p) => {
+                            if (p && typeof p.destroy === 'function') p.destroy();
+                        });
+                    }
+                });
+            };
+
+            const destroy = () => {
+                disposers.forEach((d) => {
+                    if (d && typeof d.destroy === 'function') d.destroy();
+                });
+                disposers.clear();
+            };
+
+            gridElement.querySelectorAll(tileSelector).forEach(wireTile);
+
+            return { destroy, wireTile };
+        }
+
+        /**
+         * Reads each **grid tile** under **`gridElement`** into a serializable list (placement + spans).
+         * **`columnCount`** mirrors **`readLlumenGridSurfaceLayout`**. Row/column starts prefer explicit
+         * **`grid-column` / `grid-row`** shorthands, then computed line starts, then **`llumenGridAnchorCellFromTile`**.
+         *
+         * @param {HTMLElement} gridElement
+         * @param {object} [config]
+         * @param {string} config.tileSelector
+         * @param {(el: HTMLElement) => string} [config.getTileId]
+         * @param {(el: HTMLElement) => object|void} [config.readTileExtras]
+         * @param {number} [config.maxGridRow=48]
+         * @returns {{ columnCount: number, tiles: Array<{ tileId: string, colStart: number, rowStart: number, colSpan: number, rowSpan: number, zIndex?: number }> }}
+         */
+        function readLlumenGridTilesModelFromHost(gridElement, config = {}) {
+            const {
+                tileSelector,
+                getTileId = (el) => (el.id != null && String(el.id).trim() ? String(el.id).trim() : ''),
+                readTileExtras = null,
+                maxGridRow = 48
+            } = config;
+
+            if (!gridElement || gridElement.nodeType !== 1 || typeof tileSelector !== 'string' || !tileSelector.trim()) {
+                return { columnCount: 1, tiles: [] };
+            }
+
+            const metrics = readLlumenGridSurfaceLayout(gridElement);
+            const columnCount = metrics && Number.isFinite(metrics.columnCount)
+                ? Math.max(1, metrics.columnCount)
+                : 1;
+
+            const tiles = [];
+            try {
+                gridElement.querySelectorAll(tileSelector).forEach((el) => {
+                    if (!el || el.nodeType !== 1) return;
+                    if (typeof el.closest === 'function' && el.closest('.ll-dnd__placeholder')) return;
+                    const colSpan = Math.max(1, parseInt(el.dataset.colSpan, 10) || 1);
+                    const rowSpan = Math.max(1, parseInt(el.dataset.rowSpan, 10) || 1);
+                    let colStart = llumenGridParseShorthandAxisStart(el.style.gridColumn);
+                    let rowStart = llumenGridParseShorthandAxisStart(el.style.gridRow);
+                    if (colStart == null || rowStart == null) {
+                        try {
+                            const csp = windowScope.getComputedStyle(el);
+                            if (colStart == null) {
+                                colStart = llumenGridParseComputedAxisStart(csp.gridColumnStart);
+                            }
+                            if (rowStart == null) {
+                                rowStart = llumenGridParseComputedAxisStart(csp.gridRowStart);
+                            }
+                        } catch (e) {
+                            /* ignore */
+                        }
+                    }
+                    if ((colStart == null || rowStart == null) && metrics) {
+                        const anchor = llumenGridAnchorCellFromTile(el, metrics, colSpan, rowSpan, maxGridRow);
+                        if (anchor) {
+                            if (colStart == null) colStart = anchor.colStart;
+                            if (rowStart == null) rowStart = anchor.rowStart;
+                        }
+                    }
+                    colStart = Math.max(1, colStart == null ? 1 : colStart);
+                    rowStart = Math.max(1, rowStart == null ? 1 : rowStart);
+                    const entry = {
+                        tileId: (typeof getTileId === 'function' ? getTileId(el) : '') || '',
+                        colStart,
+                        rowStart,
+                        colSpan,
+                        rowSpan
+                    };
+                    const zi = parseInt(el.style.zIndex, 10);
+                    if (Number.isFinite(zi)) entry.zIndex = zi;
+                    if (typeof readTileExtras === 'function') {
+                        try {
+                            const ex = readTileExtras(el);
+                            if (ex && typeof ex === 'object') {
+                                Object.assign(entry, ex);
+                            }
+                        } catch (e2) {
+                            /* ignore */
+                        }
+                    }
+                    tiles.push(entry);
+                });
+            } catch (e3) {
+                return { columnCount, tiles: [] };
+            }
+            return { columnCount, tiles };
+        }
+
+        /**
+         * Adapts a **grid tiles** snapshot to a new **column count**: clamps spans, then places each tile in
+         * **`(rowStart, colStart)`** order on a fresh occupancy map so **no two tiles share a cell**.
+         * When the preferred anchor overlaps, scans **`1..maxGridRow`** × columns for the first free slot;
+         * may shrink **`colSpan` / `rowSpan`** as a last resort (down to **1**).
+         *
+         * @param {{ columnCount?: number, tiles: object[] }} model
+         * @param {number} nextColumnCount — Target column track count (**≥ 1**).
+         * @param {{ maxGridRow?: number }} [options]
+         * @returns {{ columnCount: number, tiles: object[] }}
+         */
+        function adaptLlumenGridTilesModelToColumnCount(model, nextColumnCount, options = {}) {
+            const colCount = Math.max(1, parseInt(nextColumnCount, 10) || 1);
+            const maxGridRow = Math.max(1, Number(options.maxGridRow) || 128);
+            const tilesIn = Array.isArray(model && model.tiles) ? model.tiles.slice() : [];
+            tilesIn.sort((a, b) => {
+                const ra = (parseInt(a && a.rowStart, 10) || 1) - (parseInt(b && b.rowStart, 10) || 1);
+                if (ra !== 0) return ra;
+                return (parseInt(a && a.colStart, 10) || 1) - (parseInt(b && b.colStart, 10) || 1);
+            });
+            const occupied = new Set();
+            const mark = (c0, r0, cs, rs) => {
+                for (let rj = r0; rj < r0 + rs; rj += 1) {
+                    for (let ci = c0; ci < c0 + cs; ci += 1) {
+                        occupied.add(`${ci},${rj}`);
+                    }
+                }
+            };
+            const tryPlace = (t, cs, rs, c0, r0) => {
+                if (cs < 1 || rs < 1) return null;
+                if (c0 < 1 || r0 < 1) return null;
+                if (c0 > colCount - cs + 1) return null;
+                if (!llumenGridFootprintFreeOfOccupied(occupied, c0, r0, cs, rs)) return null;
+                mark(c0, r0, cs, rs);
+                return { ...t, colSpan: cs, rowSpan: rs, colStart: c0, rowStart: r0 };
+            };
+            const out = [];
+            for (let ti = 0; ti < tilesIn.length; ti += 1) {
+                const t = tilesIn[ti];
+                if (!t || typeof t !== 'object') continue;
+                let rs = Math.max(1, parseInt(t.rowSpan, 10) || 1);
+                let cs = Math.max(1, parseInt(t.colSpan, 10) || 1);
+                cs = Math.min(cs, colCount);
+                const preferR = Math.max(1, parseInt(t.rowStart, 10) || 1);
+                const preferC = Math.max(1, Math.min(parseInt(t.colStart, 10) || 1, colCount - cs + 1));
+                let placed = tryPlace(t, cs, rs, preferC, preferR);
+                if (!placed) {
+                    outer: for (let r = 1; r <= maxGridRow; r += 1) {
+                        for (let c = 1; c <= colCount - cs + 1; c += 1) {
+                            placed = tryPlace(t, cs, rs, c, r);
+                            if (placed) break outer;
+                        }
+                    }
+                }
+                if (!placed) {
+                    let cTry = cs;
+                    let rTry = rs;
+                    while (cTry >= 1 && rTry >= 1 && !placed) {
+                        for (let r = 1; r <= maxGridRow && !placed; r += 1) {
+                            for (let c = 1; c <= colCount - cTry + 1; c += 1) {
+                                placed = tryPlace(t, cTry, rTry, c, r);
+                                if (placed) break;
+                            }
+                        }
+                        if (!placed) {
+                            if (cTry > 1) {
+                                cTry -= 1;
+                            } else if (rTry > 1) {
+                                rTry -= 1;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!placed) {
+                    for (let r = 1; r <= maxGridRow; r += 1) {
+                        for (let c = 1; c <= colCount; c += 1) {
+                            placed = tryPlace(t, 1, 1, c, r);
+                            if (placed) break;
+                        }
+                        if (placed) break;
+                    }
+                }
+                if (placed) {
+                    out.push(placed);
+                }
+            }
+            return { columnCount: colCount, tiles: out };
+        }
+
+        /**
+         * Removes every **`tileSelector`** match under **`gridElement`**, then appends **`renderGridTile`**
+         * results for each **`model.tiles`** entry (in order). Does **not** re-wire **`initGridDropContext`** —
+         * use **`initGridTileModelContext`** **`applyGridTilesModel`** or call **`initGridDropContext`** again afterward.
+         *
+         * @param {HTMLElement} gridElement
+         * @param {{ tiles: object[] }} model
+         * @param {object} config
+         * @param {string} config.tileSelector
+         * @param {function(object, number, Document): HTMLElement} config.renderGridTile
+         * @returns {boolean}
+         */
+        function writeLlumenGridTilesModelToHost(gridElement, model, config = {}) {
+            const { tileSelector, renderGridTile } = config;
+            if (!gridElement || gridElement.nodeType !== 1) return false;
+            if (typeof tileSelector !== 'string' || !tileSelector.trim()) return false;
+            if (typeof renderGridTile !== 'function') return false;
+            if (!model || typeof model !== 'object' || !Array.isArray(model.tiles)) return false;
+
+            const doc = gridElement.ownerDocument || document;
+            const sel = tileSelector.trim();
+            try {
+                gridElement.querySelectorAll(sel).forEach((n) => {
+                    if (!n || n.nodeType !== 1) return;
+                    if (typeof n.closest === 'function' && n.closest('.ll-dnd__placeholder')) return;
+                    n.remove();
+                });
+            } catch (e) {
+                return false;
+            }
+
+            const list = model.tiles;
+            for (let i = 0; i < list.length; i += 1) {
+                const entry = list[i];
+                if (!entry || typeof entry !== 'object') continue;
+                let el;
+                try {
+                    el = renderGridTile(entry, i, doc);
+                } catch (e2) {
+                    continue;
+                }
+                if (!el || el.nodeType !== 1) continue;
+                gridElement.appendChild(el);
+            }
+            return true;
+        }
+
+        /**
+         * Same options as **`initGridDropContext`**, plus optional **tile model** I/O. When **`renderGridTile`**
+         * is set, **`applyGridTilesModel`** destroys the grid context, **`writeLlumenGridTilesModelToHost`**, and
+         * re-initializes **`initGridDropContext`** (re-wires every tile).
+         *
+         * @param {object} options — Passed to **`initGridDropContext`** after removing **`getTileId`**, **`readTileExtras`**, **`renderGridTile`**, **`onAfterSync`**.
+         * @param {(el: HTMLElement) => string} [options.getTileId]
+         * @param {(el: HTMLElement) => object|void} [options.readTileExtras]
+         * @param {function(object, number, Document): HTMLElement} [options.renderGridTile]
+         * @param {function({ columnCount: number, tiles: object[] }): void} [options.onAfterSync]
+         * @returns {{ destroy: function(): void, wireTile: function(HTMLElement): void, getGridTilesModel: function(): object, applyGridTilesModel: function((object))|null }}
+         */
+        function initGridTileModelContext(options = {}) {
+            const {
+                getTileId = (el) => (el.id != null && String(el.id).trim() ? String(el.id).trim() : ''),
+                readTileExtras = null,
+                renderGridTile = null,
+                onAfterSync = null,
+                ...dropOpts
+            } = options;
+
+            const {
+                gridElement,
+                tileSelector,
+                tileMoveMaxGridRow = 48
+            } = dropOpts;
+
+            if (!gridElement || gridElement.nodeType !== 1 || typeof tileSelector !== 'string' || !tileSelector.trim()) {
+                return {
+                    destroy() {},
+                    wireTile() {},
+                    getGridTilesModel() {
+                        return { columnCount: 1, tiles: [] };
+                    },
+                    applyGridTilesModel: null
+                };
+            }
+
+            let core = initGridDropContext(dropOpts);
+
+            const readCfg = () => ({
+                tileSelector: tileSelector.trim(),
+                getTileId,
+                readTileExtras,
+                maxGridRow: tileMoveMaxGridRow
+            });
+
+            const getGridTilesModel = () => readLlumenGridTilesModelFromHost(gridElement, readCfg());
+
+            const destroy = () => {
+                core.destroy();
+            };
+
+            const wireTile = (t) => {
+                core.wireTile(t);
+            };
+
+            const applyGridTilesModel = (typeof renderGridTile === 'function')
+                ? (model) => {
+                    let restoreHandleTileId = '';
+                    try {
+                        const activeEl = gridElement.ownerDocument && gridElement.ownerDocument.activeElement;
+                        if (activeEl instanceof windowScope.HTMLElement) {
+                            const activeTile = activeEl.closest(tileSelector.trim());
+                            if (activeTile && gridElement.contains(activeTile)) {
+                                restoreHandleTileId = String(getTileId(activeTile) || '').trim();
+                            }
+                        }
+                    } catch (e) {
+                        restoreHandleTileId = '';
+                    }
+                    core.destroy();
+                    writeLlumenGridTilesModelToHost(gridElement, model, {
+                        tileSelector: tileSelector.trim(),
+                        renderGridTile
+                    });
+                    core = initGridDropContext(dropOpts);
+                    if (typeof onAfterSync === 'function') {
+                        try {
+                            onAfterSync(getGridTilesModel());
+                        } catch (e) {
+                            /* ignore */
+                        }
+                    }
+                    if (
+                        restoreHandleTileId
+                        && typeof dropOpts.tileMoveHandleSelector === 'string'
+                        && dropOpts.tileMoveHandleSelector.trim()
+                    ) {
+                        windowScope.requestAnimationFrame(() => {
+                            const tiles = gridElement.querySelectorAll(tileSelector.trim());
+                            for (let i = 0; i < tiles.length; i += 1) {
+                                const tile = tiles[i];
+                                if (String(getTileId(tile) || '').trim() !== restoreHandleTileId) continue;
+                                const handle = tile.querySelector(dropOpts.tileMoveHandleSelector);
+                                if (!handle || typeof handle.focus !== 'function') break;
+                                try {
+                                    if (!handle.matches(':disabled')) {
+                                        handle.focus({ preventScroll: true });
+                                    }
+                                } catch (focusError) {
+                                    /* ignore */
+                                }
+                                break;
+                            }
+                        });
+                    }
+                }
+                : null;
+
+            if (typeof onAfterSync === 'function') {
+                try {
+                    onAfterSync(getGridTilesModel());
+                } catch (e2) {
+                    /* ignore */
+                }
+            }
+
+            return { destroy, wireTile, getGridTilesModel, applyGridTilesModel };
+        }
+
+        /**
+         * SE corner resize with Pointer Events. Mutual exclusion with drag-sort: starting resize while a
+         * drag session is active (or vice versa) is a no-op (Session invariant 8).
+         */
+        function initResizableElement(options = {}) {
+            const {
+                element,
+                handleSelector = '.ll-resize-handle--se',
+                minWidth = 1,
+                maxWidth = Number.POSITIVE_INFINITY,
+                minHeight = 1,
+                maxHeight = Number.POSITIVE_INFINITY,
+                snapX = null,
+                snapY = null,
+                transitionMs = 160,
+                transitionEasing = 'ease-out',
+                onResize = null,
+                onSessionEnd = null,
+                pointerCaptureTarget = null
+            } = options;
+
+            const el = element;
+            if (!el || el.nodeType !== 1) {
+                return { destroy() {} };
+            }
+
+            const handleEl = typeof handleSelector === 'string'
+                ? el.querySelector(handleSelector)
+                : handleSelector;
+            if (!handleEl || !el.contains(handleEl)) {
+                return { destroy() {} };
+            }
+            ensureLlResizeHandleUnfocusable(handleEl);
+
+            const captureRoot = (pointerCaptureTarget && pointerCaptureTarget.nodeType === 1)
+                ? pointerCaptureTarget
+                : (el.ownerDocument && el.ownerDocument.body) || el;
+
+            const clampDim = (v, minV, maxV) => {
+                let x = v;
+                if (typeof minV === 'number' && Number.isFinite(minV)) {
+                    x = Math.max(minV, x);
+                }
+                if (typeof maxV === 'number' && Number.isFinite(maxV)) {
+                    x = Math.min(maxV, x);
+                }
+                return x;
+            };
+
+            const snapDim = (v, snap) => {
+                if (snap == null || !Number.isFinite(snap) || snap <= 0) {
+                    return Math.round(v);
+                }
+                return Math.round(v / snap) * snap;
+            };
+
+            const prefersReducedMotion = () => {
+                try {
+                    return !!(
+                        windowScope.matchMedia
+                        && windowScope.matchMedia('(prefers-reduced-motion: reduce)').matches
+                    );
+                } catch (err) {
+                    return false;
+                }
+            };
+
+            const applyEndFocus = (reason) => {
+                if (typeof onSessionEnd === 'function') {
+                    onSessionEnd({ reason, handleElement: handleEl });
+                    return;
+                }
+                if (!handleEl || !handleEl.isConnected) return;
+                if (handleEl.classList && handleEl.classList.contains('ll-resize-handle--se')) return;
+                try {
+                    if (typeof handleEl.focus === 'function' && !handleEl.matches(':disabled')) {
+                        handleEl.focus({ preventScroll: true });
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+            };
+
+            let sessionEnded = true;
+            let activeEndSession = null;
+            let detachAll = null;
+
+            const pointerDownHandler = (startEvent) => {
+                if (!startEvent.isPrimary) return;
+                if (startEvent.pointerType === 'mouse' && startEvent.button !== 0) return;
+                if (!sessionEnded) return;
+                const token = registerLlumenResizeInteraction();
+                if (!token) {
+                    return;
+                }
+                startEvent.preventDefault();
+                startEvent.stopPropagation();
+
+                const pointerId = startEvent.pointerId;
+                sessionEnded = false;
+
+                const startX = startEvent.clientX;
+                const startY = startEvent.clientY;
+                const startRect = el.getBoundingClientRect();
+                const startW = startRect.width;
+                const startH = startRect.height;
+                const prevInlineWidth = el.style.width;
+                const prevInlineHeight = el.style.height;
+
+                const restoreInlineSize = () => {
+                    el.style.width = prevInlineWidth;
+                    el.style.height = prevInlineHeight;
+                };
+
+                const applyPxSize = (w, h) => {
+                    el.style.width = `${Math.round(w)}px`;
+                    el.style.height = `${Math.round(h)}px`;
+                };
+
+                el.classList.add('ll-resizable--dragging');
+                handleEl.classList.add('ll-dnd__capture-target--active');
+
+                const cleanupCaptureAndClass = () => {
+                    handleEl.classList.remove('ll-dnd__capture-target--active');
+                    el.classList.remove('ll-resizable--dragging');
+                    try {
+                        if (captureRoot.hasPointerCapture && captureRoot.hasPointerCapture(pointerId)) {
+                            captureRoot.releasePointerCapture(pointerId);
+                        }
+                    } catch (e) {
+                        /* ignore */
+                    }
+                };
+
+                const endSession = (kind, cancelReason) => {
+                    if (sessionEnded) return;
+                    sessionEnded = true;
+                    if (token) {
+                        token.onEscape = null;
+                    }
+                    activeEndSession = null;
+                    if (typeof detachAll === 'function') {
+                        detachAll();
+                        detachAll = null;
+                    }
+                    cleanupCaptureAndClass();
+                    try {
+                        if (kind === 'commit') {
+                            const r = el.getBoundingClientRect();
+                            if (typeof onResize === 'function') {
+                                onResize({
+                                    width: Math.round(r.width),
+                                    height: Math.round(r.height),
+                                    element: el
+                                });
+                            }
+                        } else {
+                            restoreInlineSize();
+                        }
+                    } finally {
+                        unregisterLlumenPointerDragInteraction(token);
+                        applyEndFocus(kind === 'commit' ? 'commit' : 'cancel');
+                    }
+                };
+
+                const onPointerMove = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    const dx = ev.clientX - startX;
+                    const dy = ev.clientY - startY;
+                    let w = clampDim(startW + dx, minWidth, maxWidth);
+                    let h = clampDim(startH + dy, minHeight, maxHeight);
+                    w = snapDim(w, snapX);
+                    h = snapDim(h, snapY);
+                    w = clampDim(w, minWidth, maxWidth);
+                    h = clampDim(h, minHeight, maxHeight);
+                    applyPxSize(w, h);
+                };
+
+                const onPointerUp = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('commit');
+                };
+
+                const onPointerCancel = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('cancel', 'pointercancel');
+                };
+
+                const onLostCapture = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('cancel', 'lostpointercapture');
+                };
+
+                const onVisibilityChange = () => {
+                    if (sessionEnded) return;
+                    if (el.ownerDocument.hidden) {
+                        endSession('cancel', 'visibility');
+                    }
+                };
+
+                detachAll = () => {
+                    el.ownerDocument.removeEventListener('visibilitychange', onVisibilityChange);
+                    captureRoot.removeEventListener('pointermove', onPointerMove);
+                    captureRoot.removeEventListener('pointerup', onPointerUp);
+                    captureRoot.removeEventListener('pointercancel', onPointerCancel);
+                    captureRoot.removeEventListener('lostpointercapture', onLostCapture);
+                };
+
+                try {
+                    captureRoot.setPointerCapture(pointerId);
+                } catch (e) {
+                    /* ignore */
+                }
+
+                captureRoot.addEventListener('pointermove', onPointerMove);
+                captureRoot.addEventListener('pointerup', onPointerUp);
+                captureRoot.addEventListener('pointercancel', onPointerCancel);
+                captureRoot.addEventListener('lostpointercapture', onLostCapture);
+                el.ownerDocument.addEventListener('visibilitychange', onVisibilityChange);
+
+                token.onEscape = () => {
+                    if (sessionEnded) return;
+                    endSession('cancel', 'escape');
+                };
+
+                activeEndSession = endSession;
+            };
+
+            el.classList.add('ll-resizable');
+            if (prefersReducedMotion()) {
+                el.style.setProperty('--ll-resize-transition-duration', '0ms');
+            } else {
+                el.style.setProperty('--ll-resize-transition-duration', `${transitionMs}ms`);
+            }
+            el.style.setProperty('--ll-resize-transition-easing', transitionEasing);
+
+            handleEl.addEventListener('pointerdown', pointerDownHandler);
+
+            return {
+                destroy() {
+                    if (typeof activeEndSession === 'function') {
+                        activeEndSession('cancel', 'destroy');
+                    }
+                    activeEndSession = null;
+                    handleEl.removeEventListener('pointerdown', pointerDownHandler);
+                    el.classList.remove('ll-resizable', 'll-resizable--dragging');
+                    el.style.removeProperty('--ll-resize-transition-duration');
+                    el.style.removeProperty('--ll-resize-transition-easing');
+                }
+            };
+        }
+
+        /**
+         * SE **freeform** resize on a 2D surface (artboard / “canvas” context): **pixel** width and height,
+         * optional snap (`snapX` / `snapY`), default **no** snap. Uses **`.ll-resize-rubber-band`** inside
+         * `hostElement` during the gesture; **`targetElement`** size applies on **pointer-up** so heavy
+         * content (charts/maps) does not relayout every move. `hostElement` should be **`position: relative`**.
+         *
+         * @param {object} options
+         * @param {HTMLElement} options.hostElement — Mount for the rubber-band preview.
+         * @param {HTMLElement} options.targetElement — Box whose `width` / `height` (px) are updated on commit.
+         * @param {HTMLElement} [options.resizeHandle] — If omitted, `targetElement.querySelector(resizeHandleSelector)`.
+         * @param {string} [options.resizeHandleSelector='.ll-resize-handle--se']
+         * @param {number} [options.minWidth=1]
+         * @param {number} [options.maxWidth]
+         * @param {number} [options.minHeight=1]
+         * @param {number} [options.maxHeight]
+         * @param {number|null} [options.snapX=null]
+         * @param {number|null} [options.snapY=null]
+         * @param {(target: HTMLElement, width: number, height: number) => void} [options.applySize] — Default sets inline px `width` / `height`.
+         * @param {(detail: { width: number, height: number, targetElement: HTMLElement }) => void} [options.onSizePreview]
+         * @param {(detail: { width: number, height: number, targetElement: HTMLElement }) => void} [options.onSizeCommit]
+         * @param {HTMLElement} [options.pointerCaptureTarget]
+         */
+        function initLlumenSurfaceFreeformResize(options = {}) {
+            const {
+                hostElement,
+                targetElement,
+                resizeHandle: resizeHandleOpt = null,
+                resizeHandleSelector = '.ll-resize-handle--se',
+                minWidth = 1,
+                maxWidth = Number.POSITIVE_INFINITY,
+                minHeight = 1,
+                maxHeight = Number.POSITIVE_INFINITY,
+                snapX = null,
+                snapY = null,
+                applySize = null,
+                onSizePreview = null,
+                onSizeCommit = null,
+                pointerCaptureTarget = null
+            } = options;
+
+            if (!hostElement || !targetElement || !hostElement.contains(targetElement)) {
+                return { destroy() {} };
+            }
+
+            const resizeHandle = resizeHandleOpt
+                || (typeof resizeHandleSelector === 'string'
+                    ? targetElement.querySelector(resizeHandleSelector)
+                    : resizeHandleSelector);
+            if (!resizeHandle || !targetElement.contains(resizeHandle)) {
+                return { destroy() {} };
+            }
+            ensureLlResizeHandleUnfocusable(resizeHandle);
+
+            const captureRoot = (pointerCaptureTarget && pointerCaptureTarget.nodeType === 1)
+                ? pointerCaptureTarget
+                : (targetElement.ownerDocument && targetElement.ownerDocument.body) || targetElement;
+
+            const clampDim = (v, minV, maxV) => {
+                let x = v;
+                if (typeof minV === 'number' && Number.isFinite(minV)) {
+                    x = Math.max(minV, x);
+                }
+                if (typeof maxV === 'number' && Number.isFinite(maxV)) {
+                    x = Math.min(maxV, x);
+                }
+                return x;
+            };
+
+            const snapDim = (v, snap) => {
+                if (snap == null || !Number.isFinite(snap) || snap <= 0) {
+                    return Math.round(v);
+                }
+                return Math.round(v / snap) * snap;
+            };
+
+            const applySizeFn = typeof applySize === 'function'
+                ? applySize
+                : (el, w, h) => {
+                    el.style.width = `${Math.round(w)}px`;
+                    el.style.height = `${Math.round(h)}px`;
+                };
+
+            let activeEndSession = null;
+            let detachAll = null;
+
+            const applyEndFocus = (handleEl) => {
+                if (!handleEl || !handleEl.isConnected) return;
+                if (handleEl.classList && handleEl.classList.contains('ll-resize-handle--se')) return;
+                try {
+                    if (typeof handleEl.focus === 'function' && !handleEl.matches(':disabled')) {
+                        handleEl.focus({ preventScroll: true });
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+            };
+
+            const pointerDownHandler = (startEvent) => {
+                if (!startEvent.isPrimary) return;
+                if (startEvent.pointerType === 'mouse' && startEvent.button !== 0) return;
+                if (typeof detachAll === 'function') return;
+
+                const token = registerLlumenResizeInteraction();
+                if (!token) {
+                    return;
+                }
+
+                startEvent.preventDefault();
+                startEvent.stopPropagation();
+
+                const pointerId = startEvent.pointerId;
+                const startX = startEvent.clientX;
+                const startY = startEvent.clientY;
+                const startRect = targetElement.getBoundingClientRect();
+                const startW = startRect.width;
+                const startH = startRect.height;
+                const startViewport = {
+                    left: startRect.left,
+                    top: startRect.top,
+                    width: startW,
+                    height: startH
+                };
+                const prevInlineWidth = targetElement.style.width;
+                const prevInlineHeight = targetElement.style.height;
+
+                const doc = targetElement.ownerDocument || document;
+                let previewEl = null;
+                let lastPreviewW = startW;
+                let lastPreviewH = startH;
+                let lastNotifiedW = startW;
+                let lastNotifiedH = startH;
+                let sessionEnded = false;
+
+                const removeRubberBand = () => {
+                    if (previewEl && previewEl.parentNode) {
+                        previewEl.parentNode.removeChild(previewEl);
+                    }
+                    previewEl = null;
+                };
+
+                const syncRubberBand = (w, h) => {
+                    if (!previewEl) return;
+                    llumenSyncResizeRubberBandFromViewportRect(previewEl, hostElement, {
+                        left: startViewport.left,
+                        top: startViewport.top,
+                        width: w,
+                        height: h
+                    });
+                };
+
+                const restoreSize = () => {
+                    targetElement.style.width = prevInlineWidth;
+                    targetElement.style.height = prevInlineHeight;
+                };
+
+                const cleanupCaptureAndClass = () => {
+                    targetElement.classList.remove('ll-surface-item--resizing');
+                    resizeHandle.classList.remove('ll-dnd__capture-target--active');
+                    try {
+                        if (captureRoot.hasPointerCapture && captureRoot.hasPointerCapture(pointerId)) {
+                            captureRoot.releasePointerCapture(pointerId);
+                        }
+                    } catch (e) {
+                        /* ignore */
+                    }
+                };
+
+                const endSession = (kind) => {
+                    if (sessionEnded) return;
+                    sessionEnded = true;
+                    if (token) {
+                        token.onEscape = null;
+                    }
+                    activeEndSession = null;
+                    if (typeof detachAll === 'function') {
+                        detachAll();
+                        detachAll = null;
+                    }
+                    cleanupCaptureAndClass();
+                    removeRubberBand();
+                    try {
+                        if (kind === 'commit') {
+                            applySizeFn(targetElement, lastPreviewW, lastPreviewH);
+                            if (typeof onSizeCommit === 'function') {
+                                onSizeCommit({
+                                    width: Math.round(lastPreviewW),
+                                    height: Math.round(lastPreviewH),
+                                    targetElement
+                                });
+                            }
+                        } else {
+                            restoreSize();
+                        }
+                    } finally {
+                        unregisterLlumenPointerDragInteraction(token);
+                        applyEndFocus(resizeHandle);
+                    }
+                };
+
+                const onPointerMove = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    const dx = ev.clientX - startX;
+                    const dy = ev.clientY - startY;
+                    let w = clampDim(startW + dx, minWidth, maxWidth);
+                    let h = clampDim(startH + dy, minHeight, maxHeight);
+                    w = snapDim(w, snapX);
+                    h = snapDim(h, snapY);
+                    w = clampDim(w, minWidth, maxWidth);
+                    h = clampDim(h, minHeight, maxHeight);
+                    lastPreviewW = w;
+                    lastPreviewH = h;
+                    if (w !== lastNotifiedW || h !== lastNotifiedH) {
+                        lastNotifiedW = w;
+                        lastNotifiedH = h;
+                        if (typeof onSizePreview === 'function') {
+                            onSizePreview({
+                                width: Math.round(w),
+                                height: Math.round(h),
+                                targetElement
+                            });
+                        }
+                    }
+                    syncRubberBand(w, h);
+                };
+
+                const onPointerUp = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('commit');
+                };
+
+                const onPointerCancel = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('cancel');
+                };
+
+                const onLostCapture = (ev) => {
+                    if (sessionEnded) return;
+                    if (ev.pointerId !== pointerId) return;
+                    endSession('cancel');
+                };
+
+                const onVisibilityChange = () => {
+                    if (sessionEnded) return;
+                    if (targetElement.ownerDocument.hidden) {
+                        endSession('cancel');
+                    }
+                };
+
+                detachAll = () => {
+                    targetElement.ownerDocument.removeEventListener('visibilitychange', onVisibilityChange);
+                    captureRoot.removeEventListener('pointermove', onPointerMove);
+                    captureRoot.removeEventListener('pointerup', onPointerUp);
+                    captureRoot.removeEventListener('pointercancel', onPointerCancel);
+                    captureRoot.removeEventListener('lostpointercapture', onLostCapture);
+                };
+
+                previewEl = doc.createElement('div');
+                previewEl.className = 'll-resize-rubber-band ll-resize-rubber-band--continuous';
+                previewEl.setAttribute('aria-hidden', 'true');
+                hostElement.appendChild(previewEl);
+                syncRubberBand(startW, startH);
+
+                targetElement.classList.add('ll-surface-item--resizing');
+                resizeHandle.classList.add('ll-dnd__capture-target--active');
+
+                try {
+                    captureRoot.setPointerCapture(pointerId);
+                } catch (e) {
+                    /* ignore */
+                }
+
+                captureRoot.addEventListener('pointermove', onPointerMove);
+                captureRoot.addEventListener('pointerup', onPointerUp);
+                captureRoot.addEventListener('pointercancel', onPointerCancel);
+                captureRoot.addEventListener('lostpointercapture', onLostCapture);
+                targetElement.ownerDocument.addEventListener('visibilitychange', onVisibilityChange);
+
+                token.onEscape = () => {
+                    if (sessionEnded) return;
+                    endSession('cancel');
+                };
+
+                activeEndSession = endSession;
+            };
+
+            resizeHandle.addEventListener('pointerdown', pointerDownHandler);
+
+            return {
+                destroy() {
+                    if (typeof activeEndSession === 'function') {
+                        activeEndSession('cancel');
+                    }
+                    activeEndSession = null;
+                    resizeHandle.removeEventListener('pointerdown', pointerDownHandler);
+                    targetElement.classList.remove('ll-surface-item--resizing');
+                }
+            };
+        }
+
+        /**
+         * @param {HTMLElement|null|undefined} el
+         * @param {(el: HTMLElement) => unknown} [getItemId]
+         * @returns {string|null}
+         */
+        function readLlumenSurfacePlacedItemId(el, getItemId) {
+            if (!el || el.nodeType !== 1) return null;
+            if (typeof getItemId === 'function') {
+                try {
+                    const raw = getItemId(el);
+                    const s = raw == null ? '' : String(raw).trim();
+                    return s || null;
+                } catch (e) {
+                    return null;
+                }
+            }
+            const attr = el.getAttribute('data-ll-surface-item-id');
+            const s = attr == null ? '' : String(attr).trim();
+            return s || null;
+        }
+
+        /**
+         * @param {HTMLElement} itemElement
+         * @param {HTMLElement[]} dragPeers
+         * @param {(el: HTMLElement) => unknown} [getItemId]
+         * @returns {{ ids: string[], id: string|null }}
+         */
+        function buildLlumenSurfacePlacedDragIdPayload(itemElement, dragPeers, getItemId) {
+            const ids = [];
+            const seen = new Set();
+            for (let i = 0; i < dragPeers.length; i++) {
+                const sid = readLlumenSurfacePlacedItemId(dragPeers[i], getItemId);
+                if (!sid || seen.has(sid)) continue;
+                seen.add(sid);
+                ids.push(sid);
+            }
+            const id = readLlumenSurfacePlacedItemId(itemElement, getItemId);
+            return { ids, id };
+        }
+
+        /**
+         * **Pointer-drag** for an absolutely positioned item on a 2D surface (artboard / “canvas”):
+         * **`runLlumenPointerDragSession`** (capture, Escape, visibility, edge auto-scroll). The **item
+         * node** is moved live (**`style.left` / `style.top`**), matching workflow-style canvas UX (no
+         * separate fixed ghost). **`.ll-dnd__source--dragging`** + **`.ll-surface-item--dragging`** on the
+         * item during the gesture. Mutually exclusive with **resize** (`registerLlumenResizeInteraction`).
+         *
+         * @param {object} options
+         * @param {HTMLElement} options.surfaceElement — Positioned ancestor (`position: relative` typical); `itemElement` lives inside it.
+         * @param {HTMLElement} options.itemElement — `position: absolute`; `style.left` / `style.top` updated during move and on commit.
+         * @param {string} [options.dragIgnoreWithinItemSelector='.ll-resize-handle--se'] — `closest()` guard on `pointerdown` target.
+         * @param {HTMLElement|null} [options.scrollRootOriginElement=null] — Auto-scroll roots (default: `surfaceElement`).
+         * @param {HTMLElement|null} [options.pointerCaptureTarget=null]
+         * @param {number} [options.padMin=8] — Clamp inset from surface content edges.
+         * @param {(primary: HTMLElement) => HTMLElement[]} [options.getDragPeers=null] — Return every surface item that should receive the **same** pointer delta (e.g. multi-select). Defaults to **`[itemElement]`**. Elements must stay inside **`surfaceElement`**.
+         * @param {(el: HTMLElement) => unknown} [options.getItemId=null] — Map each placed item to a stable string id. When omitted, ids are read from **`data-ll-surface-item-id`** on each element. Used to populate **`ids`** / **`id`** on commit and cancel.
+         * @param {(detail: { itemElement: HTMLElement, left: number, top: number, dragPeers: HTMLElement[], ids: string[], id: string|null }) => void} [options.onDragCommit] — **`dragPeers`** is every item that moved (including **`itemElement`**). **`ids`** lists each peer’s id once, in peer order (deduped). **`id`** is the primary **`itemElement`** id.
+         * @param {(detail: { itemElement: HTMLElement, dragPeers: HTMLElement[], ids: string[], id: string|null }) => void} [options.onDragCancel]
+         */
+        function initLlumenSurfacePlacedItemDrag(options = {}) {
+            const {
+                surfaceElement,
+                itemElement,
+                dragIgnoreWithinItemSelector = '.ll-resize-handle--se',
+                scrollRootOriginElement = null,
+                pointerCaptureTarget = null,
+                padMin = 8,
+                getDragPeers = null,
+                getItemId = null,
+                onDragCommit = null,
+                onDragCancel = null
+            } = options;
+
+            if (!surfaceElement || !itemElement || !surfaceElement.contains(itemElement)) {
+                return { destroy() {} };
+            }
+
+            const captureRoot = (pointerCaptureTarget && pointerCaptureTarget.nodeType === 1)
+                ? pointerCaptureTarget
+                : (itemElement.ownerDocument && itemElement.ownerDocument.body) || itemElement;
+
+            const scrollRoot = (scrollRootOriginElement && scrollRootOriginElement.nodeType === 1)
+                ? scrollRootOriginElement
+                : surfaceElement;
+
+            const pointerDownHandler = (startEvent) => {
+                if (!startEvent.isPrimary) return;
+                if (startEvent.pointerType === 'mouse' && startEvent.button !== 0) return;
+                if (dragIgnoreWithinItemSelector && startEvent.target.closest(dragIgnoreWithinItemSelector)) {
+                    return;
+                }
+
+                startEvent.preventDefault();
+                startEvent.stopPropagation();
+
+                let dragPeers = [itemElement];
+                if (typeof getDragPeers === 'function') {
+                    try {
+                        const raw = getDragPeers(itemElement);
+                        if (Array.isArray(raw) && raw.length > 0) {
+                            const seen = new Set();
+                            dragPeers = [];
+                            for (let i = 0; i < raw.length; i++) {
+                                const el = raw[i];
+                                if (!el || el.nodeType !== 1) continue;
+                                if (!surfaceElement.contains(el)) continue;
+                                if (seen.has(el)) continue;
+                                seen.add(el);
+                                dragPeers.push(el);
+                            }
+                        }
+                    } catch (e) {
+                        dragPeers = [itemElement];
+                    }
+                }
+                if (dragPeers.length === 0) {
+                    dragPeers = [itemElement];
+                }
+                let primaryInPeers = false;
+                for (let j = 0; j < dragPeers.length; j++) {
+                    if (dragPeers[j] === itemElement) {
+                        primaryInPeers = true;
+                        break;
+                    }
+                }
+                if (!primaryInPeers) {
+                    dragPeers = [itemElement];
+                }
+
+                const peerStarts = dragPeers.map((el) => ({
+                    el,
+                    startLeft: parseFloat(el.style.left) || 0,
+                    startTop: parseFloat(el.style.top) || 0
+                }));
+
+                let lastClientX = startEvent.clientX;
+                let lastClientY = startEvent.clientY;
+
+                const clampToSurface = (el, nx, ny) => {
+                    const maxX = Math.max(
+                        padMin,
+                        surfaceElement.scrollWidth - el.offsetWidth - padMin
+                    );
+                    const maxY = Math.max(
+                        padMin,
+                        surfaceElement.scrollHeight - el.offsetHeight - padMin
+                    );
+                    return {
+                        left: Math.max(padMin, Math.min(maxX, nx)),
+                        top: Math.max(padMin, Math.min(maxY, ny))
+                    };
+                };
+
+                const applyPositionFromPointer = (clientX, clientY) => {
+                    const dx = clientX - startEvent.clientX;
+                    const dy = clientY - startEvent.clientY;
+                    let primaryLeft = parseFloat(itemElement.style.left) || 0;
+                    let primaryTop = parseFloat(itemElement.style.top) || 0;
+                    for (let i = 0; i < peerStarts.length; i++) {
+                        const { el, startLeft, startTop } = peerStarts[i];
+                        const { left, top } = clampToSurface(el, startLeft + dx, startTop + dy);
+                        el.style.left = `${left}px`;
+                        el.style.top = `${top}px`;
+                        if (el === itemElement) {
+                            primaryLeft = left;
+                            primaryTop = top;
+                        }
+                    }
+                    return { left: primaryLeft, top: primaryTop };
+                };
+
+                const endDragClasses = () => {
+                    for (let i = 0; i < dragPeers.length; i++) {
+                        dragPeers[i].classList.remove('ll-dnd__source--dragging', 'll-surface-item--dragging');
+                    }
+                };
+
+                runLlumenPointerDragSession({
+                    handleElement: itemElement,
+                    pointerCaptureTarget: captureRoot,
+                    startEvent,
+                    scrollRootOriginElement: scrollRoot,
+                    onAfterStart: () => {
+                        for (let i = 0; i < dragPeers.length; i++) {
+                            dragPeers[i].classList.add('ll-dnd__source--dragging', 'll-surface-item--dragging');
+                        }
+                        applyPositionFromPointer(startEvent.clientX, startEvent.clientY);
+                    },
+                    onMove: ({ clientX, clientY }) => {
+                        lastClientX = clientX;
+                        lastClientY = clientY;
+                        applyPositionFromPointer(clientX, clientY);
+                    },
+                    onCommit: () => {
+                        endDragClasses();
+                        const { left: nx, top: ny } = applyPositionFromPointer(lastClientX, lastClientY);
+                        if (typeof onDragCommit === 'function') {
+                            const { ids, id } = buildLlumenSurfacePlacedDragIdPayload(
+                                itemElement,
+                                dragPeers,
+                                getItemId
+                            );
+                            onDragCommit({
+                                itemElement,
+                                left: nx,
+                                top: ny,
+                                dragPeers,
+                                ids,
+                                id
+                            });
+                        }
+                    },
+                    onCancel: () => {
+                        endDragClasses();
+                        for (let i = 0; i < peerStarts.length; i++) {
+                            const { el, startLeft, startTop } = peerStarts[i];
+                            el.style.left = `${startLeft}px`;
+                            el.style.top = `${startTop}px`;
+                        }
+                        if (typeof onDragCancel === 'function') {
+                            const { ids, id } = buildLlumenSurfacePlacedDragIdPayload(
+                                itemElement,
+                                dragPeers,
+                                getItemId
+                            );
+                            onDragCancel({ itemElement, dragPeers, ids, id });
+                        }
+                    }
+                });
+            };
+
+            itemElement.addEventListener('pointerdown', pointerDownHandler);
+
+            return {
+                destroy() {
+                    itemElement.removeEventListener('pointerdown', pointerDownHandler);
+                }
+            };
+        }
+
+        /**
+         * Reads **absolutely positioned** items under **`surfaceElement`** matching **`itemSelector`**
+         * (typically **`position: absolute`** canvas nodes). Positions use **`style.left` / `style.top`** (px);
+         * sizes use **`offsetWidth` / `offsetHeight`** at read time.
+         *
+         * @param {HTMLElement} surfaceElement
+         * @param {object} config
+         * @param {string} config.itemSelector
+         * @param {(el: HTMLElement) => string} [config.getItemId] — Defaults to **`data-ll-surface-item-id`** when omitted.
+         * @param {(el: HTMLElement) => object|void} [config.readItemExtras]
+         * @returns {{ items: Array<{ id: string, left: number, top: number, width: number, height: number }> }}
+         */
+        function readLlumenSurfacePlacedItemsModelFromHost(surfaceElement, config = {}) {
+            const {
+                itemSelector,
+                getItemId: getItemIdOpt = null,
+                readItemExtras = null
+            } = config;
+
+            const getItemId = typeof getItemIdOpt === 'function'
+                ? getItemIdOpt
+                : (el) => {
+                    if (!el || el.nodeType !== 1) return '';
+                    const attr = el.getAttribute('data-ll-surface-item-id');
+                    const s = attr == null ? '' : String(attr).trim();
+                    return s;
+                };
+
+            if (!surfaceElement || surfaceElement.nodeType !== 1 || typeof itemSelector !== 'string' || !itemSelector.trim()) {
+                return { items: [] };
+            }
+
+            const items = [];
+            try {
+                surfaceElement.querySelectorAll(itemSelector.trim()).forEach((el) => {
+                    if (!el || el.nodeType !== 1) return;
+                    const id = (typeof getItemId === 'function' ? getItemId(el) : '') || '';
+                    const left = parseFloat(el.style.left) || 0;
+                    const top = parseFloat(el.style.top) || 0;
+                    const width = Math.max(1, el.offsetWidth || 1);
+                    const height = Math.max(1, el.offsetHeight || 1);
+                    const entry = { id, left, top, width, height };
+                    if (typeof readItemExtras === 'function') {
+                        try {
+                            const ex = readItemExtras(el);
+                            if (ex && typeof ex === 'object') {
+                                Object.assign(entry, ex);
+                            }
+                        } catch (e) {
+                            /* ignore */
+                        }
+                    }
+                    items.push(entry);
+                });
+            } catch (e2) {
+                return { items: [] };
+            }
+            return { items };
+        }
+
+        /**
+         * Removes every **`itemSelector`** match under **`surfaceElement`**, then appends **`renderPlacedItem`**
+         * results. Does **not** attach drag/resize — use **`applyLlumenSurfacePlacedItemsModel`** with **`afterApply`**
+         * or wire **`initLlumenSurfacePlacedItemDrag`** yourself.
+         *
+         * @param {HTMLElement} surfaceElement
+         * @param {{ items: object[] }} model
+         * @param {object} config
+         * @param {string} config.itemSelector
+         * @param {function(object, number, Document): HTMLElement} config.renderPlacedItem
+         * @returns {boolean}
+         */
+        function writeLlumenSurfacePlacedItemsModelToHost(surfaceElement, model, config = {}) {
+            const { itemSelector, renderPlacedItem } = config;
+            if (!surfaceElement || surfaceElement.nodeType !== 1) return false;
+            if (typeof itemSelector !== 'string' || !itemSelector.trim()) return false;
+            if (typeof renderPlacedItem !== 'function') return false;
+            if (!model || typeof model !== 'object' || !Array.isArray(model.items)) return false;
+
+            const doc = surfaceElement.ownerDocument || document;
+            const sel = itemSelector.trim();
+            try {
+                surfaceElement.querySelectorAll(sel).forEach((n) => {
+                    if (n && n.nodeType === 1) n.remove();
+                });
+            } catch (e) {
+                return false;
+            }
+
+            const list = model.items;
+            for (let i = 0; i < list.length; i += 1) {
+                const entry = list[i];
+                if (!entry || typeof entry !== 'object') continue;
+                let el;
+                try {
+                    el = renderPlacedItem(entry, i, doc);
+                } catch (e2) {
+                    continue;
+                }
+                if (!el || el.nodeType !== 1) continue;
+                surfaceElement.appendChild(el);
+            }
+            return true;
+        }
+
+        /**
+         * **`writeLlumenSurfacePlacedItemsModelToHost`** then optional **`afterApply(surfaceElement)`** (e.g. re-run
+         * **`initLlumenSurfacePlacedItemDrag`** / resize on each new node).
+         *
+         * @param {HTMLElement} surfaceElement
+         * @param {{ items: object[] }} model
+         * @param {object} config
+         * @param {string} config.itemSelector
+         * @param {function(object, number, Document): HTMLElement} config.renderPlacedItem
+         * @param {function(HTMLElement): void} [config.afterApply]
+         */
+        function applyLlumenSurfacePlacedItemsModel(surfaceElement, model, config = {}) {
+            const { afterApply, ...writeCfg } = config;
+            const ok = writeLlumenSurfacePlacedItemsModelToHost(surfaceElement, model, writeCfg);
+            if (ok && typeof afterApply === 'function') {
+                try {
+                    afterApply(surfaceElement);
+                } catch (e) {
+                    /* ignore */
+                }
+            }
+            return ok;
+        }
+
         function renderDragDropCardList({
             container,
             stateOwner,
@@ -5030,13 +8922,6 @@
 
             const cardsList = document.getElementById(cardsListId);
             if (!cardsList) return;
-            let draggedItemId = null;
-            let draggedCardBlock = null;
-            let dragPlaceholder = null;
-            let dragGhostElement = null;
-            let dragPointerOffsetX = 0;
-            let dragPointerOffsetY = 0;
-            let lastHoveredItemId = null;
 
             const moveItemToIndexByKey = (targetStateOwner, targetItemsKey, movedItemId, targetIndex) => {
                 if (!targetStateOwner || !Array.isArray(targetStateOwner[targetItemsKey])) return;
@@ -5046,6 +8931,13 @@
                 if (fromIndex === boundedTargetIndex) return;
                 const [moved] = targetStateOwner[targetItemsKey].splice(fromIndex, 1);
                 targetStateOwner[targetItemsKey].splice(boundedTargetIndex, 0, moved);
+            };
+
+            const syncCardListHeadings = () => {
+                const headingEls = cardsList.querySelectorAll('.ll-dragdrop-card-list__card-heading');
+                headingEls.forEach((headingEl, headingIndex) => {
+                    headingEl.textContent = `${itemHeadingLabel} ${headingIndex + 1}`;
+                });
             };
 
             const rebuild = () => {
@@ -5069,259 +8961,49 @@
                 });
             };
 
-            const ensureDragPlaceholder = (sourceBlock) => {
-                if (dragPlaceholder) return dragPlaceholder;
-                const sourceRect = sourceBlock ? sourceBlock.getBoundingClientRect() : { height: 72 };
-                dragPlaceholder = sourceBlock ? sourceBlock.cloneNode(true) : document.createElement('div');
-                dragPlaceholder.classList.add('node-config-condition-placeholder');
-                dragPlaceholder.querySelectorAll('[id]').forEach((elementWithId) => {
-                    elementWithId.removeAttribute('id');
-                });
-                dragPlaceholder.style.height = `${Math.max(56, Math.round(sourceRect.height || 72))}px`;
-                dragPlaceholder.style.position = 'relative';
-                dragPlaceholder.style.overflow = 'hidden';
-                dragPlaceholder.style.pointerEvents = 'none';
-                dragPlaceholder.style.userSelect = 'none';
-                dragPlaceholder.style.transform = '';
-                dragPlaceholder.style.transition = 'transform 170ms ease, opacity 170ms ease';
-                dragPlaceholder.setAttribute('aria-hidden', 'true');
-                const overlay = document.createElement('div');
-                overlay.style.position = 'absolute';
-                overlay.style.top = '0';
-                overlay.style.right = '0';
-                overlay.style.bottom = '0';
-                overlay.style.left = '0';
-                overlay.style.background = 'rgba(59, 130, 246, 0.24)';
-                overlay.style.pointerEvents = 'none';
-                overlay.style.margin = '0';
-                dragPlaceholder.appendChild(overlay);
-                return dragPlaceholder;
-            };
-
-            const clearDragPlaceholder = () => {
-                if (!dragPlaceholder) return;
-                dragPlaceholder.remove();
-                dragPlaceholder = null;
-            };
-
-            const finalizeCardDrag = () => {
-                if (draggedCardBlock) {
-                    draggedCardBlock.style.display = '';
-                    draggedCardBlock.classList.remove('opacity-60');
-                }
-                if (dragGhostElement) {
-                    dragGhostElement.remove();
-                    dragGhostElement = null;
-                }
-                clearDragPlaceholder();
-                draggedItemId = null;
-                draggedCardBlock = null;
-                lastHoveredItemId = null;
-            };
-
-            const nextCardSibling = (element) => {
-                if (!element) return null;
-                let sibling = element.nextElementSibling;
-                while (sibling) {
-                    if (sibling.dataset && sibling.dataset.cardItemId) return sibling;
-                    sibling = sibling.nextElementSibling;
-                }
-                return null;
-            };
-
-            const getCardBlocksExcludingDragged = () => {
-                return Array.from(cardsList.querySelectorAll('[data-card-item-id]'))
-                    .filter((cardBlock) => cardBlock.dataset.cardItemId !== draggedItemId);
-            };
-
-            const getCurrentPlaceholderSlot = () => {
-                if (!dragPlaceholder) return -1;
-                const children = Array.from(cardsList.children);
-                let slot = 0;
-                for (let index = 0; index < children.length; index += 1) {
-                    const child = children[index];
-                    if (child === dragPlaceholder) return slot;
-                    if (child.dataset && child.dataset.cardItemId && child.dataset.cardItemId !== draggedItemId) {
-                        slot += 1;
-                    }
-                }
-                return slot;
-            };
-
-            const getHoveredCardBlockByPointerY = (pointerClientY) => {
-                const cardBlocks = getCardBlocksExcludingDragged();
-                for (let index = 0; index < cardBlocks.length; index += 1) {
-                    const rect = cardBlocks[index].getBoundingClientRect();
-                    if (pointerClientY >= rect.top && pointerClientY <= rect.bottom) {
-                        return cardBlocks[index];
-                    }
-                }
-                return null;
-            };
-
-            const getCardSlot = (targetCardBlock) => {
-                if (!targetCardBlock) return -1;
-                const cardBlocks = getCardBlocksExcludingDragged();
-                return cardBlocks.findIndex((cardBlock) => cardBlock === targetCardBlock);
-            };
-
-            const getCardBlockById = (itemId) => {
-                if (!itemId) return null;
-                const cardBlocks = getCardBlocksExcludingDragged();
-                return cardBlocks.find((cardBlock) => cardBlock.dataset.cardItemId === itemId) || null;
-            };
-
-            const animateCrossedCardBlock = (cardBlock, deltaY) => {
-                if (!cardBlock) return;
-                cardBlock.style.transition = 'none';
-                cardBlock.style.transform = `translateY(${deltaY}px)`;
-                requestAnimationFrame(() => {
-                    cardBlock.style.transition = 'transform 170ms ease';
-                    cardBlock.style.transform = '';
-                });
-                cardBlock.addEventListener('transitionend', () => {
-                    cardBlock.style.transition = '';
-                    cardBlock.style.transform = '';
-                }, { once: true });
-            };
-
-            const getDropTargetIndex = () => {
-                if (!dragPlaceholder) return -1;
-                const children = Array.from(cardsList.children);
-                let index = 0;
-                for (let i = 0; i < children.length; i += 1) {
-                    const child = children[i];
-                    if (child === dragPlaceholder) return index;
-                    if (child.dataset && child.dataset.cardItemId && child.dataset.cardItemId !== draggedItemId) {
-                        index += 1;
-                    }
-                }
-                return index;
-            };
-
-            const updateDragGhostPosition = (clientX, clientY) => {
-                if (!dragGhostElement) return;
-                dragGhostElement.style.left = `${clientX - dragPointerOffsetX}px`;
-                dragGhostElement.style.top = `${clientY - dragPointerOffsetY}px`;
-            };
-
-            const startPointerDrag = (startEvent, itemId, cardBlock, totalCount) => {
-                if (totalCount <= 1) return;
-                startEvent.preventDefault();
-                draggedItemId = itemId;
-                draggedCardBlock = cardBlock;
-                const blockRect = cardBlock.getBoundingClientRect();
-                dragPointerOffsetX = Math.max(0, Math.min(blockRect.width - 1, startEvent.clientX - blockRect.left));
-                dragPointerOffsetY = Math.max(0, Math.min(blockRect.height - 1, startEvent.clientY - blockRect.top));
-
-                const placeholder = ensureDragPlaceholder(cardBlock);
-                cardsList.insertBefore(placeholder, cardBlock);
-                cardBlock.style.display = 'none';
-                cardBlock.classList.add('opacity-60');
-
-                dragGhostElement = cardBlock.cloneNode(true);
-                dragGhostElement.style.position = 'fixed';
-                dragGhostElement.style.left = `${blockRect.left}px`;
-                dragGhostElement.style.top = `${blockRect.top}px`;
-                dragGhostElement.style.width = `${Math.ceil(blockRect.width)}px`;
-                dragGhostElement.style.display = 'block';
-                dragGhostElement.style.pointerEvents = 'none';
-                dragGhostElement.style.zIndex = '120';
-                dragGhostElement.style.opacity = '0.95';
-                dragGhostElement.style.boxShadow = '0 14px 28px rgba(0, 0, 0, 0.42)';
-                document.body.appendChild(dragGhostElement);
-                updateDragGhostPosition(startEvent.clientX, startEvent.clientY);
-
-                const onPointerMove = (moveEvent) => {
-                    updateDragGhostPosition(moveEvent.clientX, moveEvent.clientY);
-                    const hoveredBlock = getHoveredCardBlockByPointerY(moveEvent.clientY);
-                    if (hoveredBlock) {
-                        const hoveredItemId = hoveredBlock.dataset.cardItemId;
-                        if (hoveredItemId !== lastHoveredItemId) {
-                            const currentSlot = getCurrentPlaceholderSlot();
-                            const hoveredSlot = getCardSlot(hoveredBlock);
-                            const placeholderHeight = Math.max(56, Math.round(draggedCardBlock.getBoundingClientRect().height || 72));
-                            const existingPlaceholder = ensureDragPlaceholder(draggedCardBlock);
-
-                            if (hoveredSlot >= 0 && currentSlot >= 0 && hoveredSlot >= currentSlot) {
-                                const afterHoveredBlock = nextCardSibling(hoveredBlock);
-                                if (afterHoveredBlock) {
-                                    cardsList.insertBefore(existingPlaceholder, afterHoveredBlock);
-                                } else {
-                                    cardsList.appendChild(existingPlaceholder);
-                                }
-                                animateCrossedCardBlock(hoveredBlock, placeholderHeight);
-                            } else if (hoveredSlot >= 0 && currentSlot >= 0 && hoveredSlot < currentSlot) {
-                                cardsList.insertBefore(existingPlaceholder, hoveredBlock);
-                                animateCrossedCardBlock(hoveredBlock, -placeholderHeight);
-                            }
-                            lastHoveredItemId = hoveredItemId;
-                        }
-                    } else if (lastHoveredItemId) {
-                        const previousHoveredBlock = getCardBlockById(lastHoveredItemId);
-                        if (!previousHoveredBlock) {
-                            lastHoveredItemId = null;
-                        } else {
-                            const rect = previousHoveredBlock.getBoundingClientRect();
-                            const rearmPadding = 6;
-                            const stillNearPrevious =
-                                moveEvent.clientY >= (rect.top - rearmPadding) &&
-                                moveEvent.clientY <= (rect.bottom + rearmPadding);
-                            if (!stillNearPrevious) {
-                                lastHoveredItemId = null;
-                            }
-                        }
-                    }
-                };
-
-                const onPointerUp = () => {
-                    window.removeEventListener('mousemove', onPointerMove);
-                    window.removeEventListener('mouseup', onPointerUp);
-                    const targetIndex = getDropTargetIndex();
-                    if (targetIndex >= 0 && draggedItemId) {
-                        moveItemToIndexByKey(stateOwner, itemsKey, draggedItemId, targetIndex);
-                        rebuild();
-                        finalizeCardDrag();
-                        return;
-                    }
-                    finalizeCardDrag();
-                };
-
-                window.addEventListener('mousemove', onPointerMove);
-                window.addEventListener('mouseup', onPointerUp);
-            };
-
             items.forEach((item, index) => {
                 const itemId = item && item.id ? item.id : `${instanceId}-item-${index}`;
                 const showDragAction = items.length > 1;
                 const showDeleteAction = items.length > 1 || allowEmptyItems;
                 const cardBlock = document.createElement('div');
-                cardBlock.className = 'll-card ll-dragdrop-card-list__card';
+                cardBlock.className = 'll-card';
                 cardBlock.dataset.cardItemId = itemId;
                 cardBlock.draggable = false;
                 cardBlock.innerHTML = `
-                    <div class="ll-dragdrop-card-list__card-header">
-                        <span class="ll-dragdrop-card-list__card-heading node-config-card-heading">${escapeHtml(itemHeadingLabel)} ${index + 1}</span>
+                    <div class="ll-card__header">
+                        <div class="ll-card__title-section">
+                            <div class="ll-card__title-wrap">
+                                <span class="ll-card__title ll-dragdrop-card-list__card-heading">${escapeHtml(itemHeadingLabel)} ${index + 1}</span>
+                            </div>
+                        </div>
                         ${(showDragAction || showDeleteAction) ? `
-                            <div class="ll-dragdrop-card-list__card-actions">
-                                ${showDragAction ? `
-                                    <button type="button"
-                                        class="ll-icon-btn node-config-card-drag"
-                                        data-drag-card-item-id="${escapeHtml(itemId)}">
-                                        <span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>
-                                    </button>
-                                ` : ''}
+                            <div class="ll-card__header-actions">
                                 ${showDeleteAction ? `
-                                    <button type="button"
-                                        class="ll-icon-btn node-config-card-delete"
-                                        data-delete-card-item-id="${escapeHtml(itemId)}">
-                                        <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
-                                    </button>
+                                    <div class="ll-card__header-action">
+                                        <div class="ll-card__header-action-content">
+                                            <button type="button"
+                                                class="ll-icon-btn node-config-card-delete"
+                                                data-delete-card-item-id="${escapeHtml(itemId)}">
+                                                <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                ${showDragAction ? `
+                                    <div class="ll-card__header-action">
+                                        <div class="ll-card__header-action-content">
+                                            <button type="button"
+                                                class="ll-icon-btn ll-dragdrop-card-list__drag-handle"
+                                                data-drag-card-item-id="${escapeHtml(itemId)}">
+                                                <span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 ` : ''}
                             </div>
                         ` : ''}
                     </div>
-                    <div data-card-item-body="true"></div>
+                    <div class="ll-card__content" data-card-item-body="true"></div>
                 `;
                 cardsList.appendChild(cardBlock);
                 const bodyContainer = cardBlock.querySelector('[data-card-item-body="true"]');
@@ -5354,15 +9036,16 @@
                 });
             });
 
-            cardsList.querySelectorAll('.node-config-card-drag').forEach((dragHandleButton) => {
-                dragHandleButton.addEventListener('mousedown', (event) => {
-                    if (event.button !== 0) return;
-                    const cardId = dragHandleButton.dataset.dragCardItemId;
-                    if (!cardId) return;
-                    const cardBlock = dragHandleButton.closest('[data-card-item-id]');
-                    if (!cardBlock) return;
-                    startPointerDrag(event, cardId, cardBlock, items.length);
-                });
+            initVerticalSortableList({
+                container: cardsList,
+                itemSelector: '[data-card-item-id]',
+                handleSelector: '.ll-dragdrop-card-list__drag-handle',
+                getItemId: (el) => el.dataset.cardItemId || '',
+                minItemsForDrag: 2,
+                onReorder: (movedId, targetIndex) => {
+                    moveItemToIndexByKey(stateOwner, itemsKey, movedId, targetIndex);
+                    syncCardListHeadings();
+                }
             });
 
             const addButton = document.getElementById(addButtonId);
@@ -6149,11 +9832,15 @@
                 });
         }
 
-        const modalManagerState = {
-            stack: [],
+        const llumenOverlayEscapeState = {
+            modalStack: [],
             dropdownStack: [],
-            keyboardBindingAttached: false,
-            idCounter: 0
+            inlineEditStack: [],
+            escapeKeyListenerAttached: false,
+            nextModalDomIdCounter: 0,
+            nextInlineEditDomIdCounter: 0,
+            bodyScrollLockActive: false,
+            bodyScrollLockPreviousPaddingRight: ''
         };
 
         const focusableSelector = [
@@ -6226,47 +9913,233 @@
             });
         }
 
-        function removeModalFromStack(controller) {
-            const index = modalManagerState.stack.indexOf(controller);
-            if (index >= 0) {
-                modalManagerState.stack.splice(index, 1);
+        function isPlainObject(value) {
+            if (!value || typeof value !== 'object') return false;
+            if (value instanceof windowScope.Node) return false;
+            if (Array.isArray(value)) return false;
+            return Object.prototype.toString.call(value) === '[object Object]';
+        }
+
+        function normalizeModalFooterConfig(resolvedFooterContent) {
+            const fallback = {
+                content: null,
+                actions: resolvedFooterContent,
+                spreadActions: false
+            };
+            if (!isPlainObject(resolvedFooterContent)) return fallback;
+            const hasStructuredFooterKeys = (
+                Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'content')
+                || Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'nonActionContent')
+                || Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'actions')
+                || Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'startActions')
+                || Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'endActions')
+                || Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'layout')
+                || Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'spreadActions')
+            );
+            if (!hasStructuredFooterKeys) return fallback;
+
+            const content = (
+                Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'content')
+                    ? resolvedFooterContent.content
+                    : resolvedFooterContent.nonActionContent
+            );
+            let actions = resolvedFooterContent.actions;
+            if (
+                actions === undefined
+                && (
+                    Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'startActions')
+                    || Object.prototype.hasOwnProperty.call(resolvedFooterContent, 'endActions')
+                )
+            ) {
+                actions = {
+                    start: resolvedFooterContent.startActions,
+                    end: resolvedFooterContent.endActions
+                };
             }
-            modalManagerState.stack.forEach((activeController, stackIndex) => {
-                if (!activeController || !activeController.root) return;
-                activeController.root.style.zIndex = String(120 + (stackIndex * 2));
-            });
+            const normalizedLayout = String(resolvedFooterContent.layout || '').trim().toLowerCase();
+            const spreadActions = resolvedFooterContent.spreadActions === true
+                || normalizedLayout === 'spread'
+                || normalizedLayout === 'wizard';
+            return {
+                content: content === undefined ? null : content,
+                actions: actions === undefined ? null : actions,
+                spreadActions
+            };
         }
 
-        function pushModalToStack(controller) {
-            removeModalFromStack(controller);
-            modalManagerState.stack.push(controller);
-            modalManagerState.stack.forEach((activeController, stackIndex) => {
-                if (!activeController || !activeController.root) return;
-                activeController.root.style.zIndex = String(120 + (stackIndex * 2));
-            });
+        function renderModalFooterContent(footerRoot, footerActionsSlot, content, controller, footerContentSlotRef = null) {
+            if (!footerRoot || !footerActionsSlot) return;
+            footerRoot.classList.remove('ll-modal__footer--with-content', 'll-modal__footer--actions-spread');
+            footerActionsSlot.innerHTML = '';
+
+            const resolvedContent = resolveModalContent(content, controller);
+            const footerConfig = normalizeModalFooterConfig(resolvedContent);
+            let footerContentSlot = footerContentSlotRef && footerContentSlotRef.current
+                ? footerContentSlotRef.current
+                : null;
+
+            if (footerContentSlot) {
+                footerContentSlot.innerHTML = '';
+            }
+            if (footerConfig.content !== null && footerConfig.content !== undefined && footerConfig.content !== false) {
+                if (!footerContentSlot) {
+                    footerContentSlot = document.createElement('div');
+                    footerContentSlot.className = 'll-modal__footer-content';
+                    footerRoot.insertBefore(footerContentSlot, footerActionsSlot);
+                    if (footerContentSlotRef) {
+                        footerContentSlotRef.current = footerContentSlot;
+                    }
+                }
+                appendModalContent(footerContentSlot, footerConfig.content);
+                if (footerContentSlot.hasChildNodes()) {
+                    footerRoot.classList.add('ll-modal__footer--with-content');
+                } else {
+                    footerContentSlot.remove();
+                    if (footerContentSlotRef) footerContentSlotRef.current = null;
+                    footerContentSlot = null;
+                }
+            } else if (footerContentSlot) {
+                footerContentSlot.remove();
+                if (footerContentSlotRef) footerContentSlotRef.current = null;
+                footerContentSlot = null;
+            }
+
+            if (isPlainObject(footerConfig.actions) && (
+                Object.prototype.hasOwnProperty.call(footerConfig.actions, 'start')
+                || Object.prototype.hasOwnProperty.call(footerConfig.actions, 'end')
+            )) {
+                const startWrap = document.createElement('div');
+                startWrap.className = 'll-modal__footer-actions-start';
+                appendModalContent(startWrap, footerConfig.actions.start);
+
+                const endWrap = document.createElement('div');
+                endWrap.className = 'll-modal__footer-actions-end';
+                appendModalContent(endWrap, footerConfig.actions.end);
+
+                if (startWrap.hasChildNodes() || endWrap.hasChildNodes()) {
+                    footerActionsSlot.appendChild(startWrap);
+                    footerActionsSlot.appendChild(endWrap);
+                }
+            } else {
+                appendModalContent(footerActionsSlot, footerConfig.actions);
+            }
+
+            if (footerConfig.spreadActions) {
+                footerRoot.classList.add('ll-modal__footer--actions-spread');
+            }
         }
 
-        function removeDropdownFromStack(dropdownKey) {
+        function syncOverlayModalStackLayout() {
+            llumenOverlayEscapeState.modalStack.forEach((activeController, stackIndex) => {
+                if (!activeController || !activeController.root) return;
+                const root = activeController.root;
+                root.style.zIndex = String(120 + (stackIndex * 2));
+                root.style.setProperty('--ll-modal-stack-depth', String(stackIndex + 1));
+            });
+            syncOverlayBodyScrollLock();
+        }
+
+        function shouldLockBodyScrollForModal(controller) {
+            if (!controller || !controller.options) return false;
+            if (controller.options.lockBodyScroll !== true) return false;
+            if (!(controller.options.appendTo instanceof windowScope.HTMLElement)) return false;
+            if (controller.options.appendTo !== document.body) return false;
+            if (!controller.root || controller.root.ownerDocument !== document) return false;
+            return true;
+        }
+
+        function applyOverlayBodyScrollLock() {
+            if (llumenOverlayEscapeState.bodyScrollLockActive) return;
+            const body = document.body;
+            const documentElement = document.documentElement;
+            if (!(body instanceof windowScope.HTMLElement) || !(documentElement instanceof windowScope.HTMLElement)) return;
+            llumenOverlayEscapeState.bodyScrollLockPreviousPaddingRight = body.style.paddingRight || '';
+            body.classList.add('ll-body-scroll-locked');
+            const scrollbarWidth = Math.max(0, windowScope.innerWidth - documentElement.clientWidth);
+            if (scrollbarWidth > 0) {
+                const computedPaddingRight = Number.parseFloat(windowScope.getComputedStyle(body).paddingRight || '0') || 0;
+                body.style.paddingRight = `${computedPaddingRight + scrollbarWidth}px`;
+            }
+            llumenOverlayEscapeState.bodyScrollLockActive = true;
+        }
+
+        function releaseOverlayBodyScrollLock() {
+            if (!llumenOverlayEscapeState.bodyScrollLockActive) return;
+            const body = document.body;
+            if (!(body instanceof windowScope.HTMLElement)) {
+                llumenOverlayEscapeState.bodyScrollLockActive = false;
+                llumenOverlayEscapeState.bodyScrollLockPreviousPaddingRight = '';
+                return;
+            }
+            body.classList.remove('ll-body-scroll-locked');
+            if (llumenOverlayEscapeState.bodyScrollLockPreviousPaddingRight) {
+                body.style.paddingRight = llumenOverlayEscapeState.bodyScrollLockPreviousPaddingRight;
+            } else {
+                body.style.removeProperty('padding-right');
+            }
+            llumenOverlayEscapeState.bodyScrollLockActive = false;
+            llumenOverlayEscapeState.bodyScrollLockPreviousPaddingRight = '';
+        }
+
+        function syncOverlayBodyScrollLock() {
+            const hasScrollLockingModal = llumenOverlayEscapeState.modalStack.some((entry) => shouldLockBodyScrollForModal(entry));
+            if (hasScrollLockingModal) {
+                applyOverlayBodyScrollLock();
+                return;
+            }
+            releaseOverlayBodyScrollLock();
+        }
+
+        function removeOverlayModalController(controller) {
+            const index = llumenOverlayEscapeState.modalStack.indexOf(controller);
+            if (index >= 0) {
+                llumenOverlayEscapeState.modalStack.splice(index, 1);
+            }
+            syncOverlayModalStackLayout();
+        }
+
+        function pushOverlayModalController(controller) {
+            removeOverlayModalController(controller);
+            llumenOverlayEscapeState.modalStack.push(controller);
+            syncOverlayModalStackLayout();
+        }
+
+        function removeOverlayDropdownEntry(dropdownKey) {
             const normalizedKey = String(dropdownKey || '').trim();
             if (!normalizedKey) return;
-            const index = modalManagerState.dropdownStack.findIndex((entry) => entry && entry.key === normalizedKey);
+            const index = llumenOverlayEscapeState.dropdownStack.findIndex((entry) => entry && entry.key === normalizedKey);
             if (index >= 0) {
-                modalManagerState.dropdownStack.splice(index, 1);
+                llumenOverlayEscapeState.dropdownStack.splice(index, 1);
             }
         }
 
-        function pushDropdownToStack(dropdownEntry) {
+        function pushOverlayDropdownEntry(dropdownEntry) {
             if (!dropdownEntry || !dropdownEntry.key) return;
-            removeDropdownFromStack(dropdownEntry.key);
-            modalManagerState.dropdownStack.push(dropdownEntry);
+            removeOverlayDropdownEntry(dropdownEntry.key);
+            llumenOverlayEscapeState.dropdownStack.push(dropdownEntry);
         }
 
-        function getTopOpenDropdown() {
-            for (let index = modalManagerState.dropdownStack.length - 1; index >= 0; index -= 1) {
-                const entry = modalManagerState.dropdownStack[index];
-                if (!entry || typeof entry.close !== 'function') continue;
+        function removeOverlayInlineEditEntry(inlineEditKey) {
+            const normalizedKey = String(inlineEditKey || '').trim();
+            if (!normalizedKey) return;
+            const index = llumenOverlayEscapeState.inlineEditStack.findIndex((entry) => entry && entry.key === normalizedKey);
+            if (index >= 0) {
+                llumenOverlayEscapeState.inlineEditStack.splice(index, 1);
+            }
+        }
+
+        function pushOverlayInlineEditEntry(inlineEditEntry) {
+            if (!inlineEditEntry || !inlineEditEntry.key) return;
+            removeOverlayInlineEditEntry(inlineEditEntry.key);
+            llumenOverlayEscapeState.inlineEditStack.push(inlineEditEntry);
+        }
+
+        function getTopOpenOverlayInlineEdit() {
+            for (let index = llumenOverlayEscapeState.inlineEditStack.length - 1; index >= 0; index -= 1) {
+                const entry = llumenOverlayEscapeState.inlineEditStack[index];
+                if (!entry || typeof entry.cancel !== 'function') continue;
                 if (typeof entry.isOpen === 'function' && entry.isOpen() !== true) {
-                    modalManagerState.dropdownStack.splice(index, 1);
+                    llumenOverlayEscapeState.inlineEditStack.splice(index, 1);
                     continue;
                 }
                 return entry;
@@ -6274,9 +10147,22 @@
             return null;
         }
 
-        function getTopOpenModal() {
-            for (let index = modalManagerState.stack.length - 1; index >= 0; index -= 1) {
-                const entry = modalManagerState.stack[index];
+        function getTopOpenOverlayDropdown() {
+            for (let index = llumenOverlayEscapeState.dropdownStack.length - 1; index >= 0; index -= 1) {
+                const entry = llumenOverlayEscapeState.dropdownStack[index];
+                if (!entry || typeof entry.close !== 'function') continue;
+                if (typeof entry.isOpen === 'function' && entry.isOpen() !== true) {
+                    llumenOverlayEscapeState.dropdownStack.splice(index, 1);
+                    continue;
+                }
+                return entry;
+            }
+            return null;
+        }
+
+        function getTopOpenOverlayModal() {
+            for (let index = llumenOverlayEscapeState.modalStack.length - 1; index >= 0; index -= 1) {
+                const entry = llumenOverlayEscapeState.modalStack[index];
                 if (!entry || typeof entry.isOpen !== 'function') continue;
                 if (entry.isOpen() !== true) continue;
                 return entry;
@@ -6294,7 +10180,7 @@
             return element.getClientRects().length > 0;
         }
 
-        function getFocusTrapContainersForModal(modalController) {
+        function getOverlayModalFocusTrapContainers(modalController) {
             if (!modalController || !modalController.root) return [];
             const containers = [];
             if (modalController.content) {
@@ -6303,7 +10189,7 @@
                 containers.push(modalController.root);
             }
 
-            modalManagerState.dropdownStack.forEach((entry, stackIndex) => {
+            llumenOverlayEscapeState.dropdownStack.forEach((entry, stackIndex) => {
                 if (!entry || typeof entry.isOpen !== 'function' || entry.isOpen() !== true) return;
                 const triggerElement = entry.trigger;
                 if (!(triggerElement instanceof windowScope.HTMLElement)) return;
@@ -6349,11 +10235,11 @@
             return focusableElements;
         }
 
-        function trapModalTabFocus(event) {
-            const topModal = getTopOpenModal();
+        function trapTabFocusInTopOverlayModal(event) {
+            const topModal = getTopOpenOverlayModal();
             if (!topModal) return;
             if (topModal.options && topModal.options.mode === 'seamless') return;
-            const containers = getFocusTrapContainersForModal(topModal);
+            const containers = getOverlayModalFocusTrapContainers(topModal);
             if (containers.length === 0) return;
 
             const focusableElements = getFocusableElements(containers);
@@ -6381,7 +10267,7 @@
             focusableElements[nextIndex].focus();
         }
 
-        function focusFirstElementInModal(modalController) {
+        function focusFirstElementInOverlayModal(modalController) {
             if (!modalController || !modalController.root) return;
             const autofocusCandidates = [];
             if (modalController.body) {
@@ -6400,7 +10286,7 @@
                 return;
             }
 
-            const containers = getFocusTrapContainersForModal(modalController);
+            const containers = getOverlayModalFocusTrapContainers(modalController);
             if (containers.length === 0) return;
             const focusableElements = getFocusableElements(containers);
             const targetElement = focusableElements[0] || modalController.content || modalController.root;
@@ -6411,31 +10297,53 @@
             targetElement.focus();
         }
 
-        function ensureGlobalModalEscHandler() {
-            if (modalManagerState.keyboardBindingAttached) return;
+        function ensureLlumenOverlayEscapeKeyHandler() {
+            if (llumenOverlayEscapeState.escapeKeyListenerAttached) return;
             document.addEventListener('keydown', (event) => {
                 if (event.key === 'Tab') {
-                    trapModalTabFocus(event);
+                    trapTabFocusInTopOverlayModal(event);
                     return;
                 }
                 if (event.key !== 'Escape') return;
-                const topDropdown = getTopOpenDropdown();
+                const activePointer = llumenActivePointerInteraction;
+                if (activePointer && typeof activePointer.onEscape === 'function') {
+                    try {
+                        activePointer.onEscape();
+                    } catch (e) {
+                        /* ignore */
+                    }
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                const topDropdown = getTopOpenOverlayDropdown();
                 if (topDropdown) {
                     event.preventDefault();
+                    event.stopPropagation();
                     topDropdown.close();
                     return;
                 }
-                const topModal = modalManagerState.stack[modalManagerState.stack.length - 1];
+                const topInlineEdit = getTopOpenOverlayInlineEdit();
+                if (topInlineEdit) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    topInlineEdit.cancel();
+                    return;
+                }
+                const topModal = getTopOpenOverlayModal();
                 if (!topModal || typeof topModal.close !== 'function') return;
                 if (!topModal.options || topModal.options.closeOnEsc !== true) return;
                 event.preventDefault();
+                event.stopPropagation();
                 topModal.close('escape');
             }, true);
-            modalManagerState.keyboardBindingAttached = true;
+            llumenOverlayEscapeState.escapeKeyListenerAttached = true;
         }
 
+        ensureLlumenOverlayEscapeKeyHandler();
+
         function initializeModal(userOptions = {}) {
-            ensureGlobalModalEscHandler();
+            ensureLlumenOverlayEscapeKeyHandler();
 
             const mode = normalizeModalMode(userOptions.mode);
             const position = normalizeModalPosition(userOptions.position);
@@ -6455,7 +10363,7 @@
                 : modeDefaults.closeOnEsc;
 
             const options = {
-                id: userOptions.id || `ll-modal-${++modalManagerState.idCounter}`,
+                id: userOptions.id || `ll-modal-${++llumenOverlayEscapeState.nextModalDomIdCounter}`,
                 mode,
                 position,
                 appendTo: userOptions.appendTo instanceof HTMLElement ? userOptions.appendTo : document.body,
@@ -6482,6 +10390,9 @@
                 showBackdrop,
                 closeOnBackdropClick,
                 closeOnEsc,
+                lockBodyScroll: userOptions.lockBodyScroll !== undefined
+                    ? Boolean(userOptions.lockBodyScroll)
+                    : mode !== 'seamless',
                 onOpen: typeof userOptions.onOpen === 'function' ? userOptions.onOpen : null,
                 onClose: typeof userOptions.onClose === 'function' ? userOptions.onClose : null,
                 onRequestClose: typeof userOptions.onRequestClose === 'function' ? userOptions.onRequestClose : null
@@ -6536,18 +10447,6 @@
             let backButtonClickHandler = null;
             const hasTitle = Boolean(String(options.title || '').trim() || String(options.titleIcon || '').trim());
             const shouldRenderHeader = hasTitle || Boolean(options.headerActions);
-            const updateHeaderActionClass = () => {
-                if (!header) return;
-                const hasInjectedActions = Boolean(
-                    headerActionsSlot &&
-                    (
-                        headerActionsSlot.children.length > 0 ||
-                        String(headerActionsSlot.textContent || '').trim() !== ''
-                    )
-                );
-                const hasHeaderActions = Boolean(options.closeButton || hasInjectedActions);
-                header.classList.toggle('ll-modal__header--with-actions', hasHeaderActions);
-            };
             if (shouldRenderHeader) {
                 header = document.createElement('div');
                 header.className = 'll-modal__header';
@@ -6614,15 +10513,21 @@
             content.appendChild(body);
 
             let footer = null;
+            let footerContentSlotRef = { current: null };
+            let footerActionsSlot = null;
             if (options.footerContent !== null && options.footerContent !== undefined) {
                 footer = document.createElement('div');
                 footer.className = 'll-modal__footer';
+                footerActionsSlot = document.createElement('div');
+                footerActionsSlot.className = 'll-modal__footer-actions';
+                footer.appendChild(footerActionsSlot);
                 content.appendChild(footer);
             }
 
             let closeTimeoutId = null;
             let isOpen = false;
             let destroyed = false;
+            let closeDecisionPromise = null;
 
             const controller = {
                 id: options.id,
@@ -6635,6 +10540,8 @@
                 headerActionsSlot,
                 body,
                 footer,
+                footerContentSlotRef,
+                footerActionsSlot,
                 isOpen: () => isOpen,
                 setTitle: (nextTitle = '', nextTitleIcon = '') => {
                     options.title = String(nextTitle || '');
@@ -6736,20 +10643,20 @@
                         closeTimeoutId = null;
                     }
                     if (isOpen) {
-                        pushModalToStack(controller);
+                        pushOverlayModalController(controller);
                         return controller;
                     }
 
                     root.classList.remove('hidden', 'll-modal--closing');
                     root.setAttribute('aria-hidden', 'false');
-                    pushModalToStack(controller);
+                    pushOverlayModalController(controller);
                     requestAnimationFrame(() => {
                         root.classList.add('ll-modal--open');
                         const activeElement = document.activeElement;
                         const focusInsideModal = activeElement instanceof windowScope.HTMLElement
                             && root.contains(activeElement);
                         if (!focusInsideModal) {
-                            focusFirstElementInModal(controller);
+                            focusFirstElementInOverlayModal(controller);
                         }
                     });
                     isOpen = true;
@@ -6761,27 +10668,54 @@
                 },
                 close: (reason = 'programmatic') => {
                     if (destroyed || !isOpen) return Promise.resolve(false);
-                    if (options.onRequestClose && options.onRequestClose({ controller, reason }) === false) {
-                        return Promise.resolve(false);
-                    }
+                    if (closeDecisionPromise) return Promise.resolve(false);
 
-                    isOpen = false;
-                    root.classList.remove('ll-modal--open');
-                    root.classList.add('ll-modal--closing');
-                    root.setAttribute('aria-hidden', 'true');
-                    removeModalFromStack(controller);
-
-                    return new Promise((resolve) => {
-                        closeTimeoutId = window.setTimeout(() => {
-                            root.classList.remove('ll-modal--closing');
-                            root.classList.add('hidden');
-                            closeTimeoutId = null;
-                            if (options.onClose) {
-                                options.onClose({ controller, reason });
-                            }
-                            resolve(true);
-                        }, 240);
+                    closeDecisionPromise = Promise.resolve().then(() => {
+                        if (!options.onRequestClose) return true;
+                        return options.onRequestClose({ controller, reason });
                     });
+
+                    return closeDecisionPromise
+                        .catch((error) => {
+                            console.warn('[LlumenComponents.initializeModal] onRequestClose() failed:', error);
+                            return false;
+                        })
+                        .then((requestCloseResult) => {
+                            closeDecisionPromise = null;
+                            if (requestCloseResult === false || destroyed || !isOpen) {
+                                return false;
+                            }
+
+                            isOpen = false;
+                            root.classList.remove('ll-modal--open');
+                            root.classList.add('ll-modal--closing');
+                            /*
+                             * Avoid aria-hidden on an ancestor of the focused node (browser warning + a11y):
+                             * e.g. seamless drawer closes from a click on a list row that still holds focus.
+                             */
+                            try {
+                                const active = root.ownerDocument && root.ownerDocument.activeElement;
+                                if (active && typeof active.blur === 'function' && root.contains(active)) {
+                                    active.blur();
+                                }
+                            } catch (e) {
+                                /* ignore */
+                            }
+                            root.setAttribute('aria-hidden', 'true');
+                            removeOverlayModalController(controller);
+
+                            return new Promise((resolve) => {
+                                closeTimeoutId = window.setTimeout(() => {
+                                    root.classList.remove('ll-modal--closing');
+                                    root.classList.add('hidden');
+                                    closeTimeoutId = null;
+                                    if (options.onClose) {
+                                        options.onClose({ controller, reason });
+                                    }
+                                    resolve(true);
+                                }, 240);
+                            });
+                        });
                 },
                 destroy: () => {
                     if (destroyed) return;
@@ -6789,7 +10723,8 @@
                         window.clearTimeout(closeTimeoutId);
                         closeTimeoutId = null;
                     }
-                    removeModalFromStack(controller);
+                    closeDecisionPromise = null;
+                    removeOverlayModalController(controller);
                     if (root.parentNode) {
                         root.parentNode.removeChild(root);
                     }
@@ -6809,18 +10744,22 @@
                     if (!footer && options.footerContent !== null && options.footerContent !== undefined) {
                         footer = document.createElement('div');
                         footer.className = 'll-modal__footer';
+                        footerActionsSlot = document.createElement('div');
+                        footerActionsSlot.className = 'll-modal__footer-actions';
+                        footer.appendChild(footerActionsSlot);
                         content.appendChild(footer);
                         controller.footer = footer;
+                        controller.footerContentSlotRef = footerContentSlotRef;
+                        controller.footerActionsSlot = footerActionsSlot;
                     }
-                    if (footer) {
-                        renderModalSlot(footer, options.footerContent, controller);
+                    if (footer && footerActionsSlot) {
+                        renderModalFooterContent(footer, footerActionsSlot, options.footerContent, controller, footerContentSlotRef);
                     }
                 },
                 setHeaderActions: (nextHeaderActions) => {
                     options.headerActions = nextHeaderActions;
                     if (headerActionsSlot) {
                         renderModalHeaderActions(headerActionsSlot, options.headerActions, controller);
-                        updateHeaderActionClass();
                     }
                 }
             };
@@ -6834,10 +10773,9 @@
             renderModalSlot(body, options.bodyContent, controller);
             if (headerActionsSlot) {
                 renderModalHeaderActions(headerActionsSlot, options.headerActions, controller);
-                updateHeaderActionClass();
             }
-            if (footer) {
-                renderModalSlot(footer, options.footerContent, controller);
+            if (footer && footerActionsSlot) {
+                renderModalFooterContent(footer, footerActionsSlot, options.footerContent, controller, footerContentSlotRef);
             }
 
             options.appendTo.appendChild(root);
@@ -6854,23 +10792,22 @@
                 bodyContent = options.message || 'Are you sure you want to continue?',
                 cancelLabel = 'Cancel',
                 confirmLabel = 'Yes',
+                cancelButtonClassName = 'll-btn ll-btn--flat-default',
+                confirmButtonClassName = 'll-btn ll-btn--primary',
                 onCancel = null,
                 onConfirm = null
             } = options;
 
             let modalController = null;
             const buildFooter = () => {
-                const footer = document.createElement('div');
-                footer.className = 'inline-flex items-center gap-3 ml-auto';
-
                 const cancelButton = document.createElement('button');
                 cancelButton.type = 'button';
-                cancelButton.className = 'll-btn ll-btn--flat-default';
+                cancelButton.className = String(cancelButtonClassName || 'll-btn ll-btn--flat-default').trim() || 'll-btn ll-btn--flat-default';
                 cancelButton.textContent = String(cancelLabel || 'Cancel');
 
                 const confirmButton = document.createElement('button');
                 confirmButton.type = 'button';
-                confirmButton.className = 'll-btn ll-btn--primary';
+                confirmButton.className = String(confirmButtonClassName || 'll-btn ll-btn--primary').trim() || 'll-btn ll-btn--primary';
                 confirmButton.textContent = String(confirmLabel || 'Yes');
 
                 cancelButton.addEventListener('click', () => {
@@ -6888,10 +10825,7 @@
                         if (typeof onConfirm === 'function') onConfirm({ controller: modalController });
                     });
                 });
-
-                footer.appendChild(cancelButton);
-                footer.appendChild(confirmButton);
-                return footer;
+                return [cancelButton, confirmButton];
             };
 
             modalController = initializeModal({
@@ -6919,9 +10853,6 @@
 
             let modalController = null;
             const buildFooter = () => {
-                const footer = document.createElement('div');
-                footer.className = 'inline-flex items-center gap-3 ml-auto';
-
                 const okButton = document.createElement('button');
                 okButton.type = 'button';
                 okButton.className = 'll-btn ll-btn--primary';
@@ -6933,9 +10864,7 @@
                         if (typeof onOk === 'function') onOk({ controller: modalController });
                     });
                 });
-
-                footer.appendChild(okButton);
-                return footer;
+                return okButton;
             };
 
             modalController = initializeModal({
@@ -6949,13 +10878,4096 @@
             return modalController;
         }
 
+        /* -------------------------------------------------------------------------- */
+        /* 2D surface / freeform plane — overlap resolution (any placed items, not      */
+        /* workflow-specific). Same math used by workflow graphs and future adapters. */
+        /* -------------------------------------------------------------------------- */
+
+        /**
+         * Default visual overflow (px) for items that extend past their layout box (handles, labels).
+         * Callers may override per item via `getVisualMetrics` / `llumenSurfaceRectVisualBounds`.
+         */
+        const LLUMEN_SURFACE_OVERLAP_DEFAULT_METRICS = {
+            leftOverflow: 14,
+            rightOverflow: 40,
+            topOverflow: 18,
+            bottomOverflow: 0
+        };
+
+        function llumenSurfaceNormalizeVisualMetrics(visualMetrics) {
+            const m = visualMetrics && typeof visualMetrics === 'object' ? visualMetrics : {};
+            return {
+                leftOverflow: Number.isFinite(m.leftOverflow)
+                    ? m.leftOverflow
+                    : LLUMEN_SURFACE_OVERLAP_DEFAULT_METRICS.leftOverflow,
+                rightOverflow: Number.isFinite(m.rightOverflow)
+                    ? m.rightOverflow
+                    : LLUMEN_SURFACE_OVERLAP_DEFAULT_METRICS.rightOverflow,
+                topOverflow: Number.isFinite(m.topOverflow)
+                    ? m.topOverflow
+                    : LLUMEN_SURFACE_OVERLAP_DEFAULT_METRICS.topOverflow,
+                bottomOverflow: Number.isFinite(m.bottomOverflow)
+                    ? m.bottomOverflow
+                    : LLUMEN_SURFACE_OVERLAP_DEFAULT_METRICS.bottomOverflow
+            };
+        }
+
+        /**
+         * Axis-aligned bounds including optional “visual” overflow beyond `{x,y,width,height}`.
+         * @param {{ x: number, y: number, width: number, height: number }} layoutRect
+         * @param {object} [visualMetrics] — `{ leftOverflow, rightOverflow, topOverflow, bottomOverflow }`; partial keys use defaults.
+         */
+        function llumenSurfaceRectVisualBounds(layoutRect, visualMetrics) {
+            const x = layoutRect.x;
+            const y = layoutRect.y;
+            const w = layoutRect.width;
+            const h = layoutRect.height;
+            const m = llumenSurfaceNormalizeVisualMetrics(visualMetrics);
+            return {
+                left: x - m.leftOverflow,
+                right: x + w + m.rightOverflow,
+                top: y - m.topOverflow,
+                bottom: y + h + m.bottomOverflow
+            };
+        }
+
+        function llumenSurfaceBoundsOverlap(aBounds, bBounds, margin) {
+            const mg = Number.isFinite(margin) ? margin : 0;
+            return !(
+                aBounds.right + mg <= bBounds.left
+                || bBounds.right + mg <= aBounds.left
+                || aBounds.bottom + mg <= bBounds.top
+                || bBounds.bottom + mg <= aBounds.top
+            );
+        }
+
+        function llumenSurfaceMoveLayoutAwayFromBase(baseLayout, baseMetrics, movingLayout, movingMetrics, opts) {
+            const margin = opts && Number.isFinite(opts.margin) ? opts.margin : 28;
+            const verticalShiftBonus = opts && Number.isFinite(opts.verticalShiftBonus)
+                ? opts.verticalShiftBonus
+                : 36;
+            const minX = opts && Number.isFinite(opts.minX) ? opts.minX : 20;
+            const minY = opts && Number.isFinite(opts.minY) ? opts.minY : 20;
+
+            const baseBounds = llumenSurfaceRectVisualBounds(baseLayout, baseMetrics);
+            const movingBounds = llumenSurfaceRectVisualBounds(movingLayout, movingMetrics);
+            const mm = llumenSurfaceNormalizeVisualMetrics(movingMetrics);
+
+            const baseCenterX = (baseBounds.left + baseBounds.right) / 2;
+            const baseCenterY = (baseBounds.top + baseBounds.bottom) / 2;
+            const movingCenterX = (movingBounds.left + movingBounds.right) / 2;
+            const movingCenterY = (movingBounds.top + movingBounds.bottom) / 2;
+            const dx = movingCenterX - baseCenterX;
+            const dy = movingCenterY - baseCenterY;
+            const horizontalPriority = Math.abs(dx) >= Math.abs(dy);
+
+            if (horizontalPriority) {
+                movingLayout.x = dx >= 0
+                    ? baseBounds.right + margin + mm.leftOverflow
+                    : baseBounds.left - margin - movingLayout.width - mm.rightOverflow;
+            } else {
+                movingLayout.y = dy >= 0
+                    ? baseBounds.bottom + margin + verticalShiftBonus + mm.topOverflow
+                    : baseBounds.top - margin - verticalShiftBonus - movingLayout.height - mm.bottomOverflow;
+            }
+
+            movingLayout.x = Math.max(minX, movingLayout.x);
+            movingLayout.y = Math.max(minY, movingLayout.y);
+        }
+
+        /**
+         * Queue-based overlap propagation: anchored items stay fixed; others are nudged when **visual**
+         * bounds intersect. Mutates `x` / `y` on non-anchor entries in `items` (same objects the caller passes).
+         *
+         * @param {Array<object>} items — Each `{ id, x, y, width, height, ... }`.
+         * @param {string[]} anchorIds — Anchors that do not move (e.g. the item the user dropped or resized).
+         * @param {object} options
+         * @param {(item: object) => object} options.getVisualMetrics — Required; per-item overflow metrics.
+         * @param {number} [options.margin=28]
+         * @param {number} [options.verticalShiftBonus=36]
+         * @param {number} [options.minX=20]
+         * @param {number} [options.minY=20]
+         * @param {number} [options.maxIterations=1200]
+         * @returns {{ iterations: number, abortedByMaxIterations: boolean }}
+         */
+        function resolveLlumenSurfaceRectOverlaps(items, anchorIds, options = {}) {
+            const {
+                getVisualMetrics,
+                margin = 28,
+                verticalShiftBonus = 36,
+                minX = 20,
+                minY = 20,
+                maxIterations = 1200
+            } = options;
+
+            if (!Array.isArray(items) || !Array.isArray(anchorIds) || anchorIds.length === 0) {
+                return { iterations: 0, abortedByMaxIterations: false };
+            }
+            if (typeof getVisualMetrics !== 'function') {
+                return { iterations: 0, abortedByMaxIterations: false };
+            }
+
+            const byId = new Map();
+            for (let i = 0; i < items.length; i++) {
+                const n = items[i];
+                if (n && n.id != null) byId.set(String(n.id), n);
+            }
+
+            const fixedNodeIds = new Set(anchorIds.map((id) => String(id)));
+            const queue = anchorIds.map((id) => String(id));
+            let safetyCounter = 0;
+            let abortedByMaxIterations = false;
+
+            const moveOpts = { margin, verticalShiftBonus, minX, minY };
+
+            while (queue.length > 0 && safetyCounter < maxIterations) {
+                safetyCounter += 1;
+                const baseNodeId = queue.shift();
+                const baseNode = byId.get(String(baseNodeId));
+                if (!baseNode) continue;
+                const baseMetrics = getVisualMetrics(baseNode);
+
+                for (let i = 0; i < items.length; i++) {
+                    const candidate = items[i];
+                    if (!candidate || String(candidate.id) === String(baseNodeId)) continue;
+                    if (fixedNodeIds.has(String(candidate.id))) continue;
+
+                    const candMetrics = getVisualMetrics(candidate);
+                    const ab = llumenSurfaceRectVisualBounds(baseNode, baseMetrics);
+                    const bb = llumenSurfaceRectVisualBounds(candidate, candMetrics);
+                    if (!llumenSurfaceBoundsOverlap(ab, bb, margin)) continue;
+
+                    llumenSurfaceMoveLayoutAwayFromBase(
+                        baseNode,
+                        baseMetrics,
+                        candidate,
+                        candMetrics,
+                        moveOpts
+                    );
+                    queue.push(String(candidate.id));
+                }
+            }
+
+            if (safetyCounter >= maxIterations && queue.length > 0) {
+                abortedByMaxIterations = true;
+            }
+
+            return { iterations: safetyCounter, abortedByMaxIterations };
+        }
+
+        /**
+         * Ensures **gap rows** (empty **`.ll-row-band-row--gap`**) around **filled** band rows that are
+         * **direct children** of `hostElement`. Resulting order: **`gap, row₀, gap, row₁, …, gap`**.
+         * With **no** filled rows, a **single** gap row remains. Gap rows are real `.ll-row-band-row` nodes
+         * (modifier class only); callers mount horizontal sortable + optional **`acceptPointerHoverMs`** on them.
+         *
+         * Steps: promote any gap row that already has tile shells (removes `--gap`), optionally drop empty
+         * filled rows, remove remaining gap rows, detach filled rows, then re-append the interleaved pattern.
+         *
+         * @param {object} options
+         * @param {HTMLElement} options.hostElement — Vertical stack parent (`flex` + `flex-col` typical; avoid `gap-*` on host if gaps provide spacing).
+         * @param {string} options.filledRowSelector — Selector for **direct** filled rows only, e.g. **`.ll-row-band-row:not(.ll-row-band-row--gap)`**, used as **`:scope > ${filledRowSelector}`**.
+         * @param {string} [options.gapRowClassNames] — Classes for created gap rows (default uses reusable row-context row classes).
+         * @param {string} [options.promotedRowExtraClasses] — Added when a gap row becomes filled (first shell); optional extra layout classes (filled-row **min-height** lives in shared CSS, not here).
+         * @param {boolean} [options.dropEmptyFilledRows=false] — Remove filled rows (matching **`filledRowSelector`**) with no **`filledRowContentSelector`** match.
+         * @param {string} [options.filledRowContentSelector=':scope > .ll-row-element-container'] — Content probe inside each filled row.
+         */
+        function syncLlumenRowBandGapRows(options = {}) {
+            const {
+                hostElement,
+                filledRowSelector,
+                gapRowClassNames = 'll-row-band-row ll-row-band-row--gap ll-row-context__row ll-row-context__row--with-grip-offset',
+                promotedRowExtraClasses = '',
+                dropEmptyFilledRows = false,
+                filledRowContentSelector = ':scope > .ll-row-element-container'
+            } = options;
+
+            if (!hostElement || typeof filledRowSelector !== 'string' || !filledRowSelector.trim()) {
+                return;
+            }
+
+            const doc = hostElement.ownerDocument || document;
+            const childSel = `:scope > ${filledRowSelector.trim()}`;
+
+            /* Gap row received a tile: treat as filled (caller decorates row grip after sync if needed). */
+            try {
+                hostElement.querySelectorAll(':scope > .ll-row-band-row--gap').forEach((rowEl) => {
+                    if (!rowEl || rowEl.nodeType !== 1) return;
+                    const cs = typeof filledRowContentSelector === 'string' && filledRowContentSelector.trim()
+                        ? filledRowContentSelector.trim()
+                        : '';
+                    if (cs && rowEl.querySelector(cs)) {
+                        rowEl.classList.remove('ll-row-band-row--gap');
+                        rowEl.removeAttribute('aria-hidden');
+                        if (typeof promotedRowExtraClasses === 'string' && promotedRowExtraClasses.trim()) {
+                            promotedRowExtraClasses.trim().split(/\s+/).forEach((c) => {
+                                if (c) rowEl.classList.add(c);
+                            });
+                        }
+                    }
+                });
+            } catch (e) {
+                return;
+            }
+
+            if (dropEmptyFilledRows && typeof filledRowContentSelector === 'string' && filledRowContentSelector.trim()) {
+                const cs = filledRowContentSelector.trim();
+                let rowsForPrune;
+                try {
+                    rowsForPrune = Array.from(hostElement.querySelectorAll(childSel));
+                } catch (e2) {
+                    return;
+                }
+                rowsForPrune.forEach((rowEl) => {
+                    if (!rowEl || rowEl.nodeType !== 1) return;
+                    if (!rowEl.querySelector(cs)) {
+                        rowEl.remove();
+                    }
+                });
+            }
+
+            let filled;
+            try {
+                filled = Array.from(hostElement.querySelectorAll(childSel));
+            } catch (e3) {
+                return;
+            }
+
+            hostElement.querySelectorAll(':scope > .ll-row-band-row--gap').forEach((n) => n.remove());
+
+            const detached = filled.filter((el) => el && el.nodeType === 1);
+            detached.forEach((el) => {
+                if (el.parentNode === hostElement) {
+                    el.remove();
+                }
+            });
+
+            const createGapRow = () => {
+                const row = doc.createElement('div');
+                row.setAttribute('aria-hidden', 'true');
+                gapRowClassNames.split(/\s+/).forEach((c) => {
+                    if (c) row.classList.add(c);
+                });
+                return row;
+            };
+
+            const frag = doc.createDocumentFragment();
+            frag.appendChild(createGapRow());
+            for (let i = 0; i < detached.length; i += 1) {
+                frag.appendChild(detached[i]);
+                frag.appendChild(createGapRow());
+            }
+            hostElement.appendChild(frag);
+        }
+
+        /**
+         * Reads a **serializable snapshot** of filled row-band rows under **`hostElement`** (gap strips are
+         * omitted). Use after drag commits or with **`initRowBandContext`** **`onAfterSync`** for app state /
+         * persistence — does not mutate the DOM.
+         *
+         * @param {HTMLElement} hostElement
+         * @param {object} [config]
+         * @param {string} [config.filledRowSelector='.ll-row-band-row:not(.ll-row-band-row--gap)']
+         * @param {string} [config.bandShellSelector='.ll-row-element-container']
+         * @param {string} [config.unitSelector='.ll-flex-band-unit']
+         * @param {function(HTMLElement): string} [config.getRowId]
+         * @param {function(HTMLElement): string} [config.getShellId]
+         * @param {number} [config.maxUnits=4]
+         * @param {function(HTMLElement): object|void} [config.readShellExtras] — Merge plain-object extras into each shell entry (e.g. **`dataset`** mirrors).
+         * @returns {{ maxUnits: number, rows: Array<{ rowId: string, usedUnits: number, freeUnits: number, shells: Array<{ shellId: string, units: number }> }> }}
+         * @see **`writeLlumenRowBandModelToHost`** — inverse (**model → DOM**); pair with **`initRowBandContext`** **`applyRowBandModel`** to re-mount sortables after a rebuild.
+         */
+        function readLlumenRowBandModelFromHost(hostElement, config = {}) {
+            const {
+                filledRowSelector = '.ll-row-band-row:not(.ll-row-band-row--gap)',
+                bandShellSelector = '.ll-row-element-container',
+                unitSelector = '.ll-flex-band-unit',
+                getRowId = () => '',
+                getShellId = () => '',
+                maxUnits = 4,
+                readShellExtras = null
+            } = config;
+
+            if (!hostElement || hostElement.nodeType !== 1) {
+                return { maxUnits, rows: [] };
+            }
+
+            let rows = [];
+            try {
+                rows = Array.from(hostElement.querySelectorAll(`:scope > ${filledRowSelector}`)).map((rowEl) => {
+                    const shells = Array.from(rowEl.querySelectorAll(`:scope > ${bandShellSelector}`)).map(
+                        (shellEl) => {
+                            const unitEl = shellEl.querySelector(unitSelector);
+                            const units = Math.max(1, parseInt(unitEl && unitEl.dataset.units, 10) || 1);
+                            const entry = {
+                                shellId: (typeof getShellId === 'function' ? getShellId(shellEl) : '') || '',
+                                units
+                            };
+                            if (typeof readShellExtras === 'function') {
+                                try {
+                                    const extra = readShellExtras(shellEl);
+                                    if (extra && typeof extra === 'object') {
+                                        Object.assign(entry, extra);
+                                    }
+                                } catch (e) {
+                                    /* ignore */
+                                }
+                            }
+                            return entry;
+                        }
+                    );
+                    const usedUnits = shells.reduce((s, sh) => s + (Math.max(1, parseInt(sh.units, 10) || 1)), 0);
+                    return {
+                        rowId: (typeof getRowId === 'function' ? getRowId(rowEl) : '') || '',
+                        usedUnits,
+                        freeUnits: Math.max(0, maxUnits - usedUnits),
+                        shells
+                    };
+                });
+            } catch (e) {
+                return { maxUnits, rows: [] };
+            }
+            return { maxUnits, rows };
+        }
+
+        /**
+         * Returns a shallow copy of **`rowSnapshot`** whose **`shells`** array fits **`maxUnits`**
+         * (drops trailing shells that would overflow).
+         *
+         * @param {object} rowSnapshot
+         * @param {number} maxUnits
+         * @returns {object}
+         */
+        function normalizeLlumenRowBandRowShellsForCapacity(rowSnapshot, maxUnits) {
+            const cap = Math.max(1, parseInt(maxUnits, 10) || 1);
+            const shellsIn = Array.isArray(rowSnapshot && rowSnapshot.shells)
+                ? rowSnapshot.shells
+                : [];
+            const shells = [];
+            let used = 0;
+            for (let i = 0; i < shellsIn.length; i += 1) {
+                const sh = shellsIn[i];
+                if (!sh || typeof sh !== 'object') continue;
+                const u = Math.max(1, parseInt(sh.units, 10) || 1);
+                if (used + u > cap) break;
+                shells.push(sh);
+                used += u;
+            }
+            return { ...rowSnapshot, shells };
+        }
+
+        /**
+         * Caps a shell’s **`units`** to **`nextMaxUnits`** only when **`units > nextMaxUnits`** (e.g. 3- or 4-wide
+         * shells when shrinking a **4 → 2** host). Shells with **`units <= nextMaxUnits`** are unchanged.
+         *
+         * @param {number} units
+         * @param {number} nextMaxUnits
+         */
+        function llumenRowBandShellUnitsForHostCapacity(units, nextMaxUnits) {
+            const u = Math.max(1, parseInt(units, 10) || 1);
+            const cap = Math.max(1, parseInt(nextMaxUnits, 10) || 1);
+            if (u <= cap) return u;
+            return cap;
+        }
+
+        /**
+         * Rebuilds a **row-band** model for a new **`maxUnits`**: when **`nextMaxUnits`** is **≥** the current
+         * **`model.maxUnits`**, only **`maxUnits`** on the snapshot changes (rows / shell **`units`** unchanged).
+         * When **`nextMaxUnits`** is **smaller**, each shell’s **`units`** is capped with
+         * **`llumenRowBandShellUnitsForHostCapacity`**, then **each original row is handled alone**: shells stay
+         * in order; if **`sum(units) <= cap`** the row is kept as one row (same **`rowId`** when present).
+         * If a row no longer fits, it is **split** into consecutive segments with **`sum(units) <= cap`** only
+         * (no merging across different input rows — shells from row *B* never move up into free space on row *A*).
+         * Split segments get fresh **`ll-rb-${ts}-${n}`** **`rowId`**s.
+         *
+         * @param {{ maxUnits?: number, rows: object[] }} model
+         * @param {number} nextMaxUnits
+         * @returns {{ maxUnits: number, rows: object[] }}
+         */
+        function reflowLlumenRowBandModelForMaxUnits(model, nextMaxUnits) {
+            const cap = Math.max(1, parseInt(nextMaxUnits, 10) || 1);
+            const prevCap = Math.max(
+                1,
+                parseInt(model && model.maxUnits, 10) || cap
+            );
+            const rowsIn = Array.isArray(model && model.rows) ? model.rows : [];
+
+            if (cap >= prevCap) {
+                return {
+                    maxUnits: cap,
+                    rows: rowsIn.map((row) => {
+                        if (!row || typeof row !== 'object') return { rowId: '', shells: [] };
+                        const shells = Array.isArray(row.shells)
+                            ? row.shells.map((sh) => (sh && typeof sh === 'object' ? { ...sh } : {}))
+                            : [];
+                        return {
+                            ...row,
+                            shells
+                        };
+                    })
+                };
+            }
+
+            const splitShellsIntoSegments = (shellsCapped) => {
+                const segments = [];
+                let cur = [];
+                let used = 0;
+                for (let i = 0; i < shellsCapped.length; i += 1) {
+                    const sh = shellsCapped[i];
+                    const u = Math.max(1, parseInt(sh.units, 10) || 1);
+                    if (used + u > cap) {
+                        if (cur.length > 0) {
+                            segments.push(cur);
+                        }
+                        cur = [];
+                        used = 0;
+                    }
+                    cur.push(sh);
+                    used += u;
+                }
+                if (cur.length > 0) {
+                    segments.push(cur);
+                }
+                return segments;
+            };
+
+            const ts = Date.now();
+            let idSeq = 0;
+            const rowsOut = [];
+
+            for (let ri = 0; ri < rowsIn.length; ri += 1) {
+                const row = rowsIn[ri];
+                if (!row || typeof row !== 'object') continue;
+                const shellsIn = Array.isArray(row.shells) ? row.shells : [];
+                const shellsCapped = [];
+                for (let si = 0; si < shellsIn.length; si += 1) {
+                    const sh = shellsIn[si];
+                    if (!sh || typeof sh !== 'object') continue;
+                    const u0 = Math.max(1, parseInt(sh.units, 10) || 1);
+                    const u = llumenRowBandShellUnitsForHostCapacity(u0, cap);
+                    shellsCapped.push({ ...sh, units: u });
+                }
+                if (shellsCapped.length === 0) {
+                    continue;
+                }
+
+                const segments = splitShellsIntoSegments(shellsCapped);
+                const preserveId = row.rowId != null && String(row.rowId).trim() !== '';
+
+                if (segments.length === 1) {
+                    const rowId = preserveId
+                        ? String(row.rowId).trim()
+                        : `ll-rb-${ts}-${idSeq++}`;
+                    rowsOut.push({ rowId, shells: segments[0] });
+                } else {
+                    for (let s = 0; s < segments.length; s += 1) {
+                        rowsOut.push({
+                            rowId: `ll-rb-${ts}-${idSeq++}`,
+                            shells: segments[s]
+                        });
+                    }
+                }
+            }
+
+            return { maxUnits: cap, rows: rowsOut };
+        }
+
+        /**
+         * Replaces **all** direct children of **`hostElement`** with **filled** rows built by **`renderFilledRow`**
+         * (no gap rows — call **`syncLlumenRowBandGapRows`** / **`initRowBandContext`’s `syncGapRows`** afterward).
+         * Intended for **model → DOM** rebuild after **`readLlumenRowBandModelFromHost`** or persisted JSON.
+         *
+         * @param {HTMLElement} hostElement
+         * @param {{ maxUnits?: number, rows: object[] }} model
+         * @param {object} config
+         * @param {function(object, number, Document, number): HTMLElement} config.renderFilledRow — Build one **filled** row element (`.ll-row-band-row` not `--gap`) including band shells and units. **4th argument** is the resolved host **`maxUnits`** (same value **`writeLlumenRowBandModelToHost`** uses for capacity); use it for **`setLlumenBandWidthClass`** / **`ll-band-c{maxUnits}-u*`** so tokens match the row context after capacity changes.
+         * @param {number} [config.maxUnits=4] — Fallback when **`model.maxUnits`** is missing; also used for capacity trimming when **`validateCapacity`** is true.
+         * @param {boolean} [config.validateCapacity=true] — Trim **`shells`** per row so **`sum(units) <= maxUnits`**.
+         * @returns {boolean} Whether the write ran (**false** if arguments invalid).
+         */
+        function writeLlumenRowBandModelToHost(hostElement, model, config = {}) {
+            const {
+                renderFilledRow,
+                maxUnits: maxUnitsCfg = 4,
+                validateCapacity = true
+            } = config;
+
+            if (!hostElement || hostElement.nodeType !== 1) return false;
+            if (typeof renderFilledRow !== 'function') return false;
+            if (!model || typeof model !== 'object' || !Array.isArray(model.rows)) return false;
+
+            const maxUnits = Math.max(
+                1,
+                parseInt(model.maxUnits, 10) || parseInt(maxUnitsCfg, 10) || 4
+            );
+
+            const doc = hostElement.ownerDocument || document;
+            while (hostElement.firstChild) {
+                hostElement.removeChild(hostElement.firstChild);
+            }
+
+            const rows = model.rows;
+            for (let i = 0; i < rows.length; i += 1) {
+                const raw = rows[i];
+                if (!raw || typeof raw !== 'object') continue;
+                const rowSnap = validateCapacity
+                    ? normalizeLlumenRowBandRowShellsForCapacity(raw, maxUnits)
+                    : { ...raw, shells: Array.isArray(raw.shells) ? raw.shells : [] };
+                let rowEl;
+                try {
+                    rowEl = renderFilledRow(rowSnap, i, doc, maxUnits);
+                } catch (e) {
+                    continue;
+                }
+                if (!rowEl || rowEl.nodeType !== 1) continue;
+                hostElement.appendChild(rowEl);
+            }
+            return true;
+        }
+
+        /**
+         * Preferred entry point for **row-band** sortable wiring: same as **`initLlumenRowBandSortables`**, plus
+         * optional **`getRowBandModel()`** and **`onAfterSync(snapshot)`** after each gap/sortable refresh
+         * (initial mount and every **`syncGapRows`**). With **`renderFilledRow`**, also exposes **`applyRowBandModel`**
+         * to **destroy sortables**, **rewrite** filled rows from a snapshot, and **re-mount** the row-band stack.
+         *
+         * @param {object} options — Same as **`initLlumenRowBandSortables`**, plus:
+         * @param {function({ maxUnits: number, rows: object[] }): void} [options.onAfterSync] — Fired after **`syncGapRows`** completes (safe for persistence / UI).
+         * @param {function(HTMLElement): object|void} [options.readShellExtras] — Passed through to **`readLlumenRowBandModelFromHost`**.
+         * @param {function(object, number, Document, number): HTMLElement} [options.renderFilledRow] — When set, **`applyRowBandModel`** is returned and used to rebuild **filled** rows from a **`readLlumenRowBandModelFromHost`**-shaped snapshot. Receives **`maxUnits`** as the **4th** argument (host row budget for width tokens).
+         * @param {boolean} [options.showEmptyTemplate=true] — Show an **`ll-empty`** template when row context has no shells.
+         * @param {string} [options.emptyTemplateIcon='grid_view'] — Material icon for the empty template.
+         * @param {string} [options.emptyTemplateMessage='No components added'] — Empty-state message copy.
+         * @returns {{ syncGapRows: function(): void, destroy: function(): void, getRowBandModel: function(): { maxUnits: number, rows: object[] }, applyRowBandModel: (function((object)): void)|null, setRowBandMaxUnits: (function((number)): void)|null }}
+         */
+        function initRowBandContext(options = {}) {
+            const {
+                onAfterSync = null,
+                readShellExtras = null,
+                renderFilledRow = null,
+                showEmptyTemplate = true,
+                emptyTemplateIcon = 'grid_view',
+                emptyTemplateMessage = 'No components added',
+                ...sortableOptions
+            } = options;
+
+            const bandOpts = { ...sortableOptions };
+            if (!bandOpts.hostElement || bandOpts.hostElement.nodeType !== 1) {
+                return {
+                    syncGapRows() {},
+                    destroy() {},
+                    getRowBandModel() {
+                        return { maxUnits: 4, rows: [] };
+                    },
+                    applyRowBandModel: null,
+                    setRowBandMaxUnits: null
+                };
+            }
+            if (
+                typeof bandOpts.rowVerticalHandleSelector !== 'string'
+                || !String(bandOpts.rowVerticalHandleSelector).trim()
+                || typeof bandOpts.tileHorizontalHandleSelector !== 'string'
+                || !String(bandOpts.tileHorizontalHandleSelector).trim()
+                || typeof bandOpts.getRowId !== 'function'
+                || typeof bandOpts.getShellId !== 'function'
+                || typeof bandOpts.decorateFilledRow !== 'function'
+            ) {
+                return {
+                    syncGapRows() {},
+                    destroy() {},
+                    getRowBandModel() {
+                        return { maxUnits: 4, rows: [] };
+                    },
+                    applyRowBandModel: null,
+                    setRowBandMaxUnits: null
+                };
+            }
+            if (typeof bandOpts.maxUnits !== 'number' || !Number.isFinite(bandOpts.maxUnits) || bandOpts.maxUnits < 1) {
+                bandOpts.maxUnits = 4;
+            }
+
+            let core = initLlumenRowBandSortables(bandOpts);
+            const rowsHost = bandOpts.hostElement;
+            const rowContextRoot = rowsHost.closest('.ll-row-context');
+            const shouldShowEmptyTemplate = showEmptyTemplate !== false;
+            const resolvedEmptyTemplateIcon = String(emptyTemplateIcon || 'grid_view').trim() || 'grid_view';
+            const resolvedEmptyTemplateMessage = String(emptyTemplateMessage || 'No components added').trim() || 'No components added';
+
+            const readHostModelConfig = () => ({
+                filledRowSelector: bandOpts.filledRowSelector,
+                bandShellSelector: bandOpts.bandShellSelector,
+                unitSelector: bandOpts.unitSelector,
+                getRowId: bandOpts.getRowId,
+                getShellId: bandOpts.getShellId,
+                maxUnits: bandOpts.maxUnits,
+                readShellExtras
+            });
+
+            const getRowBandModel = () => readLlumenRowBandModelFromHost(rowsHost, readHostModelConfig());
+            const modelHasAnyShells = (model) => {
+                const rows = Array.isArray(model && model.rows) ? model.rows : [];
+                return rows.some((row) => {
+                    const shells = Array.isArray(row && row.shells) ? row.shells : [];
+                    return shells.length > 0;
+                });
+            };
+            const ensureRowContextEmptyTemplate = () => {
+                if (!rowContextRoot || !shouldShowEmptyTemplate) return null;
+                let templateRoot = rowContextRoot.querySelector(':scope > .ll-row-context__empty-template');
+                if (templateRoot) return templateRoot;
+                templateRoot = document.createElement('div');
+                templateRoot.className = 'll-row-context__empty-template';
+                const emptyShell = document.createElement('div');
+                emptyShell.className = 'll-empty';
+                const emptyContent = document.createElement('div');
+                emptyContent.className = 'll-empty__content';
+                const iconEl = document.createElement('span');
+                iconEl.className = 'material-symbols-outlined ll-empty__icon';
+                iconEl.textContent = resolvedEmptyTemplateIcon;
+                const messageEl = document.createElement('p');
+                messageEl.className = 'll-empty__text';
+                messageEl.textContent = resolvedEmptyTemplateMessage;
+                emptyContent.appendChild(iconEl);
+                emptyContent.appendChild(messageEl);
+                emptyShell.appendChild(emptyContent);
+                templateRoot.appendChild(emptyShell);
+                rowContextRoot.appendChild(templateRoot);
+                return templateRoot;
+            };
+            const syncRowContextEmptyModifier = (model) => {
+                if (!rowContextRoot) return;
+                const hasItems = modelHasAnyShells(model);
+                rowContextRoot.classList.toggle('ll-row-context--empty', !hasItems);
+                rowContextRoot.classList.toggle('ll-row-context--with-empty-template', shouldShowEmptyTemplate);
+                if (shouldShowEmptyTemplate) {
+                    const template = ensureRowContextEmptyTemplate();
+                    if (template) {
+                        template.classList.toggle('hidden', hasItems);
+                    }
+                }
+            };
+            // Start hidden by default; we'll remove this once we detect items in the initial model.
+            if (rowContextRoot) {
+                rowContextRoot.classList.add('ll-row-context--empty');
+                rowContextRoot.classList.toggle('ll-row-context--with-empty-template', shouldShowEmptyTemplate);
+                if (shouldShowEmptyTemplate) {
+                    ensureRowContextEmptyTemplate();
+                }
+            }
+
+            const syncGapRows = () => {
+                core.syncGapRows();
+                const model = getRowBandModel();
+                syncRowContextEmptyModifier(model);
+                if (typeof onAfterSync === 'function') {
+                    try {
+                        onAfterSync(model);
+                    } catch (e) {
+                        /* ignore */
+                    }
+                }
+            };
+
+            const destroy = () => {
+                core.destroy();
+            };
+
+            const applyRowBandModel = (typeof renderFilledRow === 'function')
+                ? (model) => {
+                    if (!model || typeof model !== 'object') return;
+                    const mu = Math.max(
+                        1,
+                        parseInt(model.maxUnits, 10) || bandOpts.maxUnits
+                    );
+                    bandOpts.maxUnits = mu;
+                    core.destroy();
+                    writeLlumenRowBandModelToHost(rowsHost, model, {
+                        renderFilledRow,
+                        maxUnits: mu,
+                        validateCapacity: true
+                    });
+                    core = initLlumenRowBandSortables(bandOpts);
+                    const nextModel = getRowBandModel();
+                    syncRowContextEmptyModifier(nextModel);
+                    if (typeof onAfterSync === 'function') {
+                        try {
+                            onAfterSync(nextModel);
+                        } catch (e2) {
+                            /* ignore */
+                        }
+                    }
+                }
+                : null;
+
+            const setRowBandMaxUnits = (typeof renderFilledRow === 'function')
+                ? (nextMax) => {
+                    const mu = Math.max(1, parseInt(nextMax, 10) || 1);
+                    const cur = readLlumenRowBandModelFromHost(rowsHost, readHostModelConfig());
+                    const nextModel = reflowLlumenRowBandModelForMaxUnits(cur, mu);
+                    bandOpts.maxUnits = mu;
+                    core.destroy();
+                    writeLlumenRowBandModelToHost(rowsHost, nextModel, {
+                        renderFilledRow,
+                        maxUnits: mu,
+                        validateCapacity: false
+                    });
+                    core = initLlumenRowBandSortables(bandOpts);
+                    const syncedModel = getRowBandModel();
+                    syncRowContextEmptyModifier(syncedModel);
+                    if (typeof onAfterSync === 'function') {
+                        try {
+                            onAfterSync(syncedModel);
+                        } catch (e3) {
+                            /* ignore */
+                        }
+                    }
+                }
+                : null;
+
+            const initialModel = getRowBandModel();
+            syncRowContextEmptyModifier(initialModel);
+            if (typeof onAfterSync === 'function') {
+                try {
+                    onAfterSync(initialModel);
+                } catch (e2) {
+                    /* ignore */
+                }
+            }
+
+            return { syncGapRows, destroy, getRowBandModel, applyRowBandModel, setRowBandMaxUnits };
+        }
+
+        /**
+         * Wires **gap-row sync**, **vertical** row reorder (`initSortableList`), and **horizontal** shell/tile
+         * sort across filled + gap rows (`acceptPointerHoverMs` on gaps, capacity **`accepts`**, sole-shell
+         * adjacent-gap block, gap-squeeze visuals). Page-agnostic — pass selectors, id getters, and hooks.
+         *
+         * @param {object} options
+         * @param {HTMLElement} options.hostElement — **`flex`** / **`flex-col`** stack (no **`gap-*`** if gaps provide rhythm).
+         * @param {string} [options.filledRowSelector='.ll-row-band-row:not(.ll-row-band-row--gap)']
+         * @param {string} [options.bandShellSelector='.ll-row-element-container']
+         * @param {string} [options.unitSelector='.ll-flex-band-unit']
+         * @param {string} options.rowVerticalHandleSelector — Vertical sortable handle (per filled row).
+         * @param {string} options.tileHorizontalHandleSelector — Horizontal sortable handle (per shell).
+         * @param {function(HTMLElement): string} options.getRowId
+         * @param {function(HTMLElement): string} options.getShellId
+         * @param {number} [options.maxUnits=4]
+         * @param {number} [options.gapRowAcceptPointerHoverMs=200]
+         * @param {boolean} [options.dropEmptyFilledRows=true]
+         * @param {function(HTMLElement): void} options.decorateFilledRow — After each **`syncGapRows`**, run on each direct filled row (grip, padding, stable ids).
+         * @param {function(HTMLElement, HTMLElement): void} [options.onWireBandUnit] — After a cross-row horizontal reorder, **`(rowContainer, unitElement)`** (e.g. **`initLlumenFlexBandUnitResize`**).
+         * @param {number} [options.verticalMinItemsForDrag=2]
+         * @param {HTMLElement|null} [options.verticalScrollRoot=hostElement]
+         * @returns {{ syncGapRows: function(): void, destroy: function(): void }}
+         * @see **`initRowBandContext`** — preferred entry when you want **`getRowBandModel()`** / **`onAfterSync`**.
+         */
+        function initLlumenRowBandSortables(options = {}) {
+            const {
+                hostElement: rowsHost,
+                filledRowSelector = '.ll-row-band-row:not(.ll-row-band-row--gap)',
+                bandShellSelector = '.ll-row-element-container',
+                unitSelector = '.ll-flex-band-unit',
+                rowVerticalHandleSelector,
+                tileHorizontalHandleSelector,
+                getRowId,
+                getShellId,
+                maxUnits = 4,
+                gapRowAcceptPointerHoverMs = 200,
+                dropEmptyFilledRows = true,
+                decorateFilledRow,
+                onWireBandUnit = null,
+                verticalMinItemsForDrag = 2,
+                verticalScrollRoot = null
+            } = options;
+
+            if (!rowsHost || rowsHost.nodeType !== 1) {
+                return {
+                    syncGapRows() {},
+                    destroy() {}
+                };
+            }
+            if (
+                typeof rowVerticalHandleSelector !== 'string'
+                || !rowVerticalHandleSelector.trim()
+                || typeof tileHorizontalHandleSelector !== 'string'
+                || !tileHorizontalHandleSelector.trim()
+                || typeof getRowId !== 'function'
+                || typeof getShellId !== 'function'
+                || typeof decorateFilledRow !== 'function'
+            ) {
+                return {
+                    syncGapRows() {},
+                    destroy() {}
+                };
+            }
+
+            const scrollRootVertical = verticalScrollRoot && verticalScrollRoot.nodeType === 1
+                ? verticalScrollRoot
+                : rowsHost;
+
+            const rowHorizontalSortDestroy = new WeakMap();
+            const rowBandSortableMounted = new WeakSet();
+            const gapSqueezeClass = 'll-row-band-row--gap-squeeze';
+            const emptyFilledRowDuringBandDragClass = 'll-row-band-row--empty-during-band-drag';
+
+            const clearRowBandGapSqueeze = () => {
+                rowsHost.querySelectorAll(`:scope > .ll-row-band-row--gap.${gapSqueezeClass}`).forEach((g) => {
+                    g.classList.remove(gapSqueezeClass);
+                });
+                rowsHost.querySelectorAll(`:scope > .${emptyFilledRowDuringBandDragClass}`).forEach((r) => {
+                    r.classList.remove(emptyFilledRowDuringBandDragClass);
+                });
+            };
+
+            const updateRowBandGapSqueezeDuringTileDrag = () => {
+                clearRowBandGapSqueeze();
+                const wash = rowsHost.querySelector(`${bandShellSelector} ${unitSelector}.ll-dnd__source--dragging`);
+                if (!wash) return;
+                rowsHost.querySelectorAll(`:scope > ${filledRowSelector}`).forEach((row) => {
+                    if (row.querySelector(`:scope > ${bandShellSelector}`)) return;
+                    row.classList.add(emptyFilledRowDuringBandDragClass);
+                    const prev = row.previousElementSibling;
+                    const next = row.nextElementSibling;
+                    if (prev && prev.classList.contains('ll-row-band-row--gap')) {
+                        prev.classList.add(gapSqueezeClass);
+                    }
+                    if (next && next.classList.contains('ll-row-band-row--gap')) {
+                        next.classList.add(gapSqueezeClass);
+                    }
+                });
+            };
+
+            const teardownRowHorizontalSortables = () => {
+                rowsHost.querySelectorAll(':scope > .ll-row-band-row').forEach((row) => {
+                    const d = rowHorizontalSortDestroy.get(row);
+                    if (d) d();
+                    rowHorizontalSortDestroy.delete(row);
+                    rowBandSortableMounted.delete(row);
+                });
+            };
+
+            const sumRowUnits = (rowEl) => Array.from(rowEl.querySelectorAll(unitSelector)).reduce(
+                (s, el) => s + (parseInt(el.dataset.units, 10) || 1),
+                0
+            );
+
+            const sumRowUnitsExcludingShell = (rowEl, excludeShell) => Array.from(rowEl.querySelectorAll(unitSelector)).reduce(
+                (s, el) => {
+                    if (excludeShell && excludeShell.contains(el)) return s;
+                    return s + (parseInt(el.dataset.units, 10) || 1);
+                },
+                0
+            );
+
+            const findShellByPayloadId = (id) => {
+                if (id == null || id === '') return null;
+                const want = String(id);
+                let found = null;
+                try {
+                    rowsHost.querySelectorAll(bandShellSelector).forEach((el) => {
+                        if (found) return;
+                        if (getShellId(el) === want) {
+                            found = el;
+                        }
+                    });
+                } catch (e) {
+                    return null;
+                }
+                return found;
+            };
+
+            const syncGapRows = () => {
+                clearRowBandGapSqueeze();
+                teardownRowHorizontalSortables();
+                syncLlumenRowBandGapRows({
+                    hostElement: rowsHost,
+                    filledRowSelector,
+                    dropEmptyFilledRows,
+                    filledRowContentSelector: `:scope > ${bandShellSelector}`
+                });
+                rowsHost.querySelectorAll(`:scope > ${filledRowSelector}`).forEach(decorateFilledRow);
+                rowsHost.querySelectorAll(':scope > .ll-row-band-row').forEach(mountRowBandHorizontalSortable);
+            };
+
+            const mountRowBandHorizontalSortable = (rowEl) => {
+                if (!rowEl || rowEl.nodeType !== 1) return;
+                if (rowBandSortableMounted.has(rowEl)) return;
+                const isGapRow = rowEl.classList.contains('ll-row-band-row--gap');
+                const api = initSortableList({
+                    container: rowEl,
+                    axis: 'horizontal',
+                    itemSelector: bandShellSelector,
+                    handleSelector: tileHorizontalHandleSelector,
+                    getItemId: (el) => getShellId(el) || '',
+                    minItemsForDrag: 1,
+                    scrollRootOriginElement: rowEl,
+                    sourceWashSelector: unitSelector,
+                    ghostMeasureSelector: unitSelector,
+                    ghostCloneSelector: unitSelector,
+                    acceptPointerHoverMs: isGapRow ? gapRowAcceptPointerHoverMs : 0,
+                    buildDragPayload: (itemEl, sourceContainer) => {
+                        let soleShellSourceRow = false;
+                        try {
+                            if (
+                                rowsHost.contains(sourceContainer)
+                                && sourceContainer.classList.contains('ll-row-band-row')
+                            ) {
+                                const n = sourceContainer.querySelectorAll(`:scope > ${bandShellSelector}`).length;
+                                soleShellSourceRow = n === 1;
+                            }
+                        } catch (e) {
+                            soleShellSourceRow = false;
+                        }
+                        return {
+                            kind: 'reorder',
+                            id: itemEl && typeof getShellId === 'function' ? (getShellId(itemEl) || '') : '',
+                            sourceContainer,
+                            itemSelector: bandShellSelector,
+                            soleShellSourceRow
+                        };
+                    },
+                    onPointerMoveExtra: () => {
+                        updateRowBandGapSqueezeDuringTileDrag();
+                    },
+                    onSessionEnd: ({ handleElement }) => {
+                        const shell = handleElement && handleElement.closest(bandShellSelector);
+                        if (shell && rowsHost.contains(shell)) {
+                            clearRowBandGapSqueeze();
+                        }
+                    },
+                    accepts: (payload, ctx) => {
+                        if (payload.itemSelector !== bandShellSelector || ctx.itemSelector !== bandShellSelector) {
+                            return false;
+                        }
+                        if (!payload.id) return false;
+                        const shell = findShellByPayloadId(payload.id);
+                        if (!shell) return false;
+                        const targetRow = ctx.container;
+                        if (!targetRow || !targetRow.classList.contains('ll-row-band-row')) return false;
+                        const unitEl = shell.querySelector(unitSelector);
+                        const u = Math.max(1, parseInt(unitEl && unitEl.dataset.units, 10) || 1);
+                        const used = sumRowUnitsExcludingShell(targetRow, shell);
+                        if (targetRow.classList.contains('ll-row-band-row--gap')) {
+                            if (payload.soleShellSourceRow && payload.sourceContainer) {
+                                const src = payload.sourceContainer;
+                                if (rowsHost.contains(src)) {
+                                    const prev = src.previousElementSibling;
+                                    const next = src.nextElementSibling;
+                                    if (targetRow === prev || targetRow === next) {
+                                        return false;
+                                    }
+                                }
+                            }
+                            return used + u <= maxUnits;
+                        }
+                        if (!targetRow.matches(filledRowSelector)) return false;
+                        return used + u <= maxUnits;
+                    },
+                    onReorder: (detail) => {
+                        if (detail.fromContainer !== detail.toContainer && typeof onWireBandUnit === 'function') {
+                            const movedShell = findShellByPayloadId(detail.id);
+                            const wrap = movedShell && movedShell.querySelector(unitSelector);
+                            if (wrap && detail.toContainer) {
+                                onWireBandUnit(detail.toContainer, wrap);
+                            }
+                        }
+                        syncGapRows();
+                        if (detail && detail.id) {
+                            windowScope.requestAnimationFrame(() => {
+                                const movedShell = findShellByPayloadId(detail.id);
+                                if (!movedShell || !rowsHost.contains(movedShell)) return;
+                                const handle = movedShell.querySelector(tileHorizontalHandleSelector);
+                                if (!handle || typeof handle.focus !== 'function') return;
+                                try {
+                                    if (!handle.matches(':disabled')) {
+                                        handle.focus({ preventScroll: true });
+                                    }
+                                } catch (focusError) {
+                                    /* ignore */
+                                }
+                            });
+                        }
+                    }
+                });
+                if (api && typeof api.destroy === 'function') {
+                    rowHorizontalSortDestroy.set(rowEl, api.destroy);
+                }
+                rowBandSortableMounted.add(rowEl);
+            };
+
+            let rowsHostVerticalSortableMounted = false;
+            let verticalDestroy = null;
+
+            const mountRowsHostVerticalSortable = () => {
+                if (rowsHostVerticalSortableMounted) return;
+                rowsHostVerticalSortableMounted = true;
+                const vApi = initSortableList({
+                    container: rowsHost,
+                    axis: 'vertical',
+                    itemSelector: filledRowSelector,
+                    handleSelector: rowVerticalHandleSelector,
+                    getItemId: (el) => getRowId(el) || '',
+                    minItemsForDrag: verticalMinItemsForDrag,
+                    scrollRootOriginElement: scrollRootVertical,
+                    accepts: (payload, ctx) => (
+                        payload.itemSelector === filledRowSelector
+                        && ctx.itemSelector === filledRowSelector
+                        && payload.sourceContainer === ctx.container
+                    ),
+                    onReorder: () => {
+                        syncGapRows();
+                    }
+                });
+                verticalDestroy = vApi && typeof vApi.destroy === 'function' ? vApi.destroy : null;
+            };
+
+            mountRowsHostVerticalSortable();
+            syncGapRows();
+
+            const destroy = () => {
+                clearRowBandGapSqueeze();
+                teardownRowHorizontalSortables();
+                if (typeof verticalDestroy === 'function') {
+                    verticalDestroy();
+                    verticalDestroy = null;
+                }
+                rowsHostVerticalSortableMounted = false;
+            };
+
+            return { syncGapRows, destroy };
+        }
+
+        let llListingModuleCounter = 0;
+
+        function initListingModule(options = {}) {
+            const {
+                rootElement = null,
+                rootId = '',
+                items = [],
+                idKey = 'id',
+                mode = 'uncontrolled',
+                allowUnsafeHtml = false,
+                table = {},
+                grid = {},
+                controls = {},
+                nested = {},
+                filters = [],
+                sorts = [],
+                itemActions = {},
+                itemClick = null,
+                search = {},
+                onItemsChange = null,
+                onRequestChange = null
+            } = options;
+
+            const resolveElement = (value) => {
+                if (!value) return null;
+                if (value && value.nodeType === 1) return value;
+                const id = String(value || '').trim();
+                if (!id) return null;
+                return document.getElementById(id);
+            };
+            const rootEl = resolveElement(rootElement || rootId);
+            if (!rootEl) {
+                return {
+                    setItems() {},
+                    getState: () => ({}),
+                    setState() {},
+                    getSelectedItem: () => null,
+                    clearSelection() {},
+                    selectItem() {},
+                    toggleItemExpanded() {},
+                    setItemExpanded() {},
+                    isItemExpanded: () => false,
+                    destroy() {}
+                };
+            }
+
+            const moduleId = `ll-listing-${Date.now()}-${llListingModuleCounter++}`;
+            const toDatasetKey = (rawValue, fallback = 'llListingBound') => {
+                const normalized = String(rawValue || '')
+                    .replace(/[^a-zA-Z0-9]+(.)?/g, (_full, next) => (next ? next.toUpperCase() : ''))
+                    .replace(/^[^a-zA-Z]+/, '');
+                return normalized || fallback;
+            };
+            const moduleDatasetKey = toDatasetKey(moduleId, `llListing${Date.now()}Bound`);
+            const isControlled = String(mode || '').trim().toLowerCase() === 'controlled';
+            let internalItems = Array.isArray(items) ? items.slice() : [];
+
+            const tableHost = resolveElement(table.containerElement || table.containerId);
+            const gridEnabled = Boolean(grid && grid.enabled);
+            const gridHost = gridEnabled ? resolveElement(grid.containerElement || grid.containerId) : null;
+            const defaultEmptyStateInput = controls.emptyStateText || table.emptyStateText || (grid && grid.emptyStateText) || 'No matching items.';
+            const emptyStateNoItemsInput = controls.emptyStateNoItemsText;
+            const gridItemActionsHostSelector = String(grid && grid.itemActionsHostSelector ? grid.itemActionsHostSelector : '').trim();
+            const nestedEnabled = Boolean(nested && nested.enabled);
+            const nestedChildrenKey = String(nested && nested.childrenKey ? nested.childrenKey : 'children').trim() || 'children';
+            const nestedDefaultTriggerMode = String(nested && nested.triggerMode ? nested.triggerMode : 'arrow').trim().toLowerCase() === 'block'
+                ? 'block'
+                : 'arrow';
+            const nestedRootExpandableWithoutChildren = nested && Object.prototype.hasOwnProperty.call(nested, 'rootExpandableWithoutChildren')
+                ? Boolean(nested.rootExpandableWithoutChildren)
+                : true;
+            const nestedEmptyChildrenLabel = String(nested && nested.emptyChildrenLabel ? nested.emptyChildrenLabel : 'No items yet.').trim() || 'No items yet.';
+            const nestedAddActionsEnabled = Boolean(nested && nested.addActionsEnabled);
+            const nestedAddItemButtonLabel = nested && Object.prototype.hasOwnProperty.call(nested, 'addItemButtonLabel')
+                ? nested.addItemButtonLabel
+                : 'Add Item';
+            const nestedAddItemButtonClassName = String(nested && nested.addItemButtonClassName ? nested.addItemButtonClassName : 'll-btn ll-btn--sm ll-btn--outline-default').trim();
+            const nestedCanAddItem = typeof (nested && nested.canAddItem) === 'function' ? nested.canAddItem : null;
+            const nestedOnAddItemClick = typeof (nested && nested.onAddItemClick) === 'function' ? nested.onAddItemClick : null;
+            const nestedAnimate = nested && Object.prototype.hasOwnProperty.call(nested, 'animate')
+                ? Boolean(nested.animate)
+                : true;
+            const nestedAnimationDurationMs = Number(nested && nested.animationDurationMs) > 0
+                ? Number(nested.animationDurationMs)
+                : 220;
+            const nestedDefaultExpandedIds = Array.isArray(nested && nested.defaultExpandedIds)
+                ? new Set(nested.defaultExpandedIds.map((value) => String(value || '').trim()).filter(Boolean))
+                : new Set();
+            const defaultGridColumns = (grid && Number(grid.columns) === 6) ? 6 : 4;
+            const defaultGridGap = (grid && Number(grid.gap) === 4) ? 4 : 6;
+            const defaultView = gridEnabled
+                ? (String(grid.defaultView || '').trim().toLowerCase() === 'list' ? 'list' : 'grid')
+                : 'list';
+
+            const resolveIdValue = (item, index) => {
+                if (item && item[idKey] !== undefined && item[idKey] !== null && String(item[idKey]).trim()) {
+                    return String(item[idKey]);
+                }
+                return `row-${index}`;
+            };
+
+            const resolveNestedIdValue = (item, index, parentId = '') => {
+                if (item && item[idKey] !== undefined && item[idKey] !== null && String(item[idKey]).trim()) {
+                    return String(item[idKey]);
+                }
+                const normalizedParentId = String(parentId || '').trim();
+                if (normalizedParentId) {
+                    return `${normalizedParentId}::${index}`;
+                }
+                return `row-${index}`;
+            };
+
+            const getValueAtPath = (item, path) => {
+                if (!item || !path) return undefined;
+                const segments = String(path).split('.');
+                let current = item;
+                for (let i = 0; i < segments.length; i += 1) {
+                    const segment = segments[i];
+                    if (!segment) continue;
+                    if (current == null || typeof current !== 'object') return undefined;
+                    current = current[segment];
+                }
+                return current;
+            };
+
+            const normalizeArrayValues = (value) => {
+                if (Array.isArray(value)) {
+                    return value
+                        .map((entry) => String(entry || '').trim())
+                        .filter(Boolean);
+                }
+                const normalized = String(value || '').trim();
+                if (!normalized) return [];
+                return normalized
+                    .split(',')
+                    .map((entry) => entry.trim())
+                    .filter(Boolean);
+            };
+
+            const validationWarnings = [];
+
+            const normalizeFilterConfig = (filter, index) => {
+                const key = String(filter && filter.key ? filter.key : `filter-${index}`);
+                const typeRaw = String(filter && filter.type ? filter.type : 'single').trim().toLowerCase();
+                const type = typeRaw === 'multiple' || typeRaw === 'toggle' ? typeRaw : 'single';
+                const optionsList = Array.isArray(filter && filter.options) ? filter.options : [];
+                const normalizedOptions = optionsList
+                    .map((option) => {
+                        const value = String(option && option.value != null ? option.value : '').trim();
+                        const label = String(option && option.label != null ? option.label : value).trim();
+                        if (!value || !label) return null;
+                        return {
+                            value,
+                            label,
+                            buttonId: String(option && option.buttonId ? option.buttonId : '').trim()
+                        };
+                    })
+                    .filter(Boolean);
+                const defaultValues = type === 'multiple'
+                    ? normalizeArrayValues(filter && (filter.defaultValues || filter.defaultValue))
+                    : [String(filter && filter.defaultValue ? filter.defaultValue : '').trim()].filter(Boolean);
+                return {
+                    key,
+                    label: String(filter && filter.label ? filter.label : key),
+                    type,
+                    property: String(filter && filter.property ? filter.property : '').trim(),
+                    options: normalizedOptions,
+                    predicate: typeof (filter && filter.predicate) === 'function' ? filter.predicate : null,
+                    getValue: typeof (filter && filter.getValue) === 'function' ? filter.getValue : null,
+                    dropdown: filter && filter.dropdown ? filter.dropdown : null,
+                    toggle: filter && filter.toggle ? filter.toggle : null,
+                    defaultValues
+                };
+            };
+
+            const normalizeSortConfig = (sort, index) => {
+                const value = String(sort && sort.value ? sort.value : `sort-${index}`);
+                const propertyTypeRaw = String(sort && sort.propertyType ? sort.propertyType : 'string').trim().toLowerCase();
+                const propertyType = propertyTypeRaw === 'number' || propertyTypeRaw === 'date' ? propertyTypeRaw : 'string';
+                const order = String(sort && sort.order ? sort.order : 'asc').trim().toLowerCase() === 'desc' ? 'desc' : 'asc';
+                if (!((sort && typeof sort.getValue === 'function') || (sort && sort.property))) {
+                    validationWarnings.push(`Sort "${value}" has no property/getValue and will have no effect.`);
+                }
+                return {
+                    value,
+                    label: String(sort && sort.label ? sort.label : value),
+                    description: String(sort && sort.description ? sort.description : '').trim(),
+                    property: String(sort && sort.property ? sort.property : '').trim(),
+                    propertyType,
+                    order,
+                    getValue: typeof (sort && sort.getValue) === 'function' ? sort.getValue : null
+                };
+            };
+
+            const normalizedFilters = filters.map(normalizeFilterConfig);
+            const normalizedSorts = sorts.map(normalizeSortConfig);
+            const normalizeItemActionItem = (action, index) => {
+                const typeRaw = String(action && action.type ? action.type : 'dropdown').trim().toLowerCase();
+                const type = typeRaw === 'button' || typeRaw === 'custom' ? typeRaw : 'dropdown';
+                const key = String(action && action.key ? action.key : `action-${index}`).trim();
+                if (type === 'button') {
+                    const resolvedLabel = Object.prototype.hasOwnProperty.call(action || {}, 'label')
+                        ? String(action && action.label != null ? action.label : '').trim()
+                        : '';
+                    return {
+                        key,
+                        type: 'button',
+                        label: resolvedLabel,
+                        icon: String(action && action.icon ? action.icon : '').trim(),
+                        className: String(action && action.className ? action.className : 'll-btn ll-btn--outline-default').trim(),
+                        iconClassName: String(action && action.iconClassName ? action.iconClassName : 'll-btn__icon').trim(),
+                        ariaLabel: String(action && action.ariaLabel ? action.ariaLabel : resolvedLabel || 'Action').trim(),
+                        when: typeof (action && action.when) === 'function' ? action.when : null,
+                        onClick: typeof (action && action.onClick) === 'function' ? action.onClick : null
+                    };
+                }
+                if (type === 'custom') {
+                    return {
+                        key,
+                        type: 'custom',
+                        when: typeof (action && action.when) === 'function' ? action.when : null,
+                        render: typeof (action && action.render) === 'function' ? action.render : null
+                    };
+                }
+                const optionsList = Array.isArray(action && action.options) ? action.options : [];
+                const normalizedOptions = optionsList
+                    .map((option, optionIndex) => {
+                        const value = String(option && option.value != null ? option.value : `option-${optionIndex}`).trim();
+                        const label = String(option && option.label != null ? option.label : value).trim();
+                        if (!value || !label) return null;
+                        return {
+                            value,
+                            label,
+                            danger: Boolean(option && option.danger),
+                            when: typeof (option && option.when) === 'function' ? option.when : null,
+                            onSelect: typeof (option && option.onSelect) === 'function' ? option.onSelect : null
+                        };
+                    })
+                    .filter(Boolean);
+                return {
+                    key,
+                    type: 'dropdown',
+                    triggerIcon: String(action && action.triggerIcon ? action.triggerIcon : 'more_vert').trim(),
+                    triggerLabel: String(action && action.triggerLabel ? action.triggerLabel : '').trim(),
+                    triggerAriaLabel: String(action && action.triggerAriaLabel ? action.triggerAriaLabel : 'Item actions').trim(),
+                    triggerClassName: String(action && action.triggerClassName ? action.triggerClassName : 'll-icon-btn ll-icon-btn--circle').trim(),
+                    when: typeof (action && action.when) === 'function' ? action.when : null,
+                    align: String(action && action.align ? action.align : 'right').trim() || 'right',
+                    matchTriggerWidth: Boolean(action && action.matchTriggerWidth),
+                    minMenuWidthPx: Number(action && action.minMenuWidthPx) > 0 ? Number(action.minMenuWidthPx) : 128,
+                    options: normalizedOptions,
+                    onSelect: typeof (action && action.onSelect) === 'function' ? action.onSelect : null
+                };
+            };
+            const normalizedItemActions = (Array.isArray(itemActions && itemActions.items) ? itemActions.items : [])
+                .map(normalizeItemActionItem)
+                .filter((actionConfig) => {
+                    if (actionConfig.type === 'dropdown') return actionConfig.options.length > 0;
+                    if (actionConfig.type === 'custom') return typeof actionConfig.render === 'function';
+                    return true;
+                });
+            const DEFAULT_SORT_VALUE = '__ll_listing_default_sort__';
+            const defaultSortLabel = String(controls.defaultSortLabel || 'Default').trim() || 'Default';
+            normalizedFilters.forEach((filterConfig) => {
+                if (!(filterConfig.property || filterConfig.getValue || filterConfig.predicate)) {
+                    validationWarnings.push(`Filter "${filterConfig.key}" has no property/getValue/predicate and will be ignored.`);
+                }
+                if ((filterConfig.type === 'single' || filterConfig.type === 'multiple') && !filterConfig.dropdown) {
+                    validationWarnings.push(`Filter "${filterConfig.key}" is "${filterConfig.type}" but has no dropdown config.`);
+                }
+                if (filterConfig.type === 'toggle' && !filterConfig.toggle) {
+                    validationWarnings.push(`Filter "${filterConfig.key}" is "toggle" but has no toggle button mapping.`);
+                }
+            });
+            if (!normalizedItemActions.length && Array.isArray(itemActions && itemActions.options) && itemActions.options.length) {
+                validationWarnings.push('itemActions.options is no longer supported. Use itemActions.items instead.');
+            }
+            if (validationWarnings.length) {
+                console.warn('[LlumenComponents.initListingModule] configuration warnings:', validationWarnings);
+            }
+
+            const resolveFilterInitialState = (filterConfig) => {
+                if (filterConfig.type === 'multiple') {
+                    return new Set(filterConfig.defaultValues);
+                }
+                return filterConfig.defaultValues[0] || '';
+            };
+
+            const state = {
+                view: defaultView,
+                query: '',
+                sortValue: DEFAULT_SORT_VALUE,
+                filterValues: {},
+                selectedItemId: '',
+                expandedItemIds: new Set(nestedDefaultExpandedIds)
+            };
+
+            normalizedFilters.forEach((filterConfig) => {
+                state.filterValues[filterConfig.key] = resolveFilterInitialState(filterConfig);
+            });
+
+            const runtime = {
+                disposed: false,
+                boundControls: [],
+                dropdownButtons: new Map(),
+                viewButtons: { list: null, grid: null },
+                clearAllFiltersButton: resolveElement(controls.clearAllFiltersButtonId || controls.clearAllFiltersButtonElement),
+                searchInput: resolveElement(controls.searchInputId || controls.searchInputElement),
+                searchInputShell: rootEl.querySelector('.ll-listing-module-search-input'),
+                headerToolbar: rootEl.querySelector('.ll-listing-module-header__toolbar'),
+                emptyStateHost: null
+            };
+            if (runtime.searchInputShell) {
+                runtime.searchInputShell.classList.add('hidden');
+            }
+            if (runtime.headerToolbar) {
+                runtime.headerToolbar.classList.add('hidden');
+            }
+            let api = null;
+
+            const interactiveSelector = [
+                'a',
+                'button',
+                'input',
+                'select',
+                'textarea',
+                '[role="button"]',
+                '[data-listing-action]',
+                '.ll-dropdown__menu',
+                '.ll-dropdown__trigger'
+            ].join(',');
+
+            const isInteractiveTarget = (event) => {
+                const target = event && event.target && event.target.closest
+                    ? event.target.closest(interactiveSelector)
+                    : null;
+                return Boolean(target);
+            };
+
+            const hasConfiguredEmptyState = (value) => {
+                if (value == null) return false;
+                if (typeof value === 'string') return Boolean(value.trim());
+                if (typeof value === 'object') return true;
+                return false;
+            };
+
+            const normalizeEmptyStateButton = (value) => {
+                if (!value) return null;
+                if (typeof value === 'string') {
+                    const label = String(value).trim();
+                    if (!label) return null;
+                    return {
+                        label,
+                        icon: '',
+                        className: 'll-btn ll-btn--outline-default',
+                        ariaLabel: label,
+                        onClick: null
+                    };
+                }
+                if (typeof value !== 'object') return null;
+                const label = String(value.label || '').trim();
+                if (!label) return null;
+                return {
+                    label,
+                    icon: String(value.icon || '').trim(),
+                    className: String(value.className || 'll-btn ll-btn--outline-default').trim() || 'll-btn ll-btn--outline-default',
+                    ariaLabel: String(value.ariaLabel || label).trim() || label,
+                    onClick: typeof value.onClick === 'function' ? value.onClick : null
+                };
+            };
+
+            const normalizeEmptyStateConfig = (value, fallbackText) => {
+                if (typeof value === 'string') {
+                    const text = String(value || '').trim() || fallbackText;
+                    return { text, icon: '', button: null };
+                }
+                if (!value || typeof value !== 'object') {
+                    return { text: fallbackText, icon: '', button: null };
+                }
+                const text = String(value.text || '').trim() || fallbackText;
+                const icon = String(value.icon || '').trim();
+                const button = normalizeEmptyStateButton(value.button);
+                return { text, icon, button };
+            };
+
+            const defaultNoResultsEmptyStateConfig = normalizeEmptyStateConfig(defaultEmptyStateInput, 'No matching items.');
+            const noItemsEmptyStateConfig = hasConfiguredEmptyState(emptyStateNoItemsInput)
+                ? normalizeEmptyStateConfig(emptyStateNoItemsInput, defaultNoResultsEmptyStateConfig.text)
+                : defaultNoResultsEmptyStateConfig;
+
+            const getTreeDepthClassName = (depth) => {
+                const normalizedDepth = Math.max(0, Number(depth) || 0);
+                const clampedDepth = Math.min(normalizedDepth, 8);
+                return `ll-listing-table__tree-depth-${clampedDepth}`;
+            };
+
+            const compareValues = (left, right, type) => {
+                if (type === 'number') {
+                    const a = Number(left);
+                    const b = Number(right);
+                    const av = Number.isFinite(a) ? a : Number.NEGATIVE_INFINITY;
+                    const bv = Number.isFinite(b) ? b : Number.NEGATIVE_INFINITY;
+                    if (av < bv) return -1;
+                    if (av > bv) return 1;
+                    return 0;
+                }
+                if (type === 'date') {
+                    const a = Date.parse(left);
+                    const b = Date.parse(right);
+                    const av = Number.isFinite(a) ? a : Number.NEGATIVE_INFINITY;
+                    const bv = Number.isFinite(b) ? b : Number.NEGATIVE_INFINITY;
+                    if (av < bv) return -1;
+                    if (av > bv) return 1;
+                    return 0;
+                }
+                return String(left || '').localeCompare(String(right || ''), undefined, { sensitivity: 'base', numeric: true });
+            };
+
+            const getFilterValueForItem = (filterConfig, item) => {
+                if (filterConfig.getValue) return filterConfig.getValue(item);
+                if (filterConfig.property) return getValueAtPath(item, filterConfig.property);
+                return undefined;
+            };
+
+            const isFilterAtDefault = (filterConfig, value) => {
+                if (filterConfig.type === 'multiple') {
+                    const current = Array.from(value || []).map((entry) => String(entry).trim()).filter(Boolean).sort();
+                    const defaults = filterConfig.defaultValues.map((entry) => String(entry).trim()).filter(Boolean).sort();
+                    if (current.length !== defaults.length) return false;
+                    for (let i = 0; i < current.length; i += 1) {
+                        if (current[i] !== defaults[i]) return false;
+                    }
+                    return true;
+                }
+                return String(value || '') === String(filterConfig.defaultValues[0] || '');
+            };
+
+            const hasActiveFilters = () => {
+                return normalizedFilters.some((filterConfig) => {
+                    const filterValue = state.filterValues[filterConfig.key];
+                    return !isFilterAtDefault(filterConfig, filterValue);
+                });
+            };
+
+            const getCurrentItems = () => internalItems.slice();
+
+            const getItemChildren = (item) => {
+                if (!nestedEnabled || !item || typeof item !== 'object') return [];
+                const children = item[nestedChildrenKey];
+                return Array.isArray(children) ? children : [];
+            };
+
+            const forEachItemDeep = (itemsInput, callback, context = {}) => {
+                if (!Array.isArray(itemsInput) || typeof callback !== 'function') return;
+                const walk = (entries, parentId, depth) => {
+                    entries.forEach((entry, index) => {
+                        const itemId = resolveNestedIdValue(entry, index, parentId);
+                        callback(entry, {
+                            itemId,
+                            parentId: parentId || '',
+                            depth
+                        });
+                        const children = getItemChildren(entry);
+                        if (children.length) {
+                            walk(children, itemId, depth + 1);
+                        }
+                    });
+                };
+                walk(itemsInput, context.parentId || '', Number(context.depth) || 0);
+            };
+
+            const commitItems = (nextItems, reason, payload) => {
+                if (!Array.isArray(nextItems)) return;
+                if (isControlled) {
+                    if (typeof onRequestChange === 'function') {
+                        onRequestChange({
+                            reason,
+                            nextItems: nextItems.slice(),
+                            payload: payload || null
+                        });
+                    }
+                    return;
+                }
+                internalItems = nextItems.slice();
+                if (typeof onItemsChange === 'function') {
+                    onItemsChange({
+                        reason,
+                        items: internalItems.slice(),
+                        payload: payload || null
+                    });
+                }
+            };
+
+            const applyTemplateOutput = (targetElement, output) => {
+                if (!targetElement) return;
+                if (output == null) return;
+                if (output && output.nodeType === 1) {
+                    targetElement.appendChild(output);
+                    return;
+                }
+                if (typeof output === 'string') {
+                    if (allowUnsafeHtml) {
+                        targetElement.innerHTML = output;
+                    } else {
+                        targetElement.textContent = output;
+                    }
+                    return;
+                }
+                targetElement.textContent = String(output);
+            };
+
+            const resolveClickHref = (item) => {
+                if (!itemClick || itemClick.type !== 'link') return '';
+                if (typeof itemClick.getHref === 'function') {
+                    return String(itemClick.getHref(item) || '').trim();
+                }
+                if (itemClick.hrefProperty) {
+                    return String(getValueAtPath(item, itemClick.hrefProperty) || '').trim();
+                }
+                return String(itemClick.href || '').trim();
+            };
+
+            const getSelectedItem = () => {
+                const selectedId = String(state.selectedItemId || '').trim();
+                if (!selectedId) return null;
+                const currentItems = getCurrentItems();
+                let selectedItem = null;
+                forEachItemDeep(currentItems, (item, context) => {
+                    if (selectedItem) return;
+                    if (context.itemId === selectedId) {
+                        selectedItem = item;
+                    }
+                });
+                if (selectedItem) return selectedItem;
+                return null;
+            };
+
+            const emitSelectionChange = (reason, event) => {
+                if (!itemClick || itemClick.type !== 'selection' || typeof itemClick.onSelectionChange !== 'function') {
+                    return;
+                }
+                itemClick.onSelectionChange({
+                    reason: String(reason || ''),
+                    event: event || null,
+                    selectedItemId: String(state.selectedItemId || ''),
+                    selectedItem: getSelectedItem(),
+                    items: getCurrentItems(),
+                    api
+                });
+            };
+
+            const setSelectionById = (nextId, context = {}) => {
+                const normalizedId = String(nextId || '').trim();
+                if (state.selectedItemId === normalizedId) return false;
+                state.selectedItemId = normalizedId;
+                emitSelectionChange(context.reason || 'selection-change', context.event || null);
+                return true;
+            };
+
+            const syncSelectionState = () => {
+                const selectedId = String(state.selectedItemId || '').trim();
+                if (!selectedId) return;
+                let selectedStillExists = false;
+                forEachItemDeep(getCurrentItems(), (_item, context) => {
+                    if (selectedStillExists) return;
+                    if (context.itemId === selectedId) {
+                        selectedStillExists = true;
+                    }
+                });
+                if (!selectedStillExists) {
+                    setSelectionById('', { reason: 'selection-removed' });
+                }
+            };
+
+            const triggerItemClick = (item, event) => {
+                if (!itemClick) return;
+                if (itemClick.type === 'link') {
+                    const href = resolveClickHref(item);
+                    if (!href) return;
+                    const target = String(itemClick.target || '').trim();
+                    if (target === '_blank') {
+                        window.open(href, '_blank', 'noopener');
+                    } else {
+                        window.location.href = href;
+                    }
+                    return;
+                }
+                if (itemClick.type === 'selection') {
+                    const selectedItemId = resolveIdValue(item, 0);
+                    const changed = setSelectionById(selectedItemId, { reason: 'item-click', event });
+                    if (changed) {
+                        applyState();
+                    }
+                    if (typeof itemClick.onSelect === 'function') {
+                        itemClick.onSelect({
+                            item,
+                            event,
+                            selectedItemId,
+                            items: getCurrentItems(),
+                            api
+                        });
+                    }
+                    return;
+                }
+                if (typeof itemClick.onClick === 'function') {
+                    itemClick.onClick({
+                        item,
+                        event,
+                        items: getCurrentItems()
+                    });
+                }
+            };
+
+            const hasItemActions = () => normalizedItemActions.length > 0;
+
+            const runWhenConnected = (element, callback) => {
+                if (!element || typeof callback !== 'function') return;
+                const run = () => {
+                    if (!element.isConnected) return;
+                    callback();
+                };
+                if (element.isConnected) {
+                    run();
+                    return;
+                }
+                if (typeof queueMicrotask === 'function') {
+                    queueMicrotask(run);
+                } else {
+                    window.setTimeout(run, 0);
+                }
+            };
+
+            const createItemActionContext = (item, viewMode, itemId, actionConfig, actionValue, event) => {
+                return {
+                    item,
+                    viewMode,
+                    action: actionConfig || null,
+                    actionValue: String(actionValue || '').trim(),
+                    event: event || null,
+                    items: getCurrentItems(),
+                    removeItem: () => {
+                        const nextItems = getCurrentItems().filter((entry, index) => resolveIdValue(entry, index) !== itemId);
+                        commitItems(nextItems, 'item-action-remove', { id: itemId, viewMode, actionValue: String(actionValue || '').trim() });
+                        applyState();
+                    },
+                    api
+                };
+            };
+
+            const buildActionEvalContext = (item, viewMode) => {
+                const filtersSnapshot = {};
+                normalizedFilters.forEach((filterConfig) => {
+                    const value = state.filterValues[filterConfig.key];
+                    filtersSnapshot[filterConfig.key] = filterConfig.type === 'multiple'
+                        ? Array.from(value || [])
+                        : String(value || '');
+                });
+                return {
+                    item,
+                    viewMode,
+                    state: {
+                        view: state.view,
+                        query: state.query,
+                        sortValue: state.sortValue,
+                        selectedItemId: String(state.selectedItemId || ''),
+                        filters: filtersSnapshot
+                    },
+                    items: getCurrentItems(),
+                    api
+                };
+            };
+
+            const shouldRenderAction = (when, evalContext) => {
+                if (typeof when !== 'function') return true;
+                try {
+                    return Boolean(when(evalContext));
+                } catch (error) {
+                    console.warn('[LlumenComponents.initListingModule] item action when() failed:', error);
+                    return false;
+                }
+            };
+
+            const createActionWrapper = (viewMode) => {
+                const actionElement = document.createElement('div');
+                const actionContentElement = document.createElement('div');
+                if (viewMode === 'grid') {
+                    actionElement.className = 'll-card__header-action';
+                    actionContentElement.className = 'll-card__header-action-content';
+                } else {
+                    actionElement.className = 'll-listing-table__action';
+                    actionContentElement.className = 'll-listing-table__action-content';
+                }
+                actionElement.appendChild(actionContentElement);
+                return { actionElement, actionContentElement };
+            };
+
+            const appendCustomActionContent = (host, output) => {
+                if (!host || output == null) return;
+                if (output && output.nodeType === 1) {
+                    host.appendChild(output);
+                    return;
+                }
+                if (typeof output === 'string') {
+                    if (allowUnsafeHtml) {
+                        host.innerHTML = output;
+                    } else {
+                        host.textContent = output;
+                    }
+                    return;
+                }
+                host.textContent = String(output);
+            };
+
+            const renderItemActions = (hostElement, item, viewMode, itemId) => {
+                if (!hostElement || !hasItemActions()) return;
+                normalizedItemActions.forEach((actionConfig, actionIndex) => {
+                    const actionEvalContext = buildActionEvalContext(item, viewMode);
+                    if (!shouldRenderAction(actionConfig.when, actionEvalContext)) return;
+                    const { actionElement, actionContentElement } = createActionWrapper(viewMode);
+                    if (actionConfig.type === 'button') {
+                        const actionButton = document.createElement('button');
+                        actionButton.type = 'button';
+                        actionButton.className = actionConfig.className || 'll-btn ll-btn--outline-default';
+                        actionButton.dataset.listingAction = 'button';
+                        actionButton.setAttribute('aria-label', actionConfig.ariaLabel || actionConfig.label || 'Action');
+                        if (actionConfig.icon) {
+                            const icon = document.createElement('span');
+                            icon.className = `material-symbols-outlined ${actionConfig.iconClassName || 'll-btn__icon'}`;
+                            icon.textContent = actionConfig.icon;
+                            actionButton.appendChild(icon);
+                        }
+                        if (actionConfig.label) {
+                            actionButton.appendChild(document.createTextNode(actionConfig.label));
+                        }
+                        actionButton.addEventListener('click', (event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            const actionContext = createItemActionContext(item, viewMode, itemId, actionConfig, actionConfig.key, event);
+                            if (typeof actionConfig.onClick === 'function') {
+                                actionConfig.onClick(actionContext);
+                            }
+                            if (typeof itemActions.onAction === 'function') {
+                                itemActions.onAction(actionContext);
+                            }
+                        });
+                        actionContentElement.appendChild(actionButton);
+                    } else if (actionConfig.type === 'custom') {
+                        const customContext = createItemActionContext(item, viewMode, itemId, actionConfig, actionConfig.key, null);
+                        appendCustomActionContent(actionContentElement, actionConfig.render(customContext));
+                    } else {
+                        const visibleOptions = actionConfig.options.filter((option) => shouldRenderAction(option.when, actionEvalContext));
+                        if (!visibleOptions.length) return;
+                        const actionId = `${moduleId}-${viewMode}-${itemId}-${actionConfig.key || actionIndex}-${Math.floor(Math.random() * 100000)}`;
+                        const triggerButton = document.createElement('button');
+                        triggerButton.id = `${actionId}-btn`;
+                        triggerButton.type = 'button';
+                        const baseTriggerClassName = String(actionConfig.triggerClassName || 'll-icon-btn ll-icon-btn--circle').trim();
+                        triggerButton.className = /\bll-icon-btn--outline\b/.test(baseTriggerClassName)
+                            ? baseTriggerClassName
+                            : `${baseTriggerClassName} ll-icon-btn--outline`;
+                        triggerButton.dataset.listingAction = 'dropdown';
+                        triggerButton.setAttribute('aria-label', actionConfig.triggerAriaLabel || 'Item actions');
+                        if (actionConfig.triggerIcon) {
+                            const icon = document.createElement('span');
+                            icon.className = 'material-symbols-outlined ll-icon-btn__icon';
+                            icon.textContent = actionConfig.triggerIcon;
+                            triggerButton.appendChild(icon);
+                        } else if (actionConfig.triggerLabel) {
+                            triggerButton.textContent = actionConfig.triggerLabel;
+                        }
+                        const menu = document.createElement('div');
+                        menu.id = `${actionId}-menu`;
+                        menu.className = 'hidden';
+                        visibleOptions.forEach((option) => {
+                            const optionButton = document.createElement('button');
+                            optionButton.type = 'button';
+                            optionButton.className = `ll-dropdown__item${option.danger ? ' ll-text-negative' : ''}`;
+                            optionButton.dataset.value = option.value;
+                            optionButton.textContent = option.label;
+                            menu.appendChild(optionButton);
+                        });
+                        actionContentElement.appendChild(triggerButton);
+                        actionContentElement.appendChild(menu);
+                        runWhenConnected(triggerButton, () => {
+                            initializePortaledDropdown({
+                                buttonId: triggerButton.id,
+                                menuId: menu.id,
+                                datasetFlag: toDatasetKey(`${moduleDatasetKey}-action-${actionId}`, `${moduleDatasetKey}ActionBound`),
+                                align: actionConfig.align || 'right',
+                                matchTriggerWidth: Boolean(actionConfig.matchTriggerWidth),
+                                minMenuWidthPx: actionConfig.minMenuWidthPx || 180,
+                                onValueChange: (detail) => {
+                                    const actionValue = String(detail && detail.value != null ? detail.value : '').trim();
+                                    const selectedOption = visibleOptions.find((option) => option.value === actionValue) || null;
+                                    const actionContext = createItemActionContext(item, viewMode, itemId, actionConfig, actionValue, null);
+                                    if (selectedOption && typeof selectedOption.onSelect === 'function') {
+                                        selectedOption.onSelect(actionContext);
+                                    }
+                                    if (typeof actionConfig.onSelect === 'function') {
+                                        actionConfig.onSelect({
+                                            ...actionContext,
+                                            option: selectedOption
+                                        });
+                                    }
+                                    if (typeof itemActions.onAction === 'function') {
+                                        itemActions.onAction({
+                                            ...actionContext,
+                                            option: selectedOption
+                                        });
+                                    }
+                                }
+                            });
+                        });
+                    }
+                    hostElement.appendChild(actionElement);
+                });
+            };
+
+            const resolveNestedTriggerMode = (item, context = {}) => {
+                if (!nestedEnabled) return 'arrow';
+                if (typeof (nested && nested.getTriggerMode) === 'function') {
+                    try {
+                        const computedMode = String(nested.getTriggerMode({
+                            item,
+                            depth: Number(context.depth) || 0,
+                            parentId: String(context.parentId || ''),
+                            hasChildren: Boolean(context.hasChildren),
+                            viewMode: context.viewMode || 'list',
+                            state: {
+                                view: state.view,
+                                query: state.query,
+                                sortValue: state.sortValue
+                            }
+                        }) || '').trim().toLowerCase();
+                        if (computedMode === 'block' || computedMode === 'arrow') {
+                            return computedMode;
+                        }
+                    } catch (error) {
+                        console.warn('[LlumenComponents.initListingModule] nested.getTriggerMode() failed:', error);
+                    }
+                }
+                return nestedDefaultTriggerMode;
+            };
+
+            const buildNestedAddContext = (parentItem, context = {}) => {
+                return {
+                    parentItem,
+                    depth: Number(context.depth) || 0,
+                    parentId: String(context.parentId || ''),
+                    itemId: String(context.itemId || ''),
+                    viewMode: context.viewMode || 'list',
+                    event: context.event || null,
+                    state: {
+                        view: state.view,
+                        query: state.query,
+                        sortValue: state.sortValue,
+                        selectedItemId: String(state.selectedItemId || '')
+                    },
+                    items: getCurrentItems(),
+                    api
+                };
+            };
+
+            const canRenderNestedAddAction = (parentItem, context = {}) => {
+                if (!nestedAddActionsEnabled) return false;
+                if (typeof nestedCanAddItem !== 'function') return true;
+                try {
+                    return Boolean(nestedCanAddItem(buildNestedAddContext(parentItem, context)));
+                } catch (error) {
+                    console.warn('[LlumenComponents.initListingModule] nested.canAddItem() failed:', error);
+                    return false;
+                }
+            };
+
+            const resolveNestedAddButtonLabel = (parentItem, context = {}) => {
+                if (typeof nestedAddItemButtonLabel === 'function') {
+                    try {
+                        const computed = nestedAddItemButtonLabel(buildNestedAddContext(parentItem, context));
+                        return String(computed || 'Add Item').trim() || 'Add Item';
+                    } catch (error) {
+                        console.warn('[LlumenComponents.initListingModule] nested.addItemButtonLabel() failed:', error);
+                        return 'Add Item';
+                    }
+                }
+                return String(nestedAddItemButtonLabel || 'Add Item').trim() || 'Add Item';
+            };
+
+            const createNestedAddButton = (rowEntry, labelText) => {
+                const addButton = document.createElement('button');
+                addButton.type = 'button';
+                addButton.className = nestedAddItemButtonClassName || 'll-btn ll-btn--sm ll-btn--outline-default';
+                addButton.dataset.listingAction = 'nested-add-item';
+
+                const icon = document.createElement('span');
+                icon.className = 'material-symbols-outlined ll-btn__icon';
+                icon.textContent = 'add';
+                addButton.appendChild(icon);
+                addButton.appendChild(document.createTextNode(String(labelText || 'Add Item')));
+
+                addButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!nestedOnAddItemClick) return;
+                    try {
+                        nestedOnAddItemClick(buildNestedAddContext(rowEntry.parentItem || null, {
+                            depth: Math.max(0, Number(rowEntry.depth || 0) - 1),
+                            parentId: String(rowEntry.parentId || ''),
+                            itemId: String(rowEntry.parentId || ''),
+                            viewMode: 'list',
+                            event
+                        }));
+                    } catch (error) {
+                        console.warn('[LlumenComponents.initListingModule] nested.onAddItemClick() failed:', error);
+                    }
+                });
+                return addButton;
+            };
+
+            const isExpanded = (itemId) => state.expandedItemIds.has(String(itemId || '').trim());
+
+            const setExpanded = (itemId, shouldExpand) => {
+                if (!nestedEnabled) return false;
+                const normalizedId = String(itemId || '').trim();
+                if (!normalizedId) return false;
+                const nextExpand = Boolean(shouldExpand);
+                const alreadyExpanded = state.expandedItemIds.has(normalizedId);
+                if (alreadyExpanded === nextExpand) return false;
+                if (nextExpand) {
+                    state.expandedItemIds.add(normalizedId);
+                } else {
+                    state.expandedItemIds.delete(normalizedId);
+                }
+                return true;
+            };
+
+            const toggleExpanded = (itemId) => {
+                if (!nestedEnabled) return false;
+                const normalizedId = String(itemId || '').trim();
+                if (!normalizedId) return false;
+                if (state.expandedItemIds.has(normalizedId)) {
+                    state.expandedItemIds.delete(normalizedId);
+                    return true;
+                }
+                state.expandedItemIds.add(normalizedId);
+                return true;
+            };
+
+            const animateRows = (rows, expand, onComplete) => {
+                if (!nestedAnimate || !rows.length) {
+                    if (typeof onComplete === 'function') onComplete();
+                    return;
+                }
+                const runRowAnimation = (row) => {
+                    return new Promise((resolve) => {
+                        const cellShells = Array.from(row.querySelectorAll('.ll-listing-table__cell-shell'));
+                        if (!cellShells.length) {
+                            resolve();
+                            return;
+                        }
+                        const durationMs = Math.max(120, nestedAnimationDurationMs);
+                        const easing = 'cubic-bezier(0.22, 1, 0.36, 1)';
+                        row.classList.add('ll-listing-table__row--animating');
+                        let finished = false;
+                        let completedCount = 0;
+                        const finish = () => {
+                            if (finished) return;
+                            finished = true;
+                            row.classList.remove('ll-listing-table__row--animating');
+                            row.style.opacity = '';
+                            row.style.transitionProperty = '';
+                            row.style.transitionDuration = '';
+                            row.style.transitionTimingFunction = '';
+                            row.style.willChange = '';
+                            cellShells.forEach((shell) => {
+                                shell.removeEventListener('transitionend', onShellTransitionEnd);
+                                shell.style.height = '';
+                                shell.style.paddingTop = '';
+                                shell.style.paddingBottom = '';
+                                shell.style.opacity = '';
+                                shell.style.transitionProperty = '';
+                                shell.style.transitionDuration = '';
+                                shell.style.transitionTimingFunction = '';
+                                shell.style.willChange = '';
+                            });
+                            resolve();
+                        };
+                        const fallbackTimer = window.setTimeout(finish, durationMs + 120);
+                        row.style.transitionProperty = 'opacity';
+                        row.style.transitionDuration = `${durationMs}ms`;
+                        row.style.transitionTimingFunction = easing;
+                        row.style.willChange = 'opacity';
+                        const completedShells = new WeakSet();
+                        const onShellTransitionEnd = (event) => {
+                            if (event.propertyName !== 'height') return;
+                            const shell = event.currentTarget;
+                            if (!shell || completedShells.has(shell)) return;
+                            completedShells.add(shell);
+                            completedCount += 1;
+                            if (completedCount >= cellShells.length) {
+                                window.clearTimeout(fallbackTimer);
+                                finish();
+                            }
+                        };
+                        const shellMetrics = cellShells.map((shell) => {
+                            const computed = window.getComputedStyle(shell);
+                            return {
+                                shell,
+                                height: shell.scrollHeight,
+                                paddingTop: computed.paddingTop,
+                                paddingBottom: computed.paddingBottom
+                            };
+                        });
+                        cellShells.forEach((shell) => {
+                            const metric = shellMetrics.find((entry) => entry.shell === shell);
+                            const targetHeight = metric ? metric.height : shell.scrollHeight;
+                            const targetPaddingTop = metric ? metric.paddingTop : '0px';
+                            const targetPaddingBottom = metric ? metric.paddingBottom : '0px';
+                            shell.style.transitionProperty = 'height, padding-top, padding-bottom, opacity';
+                            shell.style.transitionDuration = `${durationMs}ms`;
+                            shell.style.transitionTimingFunction = easing;
+                            shell.style.willChange = 'height, padding-top, padding-bottom, opacity';
+                            shell.removeEventListener('transitionend', onShellTransitionEnd);
+                            shell.addEventListener('transitionend', onShellTransitionEnd);
+                            if (expand) {
+                                row.style.opacity = '0';
+                                shell.style.height = '0px';
+                                shell.style.paddingTop = '0px';
+                                shell.style.paddingBottom = '0px';
+                                shell.style.opacity = '0';
+                            } else {
+                                row.style.opacity = '1';
+                                shell.style.height = `${targetHeight}px`;
+                                shell.style.paddingTop = targetPaddingTop;
+                                shell.style.paddingBottom = targetPaddingBottom;
+                                shell.style.opacity = '1';
+                            }
+                        });
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                cellShells.forEach((shell) => {
+                                    const metric = shellMetrics.find((entry) => entry.shell === shell);
+                                    const targetHeight = metric ? metric.height : shell.scrollHeight;
+                                    const targetPaddingTop = metric ? metric.paddingTop : '0px';
+                                    const targetPaddingBottom = metric ? metric.paddingBottom : '0px';
+                                    if (expand) {
+                                        row.style.opacity = '1';
+                                        shell.style.height = `${targetHeight}px`;
+                                        shell.style.paddingTop = targetPaddingTop;
+                                        shell.style.paddingBottom = targetPaddingBottom;
+                                        shell.style.opacity = '1';
+                                    } else {
+                                        row.style.opacity = '0';
+                                        shell.style.height = '0px';
+                                        shell.style.paddingTop = '0px';
+                                        shell.style.paddingBottom = '0px';
+                                        shell.style.opacity = '0';
+                                    }
+                                });
+                            });
+                        });
+                    });
+                };
+                Promise.all(rows.map((row) => runRowAnimation(row))).then(() => {
+                    if (typeof onComplete === 'function') onComplete();
+                });
+            };
+
+            const isNestedPathVisible = (path) => {
+                const normalizedPath = String(path || '').trim();
+                if (!normalizedPath) return true;
+                const segments = normalizedPath.split('/').filter(Boolean);
+                if (segments.length <= 1) return true;
+                for (let index = 0; index < segments.length - 1; index += 1) {
+                    if (!state.expandedItemIds.has(segments[index])) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+
+            const syncNestedToggleUi = () => {
+                if (!tableHost) return;
+                const toggleButtons = Array.from(tableHost.querySelectorAll('.ll-listing-table__tree-toggle'));
+                toggleButtons.forEach((button) => {
+                    const row = button.closest('tr[data-listing-item-id]');
+                    if (!row) return;
+                    const itemId = String(row.dataset.listingItemId || '').trim();
+                    const expanded = isExpanded(itemId);
+                    button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                    button.setAttribute('aria-label', expanded ? 'Collapse' : 'Expand');
+                    const icon = button.querySelector('.ll-listing-table__tree-toggle-icon');
+                    if (icon) {
+                        icon.classList.toggle('ll-active', expanded);
+                    }
+                });
+            };
+
+            const syncNestedRowsVisibility = (options = {}) => {
+                if (!nestedEnabled || !tableHost) return;
+                const { animate = false, direction = '' } = options;
+                const nestedRows = Array.from(tableHost.querySelectorAll('tbody tr[data-nested-path]'));
+                if (!nestedRows.length) return;
+                const toShow = [];
+                const toHide = [];
+                nestedRows.forEach((row) => {
+                    const path = String(row.dataset.nestedPath || '').trim();
+                    const nextVisible = isNestedPathVisible(path);
+                    const currentVisible = !row.classList.contains('hidden');
+                    if (nextVisible && !currentVisible) {
+                        toShow.push(row);
+                    } else if (!nextVisible && currentVisible) {
+                        toHide.push(row);
+                    }
+                });
+                if (!animate) {
+                    toShow.forEach((row) => row.classList.remove('hidden'));
+                    toHide.forEach((row) => row.classList.add('hidden'));
+                    return;
+                }
+                if (direction === 'collapse' && toHide.length) {
+                    animateRows(toHide, false, () => {
+                        toHide.forEach((row) => {
+                            const path = String(row.dataset.nestedPath || '').trim();
+                            if (!isNestedPathVisible(path)) {
+                                row.classList.add('hidden');
+                            } else {
+                                row.classList.remove('hidden');
+                            }
+                        });
+                    });
+                    return;
+                }
+                if (direction === 'expand' && toShow.length) {
+                    toShow.forEach((row) => row.classList.remove('hidden'));
+                    animateRows(toShow, true);
+                    return;
+                }
+                toShow.forEach((row) => row.classList.remove('hidden'));
+                toHide.forEach((row) => row.classList.add('hidden'));
+            };
+
+            const ensureEmptyStateHost = () => {
+                const existingHost = runtime.emptyStateHost && runtime.emptyStateHost.isConnected
+                    ? runtime.emptyStateHost
+                    : rootEl.querySelector(`[data-ll-listing-empty-host="${moduleId}"]`);
+                if (existingHost) {
+                    runtime.emptyStateHost = existingHost;
+                    return existingHost;
+                }
+                const host = document.createElement('div');
+                host.className = 'll-empty hidden';
+                host.dataset.llListingEmptyHost = moduleId;
+                rootEl.appendChild(host);
+                runtime.emptyStateHost = host;
+                return host;
+            };
+
+            const setViewHostsEmptyState = (isEmpty) => {
+                if (tableHost) {
+                    tableHost.classList.toggle('ll-listing-module__view-host--empty', isEmpty);
+                }
+                if (gridHost) {
+                    gridHost.classList.toggle('ll-listing-module__view-host--empty', isEmpty);
+                }
+            };
+
+            const setHeaderEmptyDataState = (isSourceEmpty) => {
+                if (runtime.searchInputShell) {
+                    runtime.searchInputShell.classList.toggle('hidden', isSourceEmpty);
+                }
+                if (runtime.headerToolbar) {
+                    runtime.headerToolbar.classList.toggle('hidden', isSourceEmpty);
+                }
+            };
+
+            const syncSharedEmptyState = ({ isVisible = false, hasSourceItems = false } = {}) => {
+                const emptyHost = ensureEmptyStateHost();
+                if (!emptyHost) return;
+                emptyHost.classList.toggle('hidden', !isVisible);
+                emptyHost.innerHTML = '';
+                if (isVisible) {
+                    const emptyStateConfig = hasSourceItems
+                        ? defaultNoResultsEmptyStateConfig
+                        : noItemsEmptyStateConfig;
+                    const content = document.createElement('div');
+                    content.className = 'll-empty__content';
+                    if (emptyStateConfig.icon) {
+                        const icon = document.createElement('span');
+                        icon.className = 'material-symbols-outlined ll-empty__icon';
+                        icon.textContent = emptyStateConfig.icon;
+                        content.appendChild(icon);
+                    }
+                    const text = document.createElement('p');
+                    text.className = 'll-empty__text';
+                    text.textContent = emptyStateConfig.text;
+                    content.appendChild(text);
+                    if (emptyStateConfig.button) {
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = emptyStateConfig.button.className;
+                        button.setAttribute('aria-label', emptyStateConfig.button.ariaLabel);
+                        if (emptyStateConfig.button.icon) {
+                            const iconEl = document.createElement('span');
+                            iconEl.className = 'material-symbols-outlined ll-btn__icon';
+                            iconEl.textContent = emptyStateConfig.button.icon;
+                            button.appendChild(iconEl);
+                        }
+                        button.appendChild(document.createTextNode(emptyStateConfig.button.label));
+                        if (emptyStateConfig.button.onClick) {
+                            button.addEventListener('click', (event) => {
+                                emptyStateConfig.button.onClick({
+                                    event,
+                                    reason: hasSourceItems ? 'no-results' : 'no-items',
+                                    api
+                                });
+                            });
+                        }
+                        content.appendChild(button);
+                    }
+                    emptyHost.appendChild(content);
+                }
+                setViewHostsEmptyState(isVisible);
+            };
+
+            const renderListTable = (visibleItems) => {
+                if (!tableHost) return;
+                const columns = Array.isArray(table.columns) ? table.columns : [];
+                const hasExplicitMainColumn = columns.some((column) => Boolean(column && column.isMain));
+                const isMainColumn = (column, columnIndex) => Boolean(column && column.isMain) || (!hasExplicitMainColumn && columnIndex === 0);
+                const addClassNameTokens = (element, className) => {
+                    if (!element || !className) return;
+                    String(className)
+                        .split(/\s+/)
+                        .map((token) => token.trim())
+                        .filter(Boolean)
+                        .forEach((token) => element.classList.add(token));
+                };
+                tableHost.innerHTML = '';
+                const tableEl = document.createElement('table');
+                tableEl.className = 'll-listing-table';
+                if (nestedEnabled) {
+                    tableEl.classList.add('ll-listing-table--nested');
+                }
+                const thead = document.createElement('thead');
+                const headRow = document.createElement('tr');
+                columns.forEach((column, columnIndex) => {
+                    const headingCell = document.createElement('th');
+                    if (isMainColumn(column, columnIndex)) {
+                        headingCell.classList.add('ll-listing-table__column-main');
+                    }
+                    addClassNameTokens(headingCell, column && column.headerClassName);
+                    headingCell.textContent = String(column && column.heading ? column.heading : column && column.property ? column.property : 'Column');
+                    headRow.appendChild(headingCell);
+                });
+                if (hasItemActions()) {
+                    const actionHeadingCell = document.createElement('th');
+                    actionHeadingCell.textContent = '';
+                    headRow.appendChild(actionHeadingCell);
+                }
+                thead.appendChild(headRow);
+                tableEl.appendChild(thead);
+                const tbody = document.createElement('tbody');
+
+                visibleItems.forEach((entry, index) => {
+                    const rowEntry = nestedEnabled && entry && typeof entry === 'object' && Object.prototype.hasOwnProperty.call(entry, 'item')
+                        ? entry
+                        : null;
+                    const item = rowEntry ? rowEntry.item : entry;
+                    const isEmptyPlaceholderRow = Boolean(rowEntry && rowEntry.isEmptyPlaceholder);
+                    const isAddActionRow = Boolean(rowEntry && rowEntry.isAddActionRow);
+                    const isSpecialNestedRow = isEmptyPlaceholderRow || isAddActionRow;
+                    const row = document.createElement('tr');
+                    const itemId = rowEntry ? String(rowEntry.itemId || resolveIdValue(item, index)) : resolveIdValue(item, index);
+                    const isSelected = itemClick && itemClick.type === 'selection' && itemId === String(state.selectedItemId || '');
+                    if (isEmptyPlaceholderRow) {
+                        row.className = 'll-listing-table__row--nested-empty';
+                    } else if (isAddActionRow) {
+                        row.className = 'll-listing-table__row--nested-add';
+                    } else {
+                        row.className = `ll-listing-table__row--clickable${isSelected ? ' ll-active' : ''}`;
+                        if (nestedEnabled && rowEntry && rowEntry.canExpand) {
+                            row.classList.add(rowEntry.triggerMode === 'block'
+                                ? 'll-listing-table__row--tree-block-trigger'
+                                : 'll-listing-table__row--tree-arrow-trigger');
+                        }
+                    }
+                    row.dataset.listingItemId = itemId;
+                    if (rowEntry && rowEntry.isVisible === false) {
+                        row.classList.add('hidden');
+                    }
+                    if (rowEntry && rowEntry.path) {
+                        row.dataset.nestedPath = String(rowEntry.path);
+                    }
+                    if (rowEntry && rowEntry.parentPath) {
+                        row.dataset.nestedParentPath = String(rowEntry.parentPath);
+                    }
+                    if (!isSpecialNestedRow && itemClick && itemClick.type === 'selection') {
+                        row.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+                    }
+                    if (isSpecialNestedRow) {
+                        const specialCell = document.createElement('td');
+                        specialCell.className = 'll-listing-table__cell-colspan';
+                        specialCell.colSpan = columns.length + (hasItemActions() ? 1 : 0);
+                        const specialCellShell = document.createElement('div');
+                        specialCellShell.className = 'll-listing-table__cell-shell';
+                        const treeCell = document.createElement('div');
+                        treeCell.className = 'll-listing-table__tree-cell';
+                        treeCell.classList.add(getTreeDepthClassName(Math.max(0, Number(rowEntry.depth) || 0)));
+                        const treeContent = document.createElement('div');
+                        treeContent.className = 'll-listing-table__tree-content';
+                        const specialContent = document.createElement('div');
+                        specialContent.className = isEmptyPlaceholderRow
+                            ? 'll-listing-table__nested-empty'
+                            : 'll-listing-table__nested-add';
+                        if (isEmptyPlaceholderRow) {
+                            const emptyLabel = document.createElement('span');
+                            emptyLabel.className = 'll-listing-table__tree-empty';
+                            emptyLabel.textContent = String(rowEntry.emptyLabel || nestedEmptyChildrenLabel);
+                            specialContent.appendChild(emptyLabel);
+                            if (rowEntry.canAddItem) {
+                                specialContent.appendChild(createNestedAddButton(rowEntry, rowEntry.addButtonLabel || 'Add Item'));
+                            }
+                        } else if (isAddActionRow) {
+                            specialContent.appendChild(createNestedAddButton(rowEntry, rowEntry.addButtonLabel || 'Add Item'));
+                        }
+                        treeContent.appendChild(specialContent);
+                        treeCell.appendChild(treeContent);
+                        specialCellShell.appendChild(treeCell);
+                        specialCell.appendChild(specialCellShell);
+                        row.appendChild(specialCell);
+                        tbody.appendChild(row);
+                        return;
+                    }
+                    columns.forEach((column, columnIndex) => {
+                        const cell = document.createElement('td');
+                        const cellShell = document.createElement('div');
+                        cellShell.className = 'll-listing-table__cell-shell';
+                        cell.appendChild(cellShell);
+                        const value = column && column.property ? getValueAtPath(item, column.property) : undefined;
+                        const isMain = isMainColumn(column, columnIndex);
+                        if (isMainColumn(column, columnIndex)) {
+                            cell.classList.add('ll-listing-table__cell-main');
+                            cell.classList.add('ll-listing-table__column-main');
+                        }
+                        addClassNameTokens(cell, column && column.cellClassName);
+                        let contentTarget = cellShell;
+                        if (nestedEnabled && rowEntry && isMain) {
+                            const treeCell = document.createElement('div');
+                            treeCell.className = 'll-listing-table__tree-cell';
+                            treeCell.classList.add(getTreeDepthClassName(Math.max(0, Number(rowEntry.depth) || 0)));
+                            if (!isEmptyPlaceholderRow && rowEntry.canExpand) {
+                                const toggleButton = document.createElement('button');
+                                toggleButton.type = 'button';
+                                toggleButton.className = 'll-listing-table__tree-toggle';
+                                toggleButton.dataset.listingAction = 'tree-toggle';
+                                toggleButton.dataset.treeTriggerMode = rowEntry.triggerMode === 'block' ? 'block' : 'arrow';
+                                toggleButton.setAttribute('aria-label', isExpanded(itemId) ? 'Collapse' : 'Expand');
+                                toggleButton.setAttribute('aria-expanded', isExpanded(itemId) ? 'true' : 'false');
+                                const toggleIcon = document.createElement('span');
+                                toggleIcon.className = `material-symbols-outlined ll-tree__icon ll-listing-table__tree-toggle-icon${isExpanded(itemId) ? ' ll-active' : ''}`;
+                                toggleIcon.textContent = 'chevron_right';
+                                toggleButton.appendChild(toggleIcon);
+                                toggleButton.addEventListener('click', (event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    const currentlyExpanded = isExpanded(itemId);
+                                    if (!toggleExpanded(itemId)) return;
+                                    syncNestedToggleUi();
+                                    syncNestedRowsVisibility({
+                                        animate: true,
+                                        direction: currentlyExpanded ? 'collapse' : 'expand'
+                                    });
+                                });
+                                treeCell.appendChild(toggleButton);
+                            }
+                            const treeContent = document.createElement('div');
+                            treeContent.className = 'll-listing-table__tree-content';
+                            treeCell.appendChild(treeContent);
+                            contentTarget.appendChild(treeCell);
+                            contentTarget = treeContent;
+                        }
+                        if (isEmptyPlaceholderRow) {
+                            if (isMain) {
+                                contentTarget.classList.add('ll-listing-table__tree-empty');
+                                contentTarget.textContent = String(rowEntry.emptyLabel || nestedEmptyChildrenLabel);
+                            } else {
+                                contentTarget.textContent = '';
+                            }
+                        } else if (column && typeof column.renderCell === 'function') {
+                            const output = column.renderCell(item, value, {
+                                rowIndex: index,
+                                column,
+                                escapeHtml
+                            });
+                            applyTemplateOutput(contentTarget, output);
+                        } else {
+                            if (isMainColumn(column, columnIndex) && itemClick && itemClick.type === 'link') {
+                                const href = resolveClickHref(item);
+                                if (href) {
+                                    const anchor = document.createElement('a');
+                                    anchor.href = href;
+                                    anchor.className = 'll-listing-table__link';
+                                    anchor.textContent = String(value == null ? '' : value);
+                                    contentTarget.appendChild(anchor);
+                                } else {
+                                    contentTarget.textContent = String(value == null ? '' : value);
+                                }
+                            } else {
+                                contentTarget.textContent = String(value == null ? '' : value);
+                            }
+                        }
+                        row.appendChild(cell);
+                    });
+                    if (!isEmptyPlaceholderRow && hasItemActions()) {
+                        const actionCell = document.createElement('td');
+                        actionCell.className = 'll-listing-table__cell-actions';
+                        const actionCellShell = document.createElement('div');
+                        actionCellShell.className = 'll-listing-table__cell-shell';
+                        const actionsRoot = document.createElement('div');
+                        actionsRoot.className = 'll-listing-table__actions';
+                        renderItemActions(actionsRoot, item, 'list', itemId);
+                        actionCellShell.appendChild(actionsRoot);
+                        actionCell.appendChild(actionCellShell);
+                        row.appendChild(actionCell);
+                    }
+                    row.addEventListener('click', (event) => {
+                        if (isSpecialNestedRow) return;
+                        if (isInteractiveTarget(event)) return;
+                        if (nestedEnabled && rowEntry && rowEntry.canExpand && rowEntry.triggerMode === 'block') {
+                            const currentlyExpanded = isExpanded(itemId);
+                            if (!toggleExpanded(itemId)) return;
+                            syncNestedToggleUi();
+                            syncNestedRowsVisibility({
+                                animate: true,
+                                direction: currentlyExpanded ? 'collapse' : 'expand'
+                            });
+                            return;
+                        }
+                        triggerItemClick(item, event);
+                    });
+                    row.addEventListener('keydown', (event) => {
+                        if (isSpecialNestedRow) return;
+                        if (event.key !== 'Enter' && event.key !== ' ') return;
+                        if (isInteractiveTarget(event)) return;
+                        event.preventDefault();
+                        if (nestedEnabled && rowEntry && rowEntry.canExpand && rowEntry.triggerMode === 'block') {
+                            const currentlyExpanded = isExpanded(itemId);
+                            if (!toggleExpanded(itemId)) return;
+                            syncNestedToggleUi();
+                            syncNestedRowsVisibility({
+                                animate: true,
+                                direction: currentlyExpanded ? 'collapse' : 'expand'
+                            });
+                            return;
+                        }
+                        triggerItemClick(item, event);
+                    });
+                    if (!isSpecialNestedRow) {
+                        row.tabIndex = 0;
+                    }
+                    tbody.appendChild(row);
+                });
+
+                tableEl.appendChild(tbody);
+                tableHost.appendChild(tableEl);
+            };
+
+            const getGridClassNames = () => {
+                const columns = Number(state.gridColumns || defaultGridColumns) === 6 ? 'll-grid--cols-6' : 'll-grid--cols-4';
+                const gap = Number(state.gridGap || defaultGridGap) === 4 ? 'll-grid--gap-4' : 'll-grid--gap-6';
+                return `ll-grid ${columns} ${gap}`;
+            };
+
+            const renderGrid = (visibleItems) => {
+                if (!gridEnabled || !gridHost) return;
+                gridHost.innerHTML = '';
+                if (state.view !== 'grid') {
+                    gridHost.classList.add('hidden');
+                    return;
+                }
+                gridHost.classList.remove('hidden');
+                const gridContainer = document.createElement('div');
+                gridContainer.className = 'll-listing-module-grid-container';
+                const gridWrap = document.createElement('div');
+                gridWrap.className = getGridClassNames();
+                visibleItems.forEach((item, index) => {
+                    const itemId = resolveIdValue(item, index);
+                    const isSelected = itemClick && itemClick.type === 'selection' && itemId === String(state.selectedItemId || '');
+                    const cardShell = document.createElement('div');
+                    cardShell.className = `ll-listing-grid-item ll-card ll-card--linkable${isSelected ? ' ll-active' : ''}`;
+                    const content = (grid && typeof grid.renderCard === 'function')
+                        ? grid.renderCard(item, {
+                            index,
+                            escapeHtml
+                        })
+                        : `<div class="ll-card__content"><div class="ll-card__content-heading">${escapeHtml(String(item && item.title ? item.title : 'Item'))}</div></div>`;
+                    applyTemplateOutput(cardShell, content);
+                    if (hasItemActions()) {
+                        const gridActionsHostSelector = gridItemActionsHostSelector || '.ll-card__header-actions';
+                        const actionHost = cardShell.querySelector(gridActionsHostSelector);
+                        if (actionHost) {
+                            renderItemActions(actionHost, item, 'grid', itemId);
+                        } else {
+                            console.warn('[LlumenComponents.initListingModule] grid actions host was not found in rendered card:', gridActionsHostSelector);
+                        }
+                    }
+                    if (itemClick) {
+                        if (itemClick.type === 'link') {
+                            const href = resolveClickHref(item);
+                            if (href) {
+                                const overlayLink = document.createElement('a');
+                                overlayLink.href = href;
+                                overlayLink.className = 'll-card__link-overlay';
+                                overlayLink.setAttribute('aria-label', `Open item ${resolveIdValue(item, index)}`);
+                                cardShell.appendChild(overlayLink);
+                            }
+                        } else {
+                            const overlayButton = document.createElement('button');
+                            overlayButton.type = 'button';
+                            overlayButton.className = 'll-card__link-overlay';
+                            overlayButton.setAttribute('aria-label', itemClick.type === 'selection'
+                                ? `Select item ${itemId}`
+                                : `Open item ${itemId}`);
+                            overlayButton.addEventListener('click', (event) => {
+                                triggerItemClick(item, event);
+                            });
+                            cardShell.appendChild(overlayButton);
+                        }
+                    }
+                    gridWrap.appendChild(cardShell);
+                });
+                gridContainer.appendChild(gridWrap);
+                gridHost.appendChild(gridContainer);
+            };
+
+            const matchesSearch = (item) => {
+                const query = String(state.query || '').trim().toLowerCase();
+                if (!query) return true;
+                const searchFields = Array.isArray(search.fields) ? search.fields.map((entry) => String(entry || '').trim()).filter(Boolean) : [];
+                if (typeof search.getText === 'function') {
+                    return String(search.getText(item) || '').toLowerCase().includes(query);
+                }
+                if (searchFields.length) {
+                    return searchFields.some((fieldPath) => String(getValueAtPath(item, fieldPath) || '').toLowerCase().includes(query));
+                }
+                return JSON.stringify(item || {}).toLowerCase().includes(query);
+            };
+
+            const applySearch = (itemsInput) => {
+                return itemsInput.filter((item) => matchesSearch(item));
+            };
+
+            const matchesFilters = (item) => {
+                for (let i = 0; i < normalizedFilters.length; i += 1) {
+                    const filterConfig = normalizedFilters[i];
+                    const filterValue = state.filterValues[filterConfig.key];
+                    if (filterConfig.type === 'multiple') {
+                        const values = Array.from(filterValue || []).filter(Boolean);
+                        if (!values.length) continue;
+                        if (filterConfig.predicate) {
+                            if (!filterConfig.predicate(item, values, state)) return false;
+                            continue;
+                        }
+                        const actualValue = getFilterValueForItem(filterConfig, item);
+                        const actualArray = Array.isArray(actualValue) ? actualValue.map((entry) => String(entry || '').trim()) : [String(actualValue || '').trim()];
+                        const matched = values.some((entry) => actualArray.includes(entry));
+                        if (!matched) return false;
+                        continue;
+                    }
+                    const value = String(filterValue || '').trim();
+                    if (!value) continue;
+                    if (filterConfig.predicate) {
+                        if (!filterConfig.predicate(item, value, state)) return false;
+                        continue;
+                    }
+                    const actualValue = String(getFilterValueForItem(filterConfig, item) || '').trim();
+                    if (actualValue !== value) return false;
+                }
+                return true;
+            };
+
+            const applyFilters = (itemsInput) => {
+                return itemsInput.filter((item) => matchesFilters(item));
+            };
+
+            const applySorting = (itemsInput) => {
+                if (!normalizedSorts.length || !state.sortValue || state.sortValue === DEFAULT_SORT_VALUE) return itemsInput;
+                const selectedSort = normalizedSorts.find((entry) => entry.value === state.sortValue) || normalizedSorts[0];
+                if (!selectedSort) return itemsInput;
+                const direction = selectedSort.order === 'desc' ? -1 : 1;
+                return itemsInput
+                    .map((item, index) => ({ item, index }))
+                    .sort((left, right) => {
+                        const leftValue = selectedSort.getValue
+                            ? selectedSort.getValue(left.item)
+                            : getValueAtPath(left.item, selectedSort.property);
+                        const rightValue = selectedSort.getValue
+                            ? selectedSort.getValue(right.item)
+                            : getValueAtPath(right.item, selectedSort.property);
+                        const compared = compareValues(leftValue, rightValue, selectedSort.propertyType) * direction;
+                        if (compared !== 0) return compared;
+                        return left.index - right.index;
+                    })
+                    .map((entry) => entry.item);
+            };
+
+            const hasActiveSearch = () => Boolean(String(state.query || '').trim());
+
+            const syncExpandedState = () => {
+                if (!nestedEnabled) return;
+                const validIds = new Set();
+                forEachItemDeep(getCurrentItems(), (_item, context) => {
+                    validIds.add(context.itemId);
+                });
+                Array.from(state.expandedItemIds).forEach((expandedId) => {
+                    if (!validIds.has(expandedId)) {
+                        state.expandedItemIds.delete(expandedId);
+                    }
+                });
+            };
+
+            const buildNestedVisibleResult = (itemsInput) => {
+                const resultRows = [];
+                const hasQuery = hasActiveSearch();
+                const hasFilters = hasActiveFilters();
+                const shouldRestrictChildrenToMatches = hasQuery || hasFilters;
+
+                const buildRows = (entries, parentId = '', depth = 0, parentPath = '') => {
+                    const sortedEntries = applySorting(entries.slice());
+                    sortedEntries.forEach((item, index) => {
+                        const itemId = resolveNestedIdValue(item, index, parentId);
+                        const itemPath = parentPath ? `${parentPath}/${itemId}` : itemId;
+                        const children = getItemChildren(item);
+                        const sortedChildren = applySorting(children.slice());
+                        const parentMatches = matchesSearch(item) && matchesFilters(item);
+                        const matchedChildren = sortedChildren.filter((child) => matchesSearch(child) && matchesFilters(child));
+                        const includeParent = parentMatches || matchedChildren.length > 0 || (!hasQuery && !hasFilters);
+                        if (!includeParent) return;
+                        const visibleChildren = shouldRestrictChildrenToMatches ? matchedChildren : sortedChildren;
+                        const hasChildren = visibleChildren.length > 0;
+                        const canExpand = depth === 0
+                            ? (nestedRootExpandableWithoutChildren || hasChildren)
+                            : hasChildren;
+                        const isVisible = depth === 0 || isNestedPathVisible(itemPath);
+                        const triggerMode = resolveNestedTriggerMode(item, {
+                            depth,
+                            parentId,
+                            hasChildren: canExpand,
+                            viewMode: 'list'
+                        });
+                        resultRows.push({
+                            item,
+                            itemId,
+                            depth,
+                            parentId,
+                            path: itemPath,
+                            parentPath,
+                            isVisible,
+                            canExpand,
+                            hasChildren,
+                            triggerMode
+                        });
+                        if (canExpand) {
+                            const addActionContext = {
+                                depth,
+                                parentId,
+                                itemId,
+                                viewMode: 'list'
+                            };
+                            const canAddItem = canRenderNestedAddAction(item, addActionContext);
+                            const addButtonLabel = canAddItem ? resolveNestedAddButtonLabel(item, addActionContext) : '';
+                            if (hasChildren) {
+                                buildRows(visibleChildren, itemId, depth + 1, itemPath);
+                                if (canAddItem) {
+                                    resultRows.push({
+                                        item: null,
+                                        itemId: `${itemId}::add`,
+                                        depth: depth + 1,
+                                        parentId: itemId,
+                                        path: `${itemPath}/__add__`,
+                                        parentPath: itemPath,
+                                        isVisible: isNestedPathVisible(`${itemPath}/__add__`),
+                                        isAddActionRow: true,
+                                        addButtonLabel,
+                                        parentItem: item
+                                    });
+                                }
+                            } else {
+                                resultRows.push({
+                                    item: null,
+                                    itemId: `${itemId}::empty`,
+                                    depth: depth + 1,
+                                    parentId: itemId,
+                                    path: `${itemPath}/__empty__`,
+                                    parentPath: itemPath,
+                                    isVisible: isNestedPathVisible(`${itemPath}/__empty__`),
+                                    isEmptyPlaceholder: true,
+                                    emptyLabel: nestedEmptyChildrenLabel,
+                                    addButtonLabel: canAddItem ? addButtonLabel : '',
+                                    canAddItem,
+                                    parentItem: item
+                                });
+                            }
+                        }
+                    });
+                };
+
+                buildRows(itemsInput, '', 0, '');
+                return {
+                    rows: resultRows,
+                    gridItems: applySorting(itemsInput.slice()).filter((item) => matchesSearch(item) && matchesFilters(item))
+                };
+            };
+
+            const syncViewToggleUi = () => {
+                const listBtn = runtime.viewButtons.list;
+                const gridBtn = runtime.viewButtons.grid;
+                if (listBtn) {
+                    const active = state.view === 'list';
+                    listBtn.classList.toggle('ll-btn--primary', active);
+                    listBtn.classList.toggle('ll-btn--outline-default', !active);
+                    listBtn.classList.toggle('ll-active', active);
+                }
+                if (gridBtn) {
+                    const active = state.view === 'grid';
+                    gridBtn.classList.toggle('ll-btn--primary', active);
+                    gridBtn.classList.toggle('ll-btn--outline-default', !active);
+                    gridBtn.classList.toggle('ll-active', active);
+                }
+                if (tableHost) {
+                    tableHost.classList.toggle('hidden', state.view !== 'list');
+                }
+                if (gridHost) {
+                    gridHost.classList.toggle('hidden', state.view !== 'grid');
+                }
+            };
+
+            const syncClearAllFiltersButton = () => {
+                if (!runtime.clearAllFiltersButton) return;
+                runtime.clearAllFiltersButton.classList.toggle('hidden', !hasActiveFilters());
+            };
+
+            const syncToggleFilterUi = () => {
+                normalizedFilters.forEach((filterConfig) => {
+                    if (filterConfig.type !== 'toggle' || !filterConfig.toggle) return;
+                    const buttonIdsByValue = filterConfig.toggle.buttonIdsByValue || {};
+                    filterConfig.options.forEach((option) => {
+                        const buttonId = String(buttonIdsByValue[option.value] || option.buttonId || '').trim();
+                        const button = resolveElement(buttonId);
+                        if (!button) return;
+                        const isActive = String(state.filterValues[filterConfig.key] || '') === option.value;
+                        button.classList.toggle('ll-btn--primary', isActive);
+                        button.classList.toggle('ll-btn--outline-default', !isActive);
+                        button.classList.toggle('ll-active', isActive);
+                        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                    });
+                });
+            };
+
+            const syncFilterDropdownUi = () => {
+                normalizedFilters.forEach((filterConfig) => {
+                    if (!filterConfig.dropdown) return;
+                    const buttonId = String(filterConfig.dropdown.buttonId || '').trim();
+                    const dropdownButton = runtime.dropdownButtons.get(`filter:${filterConfig.key}`) || resolveElement(buttonId);
+                    if (!dropdownButton || typeof dropdownButton.__setPortaledDropdownValue !== 'function') return;
+                    if (filterConfig.type === 'multiple') {
+                        dropdownButton.__setPortaledDropdownValue(Array.from(state.filterValues[filterConfig.key] || []), false);
+                    } else {
+                        dropdownButton.__setPortaledDropdownValue(String(state.filterValues[filterConfig.key] || ''), false);
+                    }
+                });
+            };
+
+            const syncSortDropdownUi = () => {
+                const sortDropdown = controls.sortDropdown || {};
+                const sortButton = resolveElement(sortDropdown.buttonId || sortDropdown.buttonElement);
+                if (!sortButton || typeof sortButton.__setPortaledDropdownValue !== 'function') return;
+                sortButton.__setPortaledDropdownValue(String(state.sortValue || ''), false);
+            };
+
+            const applyState = () => {
+                if (runtime.disposed) return;
+                syncSelectionState();
+                syncExpandedState();
+                const sourceItems = getCurrentItems();
+                let visibleItems = [];
+                let visibleGridItems = [];
+                if (nestedEnabled) {
+                    const nestedVisibleResult = buildNestedVisibleResult(sourceItems);
+                    visibleItems = nestedVisibleResult.rows;
+                    visibleGridItems = nestedVisibleResult.gridItems;
+                } else {
+                    const searched = applySearch(sourceItems);
+                    const filtered = applyFilters(searched);
+                    visibleItems = applySorting(filtered);
+                    visibleGridItems = visibleItems;
+                }
+                renderListTable(visibleItems);
+                if (gridEnabled && gridHost) {
+                    renderGrid(visibleGridItems);
+                }
+                syncViewToggleUi();
+                const sourceItemsCount = sourceItems.length;
+                const visibleItemsCount = nestedEnabled ? visibleGridItems.length : visibleItems.length;
+                setHeaderEmptyDataState(sourceItemsCount === 0);
+                syncSharedEmptyState({
+                    isVisible: sourceItemsCount === 0 || visibleItemsCount === 0,
+                    hasSourceItems: sourceItemsCount > 0
+                });
+                syncToggleFilterUi();
+                syncClearAllFiltersButton();
+            };
+
+            const setFilterValue = (filterKey, nextValue) => {
+                const filterConfig = normalizedFilters.find((entry) => entry.key === filterKey);
+                if (!filterConfig) return;
+                if (filterConfig.type === 'multiple') {
+                    state.filterValues[filterConfig.key] = new Set(normalizeArrayValues(nextValue));
+                } else {
+                    state.filterValues[filterConfig.key] = String(nextValue || '').trim();
+                }
+                applyState();
+            };
+
+            const resetFiltersToDefault = () => {
+                normalizedFilters.forEach((filterConfig) => {
+                    state.filterValues[filterConfig.key] = resolveFilterInitialState(filterConfig);
+                });
+                syncFilterDropdownUi();
+                syncToggleFilterUi();
+                applyState();
+            };
+
+            const bindControls = () => {
+                if (runtime.searchInput) {
+                    const clearButtonId = controls.searchClearButtonId || controls.searchClearButtonElement;
+                    initializeSearchInput(runtime.searchInput.id, {
+                        clearButtonId: clearButtonId || null,
+                        datasetFlag: toDatasetKey(`${moduleDatasetKey}-search-bound`, `${moduleDatasetKey}SearchBound`),
+                        onInput: (value) => {
+                            state.query = String(value || '');
+                            applyState();
+                        },
+                        onClear: () => {
+                            state.query = '';
+                            applyState();
+                        }
+                    });
+                }
+
+                if (runtime.clearAllFiltersButton) {
+                    const onClearClick = (event) => {
+                        event.preventDefault();
+                        resetFiltersToDefault();
+                    };
+                    runtime.clearAllFiltersButton.addEventListener('click', onClearClick);
+                    runtime.boundControls.push(() => runtime.clearAllFiltersButton.removeEventListener('click', onClearClick));
+                }
+
+                const viewToggle = controls.viewToggle || {};
+                runtime.viewButtons.list = resolveElement(viewToggle.listButtonId || viewToggle.listButtonElement);
+                runtime.viewButtons.grid = resolveElement(viewToggle.gridButtonId || viewToggle.gridButtonElement);
+
+                if (gridEnabled && runtime.viewButtons.list && runtime.viewButtons.grid) {
+                    const listBtn = runtime.viewButtons.list;
+                    const gridBtn = runtime.viewButtons.grid;
+                    const sharedParent = listBtn.parentElement && listBtn.parentElement === gridBtn.parentElement
+                        ? listBtn.parentElement
+                        : null;
+                    if (sharedParent) {
+                        if (defaultView === 'grid') {
+                            sharedParent.insertBefore(gridBtn, listBtn);
+                        } else {
+                            sharedParent.insertBefore(listBtn, gridBtn);
+                        }
+                    }
+                    const onListClick = (event) => {
+                        event.preventDefault();
+                        state.view = 'list';
+                        applyState();
+                    };
+                    const onGridClick = (event) => {
+                        event.preventDefault();
+                        state.view = 'grid';
+                        applyState();
+                    };
+                    listBtn.addEventListener('click', onListClick);
+                    gridBtn.addEventListener('click', onGridClick);
+                    runtime.boundControls.push(() => listBtn.removeEventListener('click', onListClick));
+                    runtime.boundControls.push(() => gridBtn.removeEventListener('click', onGridClick));
+                }
+
+                normalizedFilters.forEach((filterConfig) => {
+                    if (filterConfig.type === 'toggle' && filterConfig.toggle) {
+                        const buttonIdsByValue = filterConfig.toggle.buttonIdsByValue || {};
+                        filterConfig.options.forEach((option) => {
+                            const buttonId = String(buttonIdsByValue[option.value] || option.buttonId || '').trim();
+                            const button = resolveElement(buttonId);
+                            if (!button) return;
+                            const onClick = (event) => {
+                                event.preventDefault();
+                                setFilterValue(filterConfig.key, option.value);
+                            };
+                            button.addEventListener('click', onClick);
+                            runtime.boundControls.push(() => button.removeEventListener('click', onClick));
+                        });
+                        return;
+                    }
+
+                    if (!filterConfig.dropdown) return;
+                    const dropdownButton = resolveElement(filterConfig.dropdown.buttonId || filterConfig.dropdown.buttonElement);
+                    const dropdownMenu = resolveElement(filterConfig.dropdown.menuId || filterConfig.dropdown.menuElement);
+                    if (!dropdownButton || !dropdownMenu) return;
+                    dropdownMenu.innerHTML = '';
+                    filterConfig.options.forEach((option) => {
+                        const menuOption = document.createElement('button');
+                        menuOption.type = 'button';
+                        menuOption.className = 'll-dropdown__item';
+                        menuOption.dataset.value = option.value;
+                        menuOption.textContent = option.label;
+                        dropdownMenu.appendChild(menuOption);
+                    });
+                    initializePortaledDropdown({
+                        buttonId: dropdownButton.id,
+                        menuId: dropdownMenu.id,
+                        selectedValueSelector: filterConfig.dropdown.selectedValueSelector || '.ll-dropdown__selected-value',
+                        datasetFlag: toDatasetKey(`${moduleDatasetKey}-filter-${filterConfig.key}-dropdown`, `${moduleDatasetKey}FilterDropdownBound`),
+                        menuType: 'selection',
+                        selectionType: filterConfig.type === 'multiple' ? 'multiple' : 'single',
+                        clearable: Boolean(filterConfig.dropdown.clearable),
+                        dropdownIcon: filterConfig.dropdown.dropdownIcon || '',
+                        dropdownLabel: filterConfig.dropdown.dropdownLabel || filterConfig.label || '',
+                        showLabel: filterConfig.dropdown.showLabel !== false,
+                        emptySelectionLabel: filterConfig.dropdown.emptySelectionLabel || filterConfig.label || 'Select option',
+                        onValueChange: (detail) => {
+                            if (filterConfig.type === 'multiple') {
+                                setFilterValue(filterConfig.key, detail && detail.values ? detail.values : []);
+                            } else {
+                                setFilterValue(filterConfig.key, detail && detail.value != null ? detail.value : '');
+                            }
+                        },
+                        matchTriggerWidth: filterConfig.dropdown.matchTriggerWidth === true,
+                        align: filterConfig.dropdown.align || 'left'
+                    });
+                    runtime.dropdownButtons.set(`filter:${filterConfig.key}`, dropdownButton);
+                });
+
+                const sortDropdown = controls.sortDropdown || {};
+                const sortButton = resolveElement(sortDropdown.buttonId || sortDropdown.buttonElement);
+                const sortMenu = resolveElement(sortDropdown.menuId || sortDropdown.menuElement);
+                if (sortButton && sortMenu && normalizedSorts.length) {
+                    sortMenu.innerHTML = '';
+                    const defaultOption = document.createElement('button');
+                    defaultOption.type = 'button';
+                    defaultOption.className = 'll-dropdown__item';
+                    defaultOption.dataset.value = DEFAULT_SORT_VALUE;
+                    defaultOption.textContent = defaultSortLabel;
+                    sortMenu.appendChild(defaultOption);
+                    normalizedSorts.forEach((sortConfig) => {
+                        const menuOption = document.createElement('button');
+                        menuOption.type = 'button';
+                        menuOption.className = 'll-dropdown__item';
+                        menuOption.dataset.value = sortConfig.value;
+                        const suffix = sortConfig.description ? ` (${sortConfig.description})` : '';
+                        menuOption.textContent = `${sortConfig.label}${suffix}`;
+                        sortMenu.appendChild(menuOption);
+                    });
+                    initializePortaledDropdown({
+                        buttonId: sortButton.id,
+                        menuId: sortMenu.id,
+                        selectedValueSelector: sortDropdown.selectedValueSelector || '.ll-dropdown__selected-value',
+                        datasetFlag: toDatasetKey(`${moduleDatasetKey}-sort-dropdown`, `${moduleDatasetKey}SortDropdownBound`),
+                        menuType: 'selection',
+                        dropdownIcon: sortDropdown.dropdownIcon || '',
+                        dropdownLabel: sortDropdown.dropdownLabel || '',
+                        showLabel: sortDropdown.showLabel !== false,
+                        emptySelectionLabel: sortDropdown.emptySelectionLabel || 'Sort',
+                        defaultValue: state.sortValue,
+                        onValueChange: (detail) => {
+                            const selectedValue = String(detail && detail.value ? detail.value : DEFAULT_SORT_VALUE).trim();
+                            state.sortValue = selectedValue || DEFAULT_SORT_VALUE;
+                            applyState();
+                        },
+                        matchTriggerWidth: sortDropdown.matchTriggerWidth === true,
+                        align: sortDropdown.align || 'left'
+                    });
+                }
+            };
+
+            api = {
+                setItems(nextItems) {
+                    if (!Array.isArray(nextItems)) return;
+                    internalItems = nextItems.slice();
+                    applyState();
+                },
+                setState(partialState = {}) {
+                    if (partialState && Object.prototype.hasOwnProperty.call(partialState, 'query')) {
+                        state.query = String(partialState.query || '');
+                    }
+                    if (partialState && Object.prototype.hasOwnProperty.call(partialState, 'view') && gridEnabled) {
+                        const nextView = String(partialState.view || '').trim().toLowerCase();
+                        state.view = nextView === 'list' ? 'list' : 'grid';
+                    }
+                    if (partialState && Object.prototype.hasOwnProperty.call(partialState, 'sortValue')) {
+                        state.sortValue = String(partialState.sortValue || state.sortValue);
+                    }
+                    if (partialState && Object.prototype.hasOwnProperty.call(partialState, 'selectedItemId')) {
+                        setSelectionById(partialState.selectedItemId, { reason: 'state-update' });
+                    }
+                    if (partialState && Object.prototype.hasOwnProperty.call(partialState, 'expandedItemIds') && nestedEnabled) {
+                        const nextExpanded = Array.isArray(partialState.expandedItemIds)
+                            ? partialState.expandedItemIds.map((value) => String(value || '').trim()).filter(Boolean)
+                            : [];
+                        state.expandedItemIds = new Set(nextExpanded);
+                    }
+                    applyState();
+                },
+                getState() {
+                    const filtersSnapshot = {};
+                    normalizedFilters.forEach((filterConfig) => {
+                        const value = state.filterValues[filterConfig.key];
+                        filtersSnapshot[filterConfig.key] = filterConfig.type === 'multiple'
+                            ? Array.from(value || [])
+                            : String(value || '');
+                    });
+                    return {
+                        view: state.view,
+                        query: state.query,
+                        sortValue: state.sortValue,
+                        selectedItemId: String(state.selectedItemId || ''),
+                        selectedItem: getSelectedItem(),
+                        expandedItemIds: nestedEnabled ? Array.from(state.expandedItemIds) : [],
+                        filters: filtersSnapshot,
+                        items: getCurrentItems()
+                    };
+                },
+                getSelectedItem() {
+                    return getSelectedItem();
+                },
+                clearSelection() {
+                    const changed = setSelectionById('', { reason: 'api-clear-selection' });
+                    if (changed) {
+                        applyState();
+                    }
+                },
+                selectItem(itemOrId) {
+                    let nextSelectedId = '';
+                    if (itemOrId && typeof itemOrId === 'object') {
+                        nextSelectedId = resolveIdValue(itemOrId, 0);
+                    } else {
+                        nextSelectedId = String(itemOrId || '').trim();
+                    }
+                    const changed = setSelectionById(nextSelectedId, { reason: 'api-select-item' });
+                    if (changed) {
+                        applyState();
+                    }
+                },
+                toggleItemExpanded(itemOrId) {
+                    if (!nestedEnabled) return;
+                    const targetId = itemOrId && typeof itemOrId === 'object'
+                        ? resolveIdValue(itemOrId, 0)
+                        : String(itemOrId || '').trim();
+                    if (toggleExpanded(targetId)) {
+                        applyState();
+                    }
+                },
+                setItemExpanded(itemOrId, shouldExpand) {
+                    if (!nestedEnabled) return;
+                    const targetId = itemOrId && typeof itemOrId === 'object'
+                        ? resolveIdValue(itemOrId, 0)
+                        : String(itemOrId || '').trim();
+                    if (setExpanded(targetId, shouldExpand)) {
+                        applyState();
+                    }
+                },
+                isItemExpanded(itemOrId) {
+                    if (!nestedEnabled) return false;
+                    const targetId = itemOrId && typeof itemOrId === 'object'
+                        ? resolveIdValue(itemOrId, 0)
+                        : String(itemOrId || '').trim();
+                    return isExpanded(targetId);
+                },
+                destroy() {
+                    runtime.disposed = true;
+                    runtime.boundControls.forEach((cleanup) => {
+                        try {
+                            cleanup();
+                        } catch (_error) {
+                            /* ignore */
+                        }
+                    });
+                    runtime.boundControls = [];
+                    if (runtime.emptyStateHost && runtime.emptyStateHost.parentNode) {
+                        runtime.emptyStateHost.parentNode.removeChild(runtime.emptyStateHost);
+                    }
+                    runtime.emptyStateHost = null;
+                }
+            };
+
+            const validatedSortValue = String(controls.defaultSortValue || controls.defaultSort || '').trim();
+            if (validatedSortValue && normalizedSorts.some((sortConfig) => sortConfig.value === validatedSortValue)) {
+                state.sortValue = validatedSortValue;
+            } else {
+                state.sortValue = DEFAULT_SORT_VALUE;
+            }
+            state.gridColumns = defaultGridColumns;
+            state.gridGap = defaultGridGap;
+
+            bindControls();
+            syncFilterDropdownUi();
+            syncSortDropdownUi();
+            applyState();
+            return api;
+        }
+
+        /**
+         * Model-driven horizontal carousel: scroll chrome, tabs strip (optional editable / sortable / delete),
+         * or card slots with a consistently flex-based track.
+         *
+         * Editable tabs: rename through a dedicated edit icon toggle (edit → check confirm). Reorder only
+         * via `.ll-carousel__tab-drag`. Delete uses `.ll-carousel__tab-delete` + `initializeConfirmationDialog`.
+         *
+         * @param {object} options
+         * @param {HTMLElement} options.root — Mount host; previous carousel markup under this root is replaced on (re)init.
+         * @param {'tabs'|'cards'} [options.mode='tabs']
+         * @param {'freeform'|'grid'} [options.sizing='freeform'] — Cards only; track is always flex.
+         * @param {object[]} [options.items=[]]
+         * @param {function(object): string} [options.getItemId]
+         * @param {string} [options.tabLabelKey='label']
+         * @param {string|null} [options.initialActiveId=null]
+         * @param {object} [options.tabs] — `{ editable, editMode, defaultNewLabel, addButtonLabel, maxTitleLength, minTabsToKeep, confirmDeleteTitle, confirmDeleteBody, confirmDeleteConfirmLabel }` where `minTabsToKeep` supports `0|1` (default `0`).
+         * @param {number} [options.gridColumns=4] — Grid card columns in viewport (`2|3|4|6`).
+         * @param {number} [options.gridGap=6] — Grid card gap scale (`4|6`).
+         * @param {string} [options.gridTrackClassName] — Legacy class passthrough; still parsed for `ll-grid--carousel-cols-*` / `ll-grid--gap-*`.
+         * @param {number} [options.scrollStepPercent=40] — Tabs + freeform cards: scroll step as % of viewport width.
+         * @param {number} [options.scrollStepPx=150] — Legacy px fallback step (used when % step does not apply).
+         * @param {function(object, { index: number, activeId: string }): string|HTMLElement} [options.renderCard]
+         * @param {function({ activeId: string, previousId: string|null }): void} [options.onActiveTabChange]
+         * @param {function({ items: object[], reason: string }): void} [options.onItemsChange]
+         */
+        function initializeHorizontalCarousel(options = {}) {
+            const root = options.root;
+            if (!root || root.nodeType !== 1) {
+                return {
+                    destroy() {},
+                    getItems() {
+                        return [];
+                    },
+                    setItems() {},
+                    getActiveId() {
+                        return null;
+                    },
+                    setActiveId() {},
+                    setEditMode() {},
+                    scrollActiveIntoView() {}
+                };
+            }
+
+            const mode = options.mode === 'cards' ? 'cards' : 'tabs';
+            const sizing = options.sizing === 'grid' ? 'grid' : 'freeform';
+            const tabLabelKey = String(options.tabLabelKey || 'label');
+            const getItemId = typeof options.getItemId === 'function'
+                ? options.getItemId
+                : (item) => String(item && item.id != null ? item.id : '').trim();
+
+            const tabsCfg = options.tabs && typeof options.tabs === 'object' ? options.tabs : {};
+            const tabsEditable = tabsCfg.editable === true;
+            let editMode = tabsCfg.editMode !== false;
+            const defaultNewLabel = String(tabsCfg.defaultNewLabel || 'New Tab');
+            const addButtonLabel = String(tabsCfg.addButtonLabel || 'Add Tab');
+            const maxTitleLength = Math.max(1, parseInt(tabsCfg.maxTitleLength, 10) || 50);
+            const parsedMinTabsToKeep = parseInt(tabsCfg.minTabsToKeep, 10);
+            const minTabsToKeep = parsedMinTabsToKeep === 1 ? 1 : 0;
+            const confirmDeleteTitle = String(tabsCfg.confirmDeleteTitle || 'Remove tab');
+            const confirmDeleteBody = String(
+                tabsCfg.confirmDeleteBody || 'Remove this tab? Content for this context may be lost.'
+            );
+            const confirmDeleteConfirmLabel = String(tabsCfg.confirmDeleteConfirmLabel || 'Remove');
+
+            const onActiveTabChange = typeof options.onActiveTabChange === 'function'
+                ? options.onActiveTabChange
+                : null;
+            const onItemsChange = typeof options.onItemsChange === 'function' ? options.onItemsChange : null;
+            const renderCard = typeof options.renderCard === 'function' ? options.renderCard : null;
+
+            const scrollStepPx = Math.max(40, parseInt(options.scrollStepPx, 10) || 150);
+            const scrollStepPercent = Math.max(1, parseFloat(options.scrollStepPercent) || 40);
+            const tolerancePx = Math.max(0, parseFloat(options.tolerancePx) || 0.5);
+            const legacyGridTrackClassName = String(options.gridTrackClassName || '').trim();
+            const resolveGridColumns = () => {
+                const supported = [2, 3, 4, 6];
+                const explicit = parseInt(options.gridColumns, 10);
+                if (supported.includes(explicit)) return explicit;
+                const legacyMatch = legacyGridTrackClassName.match(/ll-grid--carousel-cols-(2|3|4|6)\b/);
+                if (legacyMatch) return parseInt(legacyMatch[1], 10);
+                return 4;
+            };
+            const resolveGridGap = () => {
+                const explicit = parseInt(options.gridGap, 10);
+                if (explicit === 4 || explicit === 6) return explicit;
+                const legacyMatch = legacyGridTrackClassName.match(/ll-grid--gap-(4|6)\b/);
+                if (legacyMatch) return parseInt(legacyMatch[1], 10);
+                return 6;
+            };
+            const gridColumns = resolveGridColumns();
+            const gridGap = resolveGridGap();
+
+            const TAB_SELECTOR = '.ll-carousel__tab';
+            const HANDLE_SELECTOR = '.ll-carousel__tab-drag';
+            const EDIT_SELECTOR = '.ll-carousel__tab-edit';
+            const DELETE_SELECTOR = '.ll-carousel__tab-delete';
+
+            let items = Array.isArray(options.items) ? options.items.slice() : [];
+            let activeId = options.initialActiveId != null && String(options.initialActiveId).trim()
+                ? String(options.initialActiveId).trim()
+                : null;
+            let editingTabId = null;
+            const draftLabelById = {};
+            const inlineEditEscapeKey = `inline-edit:carousel:${++llumenOverlayEscapeState.nextInlineEditDomIdCounter}`;
+
+            const ensureActiveId = () => {
+                if (items.length === 0) {
+                    activeId = null;
+                    return;
+                }
+                if (!activeId || !items.some((it) => getItemId(it) === activeId)) {
+                    activeId = getItemId(items[0]);
+                }
+            };
+
+            const emitItems = (reason) => {
+                if (onItemsChange) {
+                    try {
+                        onItemsChange({ items: items.slice(), reason });
+                    } catch (_e) {
+                        /* ignore */
+                    }
+                }
+            };
+
+            const emitActive = (previousId) => {
+                if (onActiveTabChange) {
+                    try {
+                        onActiveTabChange({ activeId, previousId: previousId == null ? null : String(previousId) });
+                    } catch (_e) {
+                        /* ignore */
+                    }
+                }
+            };
+
+            const syncInlineEditEscapeEntry = () => {
+                if (!(mode === 'tabs' && tabsEditable && editMode && !!editingTabId)) {
+                    removeOverlayInlineEditEntry(inlineEditEscapeKey);
+                    return;
+                }
+                pushOverlayInlineEditEntry({
+                    key: inlineEditEscapeKey,
+                    cancel() {
+                        if (disposed) return;
+                        if (!editingTabId) return;
+                        discardEditingTabAndExit();
+                        renderTabs();
+                    },
+                    isOpen() {
+                        return !disposed && mode === 'tabs' && tabsEditable && editMode && !!editingTabId;
+                    }
+                });
+            };
+
+            const sanitizeLabel = (value, fallbackValue) => {
+                let next = String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+                if (!next) {
+                    next = String(fallbackValue == null ? '' : fallbackValue).trim();
+                }
+                if (!next) {
+                    next = defaultNewLabel;
+                }
+                if (next.length > maxTitleLength) {
+                    next = next.slice(0, maxTitleLength);
+                }
+                return next;
+            };
+
+            const setActiveIdInternal = (nextId, { silent } = {}) => {
+                const prev = activeId;
+                const resolved = nextId != null && String(nextId).trim() ? String(nextId).trim() : null;
+                if (resolved && items.some((it) => getItemId(it) === resolved)) {
+                    activeId = resolved;
+                } else {
+                    ensureActiveId();
+                }
+                syncTabActiveClasses();
+                if (!silent && activeId !== prev) {
+                    emitActive(prev);
+                }
+            };
+
+            const getItemById = (id) => {
+                const targetId = String(id || '');
+                return items.find((it) => getItemId(it) === targetId) || null;
+            };
+
+            const commitTabRename = (tabId) => {
+                const id = String(tabId || '');
+                if (!id) return false;
+                const item = getItemById(id);
+                if (!item) return false;
+                const previousLabel = String(item[tabLabelKey] != null ? item[tabLabelKey] : defaultNewLabel);
+                const nextLabel = sanitizeLabel(draftLabelById[id], previousLabel);
+                delete draftLabelById[id];
+                if (nextLabel === previousLabel) return false;
+                item[tabLabelKey] = nextLabel;
+                emitItems('rename');
+                return true;
+            };
+
+            const commitEditingTabAndExit = () => {
+                if (!editingTabId) return false;
+                const changed = commitTabRename(editingTabId);
+                editingTabId = null;
+                return changed;
+            };
+
+            const discardEditingTabAndExit = () => {
+                if (!editingTabId) return false;
+                const id = String(editingTabId);
+                delete draftLabelById[id];
+                editingTabId = null;
+                return true;
+            };
+
+            const findTabElementById = (tabId) => {
+                const targetId = String(tabId || '');
+                if (!targetId) return null;
+                const tabEls = track.querySelectorAll(TAB_SELECTOR);
+                for (let i = 0; i < tabEls.length; i += 1) {
+                    const el = tabEls[i];
+                    if (el.dataset.llCarouselTabId === targetId) return el;
+                }
+                return null;
+            };
+
+            const applyNonEditingUiToTab = (tabEl, tabId) => {
+                if (!tabEl) return;
+                const id = String(tabId || '');
+                const item = getItemById(id);
+                const baseLabel = String(item && item[tabLabelKey] != null ? item[tabLabelKey] : defaultNewLabel);
+                const label = tabEl.querySelector('.ll-carousel__tab-label');
+                if (label) {
+                    label.textContent = baseLabel;
+                    label.contentEditable = 'false';
+                    label.removeAttribute('spellcheck');
+                }
+                const editBtn = tabEl.querySelector('.ll-carousel__tab-edit');
+                if (editBtn) {
+                    editBtn.setAttribute('aria-label', 'Edit tab title');
+                    editBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">edit</span>';
+                    editBtn.classList.remove('ll-icon-btn--outline', 'll-icon-btn--outline-positive');
+                }
+                const delBtn = tabEl.querySelector('.ll-carousel__tab-delete');
+                if (delBtn) {
+                    delBtn.setAttribute('aria-label', 'Delete tab');
+                    delBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">delete</span>';
+                    delBtn.classList.remove('ll-icon-btn--outline', 'll-icon-btn--outline-negative');
+                }
+            };
+
+            const discardEditingTabAndExitInPlace = () => {
+                if (!editingTabId) return false;
+                const id = String(editingTabId);
+                delete draftLabelById[id];
+                editingTabId = null;
+                applyNonEditingUiToTab(findTabElementById(id), id);
+                syncInlineEditEscapeEntry();
+                return true;
+            };
+
+            root.innerHTML = '';
+            root.classList.add('ll-carousel');
+
+            const leftOverlay = document.createElement('div');
+            leftOverlay.className = 'll-carousel__overlay ll-carousel__overlay--left ll-carousel__overlay--hidden';
+            const leftBtn = document.createElement('button');
+            leftBtn.type = 'button';
+            leftBtn.className = 'll-icon-btn ll-icon-btn--circle ll-icon-btn--lg ll-carousel__scroll-btn';
+            leftBtn.setAttribute('aria-label', 'Scroll left');
+            leftBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">chevron_left</span>';
+            leftOverlay.appendChild(leftBtn);
+
+            const track = document.createElement('div');
+            if (mode === 'tabs') {
+                track.className = 'll-carousel__track ll-carousel__track--tabs';
+                track.setAttribute('role', 'tablist');
+            } else if (sizing === 'grid') {
+                const passthroughLegacyClasses = legacyGridTrackClassName
+                    ? legacyGridTrackClassName
+                        .split(/\s+/)
+                        .filter(Boolean)
+                        .filter(
+                            (name) => name !== 'll-grid'
+                                && name !== 'll-grid--carousel-track'
+                                && !/^ll-grid--carousel-cols-(2|3|4|6)$/.test(name)
+                                && !/^ll-grid--gap-(4|6)$/.test(name)
+                        )
+                        .join(' ')
+                    : '';
+                track.className = `ll-carousel__track ll-carousel__track--grid ll-carousel__track--cols-${gridColumns} ll-carousel__track--gap-${gridGap}${passthroughLegacyClasses ? ` ${passthroughLegacyClasses}` : ''}`;
+            } else {
+                track.className = 'll-carousel__track ll-carousel__track--freeform';
+            }
+
+            let addButton = null;
+            if (mode === 'tabs' && tabsEditable) {
+                addButton = document.createElement('button');
+                addButton.type = 'button';
+                addButton.className = 'll-btn ll-btn--outline-default ll-carousel__add-tab';
+                addButton.setAttribute('aria-label', addButtonLabel);
+                addButton.innerHTML = `<span class="material-symbols-outlined ll-btn__icon">add</span><span>${addButtonLabel}</span>`;
+            }
+
+            const rightOverlay = document.createElement('div');
+            rightOverlay.className = 'll-carousel__overlay ll-carousel__overlay--right ll-carousel__overlay--hidden';
+            const rightBtn = document.createElement('button');
+            rightBtn.type = 'button';
+            rightBtn.className = 'll-icon-btn ll-icon-btn--circle ll-icon-btn--lg ll-carousel__scroll-btn';
+            rightBtn.setAttribute('aria-label', 'Scroll right');
+            rightBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">chevron_right</span>';
+            rightOverlay.appendChild(rightBtn);
+
+            root.appendChild(leftOverlay);
+            root.appendChild(track);
+            root.appendChild(rightOverlay);
+
+            const scrollHost = track;
+
+            const updateScrollOverlays = () => {
+                const el = scrollHost;
+                const { scrollLeft, scrollWidth, clientWidth } = el;
+                const maxScrollLeft = Math.max(0, scrollWidth - clientWidth);
+                const isScrollable = scrollWidth > clientWidth;
+                const atLeft = scrollLeft <= tolerancePx;
+                const atRight = (maxScrollLeft - scrollLeft) <= tolerancePx;
+                leftOverlay.classList.toggle('ll-carousel__overlay--hidden', !isScrollable || atLeft);
+                rightOverlay.classList.toggle('ll-carousel__overlay--hidden', !isScrollable || atRight);
+            };
+
+            const onScroll = () => updateScrollOverlays();
+            const onResize = () => updateScrollOverlays();
+            const onDocumentPointerDown = (event) => {
+                if (mode !== 'tabs' || !tabsEditable || !editMode || !editingTabId || disposed) return;
+                const target = event.target;
+                if (!(target instanceof windowScope.HTMLElement)) return;
+                const withinTab = target.closest(TAB_SELECTOR);
+                if (withinTab && track.contains(withinTab)) return;
+                commitEditingTabAndExit();
+                renderTabs();
+            };
+            let carouselResizeObserver = null;
+            let carouselVisibilityObserver = null;
+            if (typeof windowScope.ResizeObserver === 'function') {
+                carouselResizeObserver = new windowScope.ResizeObserver(() => {
+                    updateScrollOverlays();
+                });
+                carouselResizeObserver.observe(root);
+                carouselResizeObserver.observe(scrollHost);
+            }
+            if (typeof windowScope.IntersectionObserver === 'function') {
+                carouselVisibilityObserver = new windowScope.IntersectionObserver((entries) => {
+                    const becameVisible = entries.some((entry) => entry && entry.isIntersecting);
+                    if (!becameVisible) return;
+                    updateScrollOverlays();
+                    requestAnimationFrame(() => updateScrollOverlays());
+                }, { root: null, threshold: 0 });
+                carouselVisibilityObserver.observe(root);
+            }
+
+            scrollHost.addEventListener('scroll', onScroll);
+            windowScope.addEventListener('resize', onResize);
+            document.addEventListener('pointerdown', onDocumentPointerDown, true);
+
+            const resolveScrollStepPx = () => {
+                if (mode === 'tabs') {
+                    return (scrollHost.clientWidth * scrollStepPercent) / 100;
+                }
+                if (sizing === 'freeform') {
+                    return (scrollHost.clientWidth * scrollStepPercent) / 100;
+                }
+                return scrollStepPx;
+            };
+
+            const resolveGridTargetScrollLeft = (direction) => {
+                const tiles = Array.from(track.querySelectorAll('.ll-carousel__card-slot'));
+                if (!tiles.length) return null;
+
+                const hostRect = scrollHost.getBoundingClientRect();
+                const leftEdge = hostRect.left + 1;
+                const rightEdge = hostRect.right - 1;
+                let firstVisibleIndex = -1;
+                let lastVisibleIndex = -1;
+
+                for (let i = 0; i < tiles.length; i += 1) {
+                    const rect = tiles[i].getBoundingClientRect();
+                    const isVisible = rect.right > leftEdge && rect.left < rightEdge;
+                    if (!isVisible) continue;
+                    if (firstVisibleIndex === -1) {
+                        firstVisibleIndex = i;
+                    }
+                    lastVisibleIndex = i;
+                }
+
+                if (firstVisibleIndex < 0 || lastVisibleIndex < 0) {
+                    return null;
+                }
+
+                const tilesPerStep = Math.max(1, gridColumns - 1);
+                let targetIndex = 0;
+                if (direction > 0) {
+                    // Next: anchor from current left edge tile.
+                    targetIndex = Math.min(tiles.length - 1, firstVisibleIndex + tilesPerStep);
+                } else {
+                    // Prev: anchor from current right edge tile, then shift backward by one viewport-step.
+                    targetIndex = Math.max(0, lastVisibleIndex - (tilesPerStep * 2));
+                }
+
+                const targetTile = tiles[targetIndex];
+                if (!targetTile) return null;
+                const maxScrollLeft = Math.max(0, scrollHost.scrollWidth - scrollHost.clientWidth);
+                const rawTargetLeft = targetTile.offsetLeft;
+                return Math.max(0, Math.min(rawTargetLeft, maxScrollLeft));
+            };
+
+            const scrollByStep = (direction) => {
+                if (mode === 'cards' && sizing === 'grid') {
+                    const targetLeft = resolveGridTargetScrollLeft(direction);
+                    if (typeof targetLeft === 'number' && Number.isFinite(targetLeft)) {
+                        const currentLeft = scrollHost.scrollLeft;
+                        if (Math.abs(targetLeft - currentLeft) <= 0.5) return;
+                        scrollHost.scrollTo({ left: targetLeft, behavior: 'smooth' });
+                        return;
+                    }
+                }
+                const stepPx = Math.max(1, resolveScrollStepPx());
+                const currentLeft = scrollHost.scrollLeft;
+                const maxScrollLeft = Math.max(0, scrollHost.scrollWidth - scrollHost.clientWidth);
+                if (direction > 0) {
+                    const remaining = Math.max(0, maxScrollLeft - currentLeft);
+                    const delta = Math.min(stepPx, remaining);
+                    if (delta <= 0) return;
+                    scrollHost.scrollTo({ left: currentLeft + delta, behavior: 'smooth' });
+                    return;
+                }
+                const remaining = Math.max(0, currentLeft);
+                const delta = Math.min(stepPx, remaining);
+                if (delta <= 0) return;
+                scrollHost.scrollTo({ left: currentLeft - delta, behavior: 'smooth' });
+            };
+
+            leftBtn.addEventListener('click', () => {
+                scrollByStep(-1);
+            });
+            rightBtn.addEventListener('click', () => {
+                scrollByStep(1);
+            });
+
+            let sortableDestroy = null;
+            let disposed = false;
+
+            const syncTabActiveClasses = () => {
+                if (mode !== 'tabs') return;
+                track.querySelectorAll(TAB_SELECTOR).forEach((el) => {
+                    const id = el.dataset.llCarouselTabId || '';
+                    const isActive = id && id === activeId;
+                    el.classList.toggle('ll-active', !!isActive);
+                    el.classList.toggle('ll-btn--primary', !!isActive);
+                    el.classList.toggle('ll-btn--outline-default', !isActive);
+                    el.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+            };
+
+            const syncItemsOrderFromDom = () => {
+                if (mode !== 'tabs') return;
+                const ordered = Array.from(track.querySelectorAll(TAB_SELECTOR))
+                    .map((el) => el.dataset.llCarouselTabId)
+                    .filter(Boolean);
+                if (!ordered.length) return;
+                const map = new Map(items.map((it) => [getItemId(it), it]));
+                const next = ordered.map((id) => map.get(id)).filter(Boolean);
+                if (next.length === items.length) {
+                    items = next;
+                }
+            };
+
+            const mountSortable = () => {
+                if (sortableDestroy) {
+                    sortableDestroy.destroy();
+                    sortableDestroy = null;
+                }
+                if (mode !== 'tabs' || !tabsEditable || !editMode || items.length < 2) return;
+                sortableDestroy = initSortableList({
+                    container: track,
+                    axis: 'horizontal',
+                    itemSelector: TAB_SELECTOR,
+                    handleSelector: HANDLE_SELECTOR,
+                    minItemsForDrag: 2,
+                    getItemId: (el) => String(el.dataset.llCarouselTabId || ''),
+                    onReorder: () => {
+                        syncItemsOrderFromDom();
+                        emitItems('reorder');
+                    }
+                });
+            };
+
+            const focusEditingLabel = (tabId) => {
+                const tabEls = track.querySelectorAll(TAB_SELECTOR);
+                const targetId = String(tabId || '');
+                for (let i = 0; i < tabEls.length; i += 1) {
+                    const tabEl = tabEls[i];
+                    if (tabEl.dataset.llCarouselTabId !== targetId) continue;
+                    const label = tabEl.querySelector('.ll-carousel__tab-label');
+                    if (!label || label.contentEditable !== 'true') break;
+                    try {
+                        label.focus();
+                        const range = label.ownerDocument.createRange();
+                        range.selectNodeContents(label);
+                        range.collapse(false);
+                        const selection = label.ownerDocument.getSelection();
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    } catch (_e) {
+                        /* ignore */
+                    }
+                    break;
+                }
+            };
+
+            const buildTabElement = (item) => {
+                const id = getItemId(item);
+                const wrap = document.createElement('div');
+                wrap.className = 'll-btn ll-btn--outline-default ll-carousel__tab';
+                wrap.dataset.llCarouselTabId = id;
+                wrap.setAttribute('role', 'tab');
+                wrap.setAttribute('tabindex', '-1');
+
+                const dragBtn = document.createElement('button');
+                dragBtn.type = 'button';
+                dragBtn.className = 'll-carousel__tab-drag ll-icon-btn ll-icon-btn--sm';
+                dragBtn.setAttribute('aria-label', 'Reorder tab');
+                dragBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>';
+                dragBtn.hidden = !tabsEditable || !editMode;
+
+                const label = document.createElement('div');
+                label.className = 'll-carousel__tab-label';
+                const baseLabel = String(item[tabLabelKey] != null ? item[tabLabelKey] : defaultNewLabel);
+                const isEditing = tabsEditable && editMode && editingTabId === id;
+                const hasDraftLabel = Object.prototype.hasOwnProperty.call(draftLabelById, id);
+                const visibleLabel = isEditing && hasDraftLabel ? String(draftLabelById[id]) : baseLabel;
+                label.textContent = visibleLabel;
+                label.contentEditable = isEditing ? 'true' : 'false';
+                if (isEditing) {
+                    label.setAttribute('spellcheck', 'false');
+                }
+
+                const editBtn = document.createElement('button');
+                editBtn.type = 'button';
+                editBtn.className = 'll-carousel__tab-edit ll-icon-btn ll-icon-btn--sm';
+                editBtn.setAttribute('aria-label', isEditing ? 'Apply tab title' : 'Edit tab title');
+                editBtn.innerHTML = isEditing
+                    ? '<span class="material-symbols-outlined ll-icon-btn__icon">check</span>'
+                    : '<span class="material-symbols-outlined ll-icon-btn__icon">edit</span>';
+                editBtn.hidden = !tabsEditable || !editMode;
+                editBtn.classList.toggle('ll-icon-btn--outline', isEditing);
+                editBtn.classList.toggle('ll-icon-btn--outline-positive', isEditing);
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'll-carousel__tab-delete ll-icon-btn ll-icon-btn--sm';
+                delBtn.setAttribute('aria-label', isEditing ? 'Cancel tab edit' : 'Delete tab');
+                delBtn.innerHTML = isEditing
+                    ? '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>'
+                    : '<span class="material-symbols-outlined ll-icon-btn__icon">delete</span>';
+                const canDeleteTab = items.length > minTabsToKeep;
+                delBtn.hidden = !tabsEditable || !editMode || (!isEditing && !canDeleteTab);
+                delBtn.classList.toggle('ll-icon-btn--outline', isEditing);
+                delBtn.classList.toggle('ll-icon-btn--outline-negative', isEditing);
+
+                const actionsWrap = document.createElement('div');
+                actionsWrap.className = 'll-carousel__tab-actions';
+                actionsWrap.hidden = !tabsEditable || !editMode;
+                actionsWrap.appendChild(editBtn);
+                actionsWrap.appendChild(delBtn);
+
+                wrap.appendChild(dragBtn);
+                wrap.appendChild(label);
+                wrap.appendChild(actionsWrap);
+
+                wrap.addEventListener('pointerdown', (ev) => {
+                    if (ev.target.closest(HANDLE_SELECTOR)) {
+                        if (activeId !== id) {
+                            setActiveIdInternal(id, { silent: false });
+                        }
+                        if (editingTabId) {
+                            discardEditingTabAndExitInPlace();
+                        }
+                        return;
+                    }
+                    if (ev.target.closest(DELETE_SELECTOR) || ev.target.closest(EDIT_SELECTOR)) {
+                        return;
+                    }
+                    if (editingTabId && editingTabId !== id) {
+                        discardEditingTabAndExit();
+                        renderTabs();
+                    }
+                    setActiveIdInternal(id, { silent: false });
+                });
+
+                label.addEventListener('input', () => {
+                    if (!(tabsEditable && editMode && editingTabId === id)) return;
+                    const nextValue = String(label.textContent == null ? '' : label.textContent);
+                    if (nextValue.length <= maxTitleLength) {
+                        draftLabelById[id] = nextValue;
+                        return;
+                    }
+                    const selectionOffsets = getContenteditableSelectionOffsets(label);
+                    const trimmedValue = nextValue.slice(0, maxTitleLength);
+                    draftLabelById[id] = trimmedValue;
+                    label.textContent = trimmedValue;
+                    const caretOffset = Math.min(
+                        maxTitleLength,
+                        selectionOffsets && Number.isFinite(selectionOffsets.start)
+                            ? selectionOffsets.start
+                            : maxTitleLength
+                    );
+                    setContenteditableCaretOffset(label, caretOffset);
+                });
+
+                label.addEventListener('beforeinput', (ev) => {
+                    if (!(tabsEditable && editMode && editingTabId === id)) return;
+                    const inputType = String(ev.inputType || '');
+                    if (!inputType.startsWith('insert')) return;
+                    if (inputType === 'insertFromPaste') return;
+                    const currentValue = String(label.textContent == null ? '' : label.textContent);
+                    const selectionOffsets = getContenteditableSelectionOffsets(label) || {
+                        start: currentValue.length,
+                        end: currentValue.length
+                    };
+                    const selectedLength = Math.max(0, (selectionOffsets.end || 0) - (selectionOffsets.start || 0));
+                    const available = maxTitleLength - (currentValue.length - selectedLength);
+                    if (available > 0) return;
+                    ev.preventDefault();
+                });
+
+                label.addEventListener('paste', (ev) => {
+                    if (!(tabsEditable && editMode && editingTabId === id)) return;
+                    const rawText = ev.clipboardData ? ev.clipboardData.getData('text/plain') : '';
+                    if (typeof rawText !== 'string') return;
+                    ev.preventDefault();
+                    const currentValue = String(label.textContent == null ? '' : label.textContent);
+                    const selectionOffsets = getContenteditableSelectionOffsets(label) || {
+                        start: currentValue.length,
+                        end: currentValue.length
+                    };
+                    const start = Math.max(0, Math.min(currentValue.length, selectionOffsets.start));
+                    const end = Math.max(start, Math.min(currentValue.length, selectionOffsets.end));
+                    const available = maxTitleLength - (currentValue.length - (end - start));
+                    const insertText = available > 0 ? rawText.slice(0, available) : '';
+                    const nextValue = `${currentValue.slice(0, start)}${insertText}${currentValue.slice(end)}`;
+                    draftLabelById[id] = nextValue;
+                    label.textContent = nextValue;
+                    setContenteditableCaretOffset(label, start + insertText.length);
+                });
+
+                label.addEventListener('keydown', (ev) => {
+                    if (!(tabsEditable && editMode && editingTabId === id)) return;
+                    if (ev.key === 'Enter') {
+                        ev.preventDefault();
+                        commitEditingTabAndExit();
+                        renderTabs();
+                        return;
+                    }
+                    if (ev.key === 'Escape') {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        discardEditingTabAndExit();
+                        renderTabs();
+                    }
+                });
+
+                editBtn.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    if (!tabsEditable || !editMode) return;
+                    setActiveIdInternal(id, { silent: false });
+                    if (editingTabId && editingTabId !== id) {
+                        discardEditingTabAndExit();
+                    }
+                    if (editingTabId === id) {
+                        commitEditingTabAndExit();
+                        renderTabs();
+                        return;
+                    }
+                    const itemLabel = String(item[tabLabelKey] != null ? item[tabLabelKey] : defaultNewLabel);
+                    draftLabelById[id] = itemLabel;
+                    editingTabId = id;
+                    renderTabs();
+                    requestAnimationFrame(() => focusEditingLabel(id));
+                });
+
+                delBtn.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    if (!tabsEditable || !editMode) return;
+                    if (editingTabId === id) {
+                        discardEditingTabAndExit();
+                        renderTabs();
+                        return;
+                    }
+                    if (items.length <= minTabsToKeep) return;
+                    initializeConfirmationDialog({
+                        title: confirmDeleteTitle,
+                        bodyContent: `<p class="ll-carousel__confirm-copy">${confirmDeleteBody}</p>`,
+                        confirmLabel: confirmDeleteConfirmLabel,
+                        cancelLabel: 'Cancel',
+                        onConfirm: () => {
+                            const prevActive = activeId;
+                            if (editingTabId === id) {
+                                editingTabId = null;
+                            }
+                            delete draftLabelById[id];
+                            items = items.filter((it) => getItemId(it) !== id);
+                            if (prevActive === id) {
+                                ensureActiveId();
+                                emitActive(prevActive);
+                            } else {
+                                ensureActiveId();
+                            }
+                            renderTabs('remove');
+                            updateScrollOverlays();
+                        }
+                    }).open();
+                });
+
+                return wrap;
+            };
+
+            const renderTabs = (itemsEmitReason) => {
+                ensureActiveId();
+                track.innerHTML = '';
+                items.forEach((item) => {
+                    track.appendChild(buildTabElement(item));
+                });
+                if (addButton) {
+                    addButton.hidden = !tabsEditable || !editMode;
+                    track.appendChild(addButton);
+                }
+                syncTabActiveClasses();
+                mountSortable();
+                syncInlineEditEscapeEntry();
+                updateScrollOverlays();
+                if (itemsEmitReason) {
+                    emitItems(String(itemsEmitReason));
+                }
+            };
+
+            const renderCards = (itemsEmitReason) => {
+                track.innerHTML = '';
+                items.forEach((item, index) => {
+                    const slot = document.createElement('div');
+                    slot.className = 'll-carousel__card-slot';
+                    slot.dataset.llCarouselCardId = getItemId(item);
+                    let node = null;
+                    try {
+                        node = renderCard(item, { index, activeId });
+                    } catch (_e) {
+                        node = null;
+                    }
+                    if (!node) return;
+                    if (typeof node === 'string') {
+                        slot.innerHTML = node;
+                    } else if (node.nodeType === 1) {
+                        slot.appendChild(node);
+                    }
+                    track.appendChild(slot);
+                });
+                updateScrollOverlays();
+                if (itemsEmitReason) {
+                    emitItems(String(itemsEmitReason));
+                }
+            };
+
+            if (mode === 'tabs') {
+                renderTabs('init');
+                emitActive(null);
+            } else {
+                ensureActiveId();
+                renderCards('init');
+            }
+
+            if (addButton) {
+                addButton.addEventListener('click', () => {
+                    if (!tabsEditable || !editMode || disposed) return;
+                    if (editingTabId) {
+                        discardEditingTabAndExit();
+                    }
+                    const newId = `tab-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+                    const row = { id: newId, [tabLabelKey]: defaultNewLabel };
+                    items.push(row);
+                    setActiveIdInternal(newId, { silent: false });
+                    renderTabs('add');
+                    scrollHost.scrollTo({ left: scrollHost.scrollWidth, behavior: 'smooth' });
+                });
+            }
+
+            const api = {
+                destroy() {
+                    if (disposed) return;
+                    disposed = true;
+                    scrollHost.removeEventListener('scroll', onScroll);
+                    windowScope.removeEventListener('resize', onResize);
+                    document.removeEventListener('pointerdown', onDocumentPointerDown, true);
+                    if (carouselResizeObserver) {
+                        carouselResizeObserver.disconnect();
+                        carouselResizeObserver = null;
+                    }
+                    if (carouselVisibilityObserver) {
+                        carouselVisibilityObserver.disconnect();
+                        carouselVisibilityObserver = null;
+                    }
+                    if (sortableDestroy) {
+                        sortableDestroy.destroy();
+                        sortableDestroy = null;
+                    }
+                    removeOverlayInlineEditEntry(inlineEditEscapeKey);
+                    root.innerHTML = '';
+                    root.classList.remove('ll-carousel');
+                },
+                getItems() {
+                    return items.slice();
+                },
+                setItems(nextItems) {
+                    if (!Array.isArray(nextItems)) return;
+                    items = nextItems.slice();
+                    if (editingTabId && !items.some((it) => getItemId(it) === editingTabId)) {
+                        editingTabId = null;
+                    }
+                    ensureActiveId();
+                    if (mode === 'tabs') {
+                        renderTabs('setItems');
+                    } else {
+                        renderCards('setItems');
+                    }
+                },
+                getActiveId() {
+                    return activeId;
+                },
+                setActiveId(id) {
+                    if (editingTabId && editingTabId !== String(id || '')) {
+                        discardEditingTabAndExit();
+                        renderTabs();
+                    }
+                    setActiveIdInternal(id, { silent: false });
+                },
+                setEditMode(next) {
+                    if (!tabsEditable) return;
+                    if (!next) {
+                        discardEditingTabAndExit();
+                    }
+                    editMode = !!next;
+                    if (mode === 'tabs') {
+                        renderTabs();
+                    }
+                },
+                scrollActiveIntoView() {
+                    if (mode !== 'tabs' || !activeId) return;
+                    const tabEls = track.querySelectorAll(TAB_SELECTOR);
+                    for (let i = 0; i < tabEls.length; i += 1) {
+                        const el = tabEls[i];
+                        if (el.dataset.llCarouselTabId === activeId) {
+                            el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                            break;
+                        }
+                    }
+                }
+            };
+
+            return api;
+        }
+
+        /** @deprecated Use **`syncLlumenRowBandGapRows`**; kept as an alias for existing call sites. */
+        const syncLlumenRowBandPhantomRows = syncLlumenRowBandGapRows;
+
     windowScope.LlumenComponents = {
         initializeTabs,
         initializePortaledDropdown,
         initializeScrollableTabs,
+        initializeHorizontalCarousel,
         initializeTreeView,
         refreshExpandedTreeViewHeights,
         renderDragDropCardList,
+        initSortableList,
+        initVerticalSortableList,
+        readLlumenGridSurfaceLayout,
+        readLlumenGridTilesModelFromHost,
+        adaptLlumenGridTilesModelToColumnCount,
+        writeLlumenGridTilesModelToHost,
+        initGridTileModelContext,
+        initGridTileSpanResize,
+        initLlumenFlexBandUnitResize,
+        setLlumenBandWidthClass,
+        initGridTilePointerMove,
+        initGridDropContext,
+        initCanvasDropContext,
+        createPointerDragSession: runLlumenPointerDragSession,
+        initResizableElement,
+        initLlumenSurfaceFreeformResize,
+        initLlumenSurfacePlacedItemDrag,
+        readLlumenSurfacePlacedItemsModelFromHost,
+        writeLlumenSurfacePlacedItemsModelToHost,
+        applyLlumenSurfacePlacedItemsModel,
+        LLUMEN_SURFACE_OVERLAP_DEFAULT_METRICS,
+        llumenSurfaceRectVisualBounds,
+        llumenSurfaceBoundsOverlap,
+        llumenSurfaceMoveLayoutAwayFromBase,
+        resolveLlumenSurfaceRectOverlaps,
+        syncLlumenRowBandGapRows,
+        syncLlumenRowBandPhantomRows,
+        initLlumenRowBandSortables,
+        initRowBandContext,
+        initListingModule,
+        readLlumenRowBandModelFromHost,
+        writeLlumenRowBandModelToHost,
+        normalizeLlumenRowBandRowShellsForCapacity,
+        reflowLlumenRowBandModelForMaxUnits,
+        llumenRowBandShellUnitsForHostCapacity,
         hideCustomTooltip,
         showCustomTooltip,
         bindCustomTooltip,

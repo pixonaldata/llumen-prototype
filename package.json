@@ -6,6 +6,7 @@
     "watch:llumen-components-css": "npm run watch:tailwind"
   },
   "dependencies": {
+    "@paper-design/shaders": "^0.0.76",
     "@tailwindcss/cli": "^4.2.2",
     "tailwindcss": "^4.2.2"
   }

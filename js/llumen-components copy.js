@@ -5301,7 +5301,7 @@
                 cardBlock.draggable = false;
                 cardBlock.innerHTML = `
                     <div class="ll-dragdrop-card-list__card-header">
-                        <span class="ll-dragdrop-card-list__card-heading node-config-card-heading">${escapeHtml(itemHeadingLabel)} ${index + 1}</span>
+                        <span class="ll-dragdrop-card-list__card-heading">${escapeHtml(itemHeadingLabel)} ${index + 1}</span>
                         ${(showDragAction || showDeleteAction) ? `
                             <div class="ll-dragdrop-card-list__card-actions">
                                 ${showDragAction ? `
