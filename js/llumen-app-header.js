@@ -53,32 +53,30 @@
         const userInitial = String(options.userInitial || 'J').trim() || 'J';
         const logoText = String(options.logoText || 'Client Logo').trim() || 'Client Logo';
         return `
-            <div class="flex items-center">
+            <div class="ll-app-header__inner">
                 <a href="${logoHref}">
-                    <div class="w-[2.375rem] h-[2.375rem]">
+                    <div class="ll-app-logo">
                         <svg viewBox="0 0 32 32" class="w-full h-full">
-                            <circle cx="16" cy="16" r="16" fill="#dc2626"></circle>
-                            <circle cx="16" cy="16" r="8" fill="#ffffff"></circle>
+                            <circle cx="16" cy="16" r="16" fill="rgb(115,173,245)"></circle>
+                            <circle cx="16" cy="16" r="8" fill="rgb(238 238 238)"></circle>
                         </svg>
                     </div>
                 </a>
-                <div class="h-[2.375rem] border-l ll-border-divider ml-4"></div>
+                <div class="ll-border-divider"></div>
                 <a href="${logoHref}">
-                    <div class="flex items-center justify-center px-3 py-1 rounded-lg bg-gray-950 text-white text-sm font-semibold h-[2.375rem] ml-4">
+                    <div class="ll-client-logo">
                         <span>${logoText}</span>
                     </div>
                 </a>
-                <div class="w-[20rem] ml-4">
-                    <div class="ll-input-with-left-icon ll-listing-module-search-input">
-                        <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
-                            <span class="material-symbols-outlined">search</span>
-                        </div>
-                        <input id="app-header-search-input" type="text" placeholder="Search..." class="ll-input ll-input--search ll-input-with-left-icon__input">
+                <div class="ll-input-with-left-icon ll-listing-module-search-input">
+                    <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
+                        <span class="material-symbols-outlined">search</span>
                     </div>
+                    <input id="app-header-search-input" type="text" placeholder="Search..." class="ll-input ll-input--search ll-input-with-left-icon__input">
                 </div>
             </div>
-            <div class="flex items-center">
-                <div class="relative mr-4">
+            <div class="ll-app-header__inner">
+                <div class="relative">
                     <button id="create-dropdown-button" type="button" class="ll-btn ll-btn--outline-default ll-dropdown__trigger">
                         <span class="material-symbols-outlined ll-btn__icon">add</span>
                         <span>Create</span>
@@ -87,7 +85,7 @@
                         ${getCreateDropdownMarkup()}
                     </div>
                 </div>
-                <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline ll-icon-btn--lg mr-4" aria-label="Notifications">
+                <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline ll-icon-btn--lg" aria-label="Notifications">
                     <span class="material-symbols-outlined ll-icon-btn__icon">notifications</span>
                 </button>
                 <div class="relative">

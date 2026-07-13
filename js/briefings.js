@@ -27,6 +27,12 @@
             accent: '#3b82f6'
         }
     };
+    const BRIEFING_TYPE_SELECTION_STATE = {
+        Alert: 'negative',
+        Report: 'warning',
+        Feedback: 'positive',
+        Update: 'primary'
+    };
 
     const PREBUILT_BG_COMPONENTS = [
         {
@@ -511,6 +517,30 @@
         }
     };
     let latestBriefingMenuOutsideListenerBound = false;
+    let createModalController = null;
+    let backgroundModalController = null;
+    let externalUrlModalController = null;
+    let backgroundModalLastRenderedStep = null;
+    let createModalInitialSnapshot = '';
+    let createTypeRadioApi = null;
+    let createExpireDaysRadioApi = null;
+    let createSlidesCarouselApi = null;
+    let createSlidesTabsController = null;
+    let createSlidePanelsSignature = '';
+    let isSyncingSlidesCarouselFromState = false;
+    let backgroundPrebuiltListingApi = null;
+    let backgroundCustomListingApi = null;
+
+    function destroyBackgroundStepOneListings() {
+        if (backgroundPrebuiltListingApi && typeof backgroundPrebuiltListingApi.destroy === 'function') {
+            backgroundPrebuiltListingApi.destroy();
+        }
+        if (backgroundCustomListingApi && typeof backgroundCustomListingApi.destroy === 'function') {
+            backgroundCustomListingApi.destroy();
+        }
+        backgroundPrebuiltListingApi = null;
+        backgroundCustomListingApi = null;
+    }
 
     function notify(message, type = 'info') {
         if (typeof window.alertMessage === 'function') {
@@ -622,22 +652,14 @@
             }
             .briefing-modal-hidden { display: none; }
             .briefing-create-shell {
-                width: 100%;
                 height: 100%;
-                padding: 1.5rem;
-                box-sizing: border-box;
                 display: flex;
                 justify-content: center;
                 align-items: stretch;
             }
             .briefing-create-panel {
-                --briefing-left-width: 400px;
-                width: calc(var(--briefing-left-width) + var(--briefing-canvas-width, 360px));
-                max-width: calc(100vw - 3rem);
+                --briefing-left-width: 400px;                
                 height: 100%;
-                border-radius: 1rem;
-                border: 1px solid #374151;
-                background: #111827;
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
@@ -653,7 +675,6 @@
                 border-bottom: 1px solid #374151;
             }
             .briefing-create-left {
-                border-right: 1px solid #374151;
                 padding: 1.25rem;
                 overflow-y: auto;
             }
@@ -672,117 +693,9 @@
                 flex-wrap: wrap;
                 gap: 0.5rem;
             }
-            .briefing-link-add-btn {
+            .briefing-type-option-content {
                 display: inline-flex;
                 align-items: center;
-                gap: 0.35rem;
-                border: 1px solid rgba(255,255,255,0.16);
-                background: rgba(31,41,55,0.8);
-                border-radius: 0.5rem;
-                padding: 0.58rem 0.65rem;
-                font-size: 0.82rem;
-                color: #e5e7eb;
-                transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
-            }
-            .briefing-link-add-btn:hover {
-                background: rgba(55,65,81,0.95);
-                color: #fff;
-            }
-            .briefing-link-summary {
-                color: #f3f4f6;
-                font-size: 0.86rem;
-                font-weight: 500;
-                line-height: 1.3;
-            }
-            .briefing-link-url-text {
-                min-width: 0;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                display: inline-block;
-                max-width: 100%;
-            }
-            .briefing-link-meta {
-                color: #9ca3af;
-                font-size: 0.76rem;
-                margin-top: 0.2rem;
-            }
-            .briefing-link-mini-actions {
-                margin-top: 0.75rem;
-                display: flex;
-                gap: 0.45rem;
-            }
-            .briefing-link-mini-btn {
-                border: 1px solid rgba(255,255,255,0.18);
-                border-radius: 999px;
-                padding: 0.375rem 0.75rem;
-                font-size: 0.75rem;
-                color: #fff;
-                background: rgba(31,41,55,0.9);
-            }
-            .briefing-link-mini-btn.is-danger {
-                border-color: rgba(248,113,113,0.55);
-                color: #fecaca;
-            }
-            .briefing-type-grid {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.55rem;
-            }
-            .briefing-type-btn {
-                border: 1px solid rgba(255,255,255,0.16);
-                background: rgba(31,41,55,0.8);
-                border-radius: 0.5rem;
-                padding: 0.58rem 0.65rem;
-                display: flex;
-                align-items: center;
-                gap: 0.45rem;
-                font-size: 0.82rem;
-                color: #e5e7eb;
-                transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
-            }
-            .briefing-type-btn .material-symbols-outlined {
-                font-size: 18px;
-            }
-            .briefing-type-btn:hover {
-                background: rgba(55,65,81,0.95);
-                color: #fff;
-            }
-            .briefing-type-btn.is-active {
-                background: rgba(127,29,29,0.35);
-                border-color: rgb(220 38 38 / var(--tw-bg-opacity, 1));
-                color: #fff;
-            }
-            .briefing-days-grid {
-                display: grid;
-                grid-template-columns: repeat(5, minmax(0, 1fr));
-                gap: 0.45rem;
-            }
-            .briefing-days-btn {
-                border: 1px solid rgba(255,255,255,0.16);
-                background: rgba(31,41,55,0.8);
-                border-radius: 0.5rem;
-                padding: 0.5rem 0.45rem;
-                text-align: center;
-                font-size: 0.82rem;
-                color: #e5e7eb;
-                transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
-            }
-            .briefing-days-btn:hover {
-                background: rgba(55,65,81,0.95);
-                color: #fff;
-            }
-            .briefing-days-btn.is-active {
-                background: rgba(127,29,29,0.35);
-                border-color: rgb(220 38 38 / var(--tw-bg-opacity, 1));
-                color: #fff;
-            }
-            .briefing-create-footer {
-                border-top: 1px solid #374151;
-                padding: 1.5rem;
-                display: flex;
-                justify-content: flex-end;
-                gap: 0.75rem;
             }
             .briefing-create-right {
                 padding: 0;
@@ -792,45 +705,6 @@
                 justify-content: center;
                 width: var(--briefing-canvas-width, 360px);
                 min-width: 220px;
-            }
-            .briefing-field {
-                width: 100%;
-                background: #1f2937;
-                color: #fff;
-                border: 1px solid #4b5563;
-                border-radius: 0.5rem;
-                padding: 0.6rem 0.75rem;
-                font-size: 0.875rem;
-            }
-            .briefing-field[type="color"] {
-                width: 60px;
-                height: 60px;
-            }
-            .briefing-field[type="range"] {
-                max-width: 280px;
-                padding: 0;
-            }
-            .briefing-field::placeholder { color: #9ca3af; }
-            .briefing-slide-tabs {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                overflow-x: auto;
-                padding-bottom: 0.5rem;
-            }
-            .briefing-slide-tab {
-                border: 1px solid #4b5563;
-                border-radius: 9999px;
-                background: #1f2937;
-                color: #d1d5db;
-                font-size: 0.75rem;
-                padding: 0.25rem 0.7rem;
-                white-space: nowrap;
-            }
-            .briefing-slide-tab.is-active {
-                border-color: #ef4444;
-                color: #fff;
-                background: #7f1d1d;
             }
             .briefing-phone-preview {
                 width: min(280px, 100%);
@@ -916,20 +790,18 @@
             }
             .briefing-viewer-link-btn {
                 display: inline-flex;
-                align-items: center;
-                gap: 0.375rem;
-                background: #ffffff;
-                color: #0f0f0f;
-                font-size: 0.875rem;
-                font-weight: 500;
-                padding: 0.5rem 0.75rem;
-                border-radius: 9999px;
-                backdrop-filter: blur(5px);
                 max-width: calc(100% - 24px);
-                border: 0;
-                white-space: nowrap;
+                pointer-events: none;
+            }
+            .briefing-viewer-link-btn .ll-btn {
+                max-width: 100%;
+                pointer-events: auto;
+            }
+            .briefing-viewer-link-btn [data-role="viewer-link-label"] {
+                min-width: 0;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                white-space: nowrap;
             }
             @keyframes briefing-stage-slide-in-next {
                 from {
@@ -978,10 +850,36 @@
                 width: 100%;
                 height: 100%;
                 flex: 1 1 auto;
-                background: #111827;
             }
-            #briefing-slide-editor,
-            #briefing-slide-canvas-host {
+            #briefing-slide-editor {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: stretch;
+                min-height: 0;
+                position: relative;
+            }
+            #briefing-slide-tab-panels {
+                width: 100%;
+                flex: 1 1 auto;
+                min-height: 0;
+                position: relative;
+                height: 100%;
+                padding: 0;
+            }
+            .briefing-slide-panel {
+                width: 100%;
+                height: 100%;
+                display: none;
+            }
+            .briefing-slide-panel:not(.hidden) {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .briefing-slide-panel > [data-briefing-slide-canvas-host] {
                 width: 100%;
                 height: 100%;
                 display: flex;
@@ -989,10 +887,11 @@
                 align-items: center;
             }
             .briefing-editor-stage {
-                height: 100%;
                 width: auto;
+                height: 100%;                
                 aspect-ratio: 9 / 16;
                 max-width: 100%;
+                padding-top: 4.4375rem;
                 overflow: hidden;
                 position: relative;
                 background: transparent;
@@ -1013,28 +912,9 @@
                 gap: 0.45rem;
                 width: 100%;
             }
-            .briefing-editor-slide-tabs-inline {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                gap: 0.4rem;
-                overflow-x: auto;
-                padding: 0.2rem 0.1rem;
-            }
-            .briefing-slide-tab-inline {
-                border: 1px solid rgba(255,255,255,0.35);
-                border-radius: 9999px;
-                background: rgba(31,41,55,0.86);
-                color: #d1d5db;
-                font-size: 0.75rem;
-                padding: 0.25rem 0.65rem;
-                white-space: nowrap;
-            }
-            .briefing-slide-tab-inline.is-active {
-                border-color: #ef4444;
-                background: rgba(127,29,29,0.9);
-                color: #fff;
-            }
+                .briefing-editor-slides-bar .ll-carousel__track {
+                    padding-inline: 1.25rem;
+                }
             .briefing-editor-bg-layer {
                 position: absolute;
                 inset: 0;
@@ -1065,8 +945,16 @@
             .briefing-editor-elements.dragging-active {
                 z-index: 30;
             }
+            .briefing-editor-tabs-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 8;
+                padding-top: 1rem;
+            }
             .briefing-editor-header {
-                padding: 0.75rem;
+                padding: 1rem 1.25rem 0;
             }
             .briefing-editor-top-tools {
                 display: flex;
@@ -1079,7 +967,7 @@
                 min-height: 0;
                 display: flex;
                 align-items: stretch;
-                padding: 0.75rem;
+                padding: 1.25rem;
                 position: relative;
             }
             .briefing-elements-frame {
@@ -1091,7 +979,7 @@
             }
             .briefing-editor-footer {
                 height: 7.6875rem;
-                padding: 0.75rem;
+                padding: 1.25rem;
                 border: 0;
                 display: flex;
                 flex-direction: column;
@@ -1103,7 +991,7 @@
             .briefing-editor-element {
                 position: absolute;
                 max-width: 84%;
-                cursor: pointer;
+                cursor: grab;
             }
             .briefing-editor-element.is-selected {
 
@@ -1165,10 +1053,7 @@
                 min-width: 0;
             }
             .briefing-editor-slides-separator {
-                position: static;
-                height: 1px;
-                background: rgba(255,255,255,0.22);
-                margin: 0.75rem 0;
+                margin-top: 1rem;
             }
             .briefing-editor-addtools {
                 position: static;
@@ -1188,18 +1073,6 @@
                 width: fit-content;
                 margin: 0 auto;
                 transition: opacity 160ms ease;
-            }
-            .briefing-icon-btn {
-                width: 34px;
-                height: 34px;
-                border-radius: 9999px;
-                border: 1px solid rgba(255,255,255,0.18);
-                color: #f3f4f6;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(31,41,55,0.86);
-                flex-shrink: 0;
             }
             .briefing-editor-color-row {
                 padding: 0.45rem;
@@ -1245,24 +1118,25 @@
                 transform: rotate(-90deg);
                 transform-origin: center;
             }
-            .briefing-tool-btn-active {
-                border-color: rgba(239,68,68,0.8);
-                box-shadow: 0 0 0 1px rgba(239,68,68,0.35) inset;
-            }
             .briefing-control-hidden {
                 visibility: hidden;
                 opacity: 0;
                 pointer-events: none;
             }
-            #briefing-bg-modal.briefing-modal-backdrop {
+            #briefing-bg-modal.ll-modal .ll-modal__backdrop {
                 background: rgba(0,0,0,0.5);
+            }
+            #briefing-bg-modal.ll-modal .ll-modal__frame {
                 align-items: flex-start;
                 padding: 2.5rem;
             }
-            .briefing-bg-modal-panel {
-                width: 91.666667%;
+            #briefing-bg-modal.ll-modal .ll-modal__body {
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+            #briefing-bg-modal.ll-modal .ll-modal__content {
                 height: 100%;
-                max-width: 1400px;
                 border-radius: 0.5rem;
                 background: #111827;
                 box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
@@ -1280,22 +1154,22 @@
                 flex-direction: column;
                 overflow: hidden;
             }
-            .briefing-bg-tabs {
-                display: flex;
-                gap: 0.95rem;
-                padding: 1rem 1.5rem 0;
-                user-select: none;
-            }
             .briefing-bg-step-header {
                 display: flex;
                 align-items: center;
-                gap: 1rem;
                 padding: 1rem 1.5rem;
             }
+            .briefing-bg-step-header .ll-modal__title-section {
+                width: 100%;
+            }
             .briefing-bg-step-title {
-                color: #fff;
-                font-size: 0.95rem;
-                font-weight: 600;
+                margin: 0;
+            }
+            .briefing-bg-step-layout {
+                min-height: 0;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
             }
             .briefing-bg-step-wrap {
                 min-height: 0;
@@ -1305,47 +1179,45 @@
             }
             .briefing-bg-prebuilt-layout {
                 display: grid;
-                grid-template-columns: 240px 1fr;
+                grid-template-columns: 16rem 1fr;
                 height: 100%;
                 flex: 1;
                 overflow: hidden;
             }
+            .briefing-bg-prebuilt-layout.hidden {
+                display: none;
+            }
             .briefing-bg-categories {
                 padding: 1rem 1.5rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.35rem;
                 min-height: 0;
                 overflow: auto;
             }
+            .briefing-bg-category-panels {
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+            }
             .briefing-bg-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                align-content: start;
-                gap: 1.5rem;
                 padding: 1.5rem;
                 overflow: auto;
             }
-            .briefing-bg-card {
-                border: 1px solid rgba(255,255,255,0.15);
-                border-radius: 12px;
-                background: rgba(15,23,42,0.64);
-                text-align: left;
-                display: flex;
-                flex-direction: column;
-                align-items: start;
+            .briefing-bg-grid.hidden {
+                display: none;
+            }
+            .briefing-bg-card.hidden {
+                display: none;
+            }
+            .briefing-bg-grid > .ll-card.hidden {
+                display: none;
             }
             .briefing-bg-card.is-selected {
-                border-color: rgba(239,68,68,0.92);
-                box-shadow: 0 0 0 1px rgba(239,68,68,0.45) inset;
+                border-color: var(--ll-border-primary-subtle);
+                box-shadow: 0 0 0 1px var(--ll-border-primary-subtle) inset;
             }
             .briefing-bg-card-thumb {
                 width: 100%;
-                aspect-ratio: 16 / 9;
                 object-fit: cover;
                 display: block;
-                border-top-left-radius: 12px;
-                border-top-right-radius: 12px;
             }
             .briefing-bg-card-body {
                 padding: 0.75rem 1rem;
@@ -1366,9 +1238,6 @@
                 height: 100%;
             }
             .briefing-bg-config-panel {
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
                 overflow: auto;
                 padding: 1.5rem;
             }
@@ -1407,7 +1276,6 @@
                 flex-wrap: nowrap;
                 margin-right: 0.75rem;
                 padding-right: 0.75rem;
-                border-right: 1px solid rgba(255, 255, 255, 0.22);
             }
             .briefing-bg-pill {
                 font-size: 0.75rem;
@@ -1437,64 +1305,14 @@
                 transform: translateX(-50%);
                 z-index: 9;
                 display: inline-flex;
-                align-items: center;
-                gap: 0.375rem;
-                background: #ffffff;
-                color: #0f0f0f;
-                font-size: 0.875rem;
-                font-weight: 500;
-                padding: 0.5rem 0.75rem;
-                border-radius: 9999px;
-                backdrop-filter: blur(5px);
                 max-width: calc(100% - 24px);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
                 pointer-events: none;
             }
-            #briefing-external-link-modal {
-                padding: 1.5rem;
-                align-items: start;
-            }
-            .briefing-external-link-modal-panel {
-                width: min(680px, 91.666667%);
-                max-height: 100%;
-                border-radius: 0.5rem;
-                background: #111827;
-                box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
-                display: flex;
-                flex-direction: column;
+            .briefing-preview-link-btn [data-role="preview-link-label"] {
+                min-width: 0;
                 overflow: hidden;
-            }
-            @media (max-width: 1024px) {
-                .briefing-create-panel {
-                    width: 100%;
-                    max-width: none;
-                }
-                .briefing-create-main {
-                    grid-template-columns: 1fr;
-                }
-                .briefing-create-left {
-                    border-right: 0;
-                    border-bottom: 1px solid #374151;
-                }
-                .briefing-create-right {
-                    width: 100%;
-                    min-width: 0;
-                }
-                .briefing-editor-stage-wrap {
-                    height: 100%;
-                }
-                .briefing-editor-stage {
-                    height: 100%;
-                    width: auto;
-                    aspect-ratio: 9 / 16;
-                    max-width: 100%;
-                }
-                .briefing-bg-prebuilt-layout,
-                .briefing-bg-config-wrap {
-                    grid-template-columns: 1fr;
-                }
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         `;
         document.head.appendChild(style);
@@ -1709,93 +1527,211 @@
 
     function emptySlide() {
         return {
-            backgroundType: 'color',
-            backgroundValue: '#111827',
+            slideId: createId(),
+            backgroundType: '',
+            backgroundValue: '',
             backgroundComponent: null,
             hasConfiguredBackground: false,
             elements: []
         };
     }
 
-    function ensureCreateModal() {
-        if (document.getElementById('briefing-create-modal')) return;
-
-        const modal = document.createElement('div');
-        modal.id = 'briefing-create-modal';
-        modal.className = 'briefing-modal-backdrop briefing-modal-hidden';
-        modal.innerHTML = `
-            <div class="briefing-create-shell">
-                <div class="briefing-create-panel">
-                    <div class="briefing-create-header">
-                        <div class="flex items-center justify-between">
-                            <h3 id="briefing-create-modal-title" class="text-white text-xl font-semibold">Create Briefing</h3>
-                            <button type="button" data-action="close-create" class="flex items-center text-gray-400 hover:text-white transition duration-200">
-                                <span class="material-symbols-outlined text-2xl">close</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="briefing-create-main">
-                        <div class="briefing-create-left">
-                            <div class="space-y-6">
-                                <div>
-                                    <div id="briefing-owner-display" class="briefing-owner-display"></div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-300 mb-2">Title</label>
-                                    <input id="briefing-title" class="briefing-field" type="text" placeholder="Enter briefing title">
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-300 mb-2">Type</label>
-                                    <div id="briefing-type-picker" class="briefing-type-grid"></div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-300 mb-2">Days to Expire</label>
-                                    <div id="briefing-expire-days-picker" class="briefing-days-grid"></div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-300 mb-2">Optional Link</label>
-                                    <div id="briefing-optional-link" class="briefing-optional-link-box"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="briefing-create-right">
-                            <div class="briefing-editor-stage-wrap">
-                                <div id="briefing-slide-editor"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="briefing-create-footer">
-                        <button type="button" data-action="cancel-create" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">Cancel</button>
-                        <button type="button" id="briefing-create-submit-btn" data-action="save-briefing" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200">Publish Briefing</button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-
-        modal.querySelector('[data-action="close-create"]').addEventListener('click', closeCreateModal);
-        modal.querySelector('[data-action="cancel-create"]').addEventListener('click', closeCreateModal);
-        modal.querySelector('[data-action="save-briefing"]').addEventListener('click', publishBriefing);
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) closeCreateModal();
+    function getCreateFlowSnapshot() {
+        const createState = state.create || {};
+        const normalizeOptionalLink = (link) => {
+            if (!link || typeof link !== 'object') return null;
+            return {
+                type: String(link.type || ''),
+                label: String(link.label || ''),
+                url: String(link.url || ''),
+                contentType: String(link.contentType || ''),
+                itemId: String(link.itemId || ''),
+                workspace: String(link.workspace || ''),
+                itemTitle: String(link.itemTitle || '')
+            };
+        };
+        const normalizeSlides = (slides) => {
+            if (!Array.isArray(slides)) return [];
+            return slides.map((slide) => ({
+                backgroundType: String(slide && slide.backgroundType || ''),
+                backgroundValue: String(slide && slide.backgroundValue || ''),
+                hasConfiguredBackground: Boolean(slide && slide.hasConfiguredBackground),
+                backgroundComponent: slide && slide.backgroundComponent ? JSON.parse(JSON.stringify(slide.backgroundComponent)) : null,
+                elements: Array.isArray(slide && slide.elements) ? JSON.parse(JSON.stringify(slide.elements)) : []
+            }));
+        };
+        return JSON.stringify({
+            owner: String(createState.owner || ''),
+            title: String(createState.title || ''),
+            type: String(createState.type || 'Alert'),
+            expiresInDays: normalizeExpireDays(createState.expiresInDays),
+            linkUrl: String(createState.linkUrl || ''),
+            linkLabel: String(createState.linkLabel || ''),
+            optionalLink: normalizeOptionalLink(createState.optionalLink),
+            slides: normalizeSlides(createState.slides)
         });
     }
 
-    function closeBackgroundModal() {
-        const modal = document.getElementById('briefing-bg-modal');
-        if (!modal) return;
-        modal.classList.add('briefing-modal-hidden');
-        const createModal = document.getElementById('briefing-create-modal');
-        if (createModal && !createModal.classList.contains('briefing-modal-hidden')) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
+    function shouldBlockCreateModalClose() {
+        if (!state.create || state.create.mode !== 'create') return false;
+        if (!createModalInitialSnapshot) return false;
+        return getCreateFlowSnapshot() !== createModalInitialSnapshot;
+    }
+
+    function confirmDiscardCreateChanges() {
+        const llComponents = window.LlumenComponents;
+        if (!llComponents || typeof llComponents.initializeConfirmationDialog !== 'function') {
+            return Promise.resolve(false);
         }
+        return new Promise((resolve) => {
+            const controller = llComponents.initializeConfirmationDialog({
+                title: 'Discard unsaved changes?',
+                bodyContent: '<p>You have unsaved Create Briefing changes. Do you want to keep editing or discard your changes?</p>',
+                cancelLabel: 'Keep Editing',
+                confirmLabel: 'Discard Changes',
+                cancelButtonClassName: 'll-btn ll-btn--outline-default',
+                confirmButtonClassName: 'll-btn ll-btn--negative',
+                onCancel: () => resolve(false),
+                onConfirm: () => resolve(true)
+            });
+            controller.open();
+        });
+    }
+
+    function runCreateModalShownSizingPass() {
+        requestAnimationFrame(() => {
+            sizeCreateCanvasStage();
+            requestAnimationFrame(() => {
+                sizeCreateCanvasStage();
+            });
+            setTimeout(() => {
+                sizeCreateCanvasStage();
+            }, 260);
+        });
+    }
+
+    function ensureCreateModal() {
+        if (createModalController && createModalController.root && createModalController.root.parentNode) return;
+        const llComponents = window.LlumenComponents;
+        if (!llComponents || typeof llComponents.initializeModal !== 'function') return;
+
+        createModalController = llComponents.initializeModal({
+            id: 'briefing-create-modal',
+            width: '78rem',
+            fitContentWidth: true,
+            fullHeight: true,
+            openOnInit: false,
+            bodyPadding: false,
+            title: 'Create Briefing',
+            bodyContent: `
+                <div class="briefing-create-shell">
+                    <div class="briefing-create-panel">
+                        <div class="briefing-create-main">
+                            <div class="briefing-create-left border-r ll-border-divider">
+                                <div class="ll-field-group">
+                                    <div class="ll-field">
+                                        <div class="ll-form-control__label-row">
+                                            <label class="ll-form-control__label">Workspace</label>
+                                        </div>
+                                        <div id="briefing-owner-display" class="briefing-owner-display ll-form-control__text-value"></div>
+                                    </div>
+                                    <div class="ll-field">
+                                        <div class="ll-form-control__label-row">
+                                            <label class="ll-form-control__label" for="briefing-title">Title</label>
+                                        </div>
+                                        <input id="briefing-title" class="ll-input" type="text" placeholder="Enter briefing title">
+                                        <div id="briefing-title-error" class="ll-form-control__error hidden">Briefing Title is required.</div>
+                                    </div>
+                                    <div class="ll-field">
+                                        <div class="ll-form-control__label-row">
+                                            <label class="ll-form-control__label">Type</label>
+                                        </div>
+                                        <div id="briefing-type-picker"></div>
+                                    </div>
+                                    <div class="ll-field">
+                                        <div class="ll-form-control__label-row">
+                                            <label class="ll-form-control__label">Days to Expire</label>
+                                        </div>
+                                        <div id="briefing-expire-days-picker"></div>
+                                    </div>
+                                    <div class="ll-field">
+                                        <div class="ll-form-control__label-row">
+                                            <label class="ll-form-control__label">Optional Link</label>
+                                        </div>
+                                        <div id="briefing-optional-link" class="briefing-optional-link-box"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="briefing-create-right">
+                                <div class="briefing-editor-stage-wrap">
+                                    <div id="briefing-slide-editor"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            footerContent: `
+                <button type="button" id="briefing-create-cancel-btn" class="ll-btn ll-btn--outline-default">Cancel</button>
+                <button type="button" id="briefing-create-submit-btn" class="ll-btn ll-btn--primary">Publish Briefing</button>
+            `,
+            onRequestClose: async ({ reason }) => {
+                if (!shouldBlockCreateModalClose()) return true;
+                return confirmDiscardCreateChanges();
+            },
+            onOpen: ({ controller }) => {
+                controller.root.classList.remove('briefing-modal-hidden');
+                runCreateModalShownSizingPass();
+            },
+            onClose: ({ controller }) => {
+                controller.root.classList.add('briefing-modal-hidden');
+                if (backgroundModalController && typeof backgroundModalController.isOpen === 'function' && backgroundModalController.isOpen()) {
+                    backgroundModalController.close('create-modal-closed');
+                }
+                if (externalUrlModalController && typeof externalUrlModalController.isOpen === 'function' && externalUrlModalController.isOpen()) {
+                    externalUrlModalController.close('create-modal-closed');
+                }
+                state.create.backgroundPicker = null;
+            }
+        });
+
+        if (!createModalController || !createModalController.root) return;
+        createModalController.root.classList.add('briefing-modal-hidden');
+        createTypeRadioApi = null;
+        createExpireDaysRadioApi = null;
+        const cancelButton = createModalController.root.querySelector('#briefing-create-cancel-btn');
+        const submitButton = createModalController.root.querySelector('#briefing-create-submit-btn');
+        if (cancelButton) {
+            cancelButton.addEventListener('click', () => {
+                closeCreateModal();
+            });
+        }
+        if (submitButton) {
+            submitButton.addEventListener('click', () => {
+                publishBriefing();
+            });
+        }
+    }
+
+    function closeBackgroundModal() {
+        backgroundModalLastRenderedStep = null;
+        if (!backgroundModalController || typeof backgroundModalController.close !== 'function') {
+            return Promise.resolve(false);
+        }
+        return backgroundModalController.close('close-background-modal');
     }
 
     function getPrebuiltCategories() {
         return Array.from(new Set(PREBUILT_BG_COMPONENTS.map((entry) => entry.category)));
+    }
+
+    function toSafeSlug(value) {
+        const normalized = String(value || '')
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        return normalized || 'item';
     }
 
     function findBackgroundComponentById(componentId) {
@@ -1869,8 +1805,8 @@
 
     function resetSlideBackground(slide) {
         if (!slide) return;
-        slide.backgroundType = 'color';
-        slide.backgroundValue = '#111827';
+        slide.backgroundType = '';
+        slide.backgroundValue = '';
         slide.backgroundComponent = null;
         slide.hasConfiguredBackground = false;
     }
@@ -1903,14 +1839,35 @@
     }
 
     function renderBackgroundModal() {
-        const modal = document.getElementById('briefing-bg-modal');
+        const modal = backgroundModalController && backgroundModalController.root
+            ? backgroundModalController.root
+            : document.getElementById('briefing-bg-modal');
         const slide = getActiveCreateSlide();
         if (!modal || !slide) return;
+        if (!modal.__bgStepBackHandlerBound) {
+            modal.addEventListener('click', (event) => {
+                const trigger = event.target instanceof Element
+                    ? event.target.closest('[data-bg-action="step-back"]')
+                    : null;
+                if (!trigger || !modal.contains(trigger)) return;
+                event.preventDefault();
+                event.stopPropagation();
+                const activeSlide = getActiveCreateSlide();
+                if (!activeSlide) return;
+                const activePicker = getBackgroundPickerState(activeSlide);
+                activePicker.step = 1;
+                renderBackgroundModal();
+            });
+            modal.__bgStepBackHandlerBound = true;
+        }
+        const llComponents = window.LlumenComponents;
         const picker = getBackgroundPickerState(slide);
+        const previousStep = Number.isFinite(backgroundModalLastRenderedStep)
+            ? backgroundModalLastRenderedStep
+            : picker.step;
         const contentWrap = modal.querySelector('.briefing-bg-modal-content');
         const body = modal.querySelector('#briefing-bg-modal-body');
         const footerActions = modal.querySelector('.briefing-bg-footer-actions');
-        let tabsWrap = modal.querySelector('#briefing-bg-tabs');
         let stepHeader = modal.querySelector('#briefing-bg-step-header');
         let applyBtn = modal.querySelector('[data-bg-action="apply"]');
         if (!contentWrap || !body || !footerActions) return;
@@ -1918,44 +1875,26 @@
         const selectedDef = findBackgroundComponentById(picker.selectedComponentId);
         const canApply = Boolean(selectedDef);
         const categories = getPrebuiltCategories();
-        const normalizedSearch = String(picker.searchQuery || '').trim().toLowerCase();
-        const prebuiltItems = PREBUILT_BG_COMPONENTS.filter((item) => {
-            const categoryMatch = picker.category === BG_ALL_COMPONENTS_CATEGORY || item.category === picker.category;
-            if (!categoryMatch) return false;
-            if (!normalizedSearch) return true;
-            const haystack = `${item.title} ${item.description} ${item.category}`.toLowerCase();
-            return haystack.includes(normalizedSearch);
-        });
         const customItems = CUSTOM_BG_COMPONENTS;
-
-        if (picker.step === 1) {
-            if (!tabsWrap) {
-                tabsWrap = document.createElement('div');
-                tabsWrap.id = 'briefing-bg-tabs';
-                tabsWrap.className = 'briefing-bg-tabs border-b border-gray-700';
-                contentWrap.insertBefore(tabsWrap, contentWrap.firstChild);
-            }
-            tabsWrap.innerHTML = `
-                <button type="button" class="internal-tab-item pb-2 px-1 border-b-2 ${picker.tab === 'prebuilt' ? 'border-red-500 text-white' : 'border-transparent text-gray-400 hover:text-white'} font-medium text-sm" data-bg-tab="prebuilt">Pre-Built</button>
-                <button type="button" class="internal-tab-item pb-2 px-1 border-b-2 ${picker.tab === 'custom' ? 'border-red-500 text-white' : 'border-transparent text-gray-400 hover:text-white'} font-medium text-sm" data-bg-tab="custom">Custom</button>
-            `;
-        } else if (tabsWrap) {
-            tabsWrap.remove();
-            tabsWrap = null;
-        }
 
         if (picker.step === 2) {
             if (!stepHeader) {
                 stepHeader = document.createElement('div');
                 stepHeader.id = 'briefing-bg-step-header';
-                stepHeader.className = 'briefing-bg-step-header border-b border-gray-700';
+                stepHeader.className = 'briefing-bg-step-header border-b ll-border-divider';
                 contentWrap.insertBefore(stepHeader, body);
             }
             stepHeader.innerHTML = `
-                <button type="button" data-bg-action="step-back" class="flex items-center justify-center w-9 h-9 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition duration-200">
-                    <span class="material-symbols-outlined text-[17px]">arrow_back_ios_new</span>
-                </button>
-                <p class="briefing-bg-step-title">${sanitize(selectedDef ? selectedDef.title : 'Background')}</p>
+                <div class="ll-modal__title-section">
+                    <div class="ll-modal__back-slot ll-active">
+                        <button type="button" data-bg-action="step-back" class="ll-icon-btn ll-icon-btn--circle ll-modal__back-btn" aria-label="Back">
+                            <span class="material-symbols-outlined ll-icon-btn__icon">arrow_back_ios_new</span>
+                        </button>
+                    </div>
+                    <div class="ll-modal__title-wrap">
+                        <h3 class="ll-modal__title briefing-bg-step-title">${sanitize(selectedDef ? selectedDef.title : 'Background')}</h3>
+                    </div>
+                </div>
             `;
         } else if (stepHeader) {
             stepHeader.remove();
@@ -1963,86 +1902,297 @@
         }
 
         if (picker.step === 1) {
-            if (picker.tab === 'prebuilt') {
-                body.innerHTML = `
-                    <div class="briefing-bg-prebuilt-layout">
-                        <div class="briefing-bg-categories border-r border-gray-700">
-                            <div class="relative mb-3">
-                                <input
-                                    id="briefing-bg-search"
-                                    class="w-full bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
-                                    type="text"
-                                    placeholder="Search..."
-                                    value="${sanitize(picker.searchQuery || '')}"
-                                >
-                                <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
-                            </div>
-                            <button
-                                type="button"
-                                class="workspace-config-tab-item platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 ${picker.category === BG_ALL_COMPONENTS_CATEGORY ? 'active' : ''}"
-                                data-bg-category="${BG_ALL_COMPONENTS_CATEGORY}"
-                            >All Components</button>
-                            ${categories.map((category) => `
-                                <button
-                                    type="button"
-                                    class="workspace-config-tab-item platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 ${picker.category === category ? 'active' : ''}"
-                                    data-bg-category="${sanitize(category)}"
-                                >${sanitize(category)}</button>
-                            `).join('')}
-                        </div>
-                        <div class="briefing-bg-grid">
-                            ${prebuiltItems.length ? prebuiltItems.map((item) => `
-                                <button type="button" class="briefing-bg-card ${picker.selectedComponentId === item.id ? 'is-selected' : ''}" data-bg-component="${sanitize(item.id)}">
-                                    <img class="briefing-bg-card-thumb" src="https://placehold.co/420x240/0c4a6e/93c5fd?text=Component+Thumbnail" alt="${sanitize(item.title)}">
-                                    <div class="briefing-bg-card-body">
-                                        <p class="briefing-bg-card-title">${sanitize(item.title)}</p>
-                                        <p class="briefing-bg-card-desc">${sanitize(item.description)}</p>
-                                    </div>
-                                </button>
-                            `).join('') : `
-                                <div class="text-sm text-gray-400 p-2">No components found for this filter.</div>
-                            `}
-                        </div>
-                    </div>
-                `;
-            } else {
-                body.innerHTML = `
-                    <div class="briefing-bg-grid">
-                        ${customItems.map((item) => `
-                            <button type="button" class="briefing-bg-card ${picker.selectedComponentId === item.id ? 'is-selected' : ''}" data-bg-component="${sanitize(item.id)}">
-                                <img class="briefing-bg-card-thumb" src="https://placehold.co/420x240/0c4a6e/93c5fd?text=Component+Thumbnail" alt="${sanitize(item.title)}">
-                                <div class="briefing-bg-card-body">
-                                    <p class="briefing-bg-card-title">${sanitize(item.title)}</p>
-                                    <p class="briefing-bg-card-desc">${sanitize(item.description)}</p>
-                                </div>
-                            </button>
-                        `).join('')}
-                    </div>
-                `;
+            destroyBackgroundStepOneListings();
+            const categoryEntries = [
+                {
+                    value: toSafeSlug(BG_ALL_COMPONENTS_CATEGORY),
+                    label: 'All Components',
+                    category: BG_ALL_COMPONENTS_CATEGORY
+                },
+                ...categories.map((category) => ({
+                    value: toSafeSlug(category),
+                    label: category,
+                    category
+                }))
+            ];
+            const categoryByValue = categoryEntries.reduce((acc, entry) => {
+                acc[entry.value] = entry.category;
+                return acc;
+            }, {});
+            if (!categoryEntries.some((entry) => entry.category === picker.category)) {
+                picker.category = BG_ALL_COMPONENTS_CATEGORY;
             }
+            const categoryButtonIdsByValue = categoryEntries.reduce((acc, entry) => {
+                acc[entry.value] = `briefing-bg-category-tab-${entry.value}`;
+                return acc;
+            }, {});
+            const selectedInPrebuilt = PREBUILT_BG_COMPONENTS.some((item) => item.id === picker.selectedComponentId)
+                ? picker.selectedComponentId
+                : '';
+            const selectedInCustom = CUSTOM_BG_COMPONENTS.some((item) => item.id === picker.selectedComponentId)
+                ? picker.selectedComponentId
+                : '';
+
+            body.innerHTML = `
+                <div class="briefing-bg-step-layout">
+                    <div id="briefing-bg-tabs" class="border-b ll-border-divider px-6 pt-2">
+                        <div class="ll-tab-nav">
+                            <button type="button" class="ll-tab-btn" data-bg-tab="prebuilt">Pre-Built</button>
+                            <button type="button" class="ll-tab-btn" data-bg-tab="custom">Custom</button>
+                        </div>
+                    </div>
+                    <div class="briefing-bg-step-wrap">
+                        <div id="briefing-bg-tab-panel-prebuilt" class="briefing-bg-prebuilt-layout">
+                            <div class="briefing-bg-categories border-r ll-border-divider">
+                                <div class="ll-field">
+                                    <div class="ll-input-with-left-icon">
+                                        <div class="ll-input-with-left-icon__left">
+                                            <span class="ll-input-with-left-icon__icon">
+                                                <span class="material-symbols-outlined">search</span>
+                                            </span>
+                                        </div>
+                                        <input
+                                            id="briefing-bg-search"
+                                            class="ll-input ll-input--search ll-input-with-left-icon__input"
+                                            type="text"
+                                            aria-label="Search background components"
+                                            placeholder="Search..."
+                                            value="${sanitize(picker.searchQuery || '')}">
+                                    </div>
+                                </div>
+                                <div class="ll-field">
+                                    <nav id="briefing-bg-category-tabs" class="ll-tabs-vertical">
+                                        ${categoryEntries.map((entry) => `
+                                            <button
+                                                id="${categoryButtonIdsByValue[entry.value]}"
+                                                type="button"
+                                                class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn"
+                                                data-bg-category-tab="${entry.value}">
+                                                ${sanitize(entry.label)}
+                                            </button>
+                                        `).join('')}
+                                    </nav>
+                                </div>
+                            </div>
+                            <div id="briefing-bg-prebuilt-listing-root" class="ll-listing-module ll-listing-module--in-modal ll-listing-module--grid-no-padding briefing-bg-category-panels">
+                                <div id="briefing-bg-prebuilt-listing-grid" class="briefing-bg-grid"></div>
+                            </div>
+                        </div>
+                        <div id="briefing-bg-tab-panel-custom" class="hidden">
+                            <div id="briefing-bg-custom-listing-root" class="ll-listing-module ll-listing-module--in-modal ll-listing-module--grid-no-padding">
+                                <div id="briefing-bg-custom-listing-grid" class="briefing-bg-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
             if (applyBtn) {
                 applyBtn.remove();
                 applyBtn = null;
             }
+            if (llComponents && typeof llComponents.initializeTabs === 'function' && typeof llComponents.initListingModule === 'function') {
+                let isHydratingBackgroundSelection = false;
+                const renderBackgroundCardContent = (item, { withItemActions = false } = {}) => `
+                    <div class="ll-aspect-box ll-aspect-box--16-9">
+                        <img class="ll-aspect-box__content ll-card__thumbnail briefing-bg-card-thumb" src="${sanitize(item.thumbnail || 'https://placehold.co/420x240/0c4a6e/93c5fd?text=Component+Thumbnail')}" alt="${sanitize(item.title)}">
+                        ${withItemActions ? `
+                            <div class="ll-card__header ll-card__header--media-overlay">
+                                <div class="ll-card__header-actions"></div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="ll-card__content">
+                        <div class="ll-card__content-heading">${sanitize(item.title)}</div>
+                        <div class="ll-card__content-description">${sanitize(item.description)}</div>
+                    </div>
+                `;
+                llComponents.initializeTabs({
+                    tabButtonSelector: '#briefing-bg-tabs [data-bg-tab]',
+                    tabContentSelector: '#briefing-bg-tab-panel-prebuilt, #briefing-bg-tab-panel-custom',
+                    tabValueDatasetKey: 'bgTab',
+                    tabContentIdPrefix: 'briefing-bg-tab-panel-',
+                    activeClassName: 'll-active',
+                    initialTab: picker.tab || 'prebuilt',
+                    onTabChange: (nextTab) => {
+                        const prebuiltPanel = document.getElementById('briefing-bg-tab-panel-prebuilt');
+                        const customPanel = document.getElementById('briefing-bg-tab-panel-custom');
+                        if (prebuiltPanel) prebuiltPanel.classList.toggle('hidden', nextTab !== 'prebuilt');
+                        if (customPanel) customPanel.classList.toggle('hidden', nextTab !== 'custom');
+                        if (picker.tab === nextTab) return;
+                        picker.tab = nextTab;
+                    }
+                });
+
+                backgroundPrebuiltListingApi = llComponents.initListingModule({
+                    rootId: 'briefing-bg-prebuilt-listing-root',
+                    items: PREBUILT_BG_COMPONENTS.slice(),
+                    idKey: 'id',
+                    allowUnsafeHtml: true,
+                    grid: {
+                        enabled: true,
+                        containerId: 'briefing-bg-prebuilt-listing-grid',
+                        columns: 3,
+                        gap: 6,
+                        defaultView: 'grid',
+                        emptyStateText: 'No components found for this filter.',
+                        itemActionsHostSelector: '.ll-card__header-actions',
+                        renderCard: (item) => renderBackgroundCardContent(item, { withItemActions: true })
+                    },
+                    controls: {
+                        searchInputId: 'briefing-bg-search'
+                    },
+                    search: {
+                        getText: (item) => `${item && item.title ? item.title : ''} ${item && item.description ? item.description : ''} ${item && item.category ? item.category : ''}`
+                    },
+                    filters: [
+                        {
+                            key: 'category',
+                            label: 'Category',
+                            type: 'toggle',
+                            property: 'category',
+                            predicate: (item, value) => {
+                                const selectedValue = String(value || '').trim();
+                                if (!selectedValue || selectedValue === BG_ALL_COMPONENTS_CATEGORY) {
+                                    return true;
+                                }
+                                return String(item && item.category ? item.category : '').trim() === selectedValue;
+                            },
+                            options: categoryEntries.map((entry) => ({
+                                value: entry.category,
+                                label: entry.label
+                            })),
+                            toggle: {
+                                buttonIdsByValue: Object.fromEntries(
+                                    categoryEntries.map((entry) => [entry.category, categoryButtonIdsByValue[entry.value]])
+                                ),
+                                activeClassName: 'll-btn--primary',
+                                inactiveClassName: 'll-btn--flat-default'
+                            },
+                            defaultValue: BG_ALL_COMPONENTS_CATEGORY
+                        }
+                    ],
+                    itemClick: {
+                        type: 'selection',
+                        onSelectionChange: ({ selectedItem } = {}) => {
+                            if (isHydratingBackgroundSelection) return;
+                            const selectedId = selectedItem && selectedItem.id ? String(selectedItem.id) : '';
+                            if (!selectedId) return;
+                            const def = findBackgroundComponentById(selectedId);
+                            if (!def) return;
+                            picker.selectedComponentId = selectedId;
+                            picker.configDraft = cloneConfig(def.defaults || {});
+                            picker.step = 2;
+                            picker.tab = 'prebuilt';
+                            if (def.category) picker.category = def.category;
+                            renderBackgroundModal();
+                        }
+                    },
+                    itemActions: {
+                        items: [
+                            {
+                                type: 'button',
+                                key: 'more-info',
+                                label: '',
+                                icon: 'info',
+                                className: 'll-icon-btn ll-icon-btn--circle',
+                                iconClassName: 'll-icon-btn__icon',
+                                ariaLabel: 'More info',
+                                onClick: ({ item } = {}) => {
+                                    notify(`More info for "${item && item.title ? item.title : 'background'}" (simulated).`, 'info');
+                                }
+                            }
+                        ]
+                    }
+                });
+                backgroundCustomListingApi = llComponents.initListingModule({
+                    rootId: 'briefing-bg-custom-listing-root',
+                    items: customItems.slice(),
+                    idKey: 'id',
+                    allowUnsafeHtml: true,
+                    grid: {
+                        enabled: true,
+                        containerId: 'briefing-bg-custom-listing-grid',
+                        columns: 3,
+                        gap: 6,
+                        defaultView: 'grid',
+                        emptyStateText: 'No custom background components found.',
+                        renderCard: (item) => renderBackgroundCardContent(item)
+                    },
+                    itemClick: {
+                        type: 'selection',
+                        onSelectionChange: ({ selectedItem } = {}) => {
+                            if (isHydratingBackgroundSelection) return;
+                            const selectedId = selectedItem && selectedItem.id ? String(selectedItem.id) : '';
+                            if (!selectedId) return;
+                            const def = findBackgroundComponentById(selectedId);
+                            if (!def) return;
+                            picker.selectedComponentId = selectedId;
+                            picker.configDraft = cloneConfig(def.defaults || {});
+                            picker.step = 2;
+                            picker.tab = 'custom';
+                            renderBackgroundModal();
+                        }
+                    }
+                });
+
+                if (backgroundPrebuiltListingApi) {
+                    backgroundPrebuiltListingApi.setQuery(picker.searchQuery || '', { syncInput: true });
+                    backgroundPrebuiltListingApi.setFilterValue('category', picker.category || BG_ALL_COMPONENTS_CATEGORY);
+                    isHydratingBackgroundSelection = true;
+                    if (selectedInPrebuilt) {
+                        backgroundPrebuiltListingApi.selectItem(selectedInPrebuilt);
+                    } else {
+                        backgroundPrebuiltListingApi.clearSelection();
+                    }
+                    isHydratingBackgroundSelection = false;
+                }
+                if (backgroundCustomListingApi) {
+                    isHydratingBackgroundSelection = true;
+                    if (selectedInCustom) {
+                        backgroundCustomListingApi.selectItem(selectedInCustom);
+                    } else {
+                        backgroundCustomListingApi.clearSelection();
+                    }
+                    isHydratingBackgroundSelection = false;
+                }
+                const searchInput = document.getElementById('briefing-bg-search');
+                if (searchInput) {
+                    searchInput.addEventListener('input', () => {
+                        picker.searchQuery = searchInput.value || '';
+                    });
+                }
+                Object.keys(categoryByValue).forEach((categorySlug) => {
+                    const button = document.getElementById(categoryButtonIdsByValue[categorySlug]);
+                    if (!button) return;
+                    button.addEventListener('click', () => {
+                        picker.category = categoryByValue[categorySlug] || BG_ALL_COMPONENTS_CATEGORY;
+                    });
+                });
+            }
         } else {
+            destroyBackgroundStepOneListings();
             const draft = picker.configDraft || {};
             let configFields = '';
             let preview = '<div class="briefing-bg-preview-media"></div>';
 
             if (selectedDef && PREBUILT_BG_COMPONENTS.some((item) => item.id === selectedDef.id)) {
                 configFields = `
-                    <div>
-                        <label class="briefing-bg-field-label">Layer Opacity</label>
-                        <input id="briefing-bg-opacity" class="briefing-field" type="range" min="20" max="100" value="${Number(draft.opacity || 70)}">
+                    <div class="ll-field">
+                        <div class="ll-form-control__label-row">
+                            <label class="ll-form-control__label" for="briefing-bg-opacity">Layer Opacity</label>
+                        </div>
+                        <input id="briefing-bg-opacity" type="range" min="20" max="100" value="${Number(draft.opacity || 70)}">
                     </div>
                 `;
                 preview = `<img class="briefing-bg-preview-media" src="${sanitize(selectedDef.thumbnail)}" alt="${sanitize(selectedDef.title)}">`;
             } else if (selectedDef && selectedDef.id === 'custom-bg-color') {
                 const color = draft.color || '#111827';
                 configFields = `
-                    <div>
-                        <label class="briefing-bg-field-label">Background Color</label>
-                        <input id="briefing-bg-color-picker" class="briefing-field" type="color" value="${sanitize(color)}">
+                    <div class="ll-field">
+                        <div class="ll-form-control__label-row">
+                            <label class="ll-form-control__label" for="briefing-bg-color-picker">Background Color</label>
+                        </div>
+                        <input id="briefing-bg-color-picker" class="ll-input w-16" type="color" value="${sanitize(color)}">
                     </div>
                 `;
                 preview = `<div class="briefing-bg-preview-media" style="background:${sanitize(color)};"></div>`;
@@ -2051,11 +2201,13 @@
                 const fileAccept = isVideo ? 'video/*' : 'image/*';
                 const mediaUrl = draft.assetUrl || '';
                 configFields = `
-                    <div>
-                        <label class="briefing-bg-field-label">${isVideo ? 'Upload Video' : 'Upload Image'}</label>
-                        <input id="briefing-bg-file" class="briefing-field" type="file" accept="${fileAccept}">
+                    <div class="ll-field">
+                        <div class="ll-form-control__label-row">
+                            <label class="ll-form-control__label" for="briefing-bg-file">${isVideo ? 'Upload Video' : 'Upload Image'}</label>
+                        </div>
+                        <input id="briefing-bg-file" class="ll-input" type="file" accept="${fileAccept}">
                     </div>
-                    <p class="text-xs text-gray-400">Uploaded file is saved in browser storage for this prototype.</p>
+                    <p class="ll-form-control__hint">Uploaded file is saved in browser storage for this prototype.</p>
                 `;
                 preview = mediaUrl
                     ? (isVideo
@@ -2066,12 +2218,14 @@
 
             body.innerHTML = `
                 <div class="briefing-bg-config-wrap">
-                    <div class="briefing-bg-config-panel">
-                        <p class="text-gray-400">${sanitize(selectedDef ? selectedDef.description : '')}</p>
+                    <div class="briefing-bg-config-panel ll-field-group">
+                        <div class="ll-field">
+                            <div>${sanitize(selectedDef ? selectedDef.description : '')}</div>
+                        </div>
                         ${configFields}
                     </div>
-                    <div class="briefing-bg-preview border-l border-gray-700">
-                        <p class="text-xs text-gray-300 uppercase tracking-wide">Preview</p>
+                    <div class="briefing-bg-preview border-l ll-border-divider">
+                        <p class="ll-form-control__label">Preview</p>
                         ${preview}
                     </div>
                 </div>
@@ -2080,7 +2234,7 @@
                 applyBtn = document.createElement('button');
                 applyBtn.type = 'button';
                 applyBtn.setAttribute('data-bg-action', 'apply');
-                applyBtn.className = 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200';
+                applyBtn.className = 'll-btn ll-btn--primary';
                 applyBtn.addEventListener('click', () => {
                     const activeSlide = getActiveCreateSlide();
                     if (!activeSlide) return;
@@ -2105,57 +2259,6 @@
             applyBtn.disabled = !canApply;
         }
 
-        if (tabsWrap) {
-            tabsWrap.querySelectorAll('[data-bg-tab]').forEach((button) => {
-                button.addEventListener('click', () => {
-                    picker.tab = button.getAttribute('data-bg-tab');
-                    picker.step = 1;
-                    renderBackgroundModal();
-                });
-            });
-        }
-        const stepBackButton = stepHeader ? stepHeader.querySelector('[data-bg-action="step-back"]') : null;
-        if (stepBackButton) {
-            stepBackButton.addEventListener('click', () => {
-                picker.step = 1;
-                renderBackgroundModal();
-            });
-        }
-        body.querySelectorAll('[data-bg-category]').forEach((button) => {
-            button.addEventListener('click', () => {
-                picker.category = button.getAttribute('data-bg-category');
-                renderBackgroundModal();
-            });
-        });
-        const searchInput = body.querySelector('#briefing-bg-search');
-        if (searchInput) {
-            searchInput.addEventListener('input', (event) => {
-                const cursorPos = Number.isFinite(event.target.selectionStart) ? event.target.selectionStart : null;
-                picker.searchQuery = event.target.value || '';
-                renderBackgroundModal();
-                const refreshedInput = document.getElementById('briefing-bg-search');
-                if (refreshedInput) {
-                    refreshedInput.focus();
-                    const nextPos = Number.isFinite(cursorPos)
-                        ? Math.min(cursorPos, refreshedInput.value.length)
-                        : refreshedInput.value.length;
-                    refreshedInput.setSelectionRange(nextPos, nextPos);
-                }
-            });
-        }
-        body.querySelectorAll('[data-bg-component]').forEach((button) => {
-            button.addEventListener('click', () => {
-                const selectedId = button.getAttribute('data-bg-component');
-                const def = findBackgroundComponentById(selectedId);
-                if (!def) return;
-                picker.selectedComponentId = selectedId;
-                picker.configDraft = cloneConfig(def.defaults || {});
-                picker.step = 2;
-                picker.tab = PREBUILT_BG_COMPONENTS.some((item) => item.id === selectedId) ? 'prebuilt' : 'custom';
-                if (def.category) picker.category = def.category;
-                renderBackgroundModal();
-            });
-        });
         const opacity = body.querySelector('#briefing-bg-opacity');
         if (opacity) {
             opacity.addEventListener('input', (event) => {
@@ -2190,42 +2293,54 @@
                 reader.readAsDataURL(file);
             });
         }
+
+        backgroundModalLastRenderedStep = picker.step;
+        if (backgroundModalController && previousStep !== picker.step) {
+            const animationClassName = picker.step > previousStep
+                ? 'll-modal__body-anim-slide-in-right'
+                : 'll-modal__body-anim-slide-in-left';
+            backgroundModalController.animateContent(body, animationClassName);
+        }
     }
 
     function ensureBackgroundModal() {
-        if (document.getElementById('briefing-bg-modal')) return;
+        if (backgroundModalController && backgroundModalController.root && backgroundModalController.root.parentNode) return;
 
-        const modal = document.createElement('div');
-        modal.id = 'briefing-bg-modal';
-        modal.className = 'briefing-modal-backdrop briefing-modal-hidden';
-        modal.innerHTML = `
-            <div class="briefing-bg-modal-panel">
-                <div class="briefing-bg-modal-header border-b border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <h4 class="text-white text-xl font-semibold">Add Background</h4>
-                        <button type="button" data-bg-action="close" class="flex items-center text-gray-400 hover:text-white transition duration-200">
-                            <span class="material-symbols-outlined text-2xl">close</span>
-                        </button>
-                    </div>
-                </div>
+        const llComponents = window.LlumenComponents;
+        if (!llComponents || typeof llComponents.initializeModal !== 'function') return;
+
+        backgroundModalController = llComponents.initializeModal({
+            id: 'briefing-bg-modal',
+            fullHeight: true,
+            openOnInit: false,
+            bodyPadding: false,
+            bodyScrollable: false,
+            title: 'Add Background',
+            bodyContent: `
                 <div class="briefing-bg-modal-content">
                     <div id="briefing-bg-modal-body" class="briefing-bg-step-wrap"></div>
                 </div>
-                <div class="briefing-bg-footer border-t border-gray-700">
-                    <div class="briefing-bg-footer-actions flex items-center justify-end space-x-3">
-                        <button type="button" data-bg-action="cancel" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">Cancel</button>
-                    </div>
+            `,
+            footerContent: `
+                <div class="briefing-bg-footer-actions flex items-center justify-end space-x-3">
+                    <button type="button" data-bg-action="cancel" class="ll-btn ll-btn--outline-default">Cancel</button>
                 </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        modal.querySelector('[data-bg-action="close"]').addEventListener('click', closeBackgroundModal);
-        modal.querySelector('[data-bg-action="cancel"]').addEventListener('click', closeBackgroundModal);
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) closeBackgroundModal();
+            `
         });
 
+        if (!backgroundModalController || !backgroundModalController.root) return;
+        if (backgroundModalController.content && backgroundModalController.content.style) {
+            backgroundModalController.content.style.setProperty('--ll-modal-width', '100rem');
+        }
+        if (backgroundModalController.footer) {
+            backgroundModalController.footer.classList.add('briefing-bg-footer', 'border-t', 'll-border-divider');
+        }
+        const cancelButton = backgroundModalController.root.querySelector('[data-bg-action="cancel"]');
+        if (cancelButton) {
+            cancelButton.addEventListener('click', () => {
+                closeBackgroundModal();
+            });
+        }
     }
 
     function ensureViewerModal() {
@@ -2236,7 +2351,7 @@
         modal.className = 'briefing-modal-backdrop briefing-modal-hidden';
         modal.innerHTML = `
             <div class="briefing-viewer-shell">
-                <div id="briefing-viewer-stage" class="briefing-viewer-stage">
+                <div id="briefing-viewer-stage" class="briefing-viewer-stage border ll-border-divider">
                     <div id="briefing-progress-wrap" class="briefing-progress-wrap"></div>
                     <div id="briefing-viewer-content" class="briefing-viewer-content"></div>
                     <div class="briefing-viewer-overlay"></div>
@@ -2254,26 +2369,26 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <div class="relative">
-                                <button type="button" class="text-gray-100 hover:text-white" data-viewer-menu-toggle>
-                                    <span class="material-symbols-outlined">more_vert</span>
-                                </button>
-                                <div class="options-dropdown-menu w-8 hidden" data-viewer-menu>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-viewer-menu-action="edit">Edit</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-viewer-menu-action="share">Share</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" data-viewer-menu-action="delete">Delete</a>
-                                </div>
+                            <button type="button" id="briefing-viewer-menu-btn" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Viewer actions" data-viewer-menu-trigger>
+                                <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
+                            </button>
+                            <div id="briefing-viewer-menu" class="hidden" data-viewer-menu>
+                                <button type="button" class="ll-dropdown__item" data-value="edit" data-viewer-menu-action="edit">Edit</button>
+                                <button type="button" class="ll-dropdown__item" data-value="share" data-viewer-menu-action="share">Share</button>
+                                <button type="button" class="ll-dropdown__item" data-value="delete" data-viewer-menu-action="delete">Delete</button>
                             </div>
-                            <button type="button" id="briefing-close-viewer" class="text-gray-100 hover:text-white">
-                                <span class="material-symbols-outlined">close</span>
+                            <button type="button" id="briefing-close-viewer" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Close viewer">
+                                <span class="material-symbols-outlined ll-icon-btn__icon">close</span>
                             </button>
                         </div>
                     </div>
                     <div class="absolute bottom-6 left-4 right-4 z-5 flex justify-center pointer-events-none">
-                        <button type="button" id="briefing-link-button" class="briefing-viewer-link-btn hidden pointer-events-auto">
-                            <span class="material-symbols-outlined">link</span>
-                            <span data-role="viewer-link-label">Learn More</span>
-                        </button>
+                        <div id="briefing-link-button" class="briefing-viewer-link-btn hidden">
+                            <button type="button" class="ll-btn ll-btn--outline-primary" data-action="viewer-open-link">
+                                <span class="material-symbols-outlined ll-btn__icon">link</span>
+                                <span data-role="viewer-link-label">Learn More</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2283,31 +2398,19 @@
 
         const closeButton = modal.querySelector('#briefing-close-viewer');
         const stage = modal.querySelector('#briefing-viewer-stage');
-        const viewerMenuToggle = modal.querySelector('[data-viewer-menu-toggle]');
-        const viewerMenu = modal.querySelector('[data-viewer-menu]');
-
-        const closeViewerMenu = () => {
-            if (viewerMenu) viewerMenu.classList.add('hidden');
-        };
-
-        if (viewerMenuToggle && viewerMenu) {
-            viewerMenuToggle.addEventListener('click', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                const shouldOpen = viewerMenu.classList.contains('hidden');
-                closeViewerMenu();
-                if (shouldOpen) viewerMenu.classList.remove('hidden');
-            });
-            viewerMenu.addEventListener('click', (event) => {
-                event.stopPropagation();
-            });
-            viewerMenu.querySelectorAll('[data-viewer-menu-action]').forEach((actionLink) => {
-                actionLink.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    const action = actionLink.getAttribute('data-viewer-menu-action');
+        const llComponents = window.LlumenComponents;
+        const viewerMenuButton = modal.querySelector('#briefing-viewer-menu-btn');
+        const viewerMenu = modal.querySelector('#briefing-viewer-menu');
+        if (llComponents && typeof llComponents.initializePortaledDropdown === 'function' && viewerMenuButton && viewerMenu) {
+            llComponents.initializePortaledDropdown({
+                buttonId: 'briefing-viewer-menu-btn',
+                menuId: 'briefing-viewer-menu',
+                datasetFlag: 'briefingViewerMenuBound',
+                menuType: 'action',
+                align: 'right',
+                onValueChange: (detail) => {
+                    const action = String(detail && detail.value != null ? detail.value : '').trim();
                     const activeBriefing = state.viewer.briefing;
-                    closeViewerMenu();
                     if (!activeBriefing) return;
                     if (action === 'edit') {
                         closeViewer();
@@ -2317,24 +2420,22 @@
                     } else if (action === 'delete') {
                         notify('Delete briefing (simulated).', 'info');
                     }
-                });
+                }
             });
         }
 
         closeButton.addEventListener('click', (event) => {
             event.stopPropagation();
-            closeViewerMenu();
             closeViewer();
         });
         modal.addEventListener('click', (event) => {
             const target = event.target;
-            if (target instanceof Element && target.closest('[data-viewer-menu-toggle], [data-viewer-menu]')) {
+            if (target instanceof Element && target.closest('[data-viewer-menu-trigger], [data-viewer-menu]')) {
                 return;
             }
             const clickedInsideStage = target instanceof Element
                 && Boolean(target.closest('#briefing-viewer-stage, .briefing-viewer-stage-clone'));
             if (!clickedInsideStage) {
-                closeViewerMenu();
                 closeViewer();
             }
         });
@@ -2361,7 +2462,6 @@
 
         stage.addEventListener('click', (event) => {
             event.stopPropagation();
-            closeViewerMenu();
             const holdDuration = Date.now() - state.viewer.pointerDownAt;
             if (holdDuration > 220) return;
             const bounds = stage.getBoundingClientRect();
@@ -2374,9 +2474,10 @@
         });
 
         const linkButton = modal.querySelector('#briefing-link-button');
-        linkButton.addEventListener('click', (event) => {
+        const openLinkButton = modal.querySelector('#briefing-link-button [data-action="viewer-open-link"]');
+        if (!openLinkButton) return;
+        openLinkButton.addEventListener('click', (event) => {
             event.stopPropagation();
-            closeViewerMenu();
             openViewerLink();
         });
     }
@@ -2390,7 +2491,7 @@
             editingBriefingId: '',
             owner: workspace || '',
             title: '',
-            type: 'Alert',
+            type: 'Update',
             expiresInDays: 1,
             linkUrl: '',
             linkLabel: '',
@@ -2409,11 +2510,13 @@
             textDrafts: {},
             backgroundPicker: null
         };
+        ensureCreateSlidesMinimumOne();
 
-        const modal = document.getElementById('briefing-create-modal');
-        modal.classList.remove('briefing-modal-hidden');
-        document.body.style.overflow = 'hidden';
-
+        createModalInitialSnapshot = getCreateFlowSnapshot();
+        if (createModalController && typeof createModalController.open === 'function') {
+            createModalController.setTitle('Create Briefing');
+            createModalController.open();
+        }
         renderCreateModalFields();
     }
 
@@ -2460,37 +2563,48 @@
             textDrafts: {},
             backgroundPicker: null
         };
+        ensureCreateSlidesMinimumOne();
 
-        const modal = document.getElementById('briefing-create-modal');
-        modal.classList.remove('briefing-modal-hidden');
-        document.body.style.overflow = 'hidden';
+        createModalInitialSnapshot = '';
+        if (createModalController && typeof createModalController.open === 'function') {
+            createModalController.setTitle('Edit Briefing');
+            createModalController.open();
+        }
         renderCreateModalFields();
     }
 
     function closeCreateModal() {
-        const modal = document.getElementById('briefing-create-modal');
-        const bgModal = document.getElementById('briefing-bg-modal');
-        const externalUrlModal = document.getElementById('briefing-external-link-modal');
-        if (!modal) return;
-        modal.classList.add('briefing-modal-hidden');
-        if (bgModal) {
-            bgModal.classList.add('briefing-modal-hidden');
-        }
-        if (externalUrlModal) {
-            externalUrlModal.classList.add('briefing-modal-hidden');
-        }
-        state.create.backgroundPicker = null;
-        document.body.style.overflow = '';
+        if (!createModalController || typeof createModalController.close !== 'function') return Promise.resolve(false);
+        return createModalController.close('close-create-modal');
     }
 
-    function addSlide() {
-        state.create.slides.push(emptySlide());
-        state.create.activeSlideIndex = state.create.slides.length - 1;
-        state.create.selectedElementId = '';
-        state.create.showColorPalette = false;
-        state.create.isTextBlockFocused = false;
-        state.create.isSliderInteracting = false;
-        renderCreateModalFields();
+    function ensureCreateSlideIds() {
+        if (!state.create || !Array.isArray(state.create.slides)) return;
+        state.create.slides.forEach((slide) => {
+            if (!slide || typeof slide !== 'object') return;
+            if (!slide.slideId) {
+                slide.slideId = createId();
+            }
+        });
+    }
+
+    function ensureCreateSlidesMinimumOne() {
+        if (!state.create) return;
+        if (!Array.isArray(state.create.slides) || state.create.slides.length === 0) {
+            state.create.slides = [emptySlide()];
+        }
+        ensureCreateSlideIds();
+        if (!Number.isFinite(state.create.activeSlideIndex)) {
+            state.create.activeSlideIndex = 0;
+            return;
+        }
+        if (state.create.activeSlideIndex < 0) {
+            state.create.activeSlideIndex = 0;
+            return;
+        }
+        if (state.create.activeSlideIndex >= state.create.slides.length) {
+            state.create.activeSlideIndex = Math.max(0, state.create.slides.length - 1);
+        }
     }
 
     function getActiveCreateSlide() {
@@ -2591,9 +2705,9 @@
 
     function openBackgroundPicker({ configureExisting = false } = {}) {
         ensureBackgroundModal();
-        const modal = document.getElementById('briefing-bg-modal');
         const slide = getActiveCreateSlide();
-        if (!modal || !slide) return;
+        if (!backgroundModalController || !slide) return;
+        backgroundModalLastRenderedStep = null;
         state.create.backgroundPicker = null;
         const picker = getBackgroundPickerState(slide);
         if (!slide.hasConfiguredBackground) {
@@ -2606,8 +2720,7 @@
             picker.configDraft = cloneConfig(slide.backgroundComponent.config || {});
         }
         renderBackgroundModal();
-        modal.classList.remove('briefing-modal-hidden');
-        document.body.style.overflow = 'hidden';
+        backgroundModalController.open();
     }
 
     function toggleTextBlock() {
@@ -3215,7 +3328,7 @@
     function focusTextBlockById(elementId, caretOffset = null) {
         if (!elementId) return;
         const applyFocus = () => {
-            const host = document.getElementById('briefing-slide-canvas-host');
+            const host = getActiveCreateSlideCanvasHost();
             if (!host) return;
             const target = host.querySelector(`.briefing-editor-element[data-element-id="${elementId}"] [data-role="text-block"]`);
             if (!target) return;
@@ -3294,7 +3407,7 @@
 
     function captureCaretForElement(elementId) {
         if (!elementId) return null;
-        const host = document.getElementById('briefing-slide-canvas-host');
+        const host = getActiveCreateSlideCanvasHost();
         if (!host) return null;
         const target = host.querySelector(`.briefing-editor-element[data-element-id="${elementId}"] [data-role="text-block"]`);
         if (!target) return null;
@@ -3353,53 +3466,49 @@
     }
 
     function ensureExternalUrlModal() {
-        if (document.getElementById('briefing-external-link-modal')) return;
-        const modal = document.createElement('div');
-        modal.id = 'briefing-external-link-modal';
-        modal.className = 'briefing-modal-backdrop briefing-modal-hidden';
-        modal.innerHTML = `
-            <div class="briefing-external-link-modal-panel">
-                <div class="py-4 px-6 border-b border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <h4 class="text-white text-xl font-semibold">Add External URL</h4>
-                        <button type="button" data-external-link-action="close" class="flex items-center text-gray-400 hover:text-white transition duration-200">
-                            <span class="material-symbols-outlined text-2xl">close</span>
-                        </button>
+        if (externalUrlModalController && externalUrlModalController.root && externalUrlModalController.root.parentNode) return;
+        const llComponents = window.LlumenComponents;
+        if (!llComponents || typeof llComponents.initializeModal !== 'function') return;
+
+        externalUrlModalController = llComponents.initializeModal({
+            id: 'briefing-external-link-modal',
+            width: '42.5rem',
+            openOnInit: false,
+            title: 'Add External URL',
+            bodyContent: `
+                <div class="ll-field">
+                    <div class="ll-form-control__label-row">
+                        <label for="briefing-external-url-input" class="ll-form-control__label">URL</label>
                     </div>
+                    <input id="briefing-external-url-input" class="ll-input" type="url" placeholder="https://example.com">
+                    <div id="briefing-external-url-error" class="ll-form-control__error hidden">This is an invalid URL.</div>
                 </div>
-                <div class="flex-1 overflow-y-auto p-6">
-                    <label class="block text-sm text-gray-300 mb-2">URL</label>
-                    <input id="briefing-external-url-input" class="briefing-field" type="url" placeholder="https://example.com">
-                    <p id="briefing-external-url-error" class="hidden mt-2 text-sm text-red-400">This is an invalid URL.</p>
-                </div>
-                <div class="p-6 border-t border-gray-700 flex items-center justify-end gap-3">
-                    <button type="button" data-external-link-action="cancel" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">Cancel</button>
-                    <button type="button" data-external-link-action="save" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition duration-200">Add URL</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+            `,
+            footerContent: `
+                <button type="button" data-external-link-action="cancel" class="ll-btn ll-btn--outline-default">Cancel</button>
+                <button type="button" data-external-link-action="save" class="ll-btn ll-btn--primary">Add URL</button>
+            `
+        });
+
+        if (!externalUrlModalController || !externalUrlModalController.root) return;
 
         const close = () => {
-            modal.classList.add('briefing-modal-hidden');
-            const createModal = document.getElementById('briefing-create-modal');
-            if (createModal && !createModal.classList.contains('briefing-modal-hidden')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
+            if (!externalUrlModalController || typeof externalUrlModalController.close !== 'function') return;
+            externalUrlModalController.close('close-external-link-modal');
         };
         const save = () => {
-            const input = document.getElementById('briefing-external-url-input');
-            const error = document.getElementById('briefing-external-url-error');
+            const input = externalUrlModalController.root.querySelector('#briefing-external-url-input');
+            const error = externalUrlModalController.root.querySelector('#briefing-external-url-error');
             if (!input || !error) return;
             const value = String(input.value || '').trim();
             if (!isValidHttpUrl(value)) {
                 error.classList.remove('hidden');
+                input.classList.add('ll-input--invalid');
                 input.focus();
                 return;
             }
             error.classList.add('hidden');
+            input.classList.remove('ll-input--invalid');
             const previousLabel = state.create.optionalLink && state.create.optionalLink.label
                 ? state.create.optionalLink.label
                 : 'Learn More';
@@ -3408,13 +3517,11 @@
             close();
         };
 
-        modal.querySelector('[data-external-link-action="close"]').addEventListener('click', close);
-        modal.querySelector('[data-external-link-action="cancel"]').addEventListener('click', close);
-        modal.querySelector('[data-external-link-action="save"]').addEventListener('click', save);
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) close();
-        });
-        const input = modal.querySelector('#briefing-external-url-input');
+        const cancelButton = externalUrlModalController.root.querySelector('[data-external-link-action="cancel"]');
+        const saveButton = externalUrlModalController.root.querySelector('[data-external-link-action="save"]');
+        if (cancelButton) cancelButton.addEventListener('click', close);
+        if (saveButton) saveButton.addEventListener('click', save);
+        const input = externalUrlModalController.root.querySelector('#briefing-external-url-input');
         if (input) {
             input.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter') {
@@ -3427,14 +3534,14 @@
 
     function openExternalUrlModal(existingUrl = '') {
         ensureExternalUrlModal();
-        const modal = document.getElementById('briefing-external-link-modal');
-        const input = document.getElementById('briefing-external-url-input');
-        const error = document.getElementById('briefing-external-url-error');
-        if (!modal || !input || !error) return;
+        if (!externalUrlModalController || !externalUrlModalController.root) return;
+        const input = externalUrlModalController.root.querySelector('#briefing-external-url-input');
+        const error = externalUrlModalController.root.querySelector('#briefing-external-url-error');
+        if (!input || !error) return;
         input.value = existingUrl || '';
         error.classList.add('hidden');
-        modal.classList.remove('briefing-modal-hidden');
-        document.body.style.overflow = 'hidden';
+        input.classList.remove('ll-input--invalid');
+        externalUrlModalController.open();
         requestAnimationFrame(() => input.focus());
     }
 
@@ -3489,12 +3596,12 @@
         if (!link) {
             container.innerHTML = `
                 <div class="briefing-link-actions">
-                    <button type="button" class="briefing-link-add-btn" data-action="add-workspace-link">
-                        <span class="material-symbols-outlined text-[16px]">add</span>
+                    <button type="button" class="ll-btn ll-btn--outline-default" data-action="add-workspace-link">
+                        <span class="material-symbols-outlined ll-btn__icon">add</span>
                         <span>Workspace Content</span>
                     </button>
-                    <button type="button" class="briefing-link-add-btn" data-action="add-external-link">
-                        <span class="material-symbols-outlined text-[16px]">add</span>
+                    <button type="button" class="ll-btn ll-btn--outline-default" data-action="add-external-link">
+                        <span class="material-symbols-outlined ll-btn__icon">add</span>
                         <span>External URL</span>
                     </button>
                 </div>
@@ -3511,38 +3618,57 @@
             const itemType = link.selection.item.type === 'story' ? 'Story' : 'Dashboard';
             const hasEmptyLabel = !String(linkLabelValue || '').trim();
             container.innerHTML = `
-                <div class="briefing-link-summary">${sanitize(link.selection.item.name || '')}</div>
-                <div class="briefing-link-meta">${sanitize(itemType)} • ${sanitize(link.selection.sub.label || '')}</div>
-                <div class="mt-2">
-                    <div class="flex justify-between mb-1">
-                        <label class="block text-xs text-gray-400">Link Label</label>
-                        <span class="text-xs text-gray-400" data-role="optional-link-label-counter">${sanitize(String(linkLabelValue).slice(0, 20).length)}/20</span>
+                <div class="ll-field-group">
+                    <div class="ll-field">
+                        <div class="ll-card__content ll-card__content--no-padding">
+                            <div class="ll-card__content-heading">${sanitize(link.selection.item.name || '')}</div>
+                            <div class="ll-card__meta-row">
+                                <div class="ll-card__meta-group">
+                                    <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${sanitize(itemType)}</span></span>
+                                </div>
+                                <div class="ll-card__meta-group">
+                                    <span class="ll-card__meta-item">${sanitize(link.selection.sub.label || '')}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <input type="text" class="briefing-field" data-role="optional-link-label" maxlength="20" value="${sanitize(linkLabelValue)}" placeholder="Learn More">
-                    <p class="text-xs text-red-400 mt-1 ${hasEmptyLabel ? '' : 'hidden'}" data-role="optional-link-label-error">Link Label is required.</p>
-                </div>
-                <div class="briefing-link-mini-actions">
-                    <button type="button" class="briefing-link-mini-btn" data-action="change-workspace-link">Change</button>
-                    <button type="button" class="briefing-link-mini-btn is-danger" data-action="remove-link">Remove</button>
+                    <div class="ll-field">
+                        <div class="ll-form-control__label-row">
+                            <label for="briefing-optional-link-label-input" class="ll-form-control__label">Link Label</label>
+                            <div class="ll-form-control__info">
+                                <span id="briefing-optional-link-label-counter" class="ll-form-control__counter">${sanitize(String(linkLabelValue).slice(0, 20).length)}/20</span>
+                            </div>
+                        </div>
+                        <input type="text" id="briefing-optional-link-label-input" class="ll-input ${hasEmptyLabel ? 'll-input--invalid' : ''}" data-role="optional-link-label" maxlength="20" value="${sanitize(linkLabelValue)}" placeholder="Learn More">
+                        <div class="ll-form-control__error ${hasEmptyLabel ? '' : 'hidden'}" data-role="optional-link-label-error">Link Label is required.</div>
+                    </div>
+                    <div class="ll-field flex gap-2">
+                        <button type="button" class="ll-btn ll-btn--outline-default ll-btn--sm" data-action="change-workspace-link">Change</button>
+                        <button type="button" class="ll-btn ll-btn--outline-negative ll-btn--sm" data-action="remove-link">Remove</button>
+                    </div>
                 </div>
             `;
             const changeBtn = container.querySelector('[data-action="change-workspace-link"]');
             const removeBtn = container.querySelector('[data-action="remove-link"]');
             const labelInput = container.querySelector('[data-role="optional-link-label"]');
-            const labelCounter = container.querySelector('[data-role="optional-link-label-counter"]');
             const labelError = container.querySelector('[data-role="optional-link-label-error"]');
+            const llComponents = window.LlumenComponents;
             if (changeBtn) changeBtn.addEventListener('click', () => openWorkspaceContentLinkPicker(true));
             if (removeBtn) removeBtn.addEventListener('click', () => {
                 state.create.optionalLink = null;
                 renderCreateModalFields();
             });
+            if (llComponents && typeof llComponents.initializeTextCounter === 'function') {
+                llComponents.initializeTextCounter('briefing-optional-link-label-input', 'briefing-optional-link-label-counter');
+            }
             if (labelInput) {
                 labelInput.addEventListener('input', (event) => {
                     if (!state.create.optionalLink || state.create.optionalLink.type !== 'workspace') return;
                     const next = String(event.target.value || '').slice(0, 20);
                     state.create.optionalLink.label = next;
-                    if (labelCounter) labelCounter.textContent = `${next.length}/20`;
-                    if (labelError) labelError.classList.toggle('hidden', Boolean(String(next).trim()));
+                    const hasLabelValue = Boolean(String(next).trim());
+                    if (labelError) labelError.classList.toggle('hidden', hasLabelValue);
+                    event.target.classList.toggle('ll-input--invalid', !hasLabelValue);
                     const previewLabel = document.querySelector('#briefing-slide-canvas .briefing-preview-link-btn [data-role="preview-link-label"]');
                     if (previewLabel) previewLabel.textContent = getSafeLinkLabel(next);
                 });
@@ -3554,40 +3680,53 @@
             const linkLabelValue = link.label || 'Learn More';
             const hasEmptyLabel = !String(linkLabelValue || '').trim();
             container.innerHTML = `
-                <div class="briefing-link-summary flex items-center space-x-2">
-                    <span class="material-symbols-outlined">link</span>
-                    <span class="briefing-link-url-text">${sanitize(truncateMiddle(link.url, 38))}</span>
-                </div>
-                <div class="mt-2">
-                    <div class="flex justify-between mb-1">
-                        <label class="block text-xs text-gray-400">Link Label</label>
-                        <span class="text-xs text-gray-400" data-role="optional-link-label-counter">${sanitize(String(linkLabelValue).slice(0, 20).length)}/20</span>
+                <div class="ll-field-group">
+                    <div class="ll-field">
+                        <div class="ll-form-control__label-row">
+                            <label class="ll-form-control__label">External URL</label>
+                        </div>
+                        <div class="ll-form-control__text-value flex items-center gap-2">
+                            <span class="material-symbols-outlined ll-btn__icon">link</span>
+                            <span class="truncate">${sanitize(truncateMiddle(link.url, 38))}</span>
+                        </div>
                     </div>
-                    <input type="text" class="briefing-field" data-role="optional-link-label" maxlength="20" value="${sanitize(linkLabelValue)}" placeholder="Learn More">
-                    <p class="text-xs text-red-400 mt-1 ${hasEmptyLabel ? '' : 'hidden'}" data-role="optional-link-label-error">Link Label is required.</p>
-                </div>
-                <div class="briefing-link-mini-actions">
-                    <button type="button" class="briefing-link-mini-btn" data-action="change-external-link">Change</button>
-                    <button type="button" class="briefing-link-mini-btn is-danger" data-action="remove-link">Remove</button>
+                    <div class="ll-field">
+                        <div class="ll-form-control__label-row">
+                            <label for="briefing-optional-link-label-input" class="ll-form-control__label">Link Label</label>
+                            <div class="ll-form-control__info">
+                                <span id="briefing-optional-link-label-counter" class="ll-form-control__counter">${sanitize(String(linkLabelValue).slice(0, 20).length)}/20</span>
+                            </div>
+                        </div>
+                        <input type="text" id="briefing-optional-link-label-input" class="ll-input ${hasEmptyLabel ? 'll-input--invalid' : ''}" data-role="optional-link-label" maxlength="20" value="${sanitize(linkLabelValue)}" placeholder="Learn More">
+                        <div class="ll-form-control__error ${hasEmptyLabel ? '' : 'hidden'}" data-role="optional-link-label-error">Link Label is required.</div>
+                    </div>
+                    <div class="ll-field flex gap-2">
+                        <button type="button" class="ll-btn ll-btn--outline-default ll-btn--sm" data-action="change-external-link">Change</button>
+                        <button type="button" class="ll-btn ll-btn--outline-negative ll-btn--sm" data-action="remove-link">Remove</button>
+                    </div>
                 </div>
             `;
             const changeBtn = container.querySelector('[data-action="change-external-link"]');
             const removeBtn = container.querySelector('[data-action="remove-link"]');
             const labelInput = container.querySelector('[data-role="optional-link-label"]');
-            const labelCounter = container.querySelector('[data-role="optional-link-label-counter"]');
             const labelError = container.querySelector('[data-role="optional-link-label-error"]');
+            const llComponents = window.LlumenComponents;
             if (changeBtn) changeBtn.addEventListener('click', () => openExternalUrlModal(link.url));
             if (removeBtn) removeBtn.addEventListener('click', () => {
                 state.create.optionalLink = null;
                 renderCreateModalFields();
             });
+            if (llComponents && typeof llComponents.initializeTextCounter === 'function') {
+                llComponents.initializeTextCounter('briefing-optional-link-label-input', 'briefing-optional-link-label-counter');
+            }
             if (labelInput) {
                 labelInput.addEventListener('input', (event) => {
                     if (!state.create.optionalLink || state.create.optionalLink.type !== 'external') return;
                     const next = String(event.target.value || '').slice(0, 20);
                     state.create.optionalLink.label = next;
-                    if (labelCounter) labelCounter.textContent = `${next.length}/20`;
-                    if (labelError) labelError.classList.toggle('hidden', Boolean(String(next).trim()));
+                    const hasLabelValue = Boolean(String(next).trim());
+                    if (labelError) labelError.classList.toggle('hidden', hasLabelValue);
+                    event.target.classList.toggle('ll-input--invalid', !hasLabelValue);
                     const previewLabel = document.querySelector('#briefing-slide-canvas .briefing-preview-link-btn [data-role="preview-link-label"]');
                     if (previewLabel) previewLabel.textContent = getSafeLinkLabel(next);
                 });
@@ -3598,18 +3737,20 @@
     function renderCreateModalFields() {
         const ownerDisplay = document.getElementById('briefing-owner-display');
         const titleInput = document.getElementById('briefing-title');
+        const titleError = document.getElementById('briefing-title-error');
         const typePicker = document.getElementById('briefing-type-picker');
         const expireDaysPicker = document.getElementById('briefing-expire-days-picker');
-        const modalTitle = document.getElementById('briefing-create-modal-title');
         const submitButton = document.getElementById('briefing-create-submit-btn');
         const editor = document.getElementById('briefing-slide-editor');
 
-        if (!ownerDisplay || !titleInput || !typePicker || !expireDaysPicker || !editor || !modalTitle || !submitButton) {
+        if (!ownerDisplay || !titleInput || !typePicker || !expireDaysPicker || !editor || !submitButton) {
             return;
         }
 
         const isEditMode = state.create.mode === 'edit';
-        modalTitle.textContent = isEditMode ? 'Edit Briefing' : 'Create Briefing';
+        if (createModalController && typeof createModalController.setTitle === 'function') {
+            createModalController.setTitle(isEditMode ? 'Edit Briefing' : 'Create Briefing');
+        }
         submitButton.textContent = isEditMode ? 'Publish Changes' : 'Publish Briefing';
 
         ownerDisplay.innerHTML = `
@@ -3617,49 +3758,149 @@
             <span class="font-medium">${sanitize(state.create.owner || 'Workspace not selected')}</span>
         `;
         titleInput.value = state.create.title;
-        typePicker.innerHTML = Object.entries(BRIEFING_TYPE_META).map(([typeName, meta]) => `
-            <button
-                type="button"
-                class="briefing-type-btn ${state.create.type === typeName ? 'is-active' : ''}"
-                data-briefing-type="${sanitize(typeName)}"
-                style="--briefing-type-accent:${sanitize(meta.accent || '#ef4444')}; color:${sanitize(meta.accent || '#ef4444')};"
-            >
-                <span class="material-symbols-outlined">${sanitize(meta.icon)}</span>
-                <span>${sanitize(typeName)}</span>
-            </button>
-        `).join('');
-        const activeExpireDays = normalizeExpireDays(state.create.expiresInDays);
-        expireDaysPicker.innerHTML = [1, 2, 3, 4, 5].map((day) => `
-            <button type="button" class="briefing-days-btn ${activeExpireDays === day ? 'is-active' : ''}" data-expire-days="${day}">${day}</button>
-        `).join('');
+        titleInput.classList.remove('ll-input--invalid');
+        if (titleError) titleError.classList.add('hidden');
+        const llComponents = window.LlumenComponents;
+        const preferredTypeOrder = ['Update', 'Report', 'Feedback', 'Alert'];
+        const allTypeNames = Object.keys(BRIEFING_TYPE_META);
+        const orderedTypeNames = [
+            ...preferredTypeOrder.filter((typeName) => allTypeNames.includes(typeName)),
+            ...allTypeNames.filter((typeName) => !preferredTypeOrder.includes(typeName))
+        ];
+        const typeItems = orderedTypeNames.map((typeName) => {
+            const meta = BRIEFING_TYPE_META[typeName] || {};
+            return {
+                value: typeName,
+                label: typeName,
+                icon: String(meta && meta.icon ? meta.icon : ''),
+                state: String(BRIEFING_TYPE_SELECTION_STATE[typeName] || 'primary')
+            };
+        });
+        if (llComponents && typeof llComponents.initializeRadioSelection === 'function') {
+            if (!createTypeRadioApi) {
+                createTypeRadioApi = llComponents.initializeRadioSelection({
+                    root: typePicker,
+                    rootClassName: 'll-radio-selection--grid ll-radio-selection--grid-cols-2',
+                    items: typeItems,
+                    value: state.create.type,
+                    buttonBaseClassName: 'll-btn ll-radio-selection__btn',
+                    buttonInactiveClassName: 'll-btn--outline-default',
+                    buttonActiveClassName: 'll-btn--outline-primary',
+                    itemButtonClassName: 'll-radio-selection__btn--metadata',
+                    itemTemplate: (item, context) => {
+                        const iconName = context.escapeHtml(String(item && item.icon ? item.icon : ''));
+                        const label = context.escapeHtml(String(item && item.label ? item.label : ''));
+                        const stateName = String(item && item.state ? item.state : 'primary');
+                        const stateTextClass = stateName === 'warning'
+                            ? 'll-text-warning'
+                            : stateName === 'positive'
+                                ? 'll-text-positive'
+                                : stateName === 'negative'
+                                    ? 'll-text-negative'
+                                    : 'll-text-primary';
+                        const escapedStateTextClass = context.escapeHtml(stateTextClass);
+                        return `
+                            <span class="briefing-type-option-content ${escapedStateTextClass}">
+                                <span class="material-symbols-outlined ll-btn__icon">${iconName}</span>
+                                <span class="ll-radio-selection__option-title">${label}</span>
+                            </span>
+                        `;
+                    },
+                    onValueChange: (nextValue) => {
+                        if (!nextValue || nextValue === state.create.type) return;
+                        state.create.type = nextValue;
+                    }
+                });
+            } else {
+                createTypeRadioApi.setItems(typeItems);
+                createTypeRadioApi.setValue(state.create.type);
+            }
+            if (!createExpireDaysRadioApi) {
+                createExpireDaysRadioApi = llComponents.initializeRadioSelection({
+                    root: expireDaysPicker,
+                    rootClassName: 'll-radio-selection--grid ll-radio-selection--grid-cols-5',
+                    items: [1, 2, 3, 4, 5].map((day) => ({
+                        value: String(day),
+                        label: String(day)
+                    })),
+                    value: String(normalizeExpireDays(state.create.expiresInDays)),
+                    buttonBaseClassName: 'll-btn ll-radio-selection__btn',
+                    buttonInactiveClassName: 'll-btn--outline-default',
+                    buttonActiveClassName: 'll-btn--outline-primary',
+                    onValueChange: (nextValue) => {
+                        const nextDays = normalizeExpireDays(Number(nextValue));
+                        if (nextDays === state.create.expiresInDays) return;
+                        state.create.expiresInDays = nextDays;
+                    }
+                });
+            } else {
+                createExpireDaysRadioApi.setValue(String(normalizeExpireDays(state.create.expiresInDays)));
+            }
+        }
 
-        titleInput.oninput = (event) => { state.create.title = event.target.value; };
-        typePicker.querySelectorAll('[data-briefing-type]').forEach((button) => {
-            button.addEventListener('click', () => {
-                const nextType = button.getAttribute('data-briefing-type');
-                if (!nextType || nextType === state.create.type) return;
-                state.create.type = nextType;
-                renderCreateModalFields();
-            });
-        });
-        expireDaysPicker.querySelectorAll('[data-expire-days]').forEach((button) => {
-            button.addEventListener('click', () => {
-                const nextDays = Number(button.getAttribute('data-expire-days'));
-                if (!Number.isFinite(nextDays) || nextDays < 1 || nextDays > 5 || nextDays === state.create.expiresInDays) return;
-                state.create.expiresInDays = normalizeExpireDays(nextDays);
-                renderCreateModalFields();
-            });
-        });
+        titleInput.oninput = (event) => {
+            state.create.title = event.target.value;
+            const hasTitleValue = Boolean(String(event.target.value || '').trim());
+            event.target.classList.toggle('ll-input--invalid', !hasTitleValue);
+            if (titleError) titleError.classList.toggle('hidden', hasTitleValue);
+        };
         renderOptionalLinkField();
 
-        editor.innerHTML = '<div id="briefing-slide-canvas-host"></div>';
+        editor.innerHTML = `
+            <div class="briefing-editor-tabs-overlay">
+                <div class="briefing-editor-slides-bar">
+                    <div id="briefing-slide-tabs-carousel" class="ll-carousel"></div>
+                </div>
+                <div class="briefing-editor-slides-separator border-b ll-border-divider"></div>
+            </div>
+            <div id="briefing-slide-tab-panels"></div>
+        `;
+        createSlidesCarouselApi = null;
+        createSlidesTabsController = null;
+        createSlidePanelsSignature = '';
         renderCreateCanvas();
     }
 
+    function syncCreateSlideTabPanels() {
+        const panelsRoot = document.getElementById('briefing-slide-tab-panels');
+        if (!panelsRoot) return;
+        ensureCreateSlidesMinimumOne();
+        const signature = state.create.slides.map((slide) => String(slide && slide.slideId || '')).filter(Boolean).join('|');
+        if (signature === createSlidePanelsSignature) return;
+        panelsRoot.innerHTML = state.create.slides.map((slide) => {
+            const slideId = String(slide && slide.slideId || '');
+            if (!slideId) return '';
+            return `
+                <section id="briefing-slide-panel-${sanitize(slideId)}" class="briefing-slide-panel hidden">
+                    <div data-briefing-slide-canvas-host="${sanitize(slideId)}"></div>
+                </section>
+            `;
+        }).join('');
+        createSlidePanelsSignature = signature;
+    }
+
+    function getActiveCreateSlideCanvasHost() {
+        const slide = getActiveCreateSlide();
+        if (!slide) return null;
+        const slideId = String(slide.slideId || '');
+        if (!slideId) return null;
+        const hosts = Array.from(document.querySelectorAll('[data-briefing-slide-canvas-host]'));
+        return hosts.find((node) => String(node.getAttribute('data-briefing-slide-canvas-host') || '') === slideId) || null;
+    }
+
     function renderCreateCanvas({ focusSelectedText = false, caretOffset = null } = {}) {
-        const host = document.getElementById('briefing-slide-canvas-host');
+        syncCreateSlideTabPanels();
+        const host = getActiveCreateSlideCanvasHost();
+        ensureCreateSlidesMinimumOne();
         const slide = getActiveCreateSlide();
         if (!host || !slide) return;
+
+        const allHosts = document.querySelectorAll('[data-briefing-slide-canvas-host]');
+        allHosts.forEach((panelHost) => {
+            if (panelHost !== host) {
+                panelHost.innerHTML = '';
+            }
+        });
 
         const colorPresets = ['#ffffff', '#fde047', '#f97316', '#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#000000'];
         const elements = ensureSlideElements(slide);
@@ -3685,42 +3926,30 @@
                 <div class="briefing-editor-overlay"></div>
                 <div class="briefing-editor-layout">
                     <div class="briefing-editor-header">
-                        <div class="briefing-editor-slides-bar">
-                            <div class="briefing-editor-slide-tabs-inline">
-                                ${state.create.slides.map((_, index) => `
-                                    <button type="button" class="briefing-slide-tab-inline ${index === state.create.activeSlideIndex ? 'is-active' : ''}" data-slide-tab-inline="${index}">
-                                        Slide ${index + 1}
-                                    </button>
-                                `).join('')}
-                            </div>
-                            <button type="button" class="briefing-icon-btn" data-action="add-slide-inline" title="Add Slide">
-                                <span class="material-symbols-outlined text-[18px]">add</span>
-                            </button>
-                        </div>
-                        <div class="briefing-editor-slides-separator"></div>
                         <div class="briefing-editor-top-tools">
                             <div class="briefing-editor-topbar">
                                 ${slide.hasConfiguredBackground && selectedBackground
-                        ? `<div class="briefing-bg-topbar-actions">
+                        ? `<div class="briefing-bg-topbar-actions border-r ll-border-divider">
                                         <span class="briefing-bg-pill">${sanitize(getBackgroundLabel(selectedBackground))}</span>
-                                        <button type="button" data-action="configure-bg" class="briefing-icon-btn" title="Configure Background">
-                                            <span class="material-symbols-outlined text-[18px]">settings</span>
+                                        <button type="button" data-action="configure-bg" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" title="Configure Background">
+                                            <span class="material-symbols-outlined">settings</span>
                                         </button>
-                                        <button type="button" data-action="remove-bg" class="briefing-icon-btn" title="Remove Background">
-                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        <button type="button" data-action="remove-bg" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" title="Remove Background">
+                                            <span class="material-symbols-outlined">delete</span>
                                         </button>
                                    </div>`
-                        : `<button type="button" data-action="open-bg-picker" class="bg-gray-900/80 hover:bg-gray-800 text-white text-xs px-3 py-1.5 rounded-full border border-white/20">
+                        : `<button type="button" data-action="open-bg-picker" class="ll-btn ll-btn--outline-default ll-btn--sm">
+                                        <span class="material-symbols-outlined ll-btn__icon">add</span>
                                         Add Background
                                    </button>`
                     }
                             </div>
                             <div class="briefing-editor-addtools">
-                                <button type="button" class="briefing-icon-btn ${hasTextBlock ? 'briefing-tool-btn-active' : ''}" data-action="toggle-text-block" title="Toggle Text">
-                                    <span class="material-symbols-outlined text-[18px]">text_fields</span>
+                                <button type="button" class="ll-icon-btn ll-icon-btn--circle ${hasTextBlock ? 'll-icon-btn--circle-primary' : 'll-icon-btn--outline'}" data-action="toggle-text-block">
+                                    <span class="material-symbols-outlined">text_fields</span>
                                 </button>
-                                <button type="button" class="briefing-icon-btn" data-action="add-component-block" title="Add Component">
-                                    <span class="material-symbols-outlined text-[18px]">widgets</span>
+                                <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-action="add-component-block">
+                                    <span class="material-symbols-outlined">widgets</span>
                                 </button>
                             </div>
                         </div>
@@ -3781,22 +4010,24 @@
                             `).join('')}
                         </div>` : ''}
                         ${hasTextBlock ? `<div class="briefing-editor-bottombar ${showTextAdjustUi ? '' : 'briefing-control-hidden'}">
-                            <button type="button" class="briefing-icon-btn" data-action="toggle-color-palette" title="Colors">
-                                <span class="material-symbols-outlined text-[18px]">palette</span>
+                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-action="toggle-color-palette" title="Colors">
+                                <span class="material-symbols-outlined">palette</span>
                             </button>
-                            <button type="button" class="briefing-icon-btn" data-action="toggle-color-target" title="Text/Background Color">
-                                <span class="material-symbols-outlined text-[18px]">format_color_fill</span>
+                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-action="toggle-color-target" title="Text/Background Color">
+                                <span class="material-symbols-outlined">format_color_fill</span>
                             </button>
-                            <button type="button" class="briefing-icon-btn" data-action="cycle-alignment" title="Cycle Alignment">
-                                <span class="material-symbols-outlined text-[18px]">${alignmentIcon}</span>
+                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-action="cycle-alignment" title="Cycle Alignment">
+                                <span class="material-symbols-outlined">${alignmentIcon}</span>
                             </button>
                         </div>` : ''}
                     </div>
                 </div>
                 ${showPreviewLinkButton ? `
                     <div class="briefing-preview-link-btn ${showTextAdjustUi ? 'briefing-control-hidden' : ''}">
-                        <span class="material-symbols-outlined">link</span>
-                        <span data-role="preview-link-label">${sanitize(previewLinkLabel)}</span>
+                        <button type="button" class="ll-btn ll-btn--outline-primary">
+                            <span class="material-symbols-outlined ll-btn__icon">link</span>
+                            <span data-role="preview-link-label">${sanitize(previewLinkLabel)}</span>
+                        </button>
                     </div>
                 ` : ''}
             </div>
@@ -3826,27 +4057,178 @@
                 renderCreateCanvas();
             });
         }
-        host.querySelector('[data-action="add-slide-inline"]').addEventListener('click', (event) => {
-            event.stopPropagation();
-            addSlide();
-        });
-        host.querySelectorAll('[data-slide-tab-inline]').forEach((button) => {
-            button.addEventListener('click', (event) => {
+        const slidesCarouselRoot = document.getElementById('briefing-slide-tabs-carousel');
+        const llComponents = window.LlumenComponents;
+        if (slidesCarouselRoot && llComponents && typeof llComponents.initializeHorizontalCarousel === 'function') {
+            ensureCreateSlideIds();
+            const applySlidesFromCarouselItems = (carouselItems) => {
+                const existingSlides = Array.isArray(state.create.slides) ? state.create.slides : [];
+                const slideById = new Map(existingSlides.map((entry) => [String(entry && entry.slideId || ''), entry]));
+                const nextSlides = [];
+                const nextItems = Array.isArray(carouselItems) ? carouselItems : [];
+                nextItems.forEach((item) => {
+                    const id = String(item && item.id != null ? item.id : '').trim();
+                    if (!id) return;
+                    const existing = slideById.get(id);
+                    if (existing) {
+                        nextSlides.push(existing);
+                        return;
+                    }
+                    const newSlide = emptySlide();
+                    newSlide.slideId = id;
+                    nextSlides.push(newSlide);
+                });
+                state.create.slides = nextSlides.length ? nextSlides : [emptySlide()];
+                ensureCreateSlidesMinimumOne();
+            };
+            const syncActiveSlideIndexFromCarousel = () => {
+                const activeId = createSlidesCarouselApi && typeof createSlidesCarouselApi.getActiveId === 'function'
+                    ? String(createSlidesCarouselApi.getActiveId() || '')
+                    : '';
+                const nextIndex = state.create.slides.findIndex((entry) => String(entry && entry.slideId || '') === activeId);
+                if (nextIndex >= 0) {
+                    state.create.activeSlideIndex = nextIndex;
+                    return;
+                }
+                if (state.create.activeSlideIndex >= state.create.slides.length) {
+                    state.create.activeSlideIndex = Math.max(0, state.create.slides.length - 1);
+                }
+            };
+            const slideItems = state.create.slides.map((slide, index) => ({
+                id: String(slide && slide.slideId || ''),
+                label: `Slide ${index + 1}`
+            }));
+            const areCarouselItemsInSync = () => {
+                if (!createSlidesCarouselApi || typeof createSlidesCarouselApi.getItems !== 'function') return false;
+                const existingItems = createSlidesCarouselApi.getItems();
+                if (!Array.isArray(existingItems) || existingItems.length !== slideItems.length) return false;
+                for (let i = 0; i < slideItems.length; i += 1) {
+                    const a = slideItems[i];
+                    const b = existingItems[i] || {};
+                    if (String(a.id || '') !== String(b.id || '')) return false;
+                    if (String(a.label || '') !== String(b.label || '')) return false;
+                }
+                return true;
+            };
+            const initialActiveId = slideItems[Math.max(0, Math.min(state.create.activeSlideIndex, slideItems.length - 1))]
+                ? slideItems[Math.max(0, Math.min(state.create.activeSlideIndex, slideItems.length - 1))].id
+                : null;
+            if (!createSlidesCarouselApi) {
+                createSlidesCarouselApi = llComponents.initializeHorizontalCarousel({
+                    root: slidesCarouselRoot,
+                    mode: 'tabs',
+                    items: slideItems,
+                    initialActiveId,
+                    getItemId: (item) => String(item && item.id != null ? item.id : ''),
+                    tabLabelKey: 'label',
+                    tabs: {
+                        editable: true,
+                        editMode: true,
+                        renameEnabled: false,
+                        defaultNewLabel: 'Slide',
+                        addButtonLabel: 'Add Slide',
+                        minTabsToKeep: 1,
+                        confirmDeleteTitle: 'Remove slide',
+                        confirmDeleteBody: 'Remove this slide? Its content will be deleted.',
+                        confirmDeleteConfirmLabel: 'Remove'
+                    },
+                    onActiveTabChange: ({ previousId } = {}) => {
+                        const previousIndex = state.create.activeSlideIndex;
+                        syncActiveSlideIndexFromCarousel();
+                        if (state.create.activeSlideIndex === previousIndex) return;
+                        const previousTabWasRemoved = Boolean(
+                            previousId
+                            && createSlidesCarouselApi
+                            && typeof createSlidesCarouselApi.getItems === 'function'
+                            && !createSlidesCarouselApi.getItems().some((item) => {
+                                return String(item && item.id != null ? item.id : '') === String(previousId);
+                            })
+                        );
+                        if (previousTabWasRemoved) return;
+                        state.create.selectedElementId = '';
+                        state.create.showColorPalette = false;
+                        const activeSlide = getActiveCreateSlide();
+                        if (createSlidesTabsController && activeSlide && activeSlide.slideId) {
+                            createSlidesTabsController.switchTab(String(activeSlide.slideId));
+                        }
+                        renderCreateCanvas();
+                    },
+                    onItemsChange: ({ items, reason }) => {
+                        if (reason === 'init') return;
+                        if (isSyncingSlidesCarouselFromState) return;
+                        applySlidesFromCarouselItems(items);
+                        syncCreateSlideTabPanels();
+                        syncActiveSlideIndexFromCarousel();
+                        const activeSlide = getActiveCreateSlide();
+                        if (createSlidesTabsController && activeSlide && activeSlide.slideId) {
+                            createSlidesTabsController.switchTab(String(activeSlide.slideId));
+                        }
+                        state.create.selectedElementId = '';
+                        state.create.showColorPalette = false;
+                        renderCreateCanvas();
+                    }
+                });
+            } else {
+                if (!areCarouselItemsInSync()) {
+                    isSyncingSlidesCarouselFromState = true;
+                    try {
+                        createSlidesCarouselApi.setItems(slideItems);
+                    } finally {
+                        isSyncingSlidesCarouselFromState = false;
+                    }
+                }
+                if (initialActiveId) {
+                    createSlidesCarouselApi.setActiveId(initialActiveId);
+                }
+            }
+
+            if (typeof llComponents.initializeTabs === 'function') {
+                createSlidesTabsController = llComponents.initializeTabs({
+                    tabButtonSelector: '#briefing-slide-tabs-carousel .ll-carousel__tab',
+                    tabContentSelector: '#briefing-slide-tab-panels .briefing-slide-panel',
+                    tabValueDatasetKey: 'llCarouselTabId',
+                    tabContentIdPrefix: 'briefing-slide-panel-',
+                    tabContentIdSuffix: '',
+                    activeClassName: 'll-active',
+                    initialTab: initialActiveId || ''
+                });
+                if (createSlidesTabsController && typeof createSlidesTabsController.switchTab === 'function' && initialActiveId) {
+                    createSlidesTabsController.switchTab(initialActiveId);
+                }
+            }
+        }
+        const toggleTextButton = host.querySelector('[data-action="toggle-text-block"]');
+        const addComponentButton = host.querySelector('[data-action="add-component-block"]');
+        const tooltipComponents = window.LlumenComponents;
+        if (tooltipComponents && typeof tooltipComponents.bindCustomTooltip === 'function') {
+            if (toggleTextButton) {
+                tooltipComponents.bindCustomTooltip(toggleTextButton, {
+                    contentHtml: '<div>Toggle Text</div>',
+                    position: 'top',
+                    offset: 8
+                });
+            }
+            if (addComponentButton) {
+                tooltipComponents.bindCustomTooltip(addComponentButton, {
+                    contentHtml: '<div>Add Component</div>',
+                    position: 'top',
+                    offset: 8
+                });
+            }
+        }
+
+        if (toggleTextButton) {
+            toggleTextButton.addEventListener('click', (event) => {
                 event.stopPropagation();
-                state.create.activeSlideIndex = Number(button.getAttribute('data-slide-tab-inline'));
-                state.create.selectedElementId = '';
-                state.create.showColorPalette = false;
-                renderCreateCanvas();
+                toggleTextBlock();
             });
-        });
-        host.querySelector('[data-action="toggle-text-block"]').addEventListener('click', (event) => {
-            event.stopPropagation();
-            toggleTextBlock();
-        });
-        host.querySelector('[data-action="add-component-block"]').addEventListener('click', (event) => {
-            event.stopPropagation();
-            addComponentBlock();
-        });
+        }
+        if (addComponentButton) {
+            addComponentButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                addComponentBlock();
+            });
+        }
         const colorPaletteToggle = host.querySelector('[data-action="toggle-color-palette"]');
         const colorTargetToggle = host.querySelector('[data-action="toggle-color-target"]');
         const alignmentToggle = host.querySelector('[data-action="cycle-alignment"]');
@@ -3922,7 +4304,6 @@
             const dragStart = (event) => {
                 if (
                     event.target.closest('select') ||
-                    event.target.classList.contains('briefing-field') ||
                     event.target.closest('[data-role="resize-handle"]') ||
                     event.target.closest('[data-remove-component]')
                 ) {
@@ -4086,7 +4467,7 @@
     }
 
     function sizeCreateCanvasStage() {
-        const host = document.getElementById('briefing-slide-canvas-host');
+        const host = getActiveCreateSlideCanvasHost();
         const stage = document.getElementById('briefing-slide-canvas');
         const createPanel = document.querySelector('#briefing-create-modal .briefing-create-panel');
         const rightColumn = document.querySelector('#briefing-create-modal .briefing-create-right');
@@ -4100,16 +4481,16 @@
             }
         }
 
-        const hostWidth = host.clientWidth;
-        const hostHeight = host.clientHeight;
-        if (!hostWidth || !hostHeight) return;
+        const availableWidth = rightColumn && rightColumn.clientWidth ? rightColumn.clientWidth : host.clientWidth;
+        const availableHeight = rightColumn && rightColumn.clientHeight ? rightColumn.clientHeight : host.clientHeight;
+        if (!availableWidth || !availableHeight) return;
 
-        const widthFromHeight = hostHeight * (9 / 16);
+        const widthFromHeight = availableHeight * (9 / 16);
         let finalWidth = widthFromHeight;
-        let finalHeight = hostHeight;
-        if (widthFromHeight > hostWidth) {
-            finalWidth = hostWidth;
-            finalHeight = hostWidth * (16 / 9);
+        let finalHeight = availableHeight;
+        if (widthFromHeight > availableWidth) {
+            finalWidth = availableWidth;
+            finalHeight = availableWidth * (16 / 9);
         }
 
         stage.style.width = `${Math.floor(finalWidth)}px`;
@@ -4179,7 +4560,7 @@
         if (slide.backgroundType === 'story') {
             return 'background:linear-gradient(135deg,#1e3a8a,#312e81);';
         }
-        return 'background:linear-gradient(135deg,#0f172a,#1d4ed8);';
+        return '';
     }
 
     function renderSlideContent(slide, options = {}) {
@@ -4221,10 +4602,19 @@
             notify('Select a workspace owner before publishing.', 'error');
             return;
         }
-        if (!state.create.title.trim()) {
-            notify('Enter a briefing title.', 'error');
+        const titleInput = document.getElementById('briefing-title');
+        const titleError = document.getElementById('briefing-title-error');
+        const hasTitleValue = Boolean(String(state.create.title || '').trim());
+        if (!hasTitleValue) {
+            if (titleInput) {
+                titleInput.classList.add('ll-input--invalid');
+                titleInput.focus();
+            }
+            if (titleError) titleError.classList.remove('hidden');
             return;
         }
+        if (titleInput) titleInput.classList.remove('ll-input--invalid');
+        if (titleError) titleError.classList.add('hidden');
 
         let resolvedLinkUrl = '';
         let resolvedLinkLabel = '';
@@ -4267,6 +4657,7 @@
                 };
                 saveBriefings();
                 renderLatestBriefings();
+                createModalInitialSnapshot = getCreateFlowSnapshot();
                 closeCreateModal();
                 notify('Briefing changes published successfully.', 'success');
                 return;
@@ -4276,6 +4667,7 @@
         state.briefings.unshift(nextBriefing);
         saveBriefings();
         renderLatestBriefings();
+        createModalInitialSnapshot = getCreateFlowSnapshot();
         closeCreateModal();
         notify('Briefing published successfully.', 'success');
     }
@@ -4493,7 +4885,10 @@
         if (hasLink) {
             linkButton.classList.remove('hidden');
             const viewerLabel = getSafeLinkLabel(briefing.linkLabel || (optionalLink && optionalLink.label) || 'Learn More');
-            linkButton.innerHTML = `<span class="material-symbols-outlined">link</span><span data-role="viewer-link-label">${sanitize(viewerLabel)}</span>`;
+            const viewerLabelNode = linkButton.querySelector('[data-role="viewer-link-label"]');
+            if (viewerLabelNode) {
+                viewerLabelNode.textContent = viewerLabel;
+            }
         } else {
             linkButton.classList.add('hidden');
         }
@@ -4580,8 +4975,7 @@
         openCreateModal,
         openEditModal,
         openCreateFromWorkspace,
-        openViewer,
-        refresh: renderLatestBriefings
+        openViewer
     };
 
     if (document.readyState === 'loading') {

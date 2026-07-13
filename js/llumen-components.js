@@ -589,6 +589,209 @@
             };
         }
 
+        function initializeRadioSelection(options = {}) {
+            const {
+                root,
+                rootId,
+                items = [],
+                value,
+                valueKey = 'value',
+                labelKey = 'label',
+                iconKey = 'icon',
+                disabledKey = 'disabled',
+                itemClassNameKey = 'className',
+                rootClassName = '',
+                buttonBaseClassName = 'll-btn ll-btn--outline-default ll-radio-selection__btn',
+                buttonActiveClassName = 'll-btn--primary',
+                buttonInactiveClassName = 'll-btn--outline-default',
+                buttonSizeClassName = '',
+                itemButtonClassName = '',
+                itemTemplate = null,
+                emptyMessage = '',
+                onValueChange = null
+            } = options;
+
+            const rootEl = typeof root === 'string'
+                ? document.getElementById(root)
+                : (root || (rootId ? document.getElementById(rootId) : null));
+            if (!rootEl) return null;
+
+            const baseRootClass = 'll-radio-selection';
+            rootEl.classList.add(baseRootClass);
+            if (typeof rootClassName === 'string' && rootClassName.trim()) {
+                rootClassName
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .forEach((className) => rootEl.classList.add(className));
+            }
+
+            const safeItems = Array.isArray(items) ? items.slice() : [];
+            const resolveItemValue = (item) => String(item && item[valueKey] !== undefined ? item[valueKey] : '');
+            const resolveItemLabel = (item) => String(item && item[labelKey] !== undefined ? item[labelKey] : '');
+            const resolveItemIcon = (item) => String(item && item[iconKey] !== undefined ? item[iconKey] : '').trim();
+            const resolveItemDisabled = (item) => !!(item && item[disabledKey]);
+
+            let selectedValue = value !== undefined && value !== null
+                ? String(value)
+                : (safeItems.length ? resolveItemValue(safeItems[0]) : '');
+
+            const rootClassTokens = typeof rootClassName === 'string'
+                ? rootClassName.split(/\s+/).filter(Boolean)
+                : [];
+            const activeClassTokens = String(buttonActiveClassName || '').split(/\s+/).filter(Boolean);
+            const inactiveClassTokens = String(buttonInactiveClassName || '').split(/\s+/).filter(Boolean);
+
+            const applyClassTokens = (element, classTokens, shouldApply) => {
+                if (!element || !classTokens.length) return;
+                classTokens.forEach((className) => {
+                    if (shouldApply) {
+                        element.classList.add(className);
+                    } else {
+                        element.classList.remove(className);
+                    }
+                });
+            };
+
+            const syncSelectionState = () => {
+                const optionButtons = Array.from(rootEl.querySelectorAll('[data-ll-radio-selection-value]'));
+                optionButtons.forEach((button) => {
+                    const itemValue = String(button.dataset.llRadioSelectionValue || '');
+                    const isActive = itemValue === selectedValue;
+                    button.setAttribute('aria-checked', isActive ? 'true' : 'false');
+                    applyClassTokens(button, activeClassTokens, isActive);
+                    applyClassTokens(button, inactiveClassTokens, !isActive);
+                });
+            };
+
+            const render = () => {
+                if (!safeItems.length) {
+                    rootEl.innerHTML = emptyMessage
+                        ? `<div class="ll-radio-selection__empty">${emptyMessage}</div>`
+                        : '';
+                    return;
+                }
+                rootEl.innerHTML = safeItems.map((item, index) => {
+                    const itemValue = resolveItemValue(item);
+                    const itemLabel = resolveItemLabel(item);
+                    const iconName = resolveItemIcon(item);
+                    const isActive = itemValue === selectedValue;
+                    const isDisabled = resolveItemDisabled(item);
+                    const optionClassName = String(item && item[itemClassNameKey] ? item[itemClassNameKey] : '').trim();
+                    const allButtonClasses = [
+                        buttonBaseClassName,
+                        buttonSizeClassName,
+                        itemButtonClassName,
+                        optionClassName,
+                        isActive ? buttonActiveClassName : buttonInactiveClassName
+                    ]
+                        .join(' ')
+                        .trim()
+                        .replace(/\s+/g, ' ');
+                    const defaultInnerContent = `
+                        ${iconName ? `<span class="material-symbols-outlined ll-btn__icon">${escapeHtml(iconName)}</span>` : ''}
+                        <span>${escapeHtml(itemLabel)}</span>
+                    `;
+                    const templateContext = {
+                        index,
+                        isActive,
+                        isDisabled,
+                        value: itemValue,
+                        label: itemLabel,
+                        icon: iconName,
+                        escapeHtml
+                    };
+                    const customInnerContent = typeof itemTemplate === 'function'
+                        ? itemTemplate(item, templateContext)
+                        : null;
+                    const resolvedInnerContent = customInnerContent === null || customInnerContent === undefined
+                        ? defaultInnerContent
+                        : String(customInnerContent);
+                    return `
+                        <button
+                            type="button"
+                            class="${allButtonClasses}"
+                            role="radio"
+                            aria-checked="${isActive ? 'true' : 'false'}"
+                            data-ll-radio-selection-value="${escapeHtml(itemValue)}"
+                            ${isDisabled ? 'disabled' : ''}
+                        >
+                            ${resolvedInnerContent}
+                        </button>
+                    `;
+                }).join('');
+                syncSelectionState();
+            };
+
+            const setValue = (nextValue, meta = {}) => {
+                const normalizedValue = String(nextValue || '');
+                const hasMatch = safeItems.some((item) => resolveItemValue(item) === normalizedValue);
+                if (!hasMatch || normalizedValue === selectedValue) return;
+                selectedValue = normalizedValue;
+                syncSelectionState();
+                if (typeof onValueChange === 'function') {
+                    onValueChange(selectedValue, {
+                        source: String(meta.source || 'api'),
+                        item: safeItems.find((item) => resolveItemValue(item) === selectedValue) || null
+                    });
+                }
+            };
+
+            const clickHandler = (event) => {
+                const button = event.target.closest('[data-ll-radio-selection-value]');
+                if (!button || !rootEl.contains(button) || button.disabled) return;
+                setValue(button.dataset.llRadioSelectionValue, { source: 'user' });
+            };
+
+            const keydownHandler = (event) => {
+                if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+                const optionButtons = Array.from(rootEl.querySelectorAll('[data-ll-radio-selection-value]:not(:disabled)'));
+                if (!optionButtons.length) return;
+                const activeIndex = optionButtons.findIndex((button) => {
+                    return String(button.dataset.llRadioSelectionValue || '') === selectedValue;
+                });
+                const step = event.key === 'ArrowRight' ? 1 : -1;
+                const fallbackIndex = activeIndex < 0 ? 0 : activeIndex;
+                const nextIndex = (fallbackIndex + step + optionButtons.length) % optionButtons.length;
+                const nextButton = optionButtons[nextIndex] || null;
+                if (!nextButton) return;
+                event.preventDefault();
+                nextButton.focus();
+                setValue(nextButton.dataset.llRadioSelectionValue, { source: 'keyboard' });
+            };
+
+            rootEl.addEventListener('click', clickHandler);
+            rootEl.addEventListener('keydown', keydownHandler);
+            rootEl.setAttribute('role', 'radiogroup');
+            render();
+
+            return {
+                getValue() {
+                    return selectedValue;
+                },
+                setValue(nextValue) {
+                    setValue(nextValue, { source: 'api' });
+                },
+                setItems(nextItems = []) {
+                    safeItems.length = 0;
+                    if (Array.isArray(nextItems)) {
+                        nextItems.forEach((item) => safeItems.push(item));
+                    }
+                    const hasSelectedItem = safeItems.some((item) => resolveItemValue(item) === selectedValue);
+                    if (!hasSelectedItem) {
+                        selectedValue = safeItems.length ? resolveItemValue(safeItems[0]) : '';
+                    }
+                    render();
+                },
+                destroy() {
+                    rootEl.removeEventListener('click', clickHandler);
+                    rootEl.removeEventListener('keydown', keydownHandler);
+                    rootEl.classList.remove(baseRootClass);
+                    rootClassTokens.forEach((className) => rootEl.classList.remove(className));
+                    rootEl.removeAttribute('role');
+                }
+            };
+        }
+
         function escapeHtml(rawValue) {
             const normalizedValue = rawValue === null || rawValue === undefined
                 ? ''
@@ -5176,6 +5379,98 @@
             updateScrollButtons();
         }
 
+        function initializeHideWithScroll(options = {}) {
+            const target = options.targetElement || (
+                options.targetElementId ? document.getElementById(String(options.targetElementId)) : null
+            );
+            if (!target || target.nodeType !== 1) {
+                return {
+                    destroy() {},
+                    update() {}
+                };
+            }
+
+            const hiddenClass = String(options.hiddenClass || 'll-hidden');
+            const scrollSource = options.scrollSource === window ? window : (
+                options.scrollSource && typeof options.scrollSource.addEventListener === 'function'
+                    ? options.scrollSource
+                    : window
+            );
+            const offsetElement = options.offsetElement || (
+                options.offsetElementId ? document.getElementById(String(options.offsetElementId)) : null
+            );
+            const staticOffsetPx = Number.isFinite(Number(options.offsetPx)) ? Number(options.offsetPx) : 0;
+            const cssVarName = String(options.cssVarName || '').trim();
+            const cssVarHost = options.cssVarHost || document.documentElement;
+            const revealAtOrAboveOffset = options.revealAtOrAboveOffset !== false;
+
+            const getScrollTop = () => {
+                if (scrollSource === window) {
+                    return window.scrollY || window.pageYOffset || 0;
+                }
+                return Number(scrollSource.scrollTop || 0);
+            };
+
+            const getOffsetPx = () => {
+                const measured = offsetElement && Number.isFinite(offsetElement.offsetHeight)
+                    ? Number(offsetElement.offsetHeight)
+                    : 0;
+                return Math.max(0, measured + staticOffsetPx);
+            };
+
+            const syncCssVar = () => {
+                if (!cssVarName || !cssVarHost || !cssVarHost.style || typeof cssVarHost.style.setProperty !== 'function') return;
+                cssVarHost.style.setProperty(cssVarName, `${getOffsetPx()}px`);
+            };
+
+            let disposed = false;
+            let lastScrollTop = getScrollTop();
+
+            const onScroll = () => {
+                if (disposed) return;
+                const currentScrollTop = getScrollTop();
+                const offsetPx = getOffsetPx();
+
+                if (revealAtOrAboveOffset && currentScrollTop <= offsetPx) {
+                    target.classList.remove(hiddenClass);
+                    lastScrollTop = currentScrollTop;
+                    return;
+                }
+
+                if (currentScrollTop > offsetPx && currentScrollTop > lastScrollTop) {
+                    target.classList.add(hiddenClass);
+                } else {
+                    target.classList.remove(hiddenClass);
+                }
+                lastScrollTop = currentScrollTop;
+            };
+
+            const onResize = () => {
+                if (disposed) return;
+                syncCssVar();
+                onScroll();
+            };
+
+            syncCssVar();
+            onScroll();
+            scrollSource.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', onResize);
+
+            return {
+                destroy() {
+                    if (disposed) return;
+                    disposed = true;
+                    scrollSource.removeEventListener('scroll', onScroll);
+                    window.removeEventListener('resize', onResize);
+                },
+                update() {
+                    if (disposed) return;
+                    syncCssVar();
+                    onScroll();
+                }
+            };
+        }
+
         function initializeTreeView() {
             const toggleButtons = document.querySelectorAll('[data-tree-toggle]');
             const applyTreeTriggerStructure = (button) => {
@@ -6040,6 +6335,57 @@
             return parseLlumenCssLengthToPx(s, doc);
         }
 
+        function syncLlumenGridSurfaceSquareTracks(gridSurface, layoutMetrics = null) {
+            if (!gridSurface || gridSurface.nodeType !== 1) return null;
+            const metrics = layoutMetrics && typeof layoutMetrics === 'object' ? layoutMetrics : null;
+            const unitWidth = metrics && Number.isFinite(metrics.columnUnitWidthPx)
+                ? metrics.columnUnitWidthPx
+                : null;
+            if (!Number.isFinite(unitWidth) || unitWidth <= 0) return null;
+            const nextPx = Math.max(1, Math.round(unitWidth * 1000) / 1000);
+            const nextValue = `${nextPx}px`;
+            if (gridSurface.dataset.llGridSquareRowTrackPx !== nextValue) {
+                gridSurface.style.gridAutoRows = nextValue;
+                gridSurface.dataset.llGridSquareRowTrackPx = nextValue;
+            }
+            return nextPx;
+        }
+
+        function syncLlumenGridEditGuides(gridSurface, guideElement, rowsHint = null) {
+            if (!gridSurface || gridSurface.nodeType !== 1 || !guideElement || guideElement.nodeType !== 1) {
+                return false;
+            }
+            const metrics = readLlumenGridSurfaceLayout(gridSurface);
+            if (!metrics) return false;
+            const cols = Math.max(1, parseInt(metrics.columnCount, 10) || 1);
+            const cellW = Number(metrics.columnUnitWidthPx);
+            const rowPx = Number(metrics.rowTrackPx);
+            const colGap = Number(metrics.columnGapPx) || 0;
+            const rowGap = Number(metrics.rowGapPx) || 0;
+            if (!(cellW > 0) || !(rowPx > 0)) return false;
+
+            const rowBand = rowPx + rowGap;
+            const computedRows = Math.max(6, Math.ceil((gridSurface.scrollHeight + rowGap) / Math.max(1, rowBand)));
+            const hintedRows = Number.isFinite(Number(rowsHint)) ? Math.max(1, parseInt(rowsHint, 10) || 1) : 0;
+            const rows = Math.max(computedRows, hintedRows);
+
+            guideElement.replaceChildren();
+            const frag = gridSurface.ownerDocument.createDocumentFragment();
+            for (let r = 0; r < rows; r += 1) {
+                for (let c = 0; c < cols; c += 1) {
+                    const cell = gridSurface.ownerDocument.createElement('div');
+                    cell.className = 'll-grid-edit-guides__cell';
+                    cell.style.left = `${c * (cellW + colGap)}px`;
+                    cell.style.top = `${r * rowBand}px`;
+                    cell.style.width = `${cellW}px`;
+                    cell.style.height = `${rowPx}px`;
+                    frag.appendChild(cell);
+                }
+            }
+            guideElement.appendChild(frag);
+            return true;
+        }
+
         /**
          * Read column count, gaps, and a row step from a CSS grid container (repeat() columns + grid-auto-rows).
          * Used by grid span resize and optional placement helpers; metrics refresh each pointer frame.
@@ -6074,7 +6420,8 @@
             const columnUnitWidthPx = columnCount > 0
                 ? (innerWidthPx - Math.max(0, columnCount - 1) * columnGapPx) / columnCount
                 : 0;
-            const rowTrackPx = parseLlumenGridAutoRowsMinPx(cs.gridAutoRows, doc) || 80;
+            const squareRowTrackPx = syncLlumenGridSurfaceSquareTracks(gridSurface, { columnUnitWidthPx });
+            const rowTrackPx = squareRowTrackPx || parseLlumenGridAutoRowsMinPx(cs.gridAutoRows, doc) || 80;
             return {
                 rect: br,
                 innerWidthPx,
@@ -7546,6 +7893,35 @@
             }
 
             const disposers = new Map();
+            const guideElement = gridElement.querySelector('.ll-grid-edit-guides');
+            const syncGuides = () => {
+                // Keep actual grid rows square regardless of guide availability.
+                readLlumenGridSurfaceLayout(gridElement);
+                if (!guideElement) return;
+                syncLlumenGridEditGuides(gridElement, guideElement, tileMoveMaxGridRow);
+            };
+            const userOnSpanPreview = typeof spanOpts.onSpanPreview === 'function' ? spanOpts.onSpanPreview : null;
+            const userOnSpanCommit = typeof spanOpts.onSpanCommit === 'function' ? spanOpts.onSpanCommit : null;
+            const wrappedSpanOpts = {
+                ...spanOpts,
+                onSpanPreview: userOnSpanPreview
+                    ? (detail) => {
+                        userOnSpanPreview(detail);
+                        syncGuides();
+                    }
+                    : () => {
+                        syncGuides();
+                    },
+                onSpanCommit: userOnSpanCommit
+                    ? (detail) => {
+                        userOnSpanCommit(detail);
+                        syncGuides();
+                    }
+                    : () => {
+                        syncGuides();
+                    }
+            };
+            const userTileMoveOnCommit = typeof tileMoveOnCommit === 'function' ? tileMoveOnCommit : null;
 
             const wireTile = (tile) => {
                 if (!tile || tile.nodeType !== 1 || !gridElement.contains(tile)) return;
@@ -7560,7 +7936,7 @@
                         gridSurface: gridElement,
                         tile,
                         resizeHandle: rh,
-                        ...spanOpts,
+                        ...wrappedSpanOpts,
                         layoutMaxGridRow: tileMoveMaxGridRow,
                         occupancyTileSelector: tileSelector
                     }));
@@ -7579,7 +7955,22 @@
                             previewMountRoot: tileMovePreviewMountRoot,
                             pointerCaptureTarget: tileMovePointerCaptureTarget,
                             buildGhost: tileMoveBuildGhost,
-                            onMoveCommit: tileMoveOnCommit,
+                            onMoveCommit: userTileMoveOnCommit
+                                ? (detail) => {
+                                    userTileMoveOnCommit(detail);
+                                    syncGuides();
+                                }
+                                : (detail) => {
+                                    if (detail && detail.tile) {
+                                        const cs = Math.max(1, parseInt(detail.colSpan, 10) || 1);
+                                        const rs = Math.max(1, parseInt(detail.rowSpan, 10) || 1);
+                                        const c0 = Math.max(1, parseInt(detail.columnStart, 10) || 1);
+                                        const r0 = Math.max(1, parseInt(detail.rowStart, 10) || 1);
+                                        detail.tile.style.gridColumn = `${c0} / span ${cs}`;
+                                        detail.tile.style.gridRow = `${r0} / span ${rs}`;
+                                    }
+                                    syncGuides();
+                                },
                             occupancyTileSelector: tileSelector
                         }));
                     }
@@ -7592,6 +7983,7 @@
                         });
                     }
                 });
+                syncGuides();
             };
 
             const destroy = () => {
@@ -7602,8 +7994,26 @@
             };
 
             gridElement.querySelectorAll(tileSelector).forEach(wireTile);
+            syncGuides();
 
-            return { destroy, wireTile };
+            let guidesResizeObserver = null;
+            if (guideElement && typeof windowScope.ResizeObserver === 'function') {
+                guidesResizeObserver = new windowScope.ResizeObserver(() => {
+                    windowScope.requestAnimationFrame(syncGuides);
+                });
+                guidesResizeObserver.observe(gridElement);
+            }
+
+            return {
+                destroy() {
+                    destroy();
+                    if (guidesResizeObserver) {
+                        guidesResizeObserver.disconnect();
+                        guidesResizeObserver = null;
+                    }
+                },
+                wireTile
+            };
         }
 
         /**
@@ -9913,6 +10323,21 @@
             });
         }
 
+        function renderModalTitleMeta(target, content, controller) {
+            if (!target) return;
+            target.innerHTML = '';
+            const resolvedContent = resolveModalContent(content, controller);
+            const metaItems = Array.isArray(resolvedContent) ? resolvedContent : [resolvedContent];
+            metaItems.forEach((metaItem) => {
+                if (metaItem === null || metaItem === undefined || metaItem === false) return;
+                const metaWrapper = document.createElement('div');
+                metaWrapper.className = 'll-modal__title__meta__item';
+                appendModalContent(metaWrapper, metaItem);
+                if (!metaWrapper.hasChildNodes()) return;
+                target.appendChild(metaWrapper);
+            });
+        }
+
         function isPlainObject(value) {
             if (!value || typeof value !== 'object') return false;
             if (value instanceof windowScope.Node) return false;
@@ -10369,10 +10794,12 @@
                 appendTo: userOptions.appendTo instanceof HTMLElement ? userOptions.appendTo : document.body,
                 width: userOptions.width || '40rem',
                 fullWidth: userOptions.width === 'full-width' || Boolean(userOptions.fullWidth),
+                fitContentWidth: userOptions.width === 'fit-content' || Boolean(userOptions.fitContentWidth),
                 fullHeight: Boolean(userOptions.fullHeight),
                 compactPadding: Boolean(userOptions.compactPadding),
                 title: userOptions.title || '',
                 titleIcon: userOptions.titleIcon || '',
+                titleMeta: userOptions.titleMeta || null,
                 closeButton: userOptions.closeButton !== false,
                 headerActions: userOptions.headerActions || null,
                 bodyContent: userOptions.bodyContent || '',
@@ -10430,6 +10857,8 @@
             content.className = 'll-modal__content';
             if (options.fullWidth) {
                 content.classList.add('ll-modal__content--full-width');
+            } else if (options.fitContentWidth) {
+                content.classList.add('ll-modal__content--fit-content-width');
             } else if (options.width) {
                 content.style.setProperty('--ll-modal-width', String(options.width));
             }
@@ -10440,13 +10869,14 @@
 
             let header = null;
             let headerActionsSlot = null;
+            let titleMetaSlot = null;
             let titleElement = null;
             let titleIconElement = null;
             let backSlotElement = null;
             let backButtonElement = null;
             let backButtonClickHandler = null;
             const hasTitle = Boolean(String(options.title || '').trim() || String(options.titleIcon || '').trim());
-            const shouldRenderHeader = hasTitle || Boolean(options.headerActions);
+            const shouldRenderHeader = hasTitle || Boolean(options.titleMeta) || Boolean(options.headerActions);
             if (shouldRenderHeader) {
                 header = document.createElement('div');
                 header.className = 'll-modal__header';
@@ -10482,6 +10912,9 @@
                     titleWrap.appendChild(titleElement);
                 }
                 titleSection.appendChild(titleWrap);
+                titleMetaSlot = document.createElement('div');
+                titleMetaSlot.className = 'll-modal__title__meta';
+                titleSection.appendChild(titleMetaSlot);
                 header.appendChild(titleSection);
 
                 const headerRight = document.createElement('div');
@@ -10538,6 +10971,7 @@
                 content,
                 header,
                 headerActionsSlot,
+                titleMetaSlot,
                 body,
                 footer,
                 footerContentSlotRef,
@@ -10761,6 +11195,12 @@
                     if (headerActionsSlot) {
                         renderModalHeaderActions(headerActionsSlot, options.headerActions, controller);
                     }
+                },
+                setTitleMeta: (nextTitleMeta) => {
+                    options.titleMeta = nextTitleMeta;
+                    if (titleMetaSlot) {
+                        renderModalTitleMeta(titleMetaSlot, options.titleMeta, controller);
+                    }
                 }
             };
 
@@ -10771,6 +11211,9 @@
             }
 
             renderModalSlot(body, options.bodyContent, controller);
+            if (titleMetaSlot) {
+                renderModalTitleMeta(titleMetaSlot, options.titleMeta, controller);
+            }
             if (headerActionsSlot) {
                 renderModalHeaderActions(headerActionsSlot, options.headerActions, controller);
             }
@@ -12025,8 +12468,18 @@
             const nestedDefaultExpandedIds = Array.isArray(nested && nested.defaultExpandedIds)
                 ? new Set(nested.defaultExpandedIds.map((value) => String(value || '').trim()).filter(Boolean))
                 : new Set();
-            const defaultGridColumns = (grid && Number(grid.columns) === 6) ? 6 : 4;
-            const defaultGridGap = (grid && Number(grid.gap) === 4) ? 4 : 6;
+            const normalizeListingGridColumns = (value) => {
+                const parsed = Number.parseInt(value, 10);
+                if ([2, 3, 4, 5, 6].includes(parsed)) return parsed;
+                return 4;
+            };
+            const normalizeListingGridGap = (value) => {
+                const parsed = Number.parseInt(value, 10);
+                if (parsed === 4 || parsed === 6) return parsed;
+                return 6;
+            };
+            const defaultGridColumns = normalizeListingGridColumns(grid && grid.columns);
+            const defaultGridGap = normalizeListingGridGap(grid && grid.gap);
             const defaultView = gridEnabled
                 ? (String(grid.defaultView || '').trim().toLowerCase() === 'list' ? 'list' : 'grid')
                 : 'list';
@@ -12098,6 +12551,9 @@
                 const defaultValues = type === 'multiple'
                     ? normalizeArrayValues(filter && (filter.defaultValues || filter.defaultValue))
                     : [String(filter && filter.defaultValue ? filter.defaultValue : '').trim()].filter(Boolean);
+                const toggleConfig = filter && filter.toggle && typeof filter.toggle === 'object'
+                    ? filter.toggle
+                    : null;
                 return {
                     key,
                     label: String(filter && filter.label ? filter.label : key),
@@ -12107,7 +12563,13 @@
                     predicate: typeof (filter && filter.predicate) === 'function' ? filter.predicate : null,
                     getValue: typeof (filter && filter.getValue) === 'function' ? filter.getValue : null,
                     dropdown: filter && filter.dropdown ? filter.dropdown : null,
-                    toggle: filter && filter.toggle ? filter.toggle : null,
+                    toggle: toggleConfig
+                        ? {
+                            ...toggleConfig,
+                            activeClassName: String(toggleConfig.activeClassName || 'll-btn--primary').trim() || 'll-btn--primary',
+                            inactiveClassName: String(toggleConfig.inactiveClassName || 'll-btn--outline-default').trim() || 'll-btn--outline-default'
+                        }
+                        : null,
                     defaultValues
                 };
             };
@@ -13405,9 +13867,21 @@
             };
 
             const getGridClassNames = () => {
-                const columns = Number(state.gridColumns || defaultGridColumns) === 6 ? 'll-grid--cols-6' : 'll-grid--cols-4';
-                const gap = Number(state.gridGap || defaultGridGap) === 4 ? 'll-grid--gap-4' : 'll-grid--gap-6';
-                return `ll-grid ${columns} ${gap}`;
+                const resolvedColumns = normalizeListingGridColumns(state.gridColumns || defaultGridColumns);
+                const resolvedGap = normalizeListingGridGap(state.gridGap || defaultGridGap);
+                const columnsClassByValue = {
+                    2: 'll-grid--cols-2',
+                    3: 'll-grid--cols-3',
+                    4: 'll-grid--cols-4',
+                    6: 'll-grid--cols-6'
+                };
+                const columnsClassName = columnsClassByValue[resolvedColumns] || '';
+                const gapClassName = resolvedGap === 4 ? 'll-grid--gap-4' : 'll-grid--gap-6';
+                return {
+                    className: `ll-grid ${gapClassName}${columnsClassName ? ` ${columnsClassName}` : ''}`,
+                    columns: resolvedColumns,
+                    hasColumnsClassName: Boolean(columnsClassName)
+                };
             };
 
             const renderGrid = (visibleItems) => {
@@ -13421,7 +13895,13 @@
                 const gridContainer = document.createElement('div');
                 gridContainer.className = 'll-listing-module-grid-container';
                 const gridWrap = document.createElement('div');
-                gridWrap.className = getGridClassNames();
+                const gridClassConfig = getGridClassNames();
+                gridWrap.className = gridClassConfig.className;
+                if (!gridClassConfig.hasColumnsClassName) {
+                    gridWrap.style.gridTemplateColumns = `repeat(${gridClassConfig.columns}, minmax(0, 1fr))`;
+                } else {
+                    gridWrap.style.gridTemplateColumns = '';
+                }
                 visibleItems.forEach((item, index) => {
                     const itemId = resolveIdValue(item, index);
                     const isSelected = itemClick && itemClick.type === 'selection' && itemId === String(state.selectedItemId || '');
@@ -13683,13 +14163,25 @@
                 normalizedFilters.forEach((filterConfig) => {
                     if (filterConfig.type !== 'toggle' || !filterConfig.toggle) return;
                     const buttonIdsByValue = filterConfig.toggle.buttonIdsByValue || {};
+                    const activeTokens = String(filterConfig.toggle.activeClassName || 'll-btn--primary')
+                        .split(/\s+/)
+                        .map((token) => token.trim())
+                        .filter(Boolean);
+                    const inactiveTokens = String(filterConfig.toggle.inactiveClassName || 'll-btn--outline-default')
+                        .split(/\s+/)
+                        .map((token) => token.trim())
+                        .filter(Boolean);
                     filterConfig.options.forEach((option) => {
                         const buttonId = String(buttonIdsByValue[option.value] || option.buttonId || '').trim();
                         const button = resolveElement(buttonId);
                         if (!button) return;
                         const isActive = String(state.filterValues[filterConfig.key] || '') === option.value;
-                        button.classList.toggle('ll-btn--primary', isActive);
-                        button.classList.toggle('ll-btn--outline-default', !isActive);
+                        [...new Set([...activeTokens, ...inactiveTokens])].forEach((token) => {
+                            button.classList.remove(token);
+                        });
+                        (isActive ? activeTokens : inactiveTokens).forEach((token) => {
+                            button.classList.add(token);
+                        });
                         button.classList.toggle('ll-active', isActive);
                         button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
                     });
@@ -13750,14 +14242,29 @@
                 syncClearAllFiltersButton();
             };
 
-            const setFilterValue = (filterKey, nextValue) => {
-                const filterConfig = normalizedFilters.find((entry) => entry.key === filterKey);
+            const syncSearchInputControl = () => {
+                if (!runtime.searchInput) return;
+                runtime.searchInput.value = String(state.query || '');
+                if (typeof runtime.searchInput.__syncSearchClearVisibility === 'function') {
+                    runtime.searchInput.__syncSearchClearVisibility();
+                }
+            };
+
+            const setFilterStateValue = (filterConfig, nextValue) => {
                 if (!filterConfig) return;
                 if (filterConfig.type === 'multiple') {
                     state.filterValues[filterConfig.key] = new Set(normalizeArrayValues(nextValue));
                 } else {
                     state.filterValues[filterConfig.key] = String(nextValue || '').trim();
                 }
+            };
+
+            const setFilterValue = (filterKey, nextValue) => {
+                const filterConfig = normalizedFilters.find((entry) => entry.key === filterKey);
+                if (!filterConfig) return;
+                setFilterStateValue(filterConfig, nextValue);
+                syncFilterDropdownUi();
+                syncToggleFilterUi();
                 applyState();
             };
 
@@ -13935,6 +14442,7 @@
                 setState(partialState = {}) {
                     if (partialState && Object.prototype.hasOwnProperty.call(partialState, 'query')) {
                         state.query = String(partialState.query || '');
+                        syncSearchInputControl();
                     }
                     if (partialState && Object.prototype.hasOwnProperty.call(partialState, 'view') && gridEnabled) {
                         const nextView = String(partialState.view || '').trim().toLowerCase();
@@ -13942,6 +14450,7 @@
                     }
                     if (partialState && Object.prototype.hasOwnProperty.call(partialState, 'sortValue')) {
                         state.sortValue = String(partialState.sortValue || state.sortValue);
+                        syncSortDropdownUi();
                     }
                     if (partialState && Object.prototype.hasOwnProperty.call(partialState, 'selectedItemId')) {
                         setSelectionById(partialState.selectedItemId, { reason: 'state-update' });
@@ -13952,7 +14461,40 @@
                             : [];
                         state.expandedItemIds = new Set(nextExpanded);
                     }
+                    if (partialState && partialState.filters && typeof partialState.filters === 'object') {
+                        normalizedFilters.forEach((filterConfig) => {
+                            if (!Object.prototype.hasOwnProperty.call(partialState.filters, filterConfig.key)) return;
+                            setFilterStateValue(filterConfig, partialState.filters[filterConfig.key]);
+                        });
+                        syncFilterDropdownUi();
+                        syncToggleFilterUi();
+                    }
                     applyState();
+                },
+                setQuery(nextQuery, options = {}) {
+                    state.query = String(nextQuery || '');
+                    if (options.syncInput !== false) {
+                        syncSearchInputControl();
+                    }
+                    applyState();
+                },
+                setSortValue(nextSortValue) {
+                    const normalizedSortValue = String(nextSortValue || '').trim();
+                    if (!normalizedSortValue || normalizedSortValue === DEFAULT_SORT_VALUE) {
+                        state.sortValue = DEFAULT_SORT_VALUE;
+                    } else if (normalizedSorts.some((sortConfig) => sortConfig.value === normalizedSortValue)) {
+                        state.sortValue = normalizedSortValue;
+                    } else {
+                        state.sortValue = DEFAULT_SORT_VALUE;
+                    }
+                    syncSortDropdownUi();
+                    applyState();
+                },
+                setFilterValue(filterKey, value) {
+                    setFilterValue(filterKey, value);
+                },
+                resetFilters() {
+                    resetFiltersToDefault();
                 },
                 getState() {
                     const filtersSnapshot = {};
@@ -14067,7 +14609,7 @@
          * @param {function(object): string} [options.getItemId]
          * @param {string} [options.tabLabelKey='label']
          * @param {string|null} [options.initialActiveId=null]
-         * @param {object} [options.tabs] — `{ editable, editMode, defaultNewLabel, addButtonLabel, maxTitleLength, minTabsToKeep, confirmDeleteTitle, confirmDeleteBody, confirmDeleteConfirmLabel }` where `minTabsToKeep` supports `0|1` (default `0`).
+         * @param {object} [options.tabs] — `{ editable, editMode, renameEnabled, defaultNewLabel, addButtonLabel, maxTitleLength, minTabsToKeep, confirmDeleteTitle, confirmDeleteBody, confirmDeleteConfirmLabel }` where `minTabsToKeep` supports `0|1` (default `0`).
          * @param {number} [options.gridColumns=4] — Grid card columns in viewport (`2|3|4|6`).
          * @param {number} [options.gridGap=6] — Grid card gap scale (`4|6`).
          * @param {string} [options.gridTrackClassName] — Legacy class passthrough; still parsed for `ll-grid--carousel-cols-*` / `ll-grid--gap-*`.
@@ -14098,6 +14640,9 @@
             const mode = options.mode === 'cards' ? 'cards' : 'tabs';
             const sizing = options.sizing === 'grid' ? 'grid' : 'freeform';
             const tabLabelKey = String(options.tabLabelKey || 'label');
+            const tabSeparatorsAfter = Array.isArray(options.tabSeparatorsAfter)
+                ? new Set(options.tabSeparatorsAfter.map((value) => String(value == null ? '' : value).trim()).filter(Boolean))
+                : null;
             const getItemId = typeof options.getItemId === 'function'
                 ? options.getItemId
                 : (item) => String(item && item.id != null ? item.id : '').trim();
@@ -14105,6 +14650,9 @@
             const tabsCfg = options.tabs && typeof options.tabs === 'object' ? options.tabs : {};
             const tabsEditable = tabsCfg.editable === true;
             let editMode = tabsCfg.editMode !== false;
+            const tabsRenameEnabled = tabsCfg.renameEnabled !== false;
+            const tabsAsLinks = mode === 'tabs' && tabsEditable !== true && options.tabsAsLinks === true;
+            const tabHrefKey = String(options.tabHrefKey || 'href');
             const defaultNewLabel = String(tabsCfg.defaultNewLabel || 'New Tab');
             const addButtonLabel = String(tabsCfg.addButtonLabel || 'Add Tab');
             const maxTitleLength = Math.max(1, parseInt(tabsCfg.maxTitleLength, 10) || 50);
@@ -14177,10 +14725,14 @@
                 }
             };
 
-            const emitActive = (previousId) => {
+            const emitActive = (previousId, meta = {}) => {
                 if (onActiveTabChange) {
                     try {
-                        onActiveTabChange({ activeId, previousId: previousId == null ? null : String(previousId) });
+                        onActiveTabChange({
+                            activeId,
+                            previousId: previousId == null ? null : String(previousId),
+                            source: String(meta && meta.source ? meta.source : '')
+                        });
                     } catch (_e) {
                         /* ignore */
                     }
@@ -14188,7 +14740,7 @@
             };
 
             const syncInlineEditEscapeEntry = () => {
-                if (!(mode === 'tabs' && tabsEditable && editMode && !!editingTabId)) {
+                if (!(mode === 'tabs' && tabsEditable && tabsRenameEnabled && editMode && !!editingTabId)) {
                     removeOverlayInlineEditEntry(inlineEditEscapeKey);
                     return;
                 }
@@ -14201,7 +14753,7 @@
                         renderTabs();
                     },
                     isOpen() {
-                        return !disposed && mode === 'tabs' && tabsEditable && editMode && !!editingTabId;
+                        return !disposed && mode === 'tabs' && tabsEditable && tabsRenameEnabled && editMode && !!editingTabId;
                     }
                 });
             };
@@ -14220,7 +14772,7 @@
                 return next;
             };
 
-            const setActiveIdInternal = (nextId, { silent } = {}) => {
+            const setActiveIdInternal = (nextId, { silent, source = '' } = {}) => {
                 const prev = activeId;
                 const resolved = nextId != null && String(nextId).trim() ? String(nextId).trim() : null;
                 if (resolved && items.some((it) => getItemId(it) === resolved)) {
@@ -14230,7 +14782,7 @@
                 }
                 syncTabActiveClasses();
                 if (!silent && activeId !== prev) {
-                    emitActive(prev);
+                    emitActive(prev, { source });
                 }
             };
 
@@ -14315,7 +14867,6 @@
             };
 
             root.innerHTML = '';
-            root.classList.add('ll-carousel');
 
             const leftOverlay = document.createElement('div');
             leftOverlay.className = 'll-carousel__overlay ll-carousel__overlay--left ll-carousel__overlay--hidden';
@@ -14430,41 +14981,37 @@
             const resolveGridTargetScrollLeft = (direction) => {
                 const tiles = Array.from(track.querySelectorAll('.ll-carousel__card-slot'));
                 if (!tiles.length) return null;
+                const trackStyles = windowScope.getComputedStyle(scrollHost);
+                const paddingInlineStart = Number.parseFloat(trackStyles.paddingInlineStart || '0') || 0;
+                const paddingInlineEnd = Number.parseFloat(trackStyles.paddingInlineEnd || '0') || 0;
+                const viewportStart = scrollHost.scrollLeft + paddingInlineStart;
+                const viewportEnd = scrollHost.scrollLeft + scrollHost.clientWidth - paddingInlineEnd;
 
-                const hostRect = scrollHost.getBoundingClientRect();
-                const leftEdge = hostRect.left + 1;
-                const rightEdge = hostRect.right - 1;
                 let firstVisibleIndex = -1;
-                let lastVisibleIndex = -1;
-
                 for (let i = 0; i < tiles.length; i += 1) {
-                    const rect = tiles[i].getBoundingClientRect();
-                    const isVisible = rect.right > leftEdge && rect.left < rightEdge;
+                    const tileStart = tiles[i].offsetLeft;
+                    const tileEnd = tileStart + tiles[i].offsetWidth;
+                    const isVisible = tileEnd > viewportStart && tileStart < viewportEnd;
                     if (!isVisible) continue;
-                    if (firstVisibleIndex === -1) {
-                        firstVisibleIndex = i;
+                    firstVisibleIndex = i;
+                    if (tileStart >= (viewportStart - 0.5)) {
+                        break;
                     }
-                    lastVisibleIndex = i;
                 }
 
-                if (firstVisibleIndex < 0 || lastVisibleIndex < 0) {
-                    return null;
-                }
+                if (firstVisibleIndex < 0) return null;
 
                 const tilesPerStep = Math.max(1, gridColumns - 1);
-                let targetIndex = 0;
-                if (direction > 0) {
-                    // Next: anchor from current left edge tile.
-                    targetIndex = Math.min(tiles.length - 1, firstVisibleIndex + tilesPerStep);
-                } else {
-                    // Prev: anchor from current right edge tile, then shift backward by one viewport-step.
-                    targetIndex = Math.max(0, lastVisibleIndex - (tilesPerStep * 2));
-                }
+                const targetIndex = direction > 0
+                    ? Math.min(tiles.length - 1, firstVisibleIndex + tilesPerStep)
+                    : Math.max(0, firstVisibleIndex - tilesPerStep);
 
                 const targetTile = tiles[targetIndex];
                 if (!targetTile) return null;
+
+                // Keep the track inline padding visible when snapping to a new "page".
+                const rawTargetLeft = targetTile.offsetLeft - paddingInlineStart;
                 const maxScrollLeft = Math.max(0, scrollHost.scrollWidth - scrollHost.clientWidth);
-                const rawTargetLeft = targetTile.offsetLeft;
                 return Math.max(0, Math.min(rawTargetLeft, maxScrollLeft));
             };
 
@@ -14574,23 +15121,31 @@
 
             const buildTabElement = (item) => {
                 const id = getItemId(item);
-                const wrap = document.createElement('div');
+                const wrap = document.createElement(tabsAsLinks ? 'a' : 'div');
                 wrap.className = 'll-btn ll-btn--outline-default ll-carousel__tab';
                 wrap.dataset.llCarouselTabId = id;
                 wrap.setAttribute('role', 'tab');
                 wrap.setAttribute('tabindex', '-1');
+                if (tabsAsLinks) {
+                    const hrefValue = String(item && item[tabHrefKey] != null ? item[tabHrefKey] : '').trim();
+                    wrap.setAttribute('href', hrefValue || '#');
+                }
+                const shouldRenderTabControls = tabsEditable && editMode;
+                const canReorderTabs = items.length > 1;
 
-                const dragBtn = document.createElement('button');
-                dragBtn.type = 'button';
-                dragBtn.className = 'll-carousel__tab-drag ll-icon-btn ll-icon-btn--sm';
-                dragBtn.setAttribute('aria-label', 'Reorder tab');
-                dragBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>';
-                dragBtn.hidden = !tabsEditable || !editMode;
+                let dragBtn = null;
+                if (shouldRenderTabControls && canReorderTabs) {
+                    dragBtn = document.createElement('button');
+                    dragBtn.type = 'button';
+                    dragBtn.className = 'll-carousel__tab-drag ll-icon-btn ll-icon-btn--sm';
+                    dragBtn.setAttribute('aria-label', 'Reorder tab');
+                    dragBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>';
+                }
 
                 const label = document.createElement('div');
                 label.className = 'll-carousel__tab-label';
                 const baseLabel = String(item[tabLabelKey] != null ? item[tabLabelKey] : defaultNewLabel);
-                const isEditing = tabsEditable && editMode && editingTabId === id;
+                const isEditing = tabsEditable && tabsRenameEnabled && editMode && editingTabId === id;
                 const hasDraftLabel = Object.prototype.hasOwnProperty.call(draftLabelById, id);
                 const visibleLabel = isEditing && hasDraftLabel ? String(draftLabelById[id]) : baseLabel;
                 label.textContent = visibleLabel;
@@ -14599,182 +15154,206 @@
                     label.setAttribute('spellcheck', 'false');
                 }
 
-                const editBtn = document.createElement('button');
-                editBtn.type = 'button';
-                editBtn.className = 'll-carousel__tab-edit ll-icon-btn ll-icon-btn--sm';
-                editBtn.setAttribute('aria-label', isEditing ? 'Apply tab title' : 'Edit tab title');
-                editBtn.innerHTML = isEditing
-                    ? '<span class="material-symbols-outlined ll-icon-btn__icon">check</span>'
-                    : '<span class="material-symbols-outlined ll-icon-btn__icon">edit</span>';
-                editBtn.hidden = !tabsEditable || !editMode;
-                editBtn.classList.toggle('ll-icon-btn--outline', isEditing);
-                editBtn.classList.toggle('ll-icon-btn--outline-positive', isEditing);
+                let editBtn = null;
+                let delBtn = null;
+                if (shouldRenderTabControls) {
+                    if (tabsRenameEnabled) {
+                        editBtn = document.createElement('button');
+                        editBtn.type = 'button';
+                        editBtn.className = 'll-carousel__tab-edit ll-icon-btn ll-icon-btn--sm';
+                        editBtn.setAttribute('aria-label', isEditing ? 'Apply tab title' : 'Edit tab title');
+                        editBtn.innerHTML = isEditing
+                            ? '<span class="material-symbols-outlined ll-icon-btn__icon">check</span>'
+                            : '<span class="material-symbols-outlined ll-icon-btn__icon">edit</span>';
+                        editBtn.classList.toggle('ll-icon-btn--outline', isEditing);
+                        editBtn.classList.toggle('ll-icon-btn--outline-positive', isEditing);
+                    }
 
-                const delBtn = document.createElement('button');
-                delBtn.type = 'button';
-                delBtn.className = 'll-carousel__tab-delete ll-icon-btn ll-icon-btn--sm';
-                delBtn.setAttribute('aria-label', isEditing ? 'Cancel tab edit' : 'Delete tab');
-                delBtn.innerHTML = isEditing
-                    ? '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>'
-                    : '<span class="material-symbols-outlined ll-icon-btn__icon">delete</span>';
-                const canDeleteTab = items.length > minTabsToKeep;
-                delBtn.hidden = !tabsEditable || !editMode || (!isEditing && !canDeleteTab);
-                delBtn.classList.toggle('ll-icon-btn--outline', isEditing);
-                delBtn.classList.toggle('ll-icon-btn--outline-negative', isEditing);
+                    delBtn = document.createElement('button');
+                    delBtn.type = 'button';
+                    delBtn.className = 'll-carousel__tab-delete ll-icon-btn ll-icon-btn--sm';
+                    delBtn.setAttribute('aria-label', isEditing ? 'Cancel tab edit' : 'Delete tab');
+                    delBtn.innerHTML = isEditing
+                        ? '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>'
+                        : '<span class="material-symbols-outlined ll-icon-btn__icon">delete</span>';
+                    const canDeleteTab = items.length > minTabsToKeep;
+                    delBtn.hidden = !isEditing && !canDeleteTab;
+                    delBtn.classList.toggle('ll-icon-btn--outline', isEditing);
+                    delBtn.classList.toggle('ll-icon-btn--outline-negative', isEditing);
 
-                const actionsWrap = document.createElement('div');
-                actionsWrap.className = 'll-carousel__tab-actions';
-                actionsWrap.hidden = !tabsEditable || !editMode;
-                actionsWrap.appendChild(editBtn);
-                actionsWrap.appendChild(delBtn);
+                    const actionsWrap = document.createElement('div');
+                    actionsWrap.className = 'll-carousel__tab-actions';
+                    if (editBtn) {
+                        actionsWrap.appendChild(editBtn);
+                    }
+                    actionsWrap.appendChild(delBtn);
+                    if (dragBtn) {
+                        wrap.appendChild(dragBtn);
+                    }
+                    wrap.appendChild(label);
+                    const shouldHideActionsWrap = !tabsRenameEnabled && minTabsToKeep === 1 && items.length === 1 && !isEditing;
+                    actionsWrap.hidden = shouldHideActionsWrap;
+                    wrap.appendChild(actionsWrap);
+                } else {
+                    wrap.appendChild(label);
+                }
 
-                wrap.appendChild(dragBtn);
-                wrap.appendChild(label);
-                wrap.appendChild(actionsWrap);
 
-                wrap.addEventListener('pointerdown', (ev) => {
-                    if (ev.target.closest(HANDLE_SELECTOR)) {
-                        if (activeId !== id) {
-                            setActiveIdInternal(id, { silent: false });
+                if (!tabsAsLinks) {
+                    wrap.addEventListener('pointerdown', (ev) => {
+                        const isMousePointer = ev.pointerType === 'mouse';
+                        if (isMousePointer && (ev.button !== 0 || ev.ctrlKey)) {
+                            return;
                         }
-                        if (editingTabId) {
-                            discardEditingTabAndExitInPlace();
+                        if (ev.target.closest(HANDLE_SELECTOR)) {
+                            if (activeId !== id) {
+                                setActiveIdInternal(id, { silent: false, source: 'drag-handle' });
+                            }
+                            if (editingTabId) {
+                                discardEditingTabAndExitInPlace();
+                            }
+                            return;
                         }
-                        return;
-                    }
-                    if (ev.target.closest(DELETE_SELECTOR) || ev.target.closest(EDIT_SELECTOR)) {
-                        return;
-                    }
-                    if (editingTabId && editingTabId !== id) {
-                        discardEditingTabAndExit();
-                        renderTabs();
-                    }
-                    setActiveIdInternal(id, { silent: false });
-                });
+                        if (ev.target.closest(DELETE_SELECTOR) || ev.target.closest(EDIT_SELECTOR)) {
+                            return;
+                        }
+                        if (editingTabId && editingTabId !== id) {
+                            discardEditingTabAndExit();
+                            renderTabs();
+                        }
+                        setActiveIdInternal(id, { silent: false, source: 'pointer' });
+                    });
+                }
 
-                label.addEventListener('input', () => {
-                    if (!(tabsEditable && editMode && editingTabId === id)) return;
-                    const nextValue = String(label.textContent == null ? '' : label.textContent);
-                    if (nextValue.length <= maxTitleLength) {
+                if (tabsRenameEnabled) {
+                    label.addEventListener('input', () => {
+                        if (!(tabsEditable && editMode && editingTabId === id)) return;
+                        const nextValue = String(label.textContent == null ? '' : label.textContent);
+                        if (nextValue.length <= maxTitleLength) {
+                            draftLabelById[id] = nextValue;
+                            return;
+                        }
+                        const selectionOffsets = getContenteditableSelectionOffsets(label);
+                        const trimmedValue = nextValue.slice(0, maxTitleLength);
+                        draftLabelById[id] = trimmedValue;
+                        label.textContent = trimmedValue;
+                        const caretOffset = Math.min(
+                            maxTitleLength,
+                            selectionOffsets && Number.isFinite(selectionOffsets.start)
+                                ? selectionOffsets.start
+                                : maxTitleLength
+                        );
+                        setContenteditableCaretOffset(label, caretOffset);
+                    });
+
+                    label.addEventListener('beforeinput', (ev) => {
+                        if (!(tabsEditable && editMode && editingTabId === id)) return;
+                        const inputType = String(ev.inputType || '');
+                        if (!inputType.startsWith('insert')) return;
+                        if (inputType === 'insertFromPaste') return;
+                        const currentValue = String(label.textContent == null ? '' : label.textContent);
+                        const selectionOffsets = getContenteditableSelectionOffsets(label) || {
+                            start: currentValue.length,
+                            end: currentValue.length
+                        };
+                        const selectedLength = Math.max(0, (selectionOffsets.end || 0) - (selectionOffsets.start || 0));
+                        const available = maxTitleLength - (currentValue.length - selectedLength);
+                        if (available > 0) return;
+                        ev.preventDefault();
+                    });
+
+                    label.addEventListener('paste', (ev) => {
+                        if (!(tabsEditable && editMode && editingTabId === id)) return;
+                        const rawText = ev.clipboardData ? ev.clipboardData.getData('text/plain') : '';
+                        if (typeof rawText !== 'string') return;
+                        ev.preventDefault();
+                        const currentValue = String(label.textContent == null ? '' : label.textContent);
+                        const selectionOffsets = getContenteditableSelectionOffsets(label) || {
+                            start: currentValue.length,
+                            end: currentValue.length
+                        };
+                        const start = Math.max(0, Math.min(currentValue.length, selectionOffsets.start));
+                        const end = Math.max(start, Math.min(currentValue.length, selectionOffsets.end));
+                        const available = maxTitleLength - (currentValue.length - (end - start));
+                        const insertText = available > 0 ? rawText.slice(0, available) : '';
+                        const nextValue = `${currentValue.slice(0, start)}${insertText}${currentValue.slice(end)}`;
                         draftLabelById[id] = nextValue;
-                        return;
-                    }
-                    const selectionOffsets = getContenteditableSelectionOffsets(label);
-                    const trimmedValue = nextValue.slice(0, maxTitleLength);
-                    draftLabelById[id] = trimmedValue;
-                    label.textContent = trimmedValue;
-                    const caretOffset = Math.min(
-                        maxTitleLength,
-                        selectionOffsets && Number.isFinite(selectionOffsets.start)
-                            ? selectionOffsets.start
-                            : maxTitleLength
-                    );
-                    setContenteditableCaretOffset(label, caretOffset);
-                });
+                        label.textContent = nextValue;
+                        setContenteditableCaretOffset(label, start + insertText.length);
+                    });
 
-                label.addEventListener('beforeinput', (ev) => {
-                    if (!(tabsEditable && editMode && editingTabId === id)) return;
-                    const inputType = String(ev.inputType || '');
-                    if (!inputType.startsWith('insert')) return;
-                    if (inputType === 'insertFromPaste') return;
-                    const currentValue = String(label.textContent == null ? '' : label.textContent);
-                    const selectionOffsets = getContenteditableSelectionOffsets(label) || {
-                        start: currentValue.length,
-                        end: currentValue.length
-                    };
-                    const selectedLength = Math.max(0, (selectionOffsets.end || 0) - (selectionOffsets.start || 0));
-                    const available = maxTitleLength - (currentValue.length - selectedLength);
-                    if (available > 0) return;
-                    ev.preventDefault();
-                });
-
-                label.addEventListener('paste', (ev) => {
-                    if (!(tabsEditable && editMode && editingTabId === id)) return;
-                    const rawText = ev.clipboardData ? ev.clipboardData.getData('text/plain') : '';
-                    if (typeof rawText !== 'string') return;
-                    ev.preventDefault();
-                    const currentValue = String(label.textContent == null ? '' : label.textContent);
-                    const selectionOffsets = getContenteditableSelectionOffsets(label) || {
-                        start: currentValue.length,
-                        end: currentValue.length
-                    };
-                    const start = Math.max(0, Math.min(currentValue.length, selectionOffsets.start));
-                    const end = Math.max(start, Math.min(currentValue.length, selectionOffsets.end));
-                    const available = maxTitleLength - (currentValue.length - (end - start));
-                    const insertText = available > 0 ? rawText.slice(0, available) : '';
-                    const nextValue = `${currentValue.slice(0, start)}${insertText}${currentValue.slice(end)}`;
-                    draftLabelById[id] = nextValue;
-                    label.textContent = nextValue;
-                    setContenteditableCaretOffset(label, start + insertText.length);
-                });
-
-                label.addEventListener('keydown', (ev) => {
-                    if (!(tabsEditable && editMode && editingTabId === id)) return;
-                    if (ev.key === 'Enter') {
-                        ev.preventDefault();
-                        commitEditingTabAndExit();
-                        renderTabs();
-                        return;
-                    }
-                    if (ev.key === 'Escape') {
-                        ev.preventDefault();
-                        ev.stopPropagation();
-                        discardEditingTabAndExit();
-                        renderTabs();
-                    }
-                });
-
-                editBtn.addEventListener('click', (ev) => {
-                    ev.stopPropagation();
-                    if (!tabsEditable || !editMode) return;
-                    setActiveIdInternal(id, { silent: false });
-                    if (editingTabId && editingTabId !== id) {
-                        discardEditingTabAndExit();
-                    }
-                    if (editingTabId === id) {
-                        commitEditingTabAndExit();
-                        renderTabs();
-                        return;
-                    }
-                    const itemLabel = String(item[tabLabelKey] != null ? item[tabLabelKey] : defaultNewLabel);
-                    draftLabelById[id] = itemLabel;
-                    editingTabId = id;
-                    renderTabs();
-                    requestAnimationFrame(() => focusEditingLabel(id));
-                });
-
-                delBtn.addEventListener('click', (ev) => {
-                    ev.stopPropagation();
-                    if (!tabsEditable || !editMode) return;
-                    if (editingTabId === id) {
-                        discardEditingTabAndExit();
-                        renderTabs();
-                        return;
-                    }
-                    if (items.length <= minTabsToKeep) return;
-                    initializeConfirmationDialog({
-                        title: confirmDeleteTitle,
-                        bodyContent: `<p class="ll-carousel__confirm-copy">${confirmDeleteBody}</p>`,
-                        confirmLabel: confirmDeleteConfirmLabel,
-                        cancelLabel: 'Cancel',
-                        onConfirm: () => {
-                            const prevActive = activeId;
-                            if (editingTabId === id) {
-                                editingTabId = null;
-                            }
-                            delete draftLabelById[id];
-                            items = items.filter((it) => getItemId(it) !== id);
-                            if (prevActive === id) {
-                                ensureActiveId();
-                                emitActive(prevActive);
-                            } else {
-                                ensureActiveId();
-                            }
-                            renderTabs('remove');
-                            updateScrollOverlays();
+                    label.addEventListener('keydown', (ev) => {
+                        if (!(tabsEditable && editMode && editingTabId === id)) return;
+                        if (ev.key === 'Enter') {
+                            ev.preventDefault();
+                            commitEditingTabAndExit();
+                            renderTabs();
+                            return;
                         }
-                    }).open();
-                });
+                        if (ev.key === 'Escape') {
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            discardEditingTabAndExit();
+                            renderTabs();
+                        }
+                    });
+                }
+
+                if (editBtn) {
+                    editBtn.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        if (!tabsEditable || !editMode) return;
+                        setActiveIdInternal(id, { silent: false });
+                        if (editingTabId && editingTabId !== id) {
+                            discardEditingTabAndExit();
+                        }
+                        if (editingTabId === id) {
+                            commitEditingTabAndExit();
+                            renderTabs();
+                            return;
+                        }
+                        const itemLabel = String(item[tabLabelKey] != null ? item[tabLabelKey] : defaultNewLabel);
+                        draftLabelById[id] = itemLabel;
+                        editingTabId = id;
+                        renderTabs();
+                        requestAnimationFrame(() => focusEditingLabel(id));
+                    });
+                }
+
+                if (delBtn) {
+                    delBtn.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        if (!tabsEditable || !editMode) return;
+                        if (editingTabId === id) {
+                            discardEditingTabAndExit();
+                            renderTabs();
+                            return;
+                        }
+                        if (items.length <= minTabsToKeep) return;
+                        initializeConfirmationDialog({
+                            title: confirmDeleteTitle,
+                            bodyContent: `<p class="ll-carousel__confirm-copy">${confirmDeleteBody}</p>`,
+                            confirmLabel: confirmDeleteConfirmLabel,
+                            cancelLabel: 'Cancel',
+                            onConfirm: () => {
+                                const prevActive = activeId;
+                                if (editingTabId === id) {
+                                    editingTabId = null;
+                                }
+                                delete draftLabelById[id];
+                                items = items.filter((it) => getItemId(it) !== id);
+                                if (prevActive === id) {
+                                    ensureActiveId();
+                                    emitActive(prevActive);
+                                } else {
+                                    ensureActiveId();
+                                }
+                                renderTabs('remove');
+                                updateScrollOverlays();
+                            }
+                        }).open();
+                    });
+                }
 
                 return wrap;
             };
@@ -14783,7 +15362,14 @@
                 ensureActiveId();
                 track.innerHTML = '';
                 items.forEach((item) => {
+                    const itemId = getItemId(item);
                     track.appendChild(buildTabElement(item));
+                    if (tabSeparatorsAfter && tabSeparatorsAfter.has(itemId)) {
+                        const separator = document.createElement('div');
+                        separator.className = 'll-border-divider';
+                        separator.setAttribute('aria-hidden', 'true');
+                        track.appendChild(separator);
+                    }
                 });
                 if (addButton) {
                     addButton.hidden = !tabsEditable || !editMode;
@@ -14841,7 +15427,7 @@
                     const newId = `tab-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
                     const row = { id: newId, [tabLabelKey]: defaultNewLabel };
                     items.push(row);
-                    setActiveIdInternal(newId, { silent: false });
+                    setActiveIdInternal(newId, { silent: false, source: 'add' });
                     renderTabs('add');
                     scrollHost.scrollTo({ left: scrollHost.scrollWidth, behavior: 'smooth' });
                 });
@@ -14868,7 +15454,6 @@
                     }
                     removeOverlayInlineEditEntry(inlineEditEscapeKey);
                     root.innerHTML = '';
-                    root.classList.remove('ll-carousel');
                 },
                 getItems() {
                     return items.slice();
@@ -14894,7 +15479,7 @@
                         discardEditingTabAndExit();
                         renderTabs();
                     }
-                    setActiveIdInternal(id, { silent: false });
+                    setActiveIdInternal(id, { silent: false, source: 'api' });
                 },
                 setEditMode(next) {
                     if (!tabsEditable) return;
@@ -14922,14 +15507,441 @@
             return api;
         }
 
+        function initializeContentBuilder(options = {}) {
+            const root = options.root;
+            if (!root || root.nodeType !== 1) {
+                return {
+                    destroy() {},
+                    getModel() {
+                        return {};
+                    },
+                    setModel() {},
+                    setMode() {},
+                    getMode() {
+                        return 'edit';
+                    },
+                    setActiveSubContentId() {},
+                    refresh() {}
+                };
+            }
+
+            const cloneModel = (value) => {
+                if (!value || typeof value !== 'object') return {};
+                try {
+                    return JSON.parse(JSON.stringify(value));
+                } catch (_e) {
+                    return {};
+                }
+            };
+
+            const normalizeMode = (value) => (String(value || '').trim().toLowerCase() === 'view' ? 'view' : 'edit');
+            const normalizeItemId = (item, idx) => {
+                const rawId = item && item.id != null ? String(item.id).trim() : '';
+                return rawId || `sub-content-${idx + 1}`;
+            };
+
+            const normalizeSubItems = (items) => {
+                const list = Array.isArray(items) ? items : [];
+                return list.map((item, idx) => {
+                    const entry = item && typeof item === 'object' ? { ...item } : {};
+                    entry.id = normalizeItemId(entry, idx);
+                    if (!String(entry.label || '').trim()) {
+                        entry.label = `Item ${idx + 1}`;
+                    }
+                    if (!String(entry.contextType || '').trim()) {
+                        entry.contextType = 'grid';
+                    }
+                    return entry;
+                });
+            };
+
+            const normalizeModel = (nextModel) => {
+                const src = cloneModel(nextModel);
+                const mode = normalizeMode(src.mode);
+                const content = src.content && typeof src.content === 'object' ? src.content : {};
+                const subContent = src.subContent && typeof src.subContent === 'object' ? src.subContent : {};
+                const controls = src.controls && typeof src.controls === 'object' ? src.controls : {};
+                const subItems = normalizeSubItems(subContent.items);
+                const firstId = subItems.length ? subItems[0].id : '';
+                const nextActiveId = String(subContent.activeId || '').trim();
+                return {
+                    mode,
+                    content: {
+                        title: String(content.title || 'Untitled').trim() || 'Untitled',
+                        ownerWorkspace: String(content.ownerWorkspace || '').trim(),
+                        statusLabel: String(content.statusLabel || 'Draft').trim() || 'Draft',
+                        statusVariant: String(content.statusVariant || 'default').trim() || 'default'
+                    },
+                    subContent: {
+                        label: String(subContent.label || 'Item').trim() || 'Item',
+                        activeId: (nextActiveId && subItems.some((item) => item.id === nextActiveId)) ? nextActiveId : firstId,
+                        items: subItems
+                    },
+                    controls: {
+                        ...controls
+                    }
+                };
+            };
+
+            const onModelChange = typeof options.onModelChange === 'function' ? options.onModelChange : null;
+            const onModeChange = typeof options.onModeChange === 'function' ? options.onModeChange : null;
+            const onSubContentChange = typeof options.onSubContentChange === 'function' ? options.onSubContentChange : null;
+            const onHeaderAction = typeof options.onHeaderAction === 'function' ? options.onHeaderAction : null;
+            const onRender = typeof options.onRender === 'function' ? options.onRender : null;
+            const subContentNavOptions = options.subContentNav && typeof options.subContentNav === 'object'
+                ? options.subContentNav
+                : {};
+
+            const titleInput = root.querySelector('[data-ll-builder-title-input]');
+            const titleText = root.querySelector('[data-ll-builder-title-text]');
+            const ownerText = root.querySelector('[data-ll-builder-owner]');
+            const statusLabel = root.querySelector('[data-ll-builder-status-label]');
+            const statusChip = root.querySelector('[data-ll-builder-status-chip]');
+            const subContentLabel = root.querySelector('[data-ll-builder-sub-content-label]');
+            const subContentName = root.querySelector('[data-ll-builder-sub-content-name]');
+            const modeToggleNodes = Array.from(root.querySelectorAll('[data-ll-builder-action="toggle-mode"]'));
+            const modeVisibilityNodes = Array.from(root.querySelectorAll('[data-ll-builder-visible]'));
+
+            const headerMenuTrigger = root.querySelector('[data-ll-builder-header-menu-trigger]');
+            const headerMenu = root.querySelector('[data-ll-builder-header-menu]');
+            const subNavRoot = root.querySelector('[data-ll-builder-subnav]');
+            const contextNodes = Array.from(root.querySelectorAll('[data-ll-builder-context]'));
+
+            let model = normalizeModel(options.model || {});
+            let destroyed = false;
+            let headerMenuApi = null;
+            let subNavApi = null;
+            let ignoreTitleInput = false;
+
+            const getActiveSubContent = () => {
+                const id = String(model && model.subContent && model.subContent.activeId ? model.subContent.activeId : '');
+                if (!id) return null;
+                return model.subContent.items.find((item) => item.id === id) || null;
+            };
+
+            const emitModelChange = (reason) => {
+                if (!onModelChange) return;
+                try {
+                    onModelChange({
+                        reason: String(reason || ''),
+                        model: cloneModel(model)
+                    });
+                } catch (_e) {
+                    /* ignore */
+                }
+            };
+
+            const applyModeVisibility = () => {
+                const currentMode = normalizeMode(model.mode);
+                root.setAttribute('data-ll-builder-mode', currentMode);
+                modeVisibilityNodes.forEach((node) => {
+                    const raw = String(node.getAttribute('data-ll-builder-visible') || '').trim().toLowerCase();
+                    if (!raw || raw === 'both' || raw === 'all') {
+                        node.hidden = false;
+                        return;
+                    }
+                    const tokens = raw.split(/[\s,|]+/).map((token) => token.trim()).filter(Boolean);
+                    if (!tokens.length) {
+                        node.hidden = false;
+                        return;
+                    }
+                    node.hidden = !tokens.includes(currentMode);
+                });
+            };
+
+            const renderHeaderFields = () => {
+                const content = model.content || {};
+                if (titleInput) {
+                    ignoreTitleInput = true;
+                    titleInput.value = String(content.title || '');
+                    ignoreTitleInput = false;
+                }
+                if (titleText) {
+                    titleText.textContent = String(content.title || '');
+                }
+                if (ownerText) {
+                    ownerText.textContent = String(content.ownerWorkspace || '');
+                }
+                if (statusLabel) {
+                    statusLabel.textContent = String(content.statusLabel || '');
+                }
+                if (statusChip) {
+                    const variants = [
+                        'default',
+                        'primary',
+                        'positive',
+                        'warning',
+                        'negative',
+                        'outline-default',
+                        'outline-primary',
+                        'outline-positive',
+                        'outline-warning',
+                        'outline-negative'
+                    ];
+                    variants.forEach((variant) => statusChip.classList.remove(`ll-chip--${variant}`));
+                    const variantRaw = String(content.statusVariant || 'default').trim().toLowerCase();
+                    const variant = variantRaw === 'neutral' ? 'default' : variantRaw;
+                    statusChip.classList.add(`ll-chip--${variants.includes(variant) ? variant : 'default'}`);
+                }
+
+                const activeSub = getActiveSubContent();
+                if (subContentLabel) {
+                    subContentLabel.textContent = String(model.subContent && model.subContent.label ? model.subContent.label : 'Item');
+                }
+                if (subContentName) {
+                    subContentName.textContent = activeSub ? String(activeSub.label || '') : '';
+                }
+            };
+
+            const renderModeToggleLabel = () => {
+                const nextModeLabel = model.mode === 'edit' ? 'Switch to View Mode' : 'Switch to Edit Mode';
+                modeToggleNodes.forEach((node) => {
+                    if (!node) return;
+                    const labelTarget = node.querySelector('[data-ll-builder-mode-toggle-label]');
+                    if (labelTarget) {
+                        labelTarget.textContent = nextModeLabel;
+                        return;
+                    }
+                    if (node.matches('button, a')) {
+                        node.textContent = nextModeLabel;
+                    } else {
+                        node.innerHTML = nextModeLabel;
+                    }
+                });
+            };
+
+            const syncContexts = () => {
+                const activeSub = getActiveSubContent();
+                const activeType = String(activeSub && activeSub.contextType ? activeSub.contextType : 'grid').trim().toLowerCase() || 'grid';
+                contextNodes.forEach((node) => {
+                    const nodeType = String(node.getAttribute('data-ll-builder-context') || '').trim().toLowerCase();
+                    node.hidden = !!nodeType && nodeType !== activeType;
+                });
+            };
+
+            const initHeaderMenu = () => {
+                if (!headerMenuTrigger || !headerMenu || destroyed) return;
+                if (headerMenuApi && typeof headerMenuApi.destroy === 'function') {
+                    headerMenuApi.destroy();
+                    headerMenuApi = null;
+                }
+                if (!headerMenuTrigger.id) {
+                    headerMenuTrigger.id = `ll-builder-header-menu-trigger-${Math.floor(Math.random() * 1000000)}`;
+                }
+                if (!headerMenu.id) {
+                    headerMenu.id = `ll-builder-header-menu-${Math.floor(Math.random() * 1000000)}`;
+                }
+                headerMenuApi = initializePortaledDropdown({
+                    buttonId: headerMenuTrigger.id,
+                    menuId: headerMenu.id,
+                    align: 'right',
+                    menuType: 'action',
+                    onValueChange: ({ value }) => {
+                        if (!value) return;
+                        if (String(value) === 'toggle-mode') {
+                            api.setMode(model.mode === 'edit' ? 'view' : 'edit', { reason: 'header-menu' });
+                            return;
+                        }
+                        if (onHeaderAction) {
+                            try {
+                                onHeaderAction({
+                                    action: String(value),
+                                    model: cloneModel(model)
+                                });
+                            } catch (_e) {
+                                /* ignore */
+                            }
+                        }
+                    }
+                });
+            };
+
+            const syncSubContentNav = () => {
+                if (!subNavRoot || destroyed) return;
+                if (!subNavRoot.classList.contains('ll-carousel')) {
+                    subNavRoot.classList.add('ll-carousel');
+                }
+                const items = Array.isArray(model.subContent.items) ? model.subContent.items.slice() : [];
+                const initialActiveId = String(model.subContent.activeId || '').trim();
+
+                if (!subNavApi) {
+                    subNavApi = initializeHorizontalCarousel({
+                        root: subNavRoot,
+                        mode: 'tabs',
+                        items,
+                        initialActiveId,
+                        tabs: {
+                            editable: true,
+                            editMode: model.mode === 'edit',
+                            renameEnabled: subContentNavOptions.renameEnabled === true,
+                            minTabsToKeep: 1,
+                            addButtonLabel: String(model.subContent.label || 'Item').trim()
+                                ? `Add ${String(model.subContent.label || 'Item').trim()}`
+                                : 'Add Tab'
+                        },
+                        onActiveTabChange: ({ activeId }) => {
+                            if (!activeId || activeId === model.subContent.activeId) return;
+                            model.subContent.activeId = String(activeId);
+                            renderHeaderFields();
+                            syncContexts();
+                            if (onSubContentChange) {
+                                try {
+                                    onSubContentChange({
+                                        activeId: model.subContent.activeId,
+                                        reason: 'tab-change',
+                                        model: cloneModel(model)
+                                    });
+                                } catch (_e) {
+                                    /* ignore */
+                                }
+                            }
+                            emitModelChange('tab-change');
+                            if (onRender) onRender(cloneModel(model));
+                        },
+                        onItemsChange: ({ items: nextItems, reason }) => {
+                            model.subContent.items = normalizeSubItems(nextItems);
+                            if (!model.subContent.items.some((item) => item.id === model.subContent.activeId)) {
+                                model.subContent.activeId = model.subContent.items.length ? model.subContent.items[0].id : '';
+                            }
+                            renderHeaderFields();
+                            syncContexts();
+                            if (onSubContentChange) {
+                                try {
+                                    onSubContentChange({
+                                        activeId: model.subContent.activeId,
+                                        reason: String(reason || 'items-change'),
+                                        model: cloneModel(model)
+                                    });
+                                } catch (_e) {
+                                    /* ignore */
+                                }
+                            }
+                            emitModelChange('sub-content-items-change');
+                            if (onRender) onRender(cloneModel(model));
+                        }
+                    });
+                    return;
+                }
+
+                subNavApi.setItems(items);
+                subNavApi.setActiveId(initialActiveId || null);
+                subNavApi.setEditMode(model.mode === 'edit');
+            };
+
+            const refresh = () => {
+                if (destroyed) return;
+                applyModeVisibility();
+                renderHeaderFields();
+                renderModeToggleLabel();
+                syncSubContentNav();
+                syncContexts();
+                if (onRender) {
+                    try {
+                        onRender(cloneModel(model));
+                    } catch (_e) {
+                        /* ignore */
+                    }
+                }
+            };
+
+            if (titleInput) {
+                titleInput.addEventListener('input', () => {
+                    if (ignoreTitleInput) return;
+                    model.content.title = String(titleInput.value || '');
+                    if (titleText) titleText.textContent = model.content.title;
+                    emitModelChange('title-input');
+                });
+            }
+
+            modeToggleNodes.forEach((node) => {
+                if (!node) return;
+                if (node.closest('[data-ll-builder-header-menu]')) return;
+                node.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    api.setMode(model.mode === 'edit' ? 'view' : 'edit', { reason: 'toggle-button' });
+                });
+            });
+
+            const api = {
+                destroy() {
+                    if (destroyed) return;
+                    destroyed = true;
+                    if (subNavApi && typeof subNavApi.destroy === 'function') {
+                        subNavApi.destroy();
+                        subNavApi = null;
+                    }
+                    if (headerMenuApi && typeof headerMenuApi.destroy === 'function') {
+                        headerMenuApi.destroy();
+                        headerMenuApi = null;
+                    }
+                },
+                getModel() {
+                    return cloneModel(model);
+                },
+                setModel(nextModel, meta = {}) {
+                    model = normalizeModel(nextModel);
+                    refresh();
+                    emitModelChange(meta.reason || 'set-model');
+                },
+                setMode(nextMode, meta = {}) {
+                    const normalized = normalizeMode(nextMode);
+                    if (normalized === model.mode) return;
+                    model.mode = normalized;
+                    refresh();
+                    if (onModeChange) {
+                        try {
+                            onModeChange({
+                                mode: model.mode,
+                                reason: String(meta.reason || ''),
+                                model: cloneModel(model)
+                            });
+                        } catch (_e) {
+                            /* ignore */
+                        }
+                    }
+                    emitModelChange(meta.reason || 'set-mode');
+                },
+                getMode() {
+                    return model.mode;
+                },
+                setActiveSubContentId(nextId, meta = {}) {
+                    const id = String(nextId || '').trim();
+                    if (!id || !model.subContent.items.some((item) => item.id === id)) return;
+                    if (id === model.subContent.activeId) return;
+                    model.subContent.activeId = id;
+                    refresh();
+                    if (onSubContentChange) {
+                        try {
+                            onSubContentChange({
+                                activeId: id,
+                                reason: String(meta.reason || 'set-active-sub-content'),
+                                model: cloneModel(model)
+                            });
+                        } catch (_e) {
+                            /* ignore */
+                        }
+                    }
+                    emitModelChange(meta.reason || 'set-active-sub-content');
+                },
+                refresh
+            };
+
+            initHeaderMenu();
+            refresh();
+            return api;
+        }
+
         /** @deprecated Use **`syncLlumenRowBandGapRows`**; kept as an alias for existing call sites. */
         const syncLlumenRowBandPhantomRows = syncLlumenRowBandGapRows;
 
     windowScope.LlumenComponents = {
         initializeTabs,
+        initializeRadioSelection,
         initializePortaledDropdown,
         initializeScrollableTabs,
+        initializeHideWithScroll,
         initializeHorizontalCarousel,
+        initializeContentBuilder,
         initializeTreeView,
         refreshExpandedTreeViewHeights,
         renderDragDropCardList,

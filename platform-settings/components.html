@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/tailwind.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-twilight.min.css">
     
     <style>
         /* Drag and Drop Styles */
@@ -212,27 +213,25 @@
                                 <div class="fixed inset-0 p-10 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
                                     <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 h-full max-w-[1520px] flex flex-col">
                                         <!-- Modal Header -->
-                                        <div class="py-4 px-6 border-b border-gray-700">
+                                        <div class="py-4 px-6 border-b ll-border-divider">
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center">
                                                     <h2 class="text-xl font-semibold text-white mr-4">Sales Growth</h2>
-                                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
+                                                    <span class="ll-chip ll-chip--positive">
+                                                        <span class="ll-chip__label">Active</span>
+                                                    </span>
                                                 </div>
                                                 <div class="flex items-center space-x-4">
-                                                    <button data-open-edit-component-modal class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200 text-sm flex items-center">
-                                                        <span class="material-symbols-outlined mr-2" style="font-size: 18px;">edit</span>
+                                                    <button type="button" data-open-edit-component-modal class="ll-btn ll-btn--outline-default">
+                                                        <span class="material-symbols-outlined ll-btn__icon">edit</span>
                                                         Edit Component
                                                     </button>
                                                     <!-- Component Dropdown -->
                                                     <div class="relative">
-                                                        <button id="component-actions-dropdown-btn" class="options-dropdown-button">
-                                                            <span class="material-symbols-outlined text-lg">more_vert</span>
+                                                        <button id="component-actions-dropdown-btn" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Component actions">
+                                                            <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                                                         </button>
-                                                        <div id="component-actions-dropdown" class="options-dropdown-menu hidden">
-                                                            <a href="#" data-ui-action="component-duplicate" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Duplicate</a>
-                                                            <a href="#" data-ui-action="component-deactivate" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Deactivate</a>
-                                                            <a href="#" data-ui-action="component-delete" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete</a>
-                                                        </div>
+                                                        <div id="component-actions-dropdown" class="ll-dropdown__menu hidden"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -241,56 +240,72 @@
                                         <!-- Modal Content -->
                                         <div class="flex flex-1 overflow-hidden">
                                             <!-- Left Column - Component Data -->
-                                            <div class="w-7/12 flex flex-col border-r border-gray-700">
+                                            <div class="w-7/12 flex flex-col border-r ll-border-divider">
                                                 <!-- Fixed Content (Description, Metadata, Tabs) -->
                                                 <div class="flex-shrink-0">
                                                     <!-- Description -->
                                                     <div class="py-4 px-6">
-                                                        <div class="text-sm">
-                                                            <div class="text-gray-500 mb-1">Description</div>
-                                                            <div class="text-gray-300">Visualizes Year-Over-Year growth in sales since 2012.</div>
+                                                        <div class="ll-field-group">
+                                                            <div class="ll-field">
+                                                                <div class="ll-form-control__label-row">
+                                                                    <span class="ll-form-control__label">Description</span>
+                                                                </div>
+                                                                <div class="ll-form-control__text-value">Visualizes Year-Over-Year growth in sales since 2012.</div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     
                                                     <!-- Metadata -->
                                                     <div class="pb-4 px-6">
-                                                        <div class="flex items-start justify-between">
-                                                            <div class="grid grid-cols-3 gap-4 text-sm flex-1">
-                                                            <div>
-                                                                <div class="text-gray-500 mb-1">Category</div>
-                                                                <div class="text-gray-300">Sales</div>
+                                                        <div class="ll-field-group">
+                                                            <div class="flex items-start justify-between">
+                                                                <div class="ll-field--grid ll-field--grid-cols-3 flex-1">
+                                                                    <div class="ll-field">
+                                                                        <div class="ll-form-control__label-row">
+                                                                            <span class="ll-form-control__label">Category</span>
+                                                                        </div>
+                                                                        <div class="ll-form-control__text-value">Sales</div>
+                                                                    </div>
+                                                                    <div class="ll-field">
+                                                                        <div class="ll-form-control__label-row">
+                                                                            <span class="ll-form-control__label">Type</span>
+                                                                        </div>
+                                                                            <div class="ll-form-control__text-value">Chart <span class="text-gray-500">(Line)</span></div>
+                                                                    </div>
+                                                                    <div class="ll-field">
+                                                                        <div class="ll-form-control__label-row">
+                                                                            <span class="ll-form-control__label">Update Frequency</span>
+                                                                        </div>
+                                                                        <div class="ll-form-control__text-value">Every Year</div>
+                                                                    </div>
+                                                                        <div class="ll-field metadata-extra hidden">
+                                                                        <div class="ll-form-control__label-row">
+                                                                            <span class="ll-form-control__label">Created</span>
+                                                                        </div>
+                                                                        <div class="ll-form-control__text-value">May 15, 2024 <span class="text-gray-500">(John Doe)</span></div>
+                                                                    </div>
+                                                                        <div class="ll-field metadata-extra hidden">
+                                                                        <div class="ll-form-control__label-row">
+                                                                            <span class="ll-form-control__label">Last Updated</span>
+                                                                        </div>
+                                                                        <div class="ll-form-control__text-value">Aug 23, 2024 <span class="text-gray-500">(John Doe)</span></div>
+                                                                    </div>
+                                                                </div>
+                                                                <button id="expand-metadata-btn" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-expanded="false" aria-label="Toggle metadata details">
+                                                                    <span class="material-symbols-outlined ll-icon-btn__icon">expand_more</span>
+                                                                </button>
                                                             </div>
-                                                            <div>
-                                                                <div class="text-gray-500 mb-1">Type</div>
-                                                                    <div class="text-gray-300">Chart <span class="text-gray-500">(Line)</span></div>
-                                                            </div>
-                                                            <div>
-                                                                <div class="text-gray-500 mb-1">Update Frequency</div>
-                                                                <div class="text-gray-300">Every Year</div>
-                                                            </div>
-                                                                <div class="metadata-extra hidden">
-                                                                <div class="text-gray-500 mb-1">Created</div>
-                                                                <div class="text-gray-300">May 15, 2024 <span class="text-gray-500">(John Doe)</span></div>
-                                                            </div>
-                                                                <div class="metadata-extra hidden">
-                                                                <div class="text-gray-500 mb-1">Last Updated</div>
-                                                                <div class="text-gray-300">Aug 23, 2024 <span class="text-gray-500">(John Doe)</span></div>
-                                                            </div>
-                                                            </div>
-                                                            <button id="expand-metadata-btn" class="flex items-center h-11 ml-4 p-2 text-gray-400 hover:text-white transition duration-200">
-                                                                <span class="material-symbols-outlined text-[24px]">expand_more</span>
-                                                            </button>
                                                         </div>
                                                     </div>
                                                     
                                                     <!-- Navigation Tabs -->
-                                                    <div class="border-b border-gray-700 px-6 mt-2">
-                                                        <nav class="flex space-x-6">
-                                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-blue-500 text-white font-medium text-sm" data-tab="data-source">Data Source</button>
-                                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="mapping-customization">Mapping & Customization</button>
-                                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="filters">Filters</button>
-                                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="usage-analytics">Usage Analytics</button>
-                                                            <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-tab="permissions">Access</button>
+                                                    <div class="border-b ll-border-divider px-6 mt-2">
+                                                        <nav class="ll-tab-nav" role="tablist" aria-label="Component details sections">
+                                                            <button type="button" class="internal-tab-item ll-tab-btn ll-active" data-tab="data-source">Data Source</button>
+                                                            <button type="button" class="internal-tab-item ll-tab-btn" data-tab="mapping-customization">Mapping & Customization</button>
+                                                            <button type="button" class="internal-tab-item ll-tab-btn" data-tab="filters">Filters</button>
+                                                            <button type="button" class="internal-tab-item ll-tab-btn" data-tab="usage-analytics">Usage Analytics</button>
+                                                            <button type="button" class="internal-tab-item ll-tab-btn" data-tab="permissions">Access</button>
                                                         </nav>
                                                     </div>
                                                 </div>
@@ -303,40 +318,44 @@
 
                                                             <h4 class="text-sm font-medium text-white mb-4">API Request</h4>
 
-                                                            <div class="flex items-center justify-between bg-gray-800 border border-gray-600 rounded-md px-3 py-2">
+                                                            <div class="ll-card">
+                                                                <div class="ll-card__content flex items-center justify-between">
                                                                 <div class="flex items-center">
                                                                     <div class="h-10 w-10 rounded-md bg-gray-600 flex items-center justify-center mr-4">
-                                                                        <span class="material-symbols-outlined" style="font-size: 20px;">api</span>
+                                                                        <span class="material-symbols-outlined ll-card__title-icon">api</span>
                                                                 </div>
                                                                         <div>
                                                                         <div class="flex items-center space-x-2">
                                                                             <div class="text-sm font-medium text-white">Get Current Weather</div>
-                                                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">GET</span>
+                                                                            <span class="ll-chip ll-chip--positive">
+                                                                                <span class="ll-chip__label">GET</span>
+                                                                            </span>
                                                             </div>
                                                                         <div class="text-xs text-gray-400 mt-1">Retrieve current weather conditions</div>
                                                                         <div class="flex items-center space-x-2 text-gray-400">
                                                                             <div class="flex items-center">
-                                                                                <span class="material-symbols-outlined text-[16px] mr-1">folder</span>
+                                                                                <span class="material-symbols-outlined ll-card__title-icon mr-1">folder</span>
                                                                                 <span class="text-xs">Weather Services</span>
                                                             </div>
                                                                             <div> · </div>
                                                             <div class="flex items-center">
-                                                                                <span class="material-symbols-outlined text-[16px] mr-1">link</span>
+                                                                                <span class="material-symbols-outlined ll-card__title-icon mr-1">link</span>
                                                                                 <span class="text-xs">https://weather.secureclient.com/api/v1/current</span>
                                                             </div>
                                                         </div>
                                                             </div>
                                                         </div>
                                                             <div>
-                                                                    <button class="see-details-btn w-7 h-7 flex items-center justify-center text-gray-400 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400" data-collection-id="weather-services">
-                                                                        <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+                                                                    <button type="button" class="see-details-btn ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-collection-id="weather-services" aria-label="View collection details">
+                                                                        <span class="material-symbols-outlined ll-icon-btn__icon">visibility</span>
                                                                     </button>
+                                                                            </div>
                                                                             </div>
                                                                             </div>
                                                                             </div>
                                                         <div class="mt-6">
 
-                                                            <div class="border-b border-gray-700 mb-4"></div>
+                                                            <div class="border-b ll-border-divider mb-4"></div>
                                                             
                                                             <!-- Request and Response Section -->
 
@@ -347,20 +366,20 @@
                                                                 <div class="mb-4">
                                                                     <h3 class="font-medium text-gray-300">Request</h3>
                                                                             </div>
-                                                                <nav class="flex space-x-6 border-b border-gray-700">
-                                                                    <button class="test-request-tab pb-2 px-1 border-b-2 font-medium text-sm border-blue-500 text-white" data-test-request-tab="params">
+                                                                <nav class="ll-tab-nav border-b ll-border-divider" role="tablist" aria-label="Request details sections">
+                                                                    <button type="button" class="test-request-tab ll-tab-btn ll-active" data-test-request-tab="params">
                                                                         Parameters
                                                                     </button>
-                                                                    <button class="test-request-tab pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-test-request-tab="auth">
+                                                                    <button type="button" class="test-request-tab ll-tab-btn" data-test-request-tab="auth">
                                                                         Authentication
                                                                     </button>
-                                                                    <button class="test-request-tab pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-test-request-tab="headers">
+                                                                    <button type="button" class="test-request-tab ll-tab-btn" data-test-request-tab="headers">
                                                                         Headers
                                                                     </button>
-                                                                    <button class="test-request-tab pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-test-request-tab="body">
+                                                                    <button type="button" class="test-request-tab ll-tab-btn" data-test-request-tab="body">
                                                                         Body
                                                                     </button>
-                                                                    <button class="test-request-tab pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-test-request-tab="script">
+                                                                    <button type="button" class="test-request-tab ll-tab-btn" data-test-request-tab="script">
                                                                         Scripts
                                                                     </button>
                                                                 </nav>
@@ -369,25 +388,25 @@
                                                             <!-- Request Configuration Tabs -->
                                                             <div id="test-request-tab-content" class="flex-1 overflow-y-auto p-6">
                                                                 <!-- Parameters Tab Content -->
-                                                                <div class="test-request-tab-content" data-test-request-tab="params">
+                                                                <div id="component-details-request-params-content" class="test-request-tab-content" data-test-request-tab="params">
                                                                     <div class="space-y-4">
                                                                         <!-- Query Params -->
                                                                         <div>
                                                                             <div class="flex items-center justify-between mb-2">
                                                                                 <h3 class="text-sm text-gray-500">Query Params</h3>
                                                                             </div>
-                                                                            <div class="space-y-2 border border-gray-700 p-3 rounded-md">
+                                                                            <div class="space-y-2 border ll-border-divider p-3 rounded-md">
                                                                                 <div class="flex items-center space-x-2" data-index="0">
                                                                                     <div class="flex-1 text-sm text-gray-500">Key</div>
                                                                                     <div class="flex-1 text-sm text-gray-500">Value</div>
                                                                                 </div>
                                                                                 <div class="flex items-center space-x-2 key-value-row readonly" data-index="0">
-                                                                                    <input type="text" placeholder="Key" value="location" class="flex-1 bg-gray-800 text-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" disabled="">
-                                                                                    <input type="text" placeholder="Value" value="New York" class="flex-1 bg-gray-800 text-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" disabled="">
+                                                                                    <div class="ll-input flex-1">location</div>
+                                                                                    <div class="ll-input flex-1">New York</div>
                                                                                 </div>
                                                                                 <div class="flex items-center space-x-2 key-value-row readonly" data-index="1">
-                                                                                    <input type="text" placeholder="Key" value="units" class="flex-1 bg-gray-800 text-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" disabled="">
-                                                                                    <input type="text" placeholder="Value" value="metric" class="flex-1 bg-gray-800 text-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" disabled="">
+                                                                                    <div class="ll-input flex-1">units</div>
+                                                                                    <div class="ll-input flex-1">metric</div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -397,7 +416,7 @@
                                                                             <div class="flex items-center justify-between mb-2">
                                                                                 <h3 class="text-sm text-gray-500">Path Variables</h3>
                                                                             </div>
-                                                                            <div class="space-y-2 border border-gray-700 p-3 rounded-md">
+                                                                            <div class="space-y-2 border ll-border-divider p-3 rounded-md">
                                                                                 <div class="text-sm text-gray-600">None added</div>
                                                                             </div>
                                                                         </div>
@@ -405,19 +424,12 @@
                                                                 </div>
 
                                                                 <!-- Authentication Tab Content -->
-                                                                <div class="test-request-tab-content hidden" data-test-request-tab="auth">
+                                                                <div id="component-details-request-auth-content" class="test-request-tab-content hidden" data-test-request-tab="auth">
                                                                     <div class="space-y-4">
                                                                         <div>
                                                                             <label class="block text-sm text-gray-500 mb-2">Type</label>
                                                                             <div class="relative">
-                                                                                <select class="w-full bg-gray-800 text-gray-400 rounded-md px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none opacity-100" disabled="">
-                                                                                    <option value="inherit" selected="">Inherit from Collection</option>
-                                                                                    <option value="none">No Authentication</option>
-                                                                                    <option value="basic">Basic Authentication</option>
-                                                                                    <option value="apikey">API Key</option>
-                                                                                    <option value="bearer">Bearer Token</option>
-                                                                                    <option value="oauth2">OAuth 2.0</option>
-                                                                                </select>
+                                                                                <div class="ll-input">inherit</div>
                                                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none hidden">
                                                                                     <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
                                                                                 </div>
@@ -430,39 +442,33 @@
                                                                 </div>
 
                                                                 <!-- Headers Tab Content -->
-                                                                <div class="test-request-tab-content hidden" data-test-request-tab="headers">
-                                                                    <div class="space-y-2 border border-gray-700 p-3 rounded-md">
+                                                                <div id="component-details-request-headers-content" class="test-request-tab-content hidden" data-test-request-tab="headers">
+                                                                    <div class="space-y-2 border ll-border-divider p-3 rounded-md">
                                                                         <div class="space-y-2">
                                                                             <div class="flex items-center space-x-2" data-index="0">
                                                                                 <div class="flex-1 text-sm text-gray-500">Key</div>
                                                                                 <div class="flex-1 text-sm text-gray-500">Value</div>
                                                                             </div>
                                                                             <div class="flex items-center space-x-2 key-value-row readonly" data-index="0">
-                                                                                <input type="text" placeholder="Key" value="User-Agent" class="flex-1 bg-gray-800 text-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" disabled="">
-                                                                                <input type="text" placeholder="Value" value="Llumen-API-Client/1.0" class="flex-1 bg-gray-800 text-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" disabled="">
+                                                                                <div class="ll-input flex-1">User-Agent</div>
+                                                                                <div class="ll-input flex-1">Llumen-API-Client/1.0</div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
 
                                                                 <!-- Body Tab Content -->
-                                                                <div class="test-request-tab-content hidden" data-test-request-tab="body">
+                                                                <div id="component-details-request-body-content" class="test-request-tab-content hidden" data-test-request-tab="body">
                                                                     <div class="space-y-4">
                                                                         <div>
                                                                             <div class="relative inline-flex">
-                                                                                <select class="w-full bg-gray-800 text-gray-400 rounded-md px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none opacity-100" disabled="">
-                                                                                    <option value="none">None</option>
-                                                                                    <option value="form-data" selected="">Form Data</option>
-                                                                                    <option value="x-www-form-urlencoded">x-www-form-urlencoded</option>
-                                                                                    <option value="raw">Raw</option>
-                                                                                    <option value="binary">Binary</option>
-                                                                                </select>
+                                                                                <div class="ll-input">form-data</div>
                                                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none hidden">
                                                                                     <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        <div class="space-y-2 border border-gray-700 p-3 rounded-md">
+                                                                        <div class="space-y-2 border ll-border-divider p-3 rounded-md">
                                                                             <div class="space-y-2">
                                                                                 <div class="flex items-center space-x-2" data-index="0">
                                                                                     <div class="flex-1 text-sm text-gray-500">Key</div>
@@ -470,19 +476,16 @@
                                                                                 </div>
                                                                                 <div class="flex items-center space-x-2 key-value-row readonly" data-index="0">
                                                                                     <div class="flex-1 flex items-center space-x-2">
-                                                                                        <input type="text" placeholder="Key" value="location" class="flex-1 bg-gray-800 text-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" disabled="">
+                                                                                        <div class="ll-input flex-1">location</div>
                                                                                         <div class="relative">
-                                                                                            <select class="w-full bg-gray-800 text-gray-400 rounded-md px-3 py-2 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none opacity-100" disabled="">
-                                                                                                <option value="text" selected="">Text</option>
-                                                                                                <option value="file">File</option>
-                                                                                            </select>
+                                                                                            <div class="ll-input">text</div>
                                                                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none hidden">
                                                                                                 <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
                                                                                     <div class="flex-1 flex items-center space-x-2">
-                                                                                        <input type="text" placeholder="Value" value="New York" class="flex-1 bg-gray-800 text-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" disabled="">
+                                                                                        <div class="ll-input flex-1">New York</div>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -491,57 +494,54 @@
                                                                 </div>
 
                                                                 <!-- Pre-Request Script Tab Content -->
-                                                                <div class="test-request-tab-content hidden" data-test-request-tab="script">
-                                                                    <div class="flex border border-gray-700 rounded-lg h-full overflow-hidden" style="min-height: 240px;">
-                                                                        <!-- Script Property Tabs -->
-                                                                        <div class="flex flex-col w-52 p-3 border-r border-gray-700">
-                                                                            <div class="flex-1 space-y-2">
-                                                                                <div class="request-script-inner-tab flex items-center py-2 px-3 rounded-lg transition duration-200 cursor-pointer bg-blue-600 text-white" data-request-script-inner-tab="pre-request">
-                                                                                    <span class="text-sm font-medium">Pre-Request</span>
-                                                                                </div>
-                                                                                <div class="request-script-inner-tab flex items-center py-2 px-3 rounded-lg cursor-pointer transition duration-200 bg-gray-700 text-gray-300 hover:bg-gray-600" data-request-script-inner-tab="post-request">
-                                                                                    <span class="text-sm font-medium">Post-Request</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
+                                                                <div id="component-details-request-script-content" class="test-request-tab-content hidden" data-test-request-tab="script">
 
-                                                                        <!-- Script Tab Content -->
-                                                                        <div class="flex-1 p-4 overflow-auto">
-                                                                            <!-- Pre-Request Script Content -->
-                                                                            <div class="request-script-inner-tab-content" data-request-script-inner-tab="pre-request">
-                                                                                <div class="flex">
-                                                                                    <textarea class="w-full h-64 bg-gray-800 text-gray-400 rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm font-mono resize-none" placeholder="// Access to 'llumen' object available in Llumen sandbox environment
-                                    // Example:
-                                    // llumen.setVariable('timestamp', Date.now());
-                                    // llumen.log('Pre-request script executed');" disabled="">// Set dynamic location based on user input
-                                    llumen.setVariable('location', 'New York');
-                                     
-                                    // Log request details
-                                    llumen.log('Making weather request for: ' + llumen.getVariable('location'));</textarea>
+                                                                    <div class="ll-card ll-card--transparent">
+                                                                        <div class="ll-card__content ll-card__content--no-padding">
+                                                                        
+                                                                            <div class="flex" style="min-height: 240px;">
+                                                                                <!-- Script Property Tabs -->
+                                                                                <div class="flex flex-col w-52 p-3 border-r ll-border-divider">
+                                                                                    <div class="flex-1 space-y-2">
+                                                                                        <button type="button" class="request-script-inner-tab ll-btn ll-tabs-vertical__btn ll-btn--primary" data-request-script-inner-tab="pre-request">Pre-Request</button>
+                                                                                        <button type="button" class="request-script-inner-tab ll-btn ll-tabs-vertical__btn ll-btn--flat-default" data-request-script-inner-tab="post-request">Post-Request</button>
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
 
-                                                                            <!-- Post-Request Script Content -->
-                                                                            <div class="request-script-inner-tab-content hidden" data-request-script-inner-tab="post-request">
-                                                                                <div class="flex">
-                                                                                    <textarea class="w-full h-64 bg-gray-800 text-gray-400 rounded-md p-4 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm font-mono resize-none" placeholder="// Access to 'llumen' object available in Llumen sandbox environment
-                                    // Example:
-                                    // llumen.setVariable('responseTime', Date.now() - requestStartTime);
-                                    // llumen.log('Post-request script executed');" disabled="">// Process response data
-                                    const responseTime = Date.now() - llumen.getVariable('requestStartTime');
-                                    llumen.setVariable('responseTime', responseTime);
-                                    
-                                    // Log response details
-                                    llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms');</textarea>
+                                                                                <!-- Script Tab Content -->
+                                                                                <div class="flex-1 p-4 overflow-auto">
+                                                                                    <!-- Pre-Request Script Content -->
+                                                                                    <div id="component-details-request-script-inner-pre-request-content" class="request-script-inner-tab-content" data-request-script-inner-tab="pre-request">
+                                                                                        <div class="flex">
+        <pre class="ll-code-highlight"><code class="language-javascript">// Set dynamic location based on user input
+        llumen.setVariable('location', 'New York');
+
+        // Log request details
+        llumen.log('Making weather request for: ' + llumen.getVariable('location'));</code></pre>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <!-- Post-Request Script Content -->
+                                                                                    <div id="component-details-request-script-inner-post-request-content" class="request-script-inner-tab-content hidden" data-request-script-inner-tab="post-request">
+                                                                                        <div class="flex">
+        <pre class="ll-code-highlight"><code class="language-javascript">// Process response data
+        const responseTime = Date.now() - llumen.getVariable('requestStartTime');
+        llumen.setVariable('responseTime', responseTime);
+
+        // Log response details
+        llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms');</code></pre>
+                                                                                        </div>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                    
                                                                 </div>
                                                             </div>
                                                                     
                                                             <!-- Response Section -->
-                                                            <div class="border-t border-gray-700 h-[40%] flex flex-col overflow-hidden">
+                                                            <div class="border-t ll-border-divider h-[40%] flex flex-col overflow-hidden">
                                                                 <div class="flex items-center justify-between px-6 py-4">
                                                                     <h3 class="font-medium text-gray-300">Response</h3>
                                                                     
@@ -549,23 +549,30 @@
                                                                     <div class="flex items-center space-x-6 text-xs">
                                                                         <div class="flex items-center space-x-1">
                                                                             <span class="text-gray-500">Status:</span>
-                                                                            <span class="text-green-400 font-medium">200 OK</span>
+                                                                            <span class="ll-chip ll-chip--positive">
+                                                                                <span class="ll-chip__label">200 OK</span>
+                                                                            </span>
                                                                             </div>
                                                                         <div class="flex items-center space-x-1">
                                                                             <span class="text-gray-500">Time:</span>
-                                                                            <span class="text-gray-300">245ms</span>
+                                                                            <span class="ll-chip ll-chip--outline-default">
+                                                                                <span class="ll-chip__label">245ms</span>
+                                                                            </span>
                                                                             </div>
                                                                         <div class="flex items-center space-x-1">
                                                                             <span class="text-gray-500">Size:</span>
-                                                                            <span class="text-gray-300">1.2 KB</span>
+                                                                            <span class="ll-chip ll-chip--outline-default">
+                                                                                <span class="ll-chip__label">1.2 KB</span>
+                                                                            </span>
                                                                             </div>
                                                                             </div>
                                                                             </div>
                                                                 
                                                                 <!-- Response Body -->
                                                                 <div class="px-6 pb-4 flex-1 flex flex-col overflow-hidden">
-                                                                    <div class="bg-gray-800 border border-gray-600 rounded-md p-4 flex-1  overflow-y-auto">
-<pre class="text-sm text-gray-300 overflow-x-auto"><code>{
+                                                                    <div class="ll-card ll-card--transparent">
+                                                                        <div class="ll-card__content">
+<pre class="ll-code-highlight"><code class="language-json">{
     "location": "New York",
     "temperature": 22.5,
     "humidity": 65,
@@ -573,6 +580,7 @@
     "wind_speed": 12.3,
     "timestamp": "2024-01-15T14:30:00Z"
 }</code></pre>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -589,18 +597,18 @@
                                                                 <h4 class="text-sm font-medium text-white mb-4">Mapping &amp; Customization</h4>
 
                                                                 <div class="space-y-4">
-                                                                    <div class="flex border border-gray-700 rounded-lg h-full overflow-hidden" style="min-height: 400px;">
-                                                                <div class="flex flex-col w-52 p-3 border-r border-gray-700">
+                                                                    <div class="flex border ll-border-divider rounded-lg h-full overflow-hidden" style="min-height: 400px;">
+                                                                <div class="flex flex-col w-52 p-3 border-r ll-border-divider">
                                                                     <div class="flex-1 space-y-2">
-                                                                        <div class="component-visual-property-tab flex items-center py-2 px-3 bg-blue-600 text-white rounded-lg transition duration-200 cursor-pointer" data-visual-tab="y-axis">
+                                                                        <button type="button" class="component-visual-property-tab ll-btn ll-btn--primary ll-tabs-vertical__btn ll-active" data-visual-tab="y-axis">
                                                                             <span class="text-sm font-medium">Y-Axis</span>
-                                                                        </div>
-                                                                        <div class="component-visual-property-tab flex items-center py-2 px-3 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer transition duration-200" data-visual-tab="series">
+                                                                        </button>
+                                                                        <button type="button" class="component-visual-property-tab ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-visual-tab="series">
                                                                             <span class="text-sm font-medium">Series</span>
-                                                                        </div>
-                                                                        <div class="component-visual-property-tab flex items-center py-2 px-3 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg cursor-pointer transition duration-200" data-visual-tab="legend">
+                                                                        </button>
+                                                                        <button type="button" class="component-visual-property-tab ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-visual-tab="legend">
                                                                             <span class="text-sm font-medium">Legend</span>
-                                                                        </div>
+                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                                 <div class="flex-1 p-4 overflow-auto">
@@ -610,13 +618,7 @@
                                                                             <div class="text-sm text-gray-500 mb-2">Data Field</div>
                                                                             <div>
                                                                                 <div class="relative">
-                                                                                    <select class="w-full bg-gray-800 text-gray-400 opacity-100 transition duration-200 rounded-md px-3 py-2 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none" disabled>
-                                                                                        <option value="">Select data field</option>
-                                                                                        <option value="category">category</option>
-                                                                                        <option value="region">region</option>
-                                                                                        <option value="date">date</option>
-                                                                                        <option value="grid_id">grid_id</option>
-                                                                                    </select>
+                                                                                    <div class="ll-input">category</div>
                                                                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none hidden">
                                                                                         <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
                                                                                         </div>
@@ -624,18 +626,18 @@
                                                                             </div>
                                                                         </div>
 
-                                                                        <div class="border-t border-gray-700"></div>
+                                                                        <div class="border-t ll-border-divider"></div>
 
                                                                         <div class="space-y-4">
                                                                             <div>
                                                                                 <div class="text-sm text-gray-500 mb-2">Axis Order</div>
                                                                                 <div class="space-y-3">
                                                                                     <div class="flex items-center space-x-3">
-                                                                                        <label class="toggle-switch opacity-30">
-                                                                                            <input type="checkbox" disabled="">
-                                                                                            <span class="toggle-slider cursor-default"></span>
+                                                                                        <label class="ll-toggle flex-shrink-0 opacity-30">
+                                                                                            <input type="checkbox" class="ll-toggle__input" disabled="">
+                                                                                            <span class="ll-toggle__slider"></span>
                                                                                         </label>
-                                                                                        <span class="text-sm text-gray-300">Reverse Order</span>
+                                                                                        <span class="ll-toggle__label">Reverse Order</span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -644,11 +646,11 @@
                                                                                 <div class="text-sm text-gray-500 mb-2">Gridlines</div>
                                                                                 <div class="space-y-3">
                                                                                     <div class="flex items-center space-x-3">
-                                                                                        <label class="toggle-switch opacity-30">
-                                                                                            <input type="checkbox" disabled="">
-                                                                                            <span class="toggle-slider cursor-default"></span>
+                                                                                        <label class="ll-toggle flex-shrink-0 opacity-30">
+                                                                                            <input type="checkbox" class="ll-toggle__input" disabled="">
+                                                                                            <span class="ll-toggle__slider"></span>
                                                                                         </label>
-                                                                                        <span class="text-sm text-gray-300">Major Gridlines</span>
+                                                                                        <span class="ll-toggle__label">Major Gridlines</span>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
@@ -663,23 +665,19 @@
                                                                                 <div class="text-sm text-gray-500 mb-2">Series Fields</div>
                                                                                         </div>
                                                                             <div class="space-y-2 mb-3">
-                                                                                <div class="series-item flex items-center justify-between bg-gray-800 rounded-md px-3 py-2">
-                                                                                    <span class="text-sm text-gray-400 flex-1">Area Size (km²)</span>
-                                                                                    </div>
-                                                                                <div class="series-item flex items-center justify-between bg-gray-800 rounded-md px-3 py-2">
-                                                                                    <span class="text-sm text-gray-400 flex-1">Population Density</span>
-                                                                                </div>
+                                                                                <div class="ll-input">Area Size (km²)</div>
+                                                                                <div class="ll-input">Population Density</div>
                                                                             </div>
                                                                         </div>
                                                                         
-                                                                        <div class="border-t border-gray-700"></div>
+                                                                        <div class="border-t ll-border-divider"></div>
 
                                                                         <div class="space-y-4">
 
                                                                                     <div>
                                                                                 <div class="text-sm text-gray-500 mb-2">Color Palette</div>
                                                                                 <div class="relative">
-                                                                                    <div class="w-full bg-gray-800 text-gray-400 rounded-md px-3 py-2 text-sm text-gray-400 flex items-center justify-between">
+                                                                                    <div class="ll-input flex items-center justify-between">
                                                                                         <div class="flex items-center space-x-3">
                                                                                             <div class="w-8 h-4 rounded bg-gradient-to-r from-teal-400 via-orange-400 to-pink-400"></div>
                                                                                             <span>Default</span>
@@ -694,13 +692,13 @@
                                                                                         <div class="text-sm text-gray-500 mb-2">
                                                                                             Minimum Value
                                                                                                 </div>
-                                                                                        <input type="number" class="w-full bg-gray-800 rounded-md px-3 py-2 text-sm text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="0" disabled>
+                                                                                        <div class="ll-input">0</div>
                                                                                             </div>
                                                                                     <div>
                                                                                         <div class="text-sm text-gray-500 mb-2">
                                                                                             Maximum Value
                                                                                         </div>
-                                                                                        <input type="number" class="w-full bg-gray-800 rounded-md px-3 py-2 text-sm text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="100" disabled>
+                                                                                        <div class="ll-input">100</div>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -708,15 +706,7 @@
                                                                             <div>
                                                                                 <div class="text-sm text-gray-500 mb-2">Scale Factor</div>
                                                                                 <div class="relative">
-                                                                                    <select class="w-full bg-gray-800 text-gray-400 rounded-md px-3 py-2 pr-8 text-sm text-gray-400 opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none" disabled>
-                                                                                        <option value="1">1x (No scaling)</option>
-                                                                                        <option value="0.001">0.001x (Thousands)</option>
-                                                                                        <option value="0.01">0.01x (Hundreds)</option>
-                                                                                        <option value="0.1">0.1x (Tens)</option>
-                                                                                        <option value="10">10x</option>
-                                                                                        <option value="100">100x</option>
-                                                                                        <option value="1000">1000x</option>
-                                                                                    </select>
+                                                                                    <div class="ll-input">1</div>
                                                                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none hidden">
                                                                                         <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
                                                                         </div>
@@ -726,14 +716,7 @@
                                                                         <div>
                                                                                 <div class="text-sm text-gray-500 mb-2">Number Format</div>
                                                                                 <div class="relative">
-                                                                                    <select class="w-full bg-gray-800 text-gray-400 rounded-md px-3 py-2 pr-8 text-sm text-gray-400 opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none" disabled>
-                                                                                        <option value="number">Number (1,234.56)</option>
-                                                                                        <option value="currency">Currency ($1,234.56)</option>
-                                                                                        <option value="percentage">Percentage (123.46%)</option>
-                                                                                        <option value="decimal">Decimal (1234.56)</option>
-                                                                                        <option value="integer">Integer (1235)</option>
-                                                                                        <option value="scientific">Scientific (1.23e+3)</option>
-                                                                                    </select>
+                                                                                    <div class="ll-input">number</div>
                                                                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none hidden">
                                                                                         <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
                                                                                         </div>
@@ -742,7 +725,7 @@
 
                                                                         </div>
 
-                                                                        <div class="border-t border-gray-700"></div>
+                                                                        <div class="border-t ll-border-divider"></div>
 
                                                                         <div class="space-y-4">
 
@@ -750,32 +733,32 @@
                                                                                 <div class="text-sm text-gray-500 mb-2">Gridlines &amp; Ticks</div>
                                                                                 <div class="space-y-3">
                                                                                     <div class="flex items-center space-x-3">
-                                                                                        <label class="toggle-switch opacity-30">
-                                                                                            <input type="checkbox" disabled>
-                                                                                            <span class="toggle-slider cursor-default"></span>
+                                                                                        <label class="ll-toggle flex-shrink-0 opacity-30">
+                                                                                            <input type="checkbox" class="ll-toggle__input" disabled>
+                                                                                            <span class="ll-toggle__slider"></span>
                                                                                         </label>
-                                                                                        <span class="text-sm text-gray-300">Major Gridlines</span>
+                                                                                        <span class="ll-toggle__label">Major Gridlines</span>
                                                                                         </div>
                                                                                     <div class="flex items-center space-x-3">
-                                                                                        <label class="toggle-switch opacity-30">
-                                                                                            <input type="checkbox" disabled="">
-                                                                                            <span class="toggle-slider cursor-default"></span>
+                                                                                        <label class="ll-toggle flex-shrink-0 opacity-30">
+                                                                                            <input type="checkbox" class="ll-toggle__input" disabled="">
+                                                                                            <span class="ll-toggle__slider"></span>
                                                                                         </label>
-                                                                                        <span class="text-sm text-gray-300">Minor Gridlines</span>
+                                                                                        <span class="ll-toggle__label">Minor Gridlines</span>
                                                                                     </div>
                                                                                     <div class="flex items-center space-x-3">
-                                                                                        <label class="toggle-switch opacity-30">
-                                                                                            <input type="checkbox" disabled="">
-                                                                                            <span class="toggle-slider cursor-default"></span>
+                                                                                        <label class="ll-toggle flex-shrink-0 opacity-30">
+                                                                                            <input type="checkbox" class="ll-toggle__input" disabled="">
+                                                                                            <span class="ll-toggle__slider"></span>
                                                                                         </label>
-                                                                                        <span class="text-sm text-gray-300">Major Ticks</span>
+                                                                                        <span class="ll-toggle__label">Major Ticks</span>
                                                                                     </div>
                                                                                     <div class="flex items-center space-x-3">
-                                                                                        <label class="toggle-switch opacity-30">
-                                                                                            <input type="checkbox" disabled="">
-                                                                                            <span class="toggle-slider cursor-default"></span>
+                                                                                        <label class="ll-toggle flex-shrink-0 opacity-30">
+                                                                                            <input type="checkbox" class="ll-toggle__input" disabled="">
+                                                                                            <span class="ll-toggle__slider"></span>
                                                                                         </label>
-                                                                                        <span class="text-sm text-gray-300">Minor Ticks</span>
+                                                                                        <span class="ll-toggle__label">Minor Ticks</span>
                                                                                     </div>
                                                                                 </div>
                                                                                 </div>
@@ -785,9 +768,9 @@
                                                                             <div id="legend-tab-content" class="component-visual-tab-content space-y-6 hidden">
                                                                             <div class="max-w-md">
                                                                                     <div class="flex items-center space-x-3">
-                                                                                        <label class="toggle-switch opacity-30">
-                                                                                            <input type="checkbox" checked="" disabled>
-                                                                                            <span class="toggle-slider"></span>
+                                                                                        <label class="ll-toggle flex-shrink-0 opacity-30">
+                                                                                            <input type="checkbox" class="ll-toggle__input" checked="" disabled>
+                                                                                            <span class="ll-toggle__slider"></span>
                                                                                         </label>
                                                                                         <span class="legend-label-text text-sm text-gray-300 hover:text-gray-200">
                                                                                             Show Legend
@@ -798,13 +781,7 @@
                                                                                 <div style="display: block;">
                                                                                     <div class="text-sm text-gray-500 mb-2">Legend Position</div>
                                                                                     <div class="relative">
-                                                                                        <select class="w-full bg-gray-800 text-gray-400 rounded-md px-3 py-2 pr-8 text-sm text-gray-400 opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none" disabled>
-                                                                                            <option value="auto">Auto</option>
-                                                                                            <option value="top">Top</option>
-                                                                                            <option value="bottom">Bottom</option>
-                                                                                            <option value="left">Left</option>
-                                                                                            <option value="right">Right</option>
-                                                                                        </select>
+                                                                                        <div class="ll-input">auto</div>
                                                                                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none hidden">
                                                                                             <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
                                                                                     </div>
@@ -830,7 +807,8 @@
                                                         
                                                                     <!-- Filter list container -->
                                                                     <div class="space-y-2 mb-3">
-                                                                        <div class="filter-item flex items-center justify-between bg-gray-800 border border-gray-600 rounded-md px-3 py-2">
+                                                                        <div class="filter-item ll-card">
+                                                                            <div class="ll-card__content flex items-center justify-between gap-3 py-2">
                                                                             <div class="flex items-center space-x-3 flex-1">
                                                                                 <div class="h-8 w-8 rounded-md bg-gray-600 flex items-center justify-center">
                                                                                     <span class="material-symbols-outlined text-white text-lg">date_range</span>
@@ -841,36 +819,17 @@
                                                                                             <div class="text-sm font-medium text-white">Date Range Filter</div>
                                                                                             <div class="text-xs text-gray-400">date_range_filter</div>
                                                                                         </div>
-                                                                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-600 text-gray-300">DateRange</span>
+                                                                                        <span class="ll-chip ll-chip--outline-default">
+                                                                                            <span class="ll-chip__label">DateRange</span>
+                                                                                        </span>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="flex items-center space-x-2 ml-4">
                                                                                 <label class="text-xs text-gray-400 whitespace-nowrap">Map to:</label>
-                                                                                <select class="bg-gray-700 text-gray-400 opacity-100 rounded-md px-2 py-1 pr-8 text-xs focus:outline-none focus:ring-1 focus:ring-red-500 appearance-none" style="min-width: 120px;" disabled>
-                                                                                    <option value="">Select field</option>
-                                                                                    <option value="date" selected>Date</option>
-                                                                                    <option value="time">Time</option>
-                                                                                    <option value="timestamp">Timestamp</option>
-                                                                                    <option value="category">Category</option>
-                                                                                    <option value="region">Region</option>
-                                                                                    <option value="grid_id">Grid ID</option>
-                                                                                    <option value="longitude">Longitude</option>
-                                                                                    <option value="latitude">Latitude</option>
-                                                                                    <option value="population_count">Population Count</option>
-                                                                                    <option value="area_size_km2">Area Size (km²)</option>
-                                                                                    <option value="population_density">Population Density</option>
-                                                                                    <option value="sales">Sales</option>
-                                                                                    <option value="revenue">Revenue</option>
-                                                                                    <option value="quantity">Quantity</option>
-                                                                                    <option value="end_longitude">End Longitude</option>
-                                                                                    <option value="end_latitude">End Latitude</option>
-                                                                                    <option value="distance">Distance</option>
-                                                                                </select>
-                                                                                <div class="absolute inset-y-0 right-0 flex items-center pr-1 pointer-events-none hidden">
-                                                                                    <span class="material-symbols-outlined text-gray-400 text-md">expand_more</span>
-                                                                        </div>
+                                                                                <div class="ll-input" style="min-width: 120px;">date</div>
                                                                     </div>
+                                                                            </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -888,28 +847,37 @@
                                                         <div class="space-y-4">
                                                             <!-- Key Metrics -->
                                                             <div class="grid grid-cols-2 gap-4">
-                                                                <div class="bg-gray-800 border border-gray-600 rounded-md p-4">
+                                                                <div class="ll-card">
+                                                                    <div class="ll-card__content">
                                                                     <div class="text-sm text-gray-400">Usage Over Time</div>
                                                                         <div class="text-lg font-medium text-white">3.4K</div>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="bg-gray-800 border border-gray-600 rounded-md p-4">
+                                                                <div class="ll-card">
+                                                                    <div class="ll-card__content">
                                                                     <div class="text-sm text-gray-400">No. of Users</div>
                                                                         <div class="text-lg font-medium text-white">244</div>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="bg-gray-800 border border-gray-600 rounded-md p-4">
+                                                                <div class="ll-card">
+                                                                    <div class="ll-card__content">
                                                                     <div class="text-sm text-gray-400">No. of Edits</div>
                                                                         <div class="text-lg font-medium text-white">12</div>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="bg-gray-800 border border-gray-600 rounded-md p-4">
+                                                                <div class="ll-card">
+                                                                    <div class="ll-card__content">
                                                                     <div class="text-sm text-gray-400">Run Time</div>
                                                                         <div class="text-lg font-medium text-white">120 Days</div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             
                                                             <!-- Charts -->
                                                                 <div class="grid grid-cols-2 gap-4">
                                                                 <!-- Usage Breakdown Chart -->
-                                                                <div class="bg-gray-800 border border-gray-600 rounded-md p-4">
+                                                                <div class="ll-card">
+                                                                    <div class="ll-card__content">
                                                                         <h3 class="text-sm font-medium text-gray-400 mb-4">Usage Breakdown</h3>
                                                                     <div class="h-28 flex items-end justify-between">
                                                                         <div class="w-4 bg-teal-400 rounded-t" style="height: 30%"></div>
@@ -939,10 +907,12 @@
                                                                         <span>Nov</span>
                                                                         <span>Dec</span>
                                                                     </div>
+                                                                    </div>
                                                                 </div>
                                                                 
                                                                 <!-- Volume Profile Chart -->
-                                                                <div class="bg-gray-800 border border-gray-600 rounded-md p-4">
+                                                                <div class="ll-card">
+                                                                    <div class="ll-card__content">
                                                                         <h3 class="text-sm font-medium text-gray-400 mb-4">Volume Profile</h3>
                                                                     <div class="h-[136px] relative">
                                                                         <svg class="w-full h-full" viewBox="0 0 200 100">
@@ -958,6 +928,7 @@
                                                                             <span>12:00 pm</span>
                                                                             <span>6:00 pm</span>
                                                                         </div>
+                                                                    </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -976,10 +947,10 @@
                                                             <!-- Add People/Workspaces Input and Invite Button -->
                                                             <div class="flex items-center space-x-3 mb-6">
                                                                 <div class="flex-1">
-                                                                    <input type="text" placeholder="Add workspaces or people" class="w-full px-3 py-1.5 h-9 bg-gray-800 border border-gray-600 rounded-md text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                                                    <input type="text" placeholder="Add workspaces or people" class="ll-input">
                                                                 </div>
-                                                                <button class="flex items-center space-x-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-md transition-colors duration-200">
-                                                                    <span class="material-symbols-outlined text-[20px]">add</span>
+                                                                <button type="button" class="ll-btn ll-btn--outline-default">
+                                                                    <span class="material-symbols-outlined ll-btn__icon">add</span>
                                                                     <span>Invite</span>
                                                                 </button>
                                                             </div>
@@ -989,24 +960,31 @@
                                                                 <div>
                                                                     <h3 class="text-sm font-medium text-gray-300 mb-3">Planning</h3>
                                                                     <div class="space-y-3">
-                                                                        <div class="flex items-center justify-between p-3 bg-gray-800 border border-gray-600 rounded-md">
+                                                                        <div class="ll-card">
+                                                                            <div class="ll-card__content flex items-center justify-between">
                                                                             <div class="flex items-center space-x-3">
                                                                                 <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JD" alt="">
                                                                                 <div>
                                                                                     <div class="text-sm font-medium text-white flex items-center space-x-2">
                                                                                         <span>John Doe</span>
-                                                                                            <span class="text-xs bg-gray-900 text-gray-300 px-2 py-1 rounded-full">Admin</span>
+                                                                                            <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">Admin</span></span>
                                                                                     </div>
                                                                                     <div class="text-xs text-gray-400">john.doe@company.com</div>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="flex items-center space-x-2">
-                                                                                <span class="text-sm text-gray-400">Full access</span>
-                                                                                <span class="material-symbols-outlined text-gray-400 text-[20px]">expand_more</span>
+                                                                            <div class="min-w-[168px]">
+                                                                                <button id="component-details-planning-john-access-dropdown-button" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
+                                                                                    <span class="ll-dropdown__selected-value">Full access</span>
+                                                                                    <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                                                </button>
+                                                                                <div id="component-details-planning-john-access-dropdown-menu" class="ll-dropdown__menu hidden"></div>
+                                                                                <input id="component-details-planning-john-access-dropdown-value" type="hidden" value="full-access">
+                                                                            </div>
                                                                             </div>
                                                                         </div>
                                                                         
-                                                                        <div class="flex items-center justify-between p-3 bg-gray-800 border border-gray-600 rounded-md">
+                                                                        <div class="ll-card">
+                                                                            <div class="ll-card__content flex items-center justify-between">
                                                                             <div class="flex items-center space-x-3">
                                                                                 <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JS" alt="">
                                                                                 <div>
@@ -1014,9 +992,14 @@
                                                                                     <div class="text-xs text-gray-400">jane.smith@company.com</div>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="flex items-center space-x-2">
-                                                                                <span class="text-sm text-gray-400">Limited access</span>
-                                                                                <span class="material-symbols-outlined text-gray-400 text-[20px]">expand_more</span>
+                                                                            <div class="min-w-[168px]">
+                                                                                <button id="component-details-planning-jane-access-dropdown-button" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
+                                                                                    <span class="ll-dropdown__selected-value">Limited access</span>
+                                                                                    <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                                                </button>
+                                                                                <div id="component-details-planning-jane-access-dropdown-menu" class="ll-dropdown__menu hidden"></div>
+                                                                                <input id="component-details-planning-jane-access-dropdown-value" type="hidden" value="limited-access">
+                                                                            </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1026,7 +1009,8 @@
                                                                 <div>
                                                                     <h3 class="text-sm font-medium text-gray-300 mb-3">Chairman Office</h3>
                                                                     <div class="space-y-3">
-                                                                        <div class="flex items-center justify-between p-3 bg-gray-800 border border-gray-600 rounded-md">
+                                                                        <div class="ll-card">
+                                                                            <div class="ll-card__content flex items-center justify-between">
                                                                             <div class="flex items-center space-x-3">
                                                                                 <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=MB" alt="">
                                                                                 <div>
@@ -1034,13 +1018,19 @@
                                                                                     <div class="text-xs text-gray-400">mike.brown@company.com</div>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="flex items-center space-x-2">
-                                                                                <span class="text-sm text-gray-400">Limited access</span>
-                                                                                <span class="material-symbols-outlined text-gray-400 text-[20px]">expand_more</span>
+                                                                            <div class="min-w-[168px]">
+                                                                                <button id="component-details-chairman-mike-access-dropdown-button" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
+                                                                                    <span class="ll-dropdown__selected-value">Limited access</span>
+                                                                                    <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                                                </button>
+                                                                                <div id="component-details-chairman-mike-access-dropdown-menu" class="ll-dropdown__menu hidden"></div>
+                                                                                <input id="component-details-chairman-mike-access-dropdown-value" type="hidden" value="limited-access">
+                                                                            </div>
                                                                             </div>
                                                                         </div>
                                                                         
-                                                                        <div class="flex items-center justify-between p-3 bg-gray-800 border border-gray-600 rounded-md">
+                                                                        <div class="ll-card">
+                                                                            <div class="ll-card__content flex items-center justify-between">
                                                                             <div class="flex items-center space-x-3">
                                                                                 <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=SW" alt="">
                                                                                 <div>
@@ -1048,9 +1038,14 @@
                                                                                     <div class="text-xs text-gray-400">sarah.wilson@company.com</div>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="flex items-center space-x-2">
-                                                                                <span class="text-sm text-gray-400">View only</span>
-                                                                                <span class="material-symbols-outlined text-gray-400 text-[20px]">expand_more</span>
+                                                                            <div class="min-w-[168px]">
+                                                                                <button id="component-details-chairman-sarah-access-dropdown-button" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
+                                                                                    <span class="ll-dropdown__selected-value">View only</span>
+                                                                                    <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                                                </button>
+                                                                                <div id="component-details-chairman-sarah-access-dropdown-menu" class="ll-dropdown__menu hidden"></div>
+                                                                                <input id="component-details-chairman-sarah-access-dropdown-value" type="hidden" value="view-only">
+                                                                            </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1108,8 +1103,8 @@
                     <div class="space-y-4">
                         <!-- Total Components -->
                         <div class="flex items-center">
-                            <div class="w-10 h-10 flex items-center justify-center bg-blue-600 rounded-lg">
-                                <span class="material-symbols-outlined text-white text-xl">grid_view</span>
+                            <div class="w-10 h-10 flex items-center justify-center border ll-border-primary rounded-lg">
+                                <span class="material-symbols-outlined ll-text-primary text-xl">grid_view</span>
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-400">Total Components</p>
@@ -1119,8 +1114,8 @@
                 
                         <!-- Active Components -->
                         <div class="flex items-center">
-                            <div class="w-10 h-10 flex items-center justify-center bg-green-600 rounded-lg">
-                                <span class="material-symbols-outlined text-white text-xl">check_circle</span>
+                            <div class="w-10 h-10 flex items-center justify-center border ll-border-positive rounded-lg">
+                                <span class="material-symbols-outlined ll-text-positive text-xl">check_circle</span>
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-400">Active Components</p>
@@ -1130,8 +1125,8 @@
                 
                         <!-- Pending Review -->
                         <div class="flex items-center">
-                            <div class="w-10 h-10 flex items-center justify-center bg-yellow-600 rounded-lg">
-                                <span class="material-symbols-outlined text-white text-xl">schedule</span>
+                            <div class="w-10 h-10 flex items-center justify-center border ll-border-warning rounded-lg">
+                                <span class="material-symbols-outlined ll-text-warning text-xl">schedule</span>
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-400">Pending Review</p>
@@ -1153,166 +1148,22 @@
     <script src="../js/llumen-components.js"></script>
     <script src="../js/llumen-app-header.js"></script>
     <script src="../js/llumen-shader-background.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-json.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-sql.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            // Shared click delegation for dropdown toggles and component edit action.
+            // Shared click delegation for opening the edit flow from modal actions.
             document.addEventListener('click', (event) => {
-                const dropdownButton = event.target.closest('[data-dropdown-id]');
-                if (dropdownButton) {
-                    event.stopPropagation();
-                    toggleDropdown(dropdownButton.dataset.dropdownId, dropdownButton);
-                    return;
-                }
-
                 const editComponentButton = event.target.closest('[data-open-edit-component-modal]');
                 if (editComponentButton) {
                     event.preventDefault();
                     openEditComponentModal();
-                    return;
-                }
-
-                const uiActionLink = event.target.closest('[data-ui-action]');
-                if (uiActionLink) {
-                    event.preventDefault();
-                    document.querySelectorAll('[id^="dropdown-"], [id^="component-dropdown-"], [id^="filter-dropdown-"], #create-dropdown-menu, #user-dropdown-menu, #component-actions-dropdown').forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
                 }
             });
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!event.target.closest('[id^="dropdown-"]') && !event.target.closest('[data-dropdown-id]')) {
-                    document.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
-                }
-            });
-
-            // Close component dropdowns when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!event.target.closest('[id^="component-dropdown-"]') && !event.target.closest('[data-dropdown-id]') && !event.target.closest('a[onclick*="openComponentModal"]')) {
-                    document.querySelectorAll('[id^="component-dropdown-"]').forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
-                }
-            });
-            
-            // Close filter dropdowns when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!event.target.closest('[id^="filter-dropdown-"]') && !event.target.closest('[data-dropdown-id]') && !event.target.closest('a[onclick*="openFilterModal"]')) {
-                    document.querySelectorAll('[id^="filter-dropdown-"]').forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
-                }
-            });
-
-            // Handle checkbox changes
-            document.querySelectorAll('#role-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    updateFilterState('role', checkbox.value, checkbox.checked);
-                    updateFilterButton('role-filter-btn', filterStates.role);
-                });
-            });
-
-            document.querySelectorAll('#workspace-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    updateFilterState('workspace', checkbox.value, checkbox.checked);
-                    updateFilterButton('workspace-filter-btn', filterStates.workspace);
-                });
-            });
-
-            document.querySelectorAll('#status-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    updateFilterState('status', checkbox.value, checkbox.checked);
-                    updateFilterButton('status-filter-btn', filterStates.status);
-                });
-            });
-
-            function updateFilterState(filterType, value, checked) {
-                if (checked) {
-                    if (!filterStates[filterType].includes(value)) {
-                        filterStates[filterType].push(value);
-                    }
-                } else {
-                    filterStates[filterType] = filterStates[filterType].filter(item => item !== value);
-                }
-            }
-
-            function updateFilterButton(buttonId, selectedValues) {
-                const button = document.getElementById(buttonId);
-                const buttonText = button.querySelector('span:first-child');
-                const filterType = buttonId.split('-')[0];
-                const clearBtn = document.getElementById(filterType + '-clear-btn');
-                
-                if (selectedValues.length === 0) {
-                    buttonText.textContent = filterType.charAt(0).toUpperCase() + filterType.slice(1);
-                    clearBtn.classList.add('hidden');
-                } else {
-                    buttonText.textContent = selectedValues.join(', ');
-                    clearBtn.classList.remove('hidden');
-                }
-                
-                // Update "Clear All Filters" button visibility
-                updateClearAllFiltersButton();
-            }
-
-            function updateClearAllFiltersButton() {
-                const clearAllBtn = document.getElementById('clear-all-filters-btn');
-                const hasAnyFilters = filterStates.role.length > 0 || filterStates.workspace.length > 0 || filterStates.status.length > 0;
-                
-                if (hasAnyFilters) {
-                    clearAllBtn.classList.remove('hidden');
-                } else {
-                    clearAllBtn.classList.add('hidden');
-                }
-            }
-
-            
-
-            function clearFilter(filterType) {
-                // Clear the filter state
-                filterStates[filterType] = [];
-                
-                // Uncheck all checkboxes in the dropdown
-                document.querySelectorAll(`#${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                
-                // Update the button text
-                updateFilterButton(`${filterType}-filter-btn`, []);
-                
-                // Close the dropdown
-                const dropdown = document.getElementById(`${filterType}-filter-dropdown`);
-                if (dropdown) {
-                    dropdown.classList.add('hidden');
-                }
-            }
-
-            function clearAllFilters() {
-                // Clear all filter states
-                Object.keys(filterStates).forEach(filterType => {
-                    filterStates[filterType] = [];
-                    
-                    // Uncheck all checkboxes in each dropdown
-                    document.querySelectorAll(`#${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
-                    
-                    // Update each button text
-                    updateFilterButton(`${filterType}-filter-btn`, []);
-                });
-                
-                // Close all filter dropdowns
-                filterDropdowns.forEach(dropdownId => {
-                    const dropdown = document.getElementById(dropdownId);
-                    if (dropdown) {
-                        dropdown.classList.add('hidden');
-                    }
-                });
-            }
 
             // Component Management listing (list-only view via reusable listing module)
             const llComponents = window.LlumenComponents;
@@ -1511,17 +1362,20 @@
             const expandMetadataBtn = document.getElementById('expand-metadata-btn');
             if (expandMetadataBtn) {
                 expandMetadataBtn.addEventListener('click', function() {
-                    const extraMetadata = document.querySelectorAll('.metadata-extra');
-                    const icon = this.querySelector('.material-symbols-outlined');
+                    const modalRoot = this.closest('#component-modal') || document;
+                    const extraMetadata = modalRoot.querySelectorAll('.metadata-extra');
+                    const icon = this.querySelector('.ll-icon-btn__icon');
                     
                     if (extraMetadata[0] && extraMetadata[0].classList.contains('hidden')) {
                         // Expand metadata
                         extraMetadata.forEach(item => item.classList.remove('hidden'));
                         icon.textContent = 'expand_less';
+                        this.setAttribute('aria-expanded', 'true');
                     } else {
                         // Collapse metadata
                         extraMetadata.forEach(item => item.classList.add('hidden'));
                         icon.textContent = 'expand_more';
+                        this.setAttribute('aria-expanded', 'false');
                     }
                 });
             }
@@ -1586,41 +1440,6 @@
             });
 
         });
-
-        // Global dropdown functionality for user table
-        function toggleDropdown(dropdownId, triggerButton) {
-            // Close all other dropdowns (user, component, and filter dropdowns)
-            document.querySelectorAll('[id^="dropdown-"], [id^="component-dropdown-"], [id^="filter-dropdown-"]').forEach(dropdown => {
-                if (dropdown.id !== dropdownId) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-            
-            // Get the dropdown and button
-            const dropdown = document.getElementById(dropdownId);
-            const button = triggerButton
-                || (window.event && window.event.target ? window.event.target.closest('button') : null);
-            
-            if (!dropdown || !button) {
-                return;
-            }
-            
-            // Toggle the clicked dropdown
-            dropdown.classList.toggle('hidden');
-            
-            if (!dropdown.classList.contains('hidden')) {
-                // Ensure dropdown is appended to body if not already
-                if (dropdown.parentElement !== document.body) {
-                    document.body.appendChild(dropdown);
-                }
-                
-                // Position the dropdown relative to the button
-                const buttonRect = button.getBoundingClientRect();
-                dropdown.style.position = 'fixed';
-                dropdown.style.top = (buttonRect.bottom + 8) + 'px';
-                dropdown.style.right = (window.innerWidth - buttonRect.right) + 'px';
-            }
-        }
 
         // Single-selection dropdown functionality for Data Binding tab
         document.addEventListener('DOMContentLoaded', function() {
@@ -1768,78 +1587,128 @@
         let componentVisualTabsInitialized = false;
         function initializeComponentVisualPropertyTabs() {
             if (componentVisualTabsInitialized) return;
-            componentVisualTabsInitialized = true;
-            
-            const visualPropertyTabs = document.querySelectorAll('#component-modal .component-visual-property-tab');
-            const visualTabContents = document.querySelectorAll('#component-modal .component-visual-tab-content');
-
-            visualPropertyTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const targetVisualTab = tab.getAttribute('data-visual-tab');
-                    
-                    // Update tab styling
-                    visualPropertyTabs.forEach(t => {
-                        t.classList.remove('bg-blue-600', 'text-white');
-                        t.classList.add('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
+            const llComponents = window.LlumenComponents;
+            if (!llComponents || typeof llComponents.initializeTabs !== 'function') return;
+            const controller = llComponents.initializeTabs({
+                tabButtonSelector: '#component-modal .component-visual-property-tab',
+                tabContentSelector: '#component-modal .component-visual-tab-content',
+                tabValueDatasetKey: 'visualTab',
+                tabContentIdPrefix: '',
+                tabContentIdSuffix: '-tab-content',
+                activeClassName: 'll-active',
+                initialTab: 'y-axis',
+                onTabChange: () => {
+                    document.querySelectorAll('#component-modal .component-visual-property-tab').forEach((button) => {
+                        const isActive = button.classList.contains('ll-active');
+                        button.classList.toggle('ll-btn--primary', isActive);
+                        button.classList.toggle('ll-btn--flat-default', !isActive);
                     });
-                    tab.classList.add('bg-blue-600', 'text-white');
-                    tab.classList.remove('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
-                    
-                    // Hide all visual tab content
-                    visualTabContents.forEach(content => {
-                        content.classList.add('hidden');
-                    });
-                    
-                    // Show target visual tab content
-                    const targetContent = document.getElementById(targetVisualTab + '-tab-content');
-                    if (targetContent) {
-                        targetContent.classList.remove('hidden');
-                    }
-                });
+                }
             });
+            if (controller) {
+                componentVisualTabsInitialized = true;
+            }
         }
         
         // Component Modal Tab Switching
         let componentModalTabsInitialized = false;
         function initializeComponentModalTabs() {
             if (componentModalTabsInitialized) return;
-            componentModalTabsInitialized = true;
-            
-            const componentModalTabs = document.querySelectorAll('#component-modal .internal-tab-item[data-tab]');
-            const componentTabContents = document.querySelectorAll('.component-tab-content');
+            const llComponents = window.LlumenComponents;
+            if (!llComponents || typeof llComponents.initializeTabs !== 'function') return;
+            const controller = llComponents.initializeTabs({
+                tabButtonSelector: '#component-modal .internal-tab-item[data-tab]',
+                tabContentSelector: '#component-modal .component-tab-content',
+                tabValueDatasetKey: 'tab',
+                tabContentIdPrefix: '',
+                tabContentIdSuffix: '-tab',
+                activeClassName: 'll-active',
+                initialTab: 'data-source'
+            });
+            if (controller) {
+                componentModalTabsInitialized = true;
+            }
+        }
 
-            componentModalTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const targetTab = tab.getAttribute('data-tab');
-                    // Update tab styling to match internal tab style
-                    componentModalTabs.forEach(t => {
-                        t.classList.remove('border-blue-500', 'text-white');
-                        t.classList.add('border-transparent', 'text-gray-400');
-                    });
-                    tab.classList.add('border-blue-500', 'text-white');
-                    tab.classList.remove('border-transparent', 'text-gray-400');
-                    
-                    // Show target content
-                    componentTabContents.forEach(content => {
-                        content.classList.add('hidden');
-                    });
-                    // Handle the tab name conversions
-                    let tabId;
-                    if (targetTab === 'data-source') {
-                        tabId = 'data-source-tab';
-                    } else if (targetTab === 'mapping-customization') {
-                        tabId = 'mapping-customization-tab';
-                    } else if (targetTab === 'filters') {
-                        tabId = 'filters-tab';
-                    } else {
-                        tabId = targetTab + '-tab';
-                    }
-                    const targetElement = document.getElementById(tabId);
-                    if (targetElement) {
-                        targetElement.classList.remove('hidden');
+        function initializeComponentDetailsAccessDropdowns() {
+            const llComponents = window.LlumenComponents;
+            if (!llComponents || typeof llComponents.initializePortaledDropdown !== 'function') return;
+            const accessLevelOptions = [
+                { value: 'full-access', label: 'Full access' },
+                { value: 'limited-access', label: 'Limited access' },
+                { value: 'view-only', label: 'View only' }
+            ];
+            const initAccessDropdown = ({ buttonId, menuId, hiddenInputId, defaultValue }) => {
+                const hiddenInput = document.getElementById(hiddenInputId);
+                const resolvedDefault = defaultValue != null
+                    ? String(defaultValue)
+                    : String((hiddenInput && hiddenInput.value) || '');
+                llComponents.initializePortaledDropdown({
+                    buttonId,
+                    menuId,
+                    selectedValueSelector: '.ll-dropdown__selected-value',
+                    datasetFlag: 'componentDetailsAccessDropdownBound',
+                    menuType: 'selection',
+                    selectionType: 'single',
+                    matchTriggerWidth: true,
+                    dropdownLabel: 'Access Level',
+                    showLabel: false,
+                    emptySelectionLabel: 'Select access',
+                    defaultValue: resolvedDefault,
+                    groupedOptions: [
+                        {
+                            heading: 'Access Level',
+                            options: accessLevelOptions
+                        }
+                    ],
+                    onValueChange: (selectedValue) => {
+                        if (!hiddenInput) return;
+                        hiddenInput.value = resolvePortaledDropdownValue(selectedValue);
                     }
                 });
+            };
+
+            initAccessDropdown({
+                buttonId: 'component-details-planning-john-access-dropdown-button',
+                menuId: 'component-details-planning-john-access-dropdown-menu',
+                hiddenInputId: 'component-details-planning-john-access-dropdown-value',
+                defaultValue: 'full-access'
             });
+
+            initAccessDropdown({
+                buttonId: 'component-details-planning-jane-access-dropdown-button',
+                menuId: 'component-details-planning-jane-access-dropdown-menu',
+                hiddenInputId: 'component-details-planning-jane-access-dropdown-value',
+                defaultValue: 'limited-access'
+            });
+
+            initAccessDropdown({
+                buttonId: 'component-details-chairman-mike-access-dropdown-button',
+                menuId: 'component-details-chairman-mike-access-dropdown-menu',
+                hiddenInputId: 'component-details-chairman-mike-access-dropdown-value',
+                defaultValue: 'limited-access'
+            });
+
+            initAccessDropdown({
+                buttonId: 'component-details-chairman-sarah-access-dropdown-button',
+                menuId: 'component-details-chairman-sarah-access-dropdown-menu',
+                hiddenInputId: 'component-details-chairman-sarah-access-dropdown-value',
+                defaultValue: 'view-only'
+            });
+        }
+
+        function highlightComponentDetailsModalCode() {
+            if (typeof Prism === 'undefined' || typeof Prism.highlightAllUnder !== 'function') return;
+            const modalRoot = document.getElementById('component-modal');
+            if (!modalRoot) return;
+            Prism.highlightAllUnder(modalRoot);
+        }
+
+        function highlightCreateComponentModalCode() {
+            if (typeof Prism === 'undefined' || typeof Prism.highlightAllUnder !== 'function') return;
+            const modalRoot = document.getElementById('create-component-modal');
+            if (!modalRoot) return;
+            Prism.highlightAllUnder(modalRoot);
         }
         
         let componentModalController = null;
@@ -1852,14 +1721,34 @@
                 return null;
             }
             const legacyModalContent = legacyModalRoot.querySelector(':scope > div');
-            const legacyHeader = legacyModalContent ? legacyModalContent.children[0] : null;
             const legacyBodySections = legacyModalContent ? Array.from(legacyModalContent.children).slice(1) : [];
-            const titleElement = legacyHeader ? legacyHeader.querySelector('h2') : null;
             const bodyContent = legacyBodySections.map((section) => section.outerHTML).join('');
+            const headerActions = [
+                `
+                    <button type="button" data-open-edit-component-modal class="ll-btn ll-btn--sm ll-btn--outline-default">
+                        <span class="material-symbols-outlined ll-btn__icon">edit</span>
+                        Edit Component
+                    </button>
+                `,
+                `
+                    <button id="component-actions-dropdown-btn" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Component actions">
+                        <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
+                    </button>
+                    <div id="component-actions-dropdown" class="ll-dropdown__menu hidden"></div>
+                `
+            ];
 
             componentModalController = llComponents.initializeModal({
                 id: 'component-modal',
-                title: titleElement ? String(titleElement.textContent || '').trim() : 'Component Details',
+                title: 'Sales Growth',
+                titleMeta: [
+                    `
+                        <span class="ll-chip ll-chip--positive">
+                            <span class="ll-chip__label">Active</span>
+                        </span>
+                    `
+                ],
+                headerActions,
                 width: '95rem',
                 fullHeight: true,
                 bodyPadding: false,
@@ -1894,26 +1783,20 @@
             
             // Reset modal tabs to show Data Source tab by default
             const componentModalTabs = document.querySelectorAll('#component-modal .internal-tab-item[data-tab]');
-            const componentTabContents = document.querySelectorAll('.component-tab-content');
-            
-            // Reset all tabs to inactive state
+            const componentTabContents = document.querySelectorAll('#component-modal .component-tab-content');
             componentModalTabs.forEach(tab => {
-                tab.classList.remove('border-blue-500', 'text-white');
-                tab.classList.add('border-transparent', 'text-gray-400');
+                tab.classList.remove('ll-active');
             });
-            
-            // Hide all tab contents
             componentTabContents.forEach(content => {
                 content.classList.add('hidden');
             });
-            
+
             // Activate Data Source tab
             const dataSourceTab = document.querySelector('#component-modal .internal-tab-item[data-tab="data-source"]');
             const dataSourceTabContent = document.getElementById('data-source-tab');
             
             if (dataSourceTab && dataSourceTabContent) {
-                dataSourceTab.classList.add('border-blue-500', 'text-white');
-                dataSourceTab.classList.remove('border-transparent', 'text-gray-400');
+                dataSourceTab.classList.add('ll-active');
                 dataSourceTabContent.classList.remove('hidden');
             }
             
@@ -1931,6 +1814,12 @@
             
             // Initialize component visual property tabs (Y-Axis, Series, Legend)
             initializeComponentVisualPropertyTabs();
+
+            // Initialize component details access dropdowns (Planning / Chairman Office)
+            initializeComponentDetailsAccessDropdowns();
+
+            // Syntax highlight response + script code blocks.
+            highlightComponentDetailsModalCode();
             
             // Update mapping validation icons
             updateMappingValidationIcons();
@@ -2148,6 +2037,7 @@
                         queryField.classList.remove('hidden');
                         // Initialize the database results tabs
                         initializeDatabaseResultsTabs();
+                        highlightCreateComponentModalCode();
                     }
                 }, 3000);
             }
@@ -2325,110 +2215,47 @@
         let dataSourceRequestTabsInitialized = false;
         function initializeDataSourceRequestTabs() {
             if (dataSourceRequestTabsInitialized) return;
-            dataSourceRequestTabsInitialized = true;
-            
-            const dataSourceRequestTabs = document.querySelectorAll('#data-source-tab .test-request-tab');
-            const dataSourceRequestTabContents = document.querySelectorAll('#data-source-tab .test-request-tab-content');
-            
-            // Show the first tab content by default
-            if (dataSourceRequestTabContents.length > 0) {
-                dataSourceRequestTabContents.forEach(content => {
-                    content.classList.add('hidden');
-                });
-                dataSourceRequestTabContents[0].classList.remove('hidden');
-            }
-            
-            // Set the first tab as active by default
-            if (dataSourceRequestTabs.length > 0) {
-                dataSourceRequestTabs.forEach(t => {
-                    t.classList.remove('border-blue-500', 'text-white');
-                    t.classList.add('border-transparent', 'text-gray-400');
-                });
-                dataSourceRequestTabs[0].classList.add('border-blue-500', 'text-white');
-                dataSourceRequestTabs[0].classList.remove('border-transparent', 'text-gray-400');
-            }
-            
-            dataSourceRequestTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const targetTab = tab.getAttribute('data-test-request-tab');
-                    
-                    // Reset all tabs to inactive state
-                    dataSourceRequestTabs.forEach(t => {
-                        t.classList.remove('border-blue-500', 'text-white');
-                        t.classList.add('border-transparent', 'text-gray-400');
-                    });
-                    
-                    // Set clicked tab as active
-                    tab.classList.add('border-blue-500', 'text-white');
-                    tab.classList.remove('border-transparent', 'text-gray-400');
-                    
-                    // Hide all tab contents
-                    dataSourceRequestTabContents.forEach(content => {
-                        content.classList.add('hidden');
-                    });
-                    
-                    // Show target tab content
-                    const targetTabContent = document.querySelector(`#data-source-tab .test-request-tab-content[data-test-request-tab="${targetTab}"]`);
-                    if (targetTabContent) {
-                        targetTabContent.classList.remove('hidden');
-                    }
-                });
+            const llComponents = window.LlumenComponents;
+            if (!llComponents || typeof llComponents.initializeTabs !== 'function') return;
+            const controller = llComponents.initializeTabs({
+                tabButtonSelector: '#data-source-tab .test-request-tab',
+                tabContentSelector: '#data-source-tab .test-request-tab-content',
+                tabValueDatasetKey: 'testRequestTab',
+                tabContentIdPrefix: 'component-details-request-',
+                tabContentIdSuffix: '-content',
+                activeClassName: 'll-active',
+                initialTab: 'params'
             });
+            if (controller) {
+                dataSourceRequestTabsInitialized = true;
+            }
         }
 
         // Data Source Tab Script Inner Tab Switching (Pre-Request, Post-Request)
         let dataSourceScriptInnerTabsInitialized = false;
         function initializeDataSourceScriptInnerTabs() {
             if (dataSourceScriptInnerTabsInitialized) return;
-            dataSourceScriptInnerTabsInitialized = true;
-            
-            const dataSourceScriptInnerTabs = document.querySelectorAll('#data-source-tab .request-script-inner-tab');
-            const dataSourceScriptInnerTabContents = document.querySelectorAll('#data-source-tab .request-script-inner-tab-content');
-            
-            // Show the first inner tab content by default
-            if (dataSourceScriptInnerTabContents.length > 0) {
-                dataSourceScriptInnerTabContents.forEach(content => {
-                    content.classList.add('hidden');
-                });
-                dataSourceScriptInnerTabContents[0].classList.remove('hidden');
-            }
-            
-            // Set the first inner tab as active by default
-            if (dataSourceScriptInnerTabs.length > 0) {
-                dataSourceScriptInnerTabs.forEach(t => {
-                    t.classList.remove('bg-blue-600', 'text-white');
-                    t.classList.add('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
-                });
-                dataSourceScriptInnerTabs[0].classList.add('bg-blue-600', 'text-white');
-                dataSourceScriptInnerTabs[0].classList.remove('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
-            }
-            
-            dataSourceScriptInnerTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const targetInnerTab = tab.getAttribute('data-request-script-inner-tab');
-                    
-                    // Reset all inner tabs to inactive state
-                    dataSourceScriptInnerTabs.forEach(t => {
-                        t.classList.remove('bg-blue-600', 'text-white');
-                        t.classList.add('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
+            const llComponents = window.LlumenComponents;
+            if (!llComponents || typeof llComponents.initializeTabs !== 'function') return;
+            const controller = llComponents.initializeTabs({
+                tabButtonSelector: '#data-source-tab .request-script-inner-tab',
+                tabContentSelector: '#data-source-tab .request-script-inner-tab-content',
+                tabValueDatasetKey: 'requestScriptInnerTab',
+                tabContentIdPrefix: 'component-details-request-script-inner-',
+                tabContentIdSuffix: '-content',
+                activeClassName: 'll-active',
+                initialTab: 'pre-request',
+                onTabChange: () => {
+                    document.querySelectorAll('#data-source-tab .request-script-inner-tab').forEach((button) => {
+                        const isActive = button.classList.contains('ll-active');
+                        button.classList.toggle('ll-btn--primary', isActive);
+                        button.classList.toggle('ll-btn--flat-default', !isActive);
                     });
-                    
-                    // Set clicked inner tab as active
-                    tab.classList.add('bg-blue-600', 'text-white');
-                    tab.classList.remove('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
-                    
-                    // Hide all inner tab contents
-                    dataSourceScriptInnerTabContents.forEach(content => {
-                        content.classList.add('hidden');
-                    });
-                    
-                    // Show target inner tab content
-                    const targetInnerTabContent = document.querySelector(`#data-source-tab .request-script-inner-tab-content[data-request-script-inner-tab="${targetInnerTab}"]`);
-                    if (targetInnerTabContent) {
-                        targetInnerTabContent.classList.remove('hidden');
-                    }
-                });
+                }
             });
+            if (controller) {
+                dataSourceScriptInnerTabsInitialized = true;
+            }
         }
 
         // Component API Drag and Drop Functionality
@@ -3445,12 +3272,12 @@
                 // Create tabs structure for Horizontal Bar
                 const tabsContainer = document.createElement('div');
                 tabsContainer.id = 'create-component-visual-tabs-horizontal';
-                tabsContainer.className = 'flex border border-gray-700 rounded-lg h-full overflow-hidden';
+                tabsContainer.className = 'flex border ll-border-divider rounded-lg h-full overflow-hidden';
                 tabsContainer.style.minHeight = '400px';
 
                 // Visual Property Tabs
                 const tabsSidebar = document.createElement('div');
-                tabsSidebar.className = 'flex flex-col w-52 p-3 border-r border-gray-700';
+                tabsSidebar.className = 'flex flex-col w-52 p-3 border-r ll-border-divider';
                 
                 const tabsList = document.createElement('nav');
                 tabsList.className = 'll-tabs-vertical';
@@ -3870,12 +3697,12 @@
                 // Create tabs structure for Vertical Bar
                 const tabsContainer = document.createElement('div');
                 tabsContainer.id = 'create-component-visual-tabs-vertical';
-                tabsContainer.className = 'flex border border-gray-700 rounded-lg h-full overflow-hidden';
+                tabsContainer.className = 'flex border ll-border-divider rounded-lg h-full overflow-hidden';
                 tabsContainer.style.minHeight = '400px';
 
                 // Visual Property Tabs
                 const tabsSidebar = document.createElement('div');
-                tabsSidebar.className = 'flex flex-col w-52 p-3 border-r border-gray-700';
+                tabsSidebar.className = 'flex flex-col w-52 p-3 border-r ll-border-divider';
                 
                 const tabsList = document.createElement('nav');
                 tabsList.className = 'll-tabs-vertical';
@@ -4294,12 +4121,12 @@
                 // Create tabs structure for Line, Area, and Scatter Plot
                 const tabsContainer = document.createElement('div');
                 tabsContainer.id = 'create-component-visual-tabs-line';
-                tabsContainer.className = 'flex border border-gray-700 rounded-lg h-full overflow-hidden';
+                tabsContainer.className = 'flex border ll-border-divider rounded-lg h-full overflow-hidden';
                 tabsContainer.style.minHeight = '400px';
 
                 // Visual Property Tabs
                 const tabsSidebar = document.createElement('div');
-                tabsSidebar.className = 'flex flex-col w-52 p-3 border-r border-gray-700';
+                tabsSidebar.className = 'flex flex-col w-52 p-3 border-r ll-border-divider';
                 
                 const tabsList = document.createElement('nav');
                 tabsList.className = 'll-tabs-vertical';
@@ -6529,7 +6356,7 @@
                         title: modalTitle,
                         width: '72rem',
                         bodyContent: `
-                            <div id="${previewTabsRootId}" class="ps-deep-dive-preview-tabs-root"></div>
+                            <div id="${previewTabsRootId}" class="ll-carousel ps-deep-dive-preview-tabs-root"></div>
                             <div id="${previewPanelsRootId}" class="ps-deep-dive-preview-panels-root"></div>
                         `,
                         onOpen: ({ controller }) => {
@@ -7474,6 +7301,7 @@
                         // Initialize component tabs after a delay to ensure DOM is ready
                         setTimeout(() => {
                             initializeCreateComponentFilterControls();
+                            highlightCreateComponentModalCode();
                         }, 200);
                     }
                 });
@@ -8448,32 +8276,40 @@
 
         // Component Actions Dropdown Function
         function initializeComponentActionDropdown() {
+            const llComponents = window.LlumenComponents;
             const componentDropdownBtn = document.getElementById('component-actions-dropdown-btn');
             const componentDropdown = document.getElementById('component-actions-dropdown');
             
-            if (componentDropdownBtn && componentDropdown) {
-                // Remove any existing event listener to avoid duplicates
-                componentDropdownBtn.removeEventListener('click', handleComponentDropdownClick);
-                
-                // Add the event listener
-                componentDropdownBtn.addEventListener('click', handleComponentDropdownClick);
-            }
-        }
-
-        // Separate function for component dropdown click handler
-        function handleComponentDropdownClick(event) {
-            event.stopPropagation();
-            
-            const componentDropdown = document.getElementById('component-actions-dropdown');
-            if (componentDropdown) {
-                document.querySelectorAll('[id$="-dropdown"]').forEach(dropdown => {
-                    if (dropdown.id !== 'component-actions-dropdown') {
-                        dropdown.classList.add('hidden');
+            if (!llComponents || typeof llComponents.initializePortaledDropdown !== 'function') return;
+            if (!componentDropdownBtn || !componentDropdown) return;
+            llComponents.initializePortaledDropdown({
+                buttonId: 'component-actions-dropdown-btn',
+                menuId: 'component-actions-dropdown',
+                selectedValueSelector: '.ll-dropdown__selected-value',
+                datasetFlag: 'componentActionsDropdownBound',
+                align: 'right',
+                menuType: 'action',
+                showLabel: false,
+                dropdownLabel: 'Component actions',
+                groupedOptions: [
+                    {
+                        options: [
+                            { value: 'component-duplicate', label: 'Duplicate' },
+                            { value: 'component-deactivate', label: 'Deactivate' },
+                            { value: 'component-delete', label: 'Delete', tone: 'negative' }
+                        ]
                     }
-                });
-                
-                componentDropdown.classList.toggle('hidden');
-            }
+                ],
+                onValueChange: (selectionPayload) => {
+                    const selectedAction = resolvePortaledDropdownValue(selectionPayload);
+                    if (!selectedAction) return;
+                    const actionEvent = new CustomEvent('component-details-action', {
+                        bubbles: true,
+                        detail: { action: selectedAction }
+                    });
+                    componentDropdownBtn.dispatchEvent(actionEvent);
+                }
+            });
         }
 
         // Make functions global
@@ -8485,7 +8321,7 @@
     <template id="create-component-modal-template">
         <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 h-full max-w-[1520px] flex flex-col">
             <!-- Modal Header -->
-            <div class="py-4 px-6 border-b border-gray-700">
+            <div class="py-4 px-6 border-b ll-border-divider">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-semibold text-white">Create Component</h2>
                     <button class="flex items-center text-gray-400 hover:text-white transition duration-200">
@@ -8495,7 +8331,7 @@
             </div>
 
             <!-- Wizard Steps Indicator -->
-            <div class="px-6 border-b border-gray-700">
+            <div class="px-6 border-b ll-border-divider">
                 <nav class="ll-tab-nav ll-tab-nav--stepped">
                     <button id="step-1-tab" type="button" class="wizard-step-tab ll-tab-btn ll-tab-btn--stepped ll-active" data-step="1" data-step-number="1">General Info</button>
                     <button id="step-2-tab" type="button" class="wizard-step-tab ll-tab-btn ll-tab-btn--stepped" data-step="2" data-step-number="2" disabled>Data Source</button>
@@ -8675,7 +8511,7 @@
                             
                             <!-- Query Field (appears after successful database connection) -->
                             <div id="database-query-field" class="flex-1 flex flex-col overflow-hidden mt-6 hidden">
-                                <div class="border-b border-gray-700"></div>
+                                <div class="border-b ll-border-divider"></div>
                                 <!-- Query Field -->
             
                                 <div class="px-6 pt-4 pb-6">
@@ -8689,10 +8525,8 @@
             
                                     <div class="flex-1 overflow-y-auto">
                                 
-                                        <div class="ll-card">
-                                            <div class="ll-card__content p-4 relative">
-                                    <pre class="text-sm text-gray-300 font-mono">
-<code>SELECT 
+                                        <div class="ll-input">
+<pre class="ll-code-highlight"><code class="language-sql">SELECT 
     g.grid_id,
     g.longitude,
     g.latitude,
@@ -8705,12 +8539,11 @@ WHERE g.district_name = 'Abu Dhabi Island'
     AND p.date BETWEEN '2024-04-10 00:00:00' 
     AND '2024-04-12 23:59:59'
 ORDER BY population_density DESC;</code></pre>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
             
-                                <div class="border-b border-gray-700"></div>
+                                <div class="border-b ll-border-divider"></div>
             
                                 <div class="h-[50%] flex flex-col overflow-hidden">
             
@@ -8814,10 +8647,10 @@ ORDER BY population_density DESC;</code></pre>
                             
                             <!-- API Parameters Field (appears when API connection is selected) -->
                             <div id="api-parameters-field" class="hidden mt-6">
-                                <div class="border-b border-gray-700"></div>
+                                <div class="border-b ll-border-divider"></div>
 
                                 <!-- Method, URL and Send Request Bar -->
-                                <div class="px-6 py-4 border-b border-gray-700 mb-4">
+                                <div class="px-6 py-4 border-b ll-border-divider mb-4">
                                     <div class="flex items-center space-x-4">
                                         <!-- Method Dropdown -->
                                         <div>
@@ -8849,7 +8682,7 @@ ORDER BY population_density DESC;</code></pre>
                                 <!-- Request Tabs Navigation -->
                                 <div class="px-6">
                                     <div class="ll-field-group__legend">Request</div>
-                                    <nav class="ll-tab-nav border-b border-gray-700">
+                                    <nav class="ll-tab-nav border-b ll-border-divider">
                                         <button class="create-test-request-tab ll-tab-btn ll-active" data-create-test-request-tab="params">
                                             Parameters
                                         </button>
@@ -8879,7 +8712,7 @@ ORDER BY population_density DESC;</code></pre>
                                                 <div class="ll-form-control__label-row">
                                                     <span class="ll-form-control__label">Query Params</span>
                                                 </div>
-                                                <div class="ll-card">
+                                                <div class="ll-card ll-card--transparent">
                                                     <div class="ll-card__content ll-card__content--no-padding">
                                                 <div class="ll-kv-list">
                                                     <div class="ll-kv-row" data-index="0">
@@ -8950,7 +8783,7 @@ ORDER BY population_density DESC;</code></pre>
                                                 <div class="ll-form-control__label-row">
                                                     <span class="ll-form-control__label">Path Variables</span>
                                                 </div>
-                                                <div class="ll-card">
+                                                <div class="ll-card ll-card--transparent">
                                                     <div class="ll-card__content ll-card__content--no-padding">
                                                         <div class="ll-kv-list">
                                                             <div class="ll-kv-row" data-index="0">
@@ -8998,7 +8831,7 @@ ORDER BY population_density DESC;</code></pre>
                                     
                                     <!-- Headers Tab Content -->
                                     <div id="test-request-headers-content" class="create-test-request-tab-content hidden" data-create-test-request-tab="headers">
-                                        <div class="ll-card">
+                                        <div class="ll-card ll-card--transparent">
                                             <div class="ll-card__content ll-card__content--no-padding">
                                                 <div class="js-api-headers-kv-list ll-kv-list">
                                                     <div class="ll-kv-row" data-index="0">
@@ -9064,7 +8897,7 @@ ORDER BY population_density DESC;</code></pre>
                                                     <input id="test-request-body-type" type="hidden" value="form-data">
                                                 </div>
                                             </div>
-                                            <div class="ll-card">
+                                            <div class="ll-card ll-card--transparent">
                                                 <div class="ll-card__content ll-card__content--no-padding">
                                                     <div class="js-api-body-kv-list ll-kv-list">
                                                         <div class="ll-kv-row" data-index="0">
@@ -9141,58 +8974,66 @@ ORDER BY population_density DESC;</code></pre>
                                                 
                                     <!-- Pre-Request Script Tab Content -->
                                     <div id="test-request-script-content" class="create-test-request-tab-content hidden" data-create-test-request-tab="script">
-                                        <div class="flex border border-gray-700 rounded-lg h-full overflow-hidden" style="min-height: 240px;">
-                                            <!-- Script Property Tabs -->
-                                            <div class="flex flex-col w-52 p-3 border-r border-gray-700">
-                                                <div class="ll-tabs-vertical flex-1">
-                                                    <button type="button" class="test-script-inner-tab ll-btn ll-btn--flat-default ll-btn--primary ll-tabs-vertical__btn ll-active" data-test-script-inner-tab="pre-request">
-                                                        Pre-Request
-                                                    </button>
-                                                    <button type="button" class="test-script-inner-tab ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-test-script-inner-tab="post-request">
-                                                        Post-Request
-                                                    </button>
+                                        <div class="ll-card ll-card--transparent">
+                                            <div class="ll-card__content ll-card__content--no-padding">
+                                            
+                                                <div class="flex" style="min-height: 240px;">
+                                                    <!-- Script Property Tabs -->
+                                                    <div class="flex flex-col w-52 p-3 border-r ll-border-divider">
+                                                        <div class="ll-tabs-vertical flex-1">
+                                                            <button type="button" class="test-script-inner-tab ll-btn ll-btn--flat-default ll-btn--primary ll-tabs-vertical__btn ll-active" data-test-script-inner-tab="pre-request">
+                                                                Pre-Request
+                                                            </button>
+                                                            <button type="button" class="test-script-inner-tab ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-test-script-inner-tab="post-request">
+                                                                Post-Request
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                
-                                            <!-- Script Tab Content -->
-                                            <div class="flex-1 p-4 overflow-auto">
-                                                <!-- Pre-Request Script Content -->
-                                                <div id="test-script-pre-request-content" class="test-script-inner-tab-content">
-                                                    <div class="flex">
-                                                        <textarea 
-                                                            class="ll-input ll-input--textarea h-64 p-4 font-mono resize-none"
-                                                            placeholder="// Access to 'llumen' object available in Llumen sandbox environment&#10;// Example:&#10;// llumen.setVariable('timestamp', Date.now());&#10;// llumen.log('Pre-request script executed');"
-                                                        >// Set dynamic location based on user input
+                                                        
+                                                    <!-- Script Tab Content -->
+                                                    <div class="flex-1 p-4 overflow-auto">
+                                                        <!-- Pre-Request Script Content -->
+                                                        <div id="test-script-pre-request-content" class="test-script-inner-tab-content">
+                                                            <div class="flex">
+                                                                <textarea 
+                                                                    class="ll-input ll-input--textarea h-64 p-4 font-mono resize-none"
+                                                                    placeholder="// Access to 'llumen' object available in Llumen sandbox environment&#10;// Example:&#10;// llumen.setVariable('timestamp', Date.now());&#10;// llumen.log('Pre-request script executed');"
+                                                                >// Set dynamic location based on user input
 llumen.setVariable('location', 'New York');
 
 // Log request details
 llumen.log('Making weather request for: ' + llumen.getVariable('location'));
-                                                        </textarea>
-                                                        </div>
+                                                                </textarea>
+                                                            </div>
                                                         </div>
                                                 
-                                                <!-- Post-Request Script Content -->
-                                                <div id="test-script-post-request-content" class="test-script-inner-tab-content hidden">
-                                                    <div class="flex">
-                                                        <textarea 
-                                                            class="ll-input ll-input--textarea h-64 p-4 font-mono resize-none"
-                                                            placeholder="// Access to 'llumen' object available in Llumen sandbox environment&#10;// Example:&#10;// llumen.setVariable('responseTime', Date.now() - requestStartTime);&#10;// llumen.log('Post-request script executed');"
-                                                        >// Process response data
+                                                        <!-- Post-Request Script Content -->
+                                                        <div id="test-script-post-request-content" class="test-script-inner-tab-content hidden">
+                                                            <div class="flex">
+                                                                <textarea 
+                                                                    class="ll-input ll-input--textarea h-64 p-4 font-mono resize-none"
+                                                                    placeholder="// Access to 'llumen' object available in Llumen sandbox environment&#10;// Example:&#10;// llumen.setVariable('responseTime', Date.now() - requestStartTime);&#10;// llumen.log('Post-request script executed');"
+                                                                >// Process response data
 const responseTime = Date.now() - llumen.getVariable('requestStartTime');
 llumen.setVariable('responseTime', responseTime);
 
 // Log response details
 llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms');
-                                                        </textarea>
-                                                        </div>
-                                                        </div>
+                                                                </textarea>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
+
                                             </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
                                 
                                 <!-- Response Section -->
-                                <div class="border-t border-gray-700 h-[40%] flex flex-col overflow-hidden">
+                                <div class="border-t ll-border-divider h-[40%] flex flex-col overflow-hidden">
                                     <div class="px-6 pt-4 pb-6 flex-1 flex flex-col overflow-hidden">
                                         <div class="ll-field-group__legend">
                                             <span>Response</span>
@@ -9213,9 +9054,9 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                         </div>
                                         
                                         <!-- Response Body -->
-                                        <div class="ll-card flex-1 overflow-hidden">
-                                            <div class="ll-card__content p-4 flex-1 overflow-y-auto">
- <pre class="text-sm text-gray-300 overflow-x-auto"><code>{
+                                        <div class="ll-card ll-card--transparent">
+                                            <div class="ll-card__content">
+<pre class="ll-code-highlight"><code class="language-json">{
     "location": "New York",
     "temperature": 22.5,
     "humidity": 65,
@@ -9551,7 +9392,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                     <div class="p-6">
                         <div class="ll-field-group">
                             <div class="ll-field-group__legend">Deep Dive</div>
-                            <div id="create-deep-dive-tabs-carousel" class="ps-deep-dive-tabs-carousel-root"></div>
+                            <div id="create-deep-dive-tabs-carousel" class="ll-carousel ps-deep-dive-tabs-carousel-root"></div>
                             <div id="create-deep-dive-tab-panels" class="ps-deep-dive-tab-panels-root"></div>
                         </div>
                     </div>
@@ -9581,7 +9422,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                 </div>
                                 <div class="space-y-3">
                                     <div class="ll-card">
-                                        <div class="ll-card__content flex items-center justify-between p-3">
+                                        <div class="ll-card__content flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
                                                 <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JD" alt="">
                                                 <div>
@@ -9595,7 +9436,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                                 </div>
                                             </div>
                                             <div class="min-w-[168px]">
-                                                <button id="planning-john-access-dropdown-button" type="button" class="ll-btn ll-btn--default ll-dropdown__button ll-dropdown__trigger w-full justify-between">
+                                                <button id="planning-john-access-dropdown-button" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
                                                     <span class="ll-dropdown__selected-value">Full access</span>
                                                     <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
                                                 </button>
@@ -9605,7 +9446,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                         </div>
                                     </div>
                                     <div class="ll-card">
-                                        <div class="ll-card__content flex items-center justify-between p-3">
+                                        <div class="ll-card__content flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
                                                 <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JS" alt="">
                                                 <div>
@@ -9614,7 +9455,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                                 </div>
                                             </div>
                                             <div class="min-w-[168px]">
-                                                <button id="planning-jane-access-dropdown-button" type="button" class="ll-btn ll-btn--default ll-dropdown__button ll-dropdown__trigger w-full justify-between">
+                                                <button id="planning-jane-access-dropdown-button" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
                                                     <span class="ll-dropdown__selected-value">Limited access</span>
                                                     <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
                                                 </button>
@@ -9631,7 +9472,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                 </div>
                                 <div class="space-y-3">
                                     <div class="ll-card">
-                                        <div class="ll-card__content flex items-center justify-between p-3">
+                                        <div class="ll-card__content flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
                                                 <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=MB" alt="">
                                                 <div>
@@ -9640,7 +9481,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                                 </div>
                                             </div>
                                             <div class="min-w-[168px]">
-                                                <button id="chairman-mike-access-dropdown-button" type="button" class="ll-btn ll-btn--default ll-dropdown__button ll-dropdown__trigger w-full justify-between">
+                                                <button id="chairman-mike-access-dropdown-button" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
                                                     <span class="ll-dropdown__selected-value">Limited access</span>
                                                     <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
                                                 </button>
@@ -9650,7 +9491,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                         </div>
                                     </div>
                                     <div class="ll-card">
-                                        <div class="ll-card__content flex items-center justify-between p-3">
+                                        <div class="ll-card__content flex items-center justify-between">
                                             <div class="flex items-center space-x-3">
                                                 <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=SW" alt="">
                                                 <div>
@@ -9659,7 +9500,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                                 </div>
                                             </div>
                                             <div class="min-w-[168px]">
-                                                <button id="chairman-sarah-access-dropdown-button" type="button" class="ll-btn ll-btn--default ll-dropdown__button ll-dropdown__trigger w-full justify-between">
+                                                <button id="chairman-sarah-access-dropdown-button" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
                                                     <span class="ll-dropdown__selected-value">View only</span>
                                                     <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
                                                 </button>
@@ -9713,7 +9554,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
             </div>
 
             <!-- Modal Footer -->
-            <div class="p-6 border-t border-gray-700">
+            <div class="p-6 border-t ll-border-divider">
                 <div class="flex items-center justify-between w-full">
                     <button id="prev-step-btn" type="button" class="ll-btn ll-btn--default">
                         Previous

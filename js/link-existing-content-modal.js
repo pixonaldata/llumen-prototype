@@ -1,164 +1,148 @@
 (function initLinkExistingContentModalModule() {
     const STYLE_ID = 'link-existing-content-modal-style';
     const MODAL_ID = 'link-existing-content-modal';
+    const LINK_CONTENT_LISTING_ROOT_ID = 'link-content-listing-root';
 
-    const modalTemplate = `
-    <div id="link-existing-content-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[150] hidden p-6 flex flex-col">
-        <div class="bg-gray-900 rounded-xl shadow-xl flex flex-col flex-1 min-h-0 w-full">
-            <!-- Persistent modal header (visible in both steps) -->
-            <div id="link-content-modal-header" class="py-4 px-6 border-b border-gray-700 flex-shrink-0">
-                <div class="flex items-center justify-between">
-                    <h2 id="link-content-modal-title" class="text-xl font-semibold text-white">Select Content from Finance Workspace</h2>
-                    <button type="button" id="link-content-modal-close" class="flex items-center text-gray-400 hover:text-white transition duration-200">
-                        <span class="material-symbols-outlined text-2xl">close</span>
-                    </button>
+    const linkContentItems = [
+        {
+            id: 's1',
+            type: 'story',
+            name: 'Q2 Performance Review',
+            title: 'Q2 Performance Review: Deep Dive into Financial Metrics',
+            sections: 14,
+            pages: 0,
+            updatedRank: 4,
+            thumbnail: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section'
+        },
+        {
+            id: 's2',
+            type: 'story',
+            name: 'Employee Engagement Trends 2024',
+            title: 'Employee Engagement Trends 2024: Key Insights',
+            sections: 17,
+            pages: 0,
+            updatedRank: 3,
+            thumbnail: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section'
+        },
+        {
+            id: 'd1',
+            type: 'dashboard',
+            name: 'Operations Dashboard',
+            title: 'Operations Dashboard: Live KPIs and Supply Chain',
+            sections: 0,
+            pages: 4,
+            updatedRank: 2,
+            thumbnail: 'https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+first+page'
+        },
+        {
+            id: 'd2',
+            type: 'dashboard',
+            name: 'Monthly Sales Performance',
+            title: 'Monthly Sales Performance: Regional Breakdowns',
+            sections: 0,
+            pages: 3,
+            updatedRank: 1,
+            thumbnail: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page'
+        }
+    ];
+
+    const modalBodyTemplate = `
+        <div id="link-content-step-shell" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+            <div id="link-content-step1" class="flex flex-col flex-1 min-h-0">
+                <div id="${LINK_CONTENT_LISTING_ROOT_ID}" class="ll-listing-module ll-listing-module--in-modal">
+                    <div class="ll-listing-module-header">
+                        <div class="ll-listing-module-header__toolbar">
+                            <div class="ll-listing-module-header__toolbar-start">
+                                <div class="ll-btn-group" role="group" aria-label="Content type filter">
+                                    <button id="link-content-filter-all-btn" type="button" class="ll-btn ll-btn--outline-default">All Content</button>
+                                    <button id="link-content-filter-stories-btn" type="button" class="ll-btn ll-btn--outline-default">Stories</button>
+                                    <button id="link-content-filter-dashboards-btn" type="button" class="ll-btn ll-btn--outline-default">Dashboards</button>
+                                </div>
+                            </div>
+                            <div class="ll-listing-module-header__toolbar-end">
+                                <div class="ll-input-with-left-icon ll-listing-module-search-input">
+                                    <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
+                                        <span class="material-symbols-outlined">search</span>
+                                    </div>
+                                    <input id="link-content-search-input" type="text" class="ll-input ll-input--search ll-input-with-left-icon__input" placeholder="Search content...">
+                                </div>
+                                <div class="ll-btn-group" role="group" aria-label="Listing view toggle">
+                                    <button id="link-content-view-list-btn" type="button" class="ll-btn ll-btn--outline-default ll-btn--icon-only" title="List view" aria-label="List view">
+                                        <span class="material-symbols-outlined ll-btn__icon">menu</span>
+                                    </button>
+                                    <button id="link-content-view-grid-btn" type="button" class="ll-btn ll-btn--outline-default ll-btn--icon-only" title="Grid view" aria-label="Grid view">
+                                        <span class="material-symbols-outlined ll-btn__icon">grid_view</span>
+                                    </button>
+                                </div>
+                                <button id="link-content-sort-btn" class="ll-btn ll-btn--outline-default">
+                                    <span class="ll-dropdown__selected-value">Sort</span>
+                                    <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                </button>
+                                <div id="link-content-sort-menu" class="ll-dropdown__menu hidden right-auto overflow-y-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="link-content-grid-host" class="ll-listing-module-content-host ll-listing-module-grid-host"></div>
+                    <div id="link-content-table-host" class="ll-listing-module-content-host ll-listing-module-table-host"></div>
                 </div>
             </div>
-            <!-- Step 2: header (back + content name + metadata + section/page nav) -->
-            <div id="link-content-step2-header" class="hidden py-3 px-6 border-b border-gray-700 flex-shrink-0 flex items-center gap-4">
-                <button type="button" id="link-content-back-btn" class="flex items-center justify-center w-9 h-9 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition duration-200" title="Back to content">
-                    <span class="material-symbols-outlined text-lg">arrow_back_ios_new</span>
-                </button>
-                <h2 id="link-content-step2-title" class="text-lg font-semibold text-white truncate min-w-0"></h2>
-                <div id="link-content-step2-meta" class="flex items-center gap-4 flex-shrink-0">
-                    <span id="link-content-step2-type" class="text-sm text-gray-400"></span>
-                    <span id="link-content-step2-count" class="text-sm text-gray-400"></span>
-                </div>
-                <div class="flex items-center gap-3 ml-auto flex-shrink-0">
-                    <button type="button" id="link-content-nav-prev" class="flex items-center justify-center w-9 h-9 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition disabled:opacity-40 disabled:cursor-not-allowed" title="Previous">
-                        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-                    </button>
-                    <div class="relative">
-                        <button type="button" id="link-content-nav-dropdown-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 pr-2 py-1.5 w-64 text-sm font-medium rounded-lg transition duration-200 flex items-center space-x-2 max-w-80" title="Select section or page">
-                            <span id="link-content-nav-current-label" class="whitespace-nowrap overflow-hidden text-ellipsis flex-1 text-left">—</span>
-                            <span class="material-symbols-outlined text-md flex-shrink-0">expand_more</span>
+            <div id="link-content-step2" class="hidden flex flex-col flex-1 min-h-0">
+                <div id="link-content-step2-header" class="ll-modal__header">
+                    <div class="ll-modal__title-section">
+                        <div class="ll-modal__back-slot ll-active">
+                            <button type="button" id="link-content-back-btn" class="ll-icon-btn ll-icon-btn--circle ll-modal__back-btn" aria-label="Back to content list">
+                                <span class="material-symbols-outlined ll-icon-btn__icon">arrow_back_ios_new</span>
+                            </button>
+                        </div>
+                        <div class="ll-modal__title-wrap">
+                            <h3 id="link-content-step2-title" class="ll-modal__title"></h3>
+                        </div>
+                        <div id="link-content-step2-meta" class="ll-modal__title__meta">
+                            <span id="link-content-step2-type" class="ll-modal__title__meta__item ll-text-muted text-sm"></span>
+                            <span id="link-content-step2-count" class="ll-modal__title__meta__item ll-text-muted text-sm"></span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 ml-4 flex-shrink-0">
+                        <button type="button" id="link-content-nav-prev" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" title="Previous">
+                            <span class="material-symbols-outlined ll-icon-btn__icon">arrow_back</span>
                         </button>
-                        <div id="link-content-nav-dropdown" class="options-dropdown-menu absolute right-0 top-full mt-2 w-64 max-h-64 overflow-y-auto hidden py-2 z-10"></div>
-                    </div>
-                    <button type="button" id="link-content-nav-next" class="flex items-center justify-center w-9 h-9 rounded-full bg-gray-700 hover:bg-gray-600 text-white transition disabled:opacity-40 disabled:cursor-not-allowed" title="Next">
-                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-                    </button>
-                </div>
-            </div>
-            <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
-                <!-- Step 1: Content browser -->
-                <div id="link-content-step1" class="flex flex-col flex-1 min-h-0">
-                    <div class="flex items-center gap-4 px-6 py-3 border-b border-gray-700 flex-shrink-0 flex-wrap">
-                        <div class="flex items-center gap-4">
-                            <button type="button" id="link-content-tab-all" class="link-content-tab px-4 py-2 rounded-md text-sm font-medium bg-red-600 text-white" data-tab="all">All</button>
-                            <button type="button" id="link-content-tab-stories" class="link-content-tab px-4 py-2 rounded-md text-sm font-medium bg-gray-700 text-gray-300 hover:bg-gray-600" data-tab="stories">Stories</button>
-                            <button type="button" id="link-content-tab-dashboards" class="link-content-tab px-4 py-2 rounded-md text-sm font-medium bg-gray-700 text-gray-300 hover:bg-gray-600" data-tab="dashboards">Dashboards</button>
+                            <div class="w-56">
+                            <button type="button" id="link-content-nav-dropdown-btn" class="ll-input ll-dropdown__button" title="Select section or page">
+                                <span id="link-content-nav-current-label" class="ll-dropdown__selected-value">-</span>
+                                <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                            </button>
+                            <div id="link-content-nav-dropdown" class="ll-dropdown__menu hidden right-auto max-h-64 overflow-y-auto"></div>
                         </div>
-                        <div class="flex items-center gap-3 ml-auto flex-shrink-0">
-                            <div class="relative">
-                                <input type="text" id="link-content-search" placeholder="Search..."
-                                    class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
-                                    style="width: 300px; padding-right: 3rem;" />
-                                <button id="link-content-search-clear" type="button"
-                                    class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none hidden"
-                                    data-tooltip="Clear Search" title="Clear Search">
-                                    <span class="material-symbols-outlined text-2xl">close</span>
-                                </button>
-                                <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
-                            </div>
-                            <div class="relative">
-                                <button type="button" id="link-content-sort-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                    <span class="material-symbols-outlined mr-2">sort</span>
-                                    <span class="link-content-sort-value mr-1">Sort</span>
-                                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
-                                    <span id="link-content-sort-clear" class="ml-2 text-red-400 hover:text-red-300 hidden cursor-pointer flex items-center" title="Clear Sort"><span class="material-symbols-outlined text-[18px]">cancel</span></span>
-                                </button>
-                                <div id="link-content-sort-dropdown" class="options-dropdown-menu absolute right-0 top-full mt-2 w-40 hidden">
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition" data-sort="default">Default</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition" data-sort="last-updated">Last Updated</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition" data-sort="title-asc">Title (A-Z)</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition" data-sort="title-desc">Title (Z-A)</a>
-                                </div>
-                            </div>
-                            <div class="flex rounded-md overflow-hidden flex-shrink-0">
-                                <button type="button" class="link-content-view-btn bg-red-600 text-white px-3 py-1.5 h-9 text-sm flex items-center" data-view="grid" title="Grid"><span class="material-symbols-outlined text-[20px]">grid_view</span></button>
-                                <button type="button" class="link-content-view-btn bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 h-9 text-sm flex items-center" data-view="list" title="List"><span class="material-symbols-outlined text-[20px]">menu</span></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex-1 overflow-y-auto">
-                        <div id="link-content-body">
-                            <div id="link-content-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6">
-                                <div class="link-content-card bg-gray-800 rounded-lg overflow-hidden border-2 border-transparent hover:border-gray-600 cursor-pointer transition selectable-card" data-type="story" data-id="s1" data-name="Q2 Performance Review" data-sections="14">
-                                    <img src="https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section" class="w-full h-40 object-cover" alt="">
-                                    <div class="p-3">
-                                        <h3 class="text-xl font-semibold text-white line-clamp-2">Q2 Performance Review: Deep Dive into Financial Metrics</h3>
-                                        <div class="flex justify-between items-center mt-3 text-sm text-gray-400"><span>Story</span><span>14 Sections</span></div>
-                                    </div>
-                                </div>
-                                <div class="link-content-card bg-gray-800 rounded-lg overflow-hidden border-2 border-transparent hover:border-gray-600 cursor-pointer transition selectable-card" data-type="story" data-id="s2" data-name="Employee Engagement Trends 2024" data-sections="17">
-                                    <img src="https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section" class="w-full h-40 object-cover" alt="">
-                                    <div class="p-3">
-                                        <h3 class="text-xl font-semibold text-white line-clamp-2">Employee Engagement Trends 2024: Key Insights</h3>
-                                        <div class="flex justify-between items-center mt-3 text-sm text-gray-400"><span>Story</span><span>17 Sections</span></div>
-                                    </div>
-                                </div>
-                                <div class="link-content-card bg-gray-800 rounded-lg overflow-hidden border-2 border-transparent hover:border-gray-600 cursor-pointer transition selectable-card" data-type="dashboard" data-id="d1" data-name="Operations Dashboard" data-pages="4">
-                                    <img src="https://placehold.co/400x225/2d3748/f7fafc?text=Screenshot+of+first+page" class="w-full h-40 object-cover" alt="">
-                                    <div class="p-3">
-                                        <h3 class="text-xl font-semibold text-white line-clamp-2">Operations Dashboard: Live KPIs and Supply Chain</h3>
-                                        <div class="flex justify-between items-center mt-3 text-sm text-gray-400"><span>Dashboard</span><span>4 Pages</span></div>
-                                    </div>
-                                </div>
-                                <div class="link-content-card bg-gray-800 rounded-lg overflow-hidden border-2 border-transparent hover:border-gray-600 cursor-pointer transition selectable-card" data-type="dashboard" data-id="d2" data-name="Monthly Sales Performance" data-pages="3">
-                                    <img src="https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page" class="w-full h-40 object-cover" alt="">
-                                    <div class="p-3">
-                                        <h3 class="text-xl font-semibold text-white line-clamp-2">Monthly Sales Performance: Regional Breakdowns</h3>
-                                        <div class="flex justify-between items-center mt-3 text-sm text-gray-400"><span>Dashboard</span><span>3 Pages</span></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="link-content-list" class="hidden overflow-x-auto">
-                                <table class="w-full"><thead class="border-b border-gray-800"><tr><th class="px-6 py-3 text-left text-sm font-medium text-gray-300 w-full">Name</th><th class="px-6 py-3 text-left text-sm font-medium text-gray-300 whitespace-nowrap">Type</th><th class="px-6 py-3 text-left text-sm font-medium text-gray-300 whitespace-nowrap">Content</th></tr></thead><tbody id="link-content-tbody" class="divide-y divide-gray-800"></tbody></table>
-                            </div>
-                        </div>
+                        <button type="button" id="link-content-nav-next" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" title="Next">
+                            <span class="material-symbols-outlined ll-icon-btn__icon">arrow_forward</span>
+                        </button>
                     </div>
                 </div>
-                <!-- Step 2: Preview + compact nav in header (no Preview title, no large list) -->
-                <div id="link-content-step2" class="hidden flex flex-col flex-1 min-h-0">
-                    <div id="link-content-preview-body" class="flex-1 overflow-y-auto p-6">
-                        <div id="link-content-preview-placeholder" class="bg-gray-800 border border-gray-700 rounded-xl min-h-[680px] flex items-center justify-center text-gray-500 text-sm">Preview placeholder</div>
-                    </div>
-                </div>
-            </div>
-            <div class="py-4 px-6 border-t border-gray-700 flex items-center justify-between flex-shrink-0">
-                <div id="link-content-footer-selection">No content selected</div>
-                <div class="flex gap-3">
-                    <button type="button" id="link-content-cancel" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition">Cancel</button>
-                    <button type="button" id="link-content-confirm" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>Select Content</button>
+                <div id="link-content-preview-body" class="flex-1 overflow-y-auto p-6">
+                    <div id="link-content-preview-placeholder" class="bg-gray-800 border border-gray-700 rounded-xl min-h-[680px] flex items-center justify-center text-gray-500 text-sm">Preview placeholder</div>
                 </div>
             </div>
         </div>
-    </div>
+    `;
+
+    const modalFooterSelectionTemplate = `
+        <div id="link-content-footer-selection">
+            <div class="text-sm ll-text-muted">No content selected</div>
+        </div>
+    `;
+
+    const modalFooterActionsTemplate = `
+        <div class="flex gap-3">
+            <button type="button" id="link-content-cancel" class="ll-btn ll-btn--outline-default">Cancel</button>
+            <button type="button" id="link-content-confirm" class="ll-btn ll-btn--primary" disabled>Select Content</button>
+        </div>
     `;
 
     const modalStyles = `
-#link-content-sort-dropdown a.active {
-    background-color: #4b5563;
-    color: #ffffff;
-}
-#link-existing-content-modal .link-content-tab.bg-red-600:hover {
-    background-color: #dc2626;
-}
-#link-existing-content-modal .link-content-view-btn.bg-red-600:hover {
-    background-color: #dc2626;
-}
-#link-existing-content-modal .link-content-card.border-red-500:hover {
-    border-color: #ef4444;
-}
-#link-existing-content-modal .link-content-list-row.link-content-row-selected:hover {
-    background-color: rgb(153 27 27 / 0.4) !important;
-}
 #content-tab-existing .resize-handle,
 #content-tab-existing .command-room-nav {
     display: none;
 }
-
     `;
 
     function ensureModalStyles() {
@@ -169,16 +153,13 @@
         document.head.appendChild(style);
     }
 
-    function ensureModalMarkup() {
-        if (document.getElementById(MODAL_ID)) return;
-        document.body.insertAdjacentHTML('beforeend', modalTemplate);
-    }
 
     window.initLinkExistingContentModal = function initLinkExistingContentModal(options = {}) {
         const nextWorkspaceName = String(options.workspace_name || options.workspaceName || 'Finance').trim() || 'Finance';
 
         const applyWorkspaceTitle = (workspaceName) => {
-            const titleEl = document.getElementById('link-content-modal-title');
+            const modalRoot = document.getElementById(MODAL_ID);
+            const titleEl = modalRoot ? modalRoot.querySelector('.ll-modal__title') : null;
             if (!titleEl) return;
             titleEl.textContent = `Select Content from ${workspaceName} Workspace`;
         };
@@ -194,49 +175,249 @@
         }
 
         ensureModalStyles();
-        ensureModalMarkup();
+        const llComponents = window.LlumenComponents;
+        let modalController = window.__linkExistingContentModalController || null;
+        if (!modalController && llComponents && typeof llComponents.initializeModal === 'function') {
+            modalController = llComponents.initializeModal({
+                id: MODAL_ID,
+                width: '100rem',
+                fullHeight: true,
+                bodyPadding: false,
+                bodyScrollable: false,
+                title: `Select Content from ${nextWorkspaceName} Workspace`,
+                bodyContent: modalBodyTemplate,
+                footerContent: {
+                    nonActionContent: modalFooterSelectionTemplate,
+                    actions: modalFooterActionsTemplate
+                },
+                openOnInit: false
+            });
+            window.__linkExistingContentModalController = modalController;
+        }
         applyWorkspaceTitle(nextWorkspaceName);
 
+        const modal = modalController ? modalController.root : document.getElementById(MODAL_ID);
+        const cancelBtn = modal ? modal.querySelector('#link-content-cancel') : null;
+        const confirmBtn = modal ? modal.querySelector('#link-content-confirm') : null;
+        const footerSelection = modal ? modal.querySelector('#link-content-footer-selection') : null;
+        const step1Body = modal ? modal.querySelector('#link-content-step1') : null;
+        const step2Body = modal ? modal.querySelector('#link-content-step2') : null;
+        const step2Header = modal ? modal.querySelector('#link-content-step2-header') : null;
+        const backBtn = modal ? modal.querySelector('#link-content-back-btn') : null;
+        const step2Title = modal ? modal.querySelector('#link-content-step2-title') : null;
+        const step2Type = modal ? modal.querySelector('#link-content-step2-type') : null;
+        const step2Count = modal ? modal.querySelector('#link-content-step2-count') : null;
+        const navPrevBtn = modal ? modal.querySelector('#link-content-nav-prev') : null;
+        const navNextBtn = modal ? modal.querySelector('#link-content-nav-next') : null;
+        let navCurrentLabel = modal ? modal.querySelector('#link-content-nav-current-label') : null;
+        let navDropdownBtn = modal ? modal.querySelector('#link-content-nav-dropdown-btn') : null;
+        let navDropdown = modal ? modal.querySelector('#link-content-nav-dropdown') : null;
+        let linkContentListingApi = null;
+        let linkContentSubItems = [];
+        let linkContentCurrentIndex = 1;
+        let linkContentSelectedItem = null;
+        let linkContentSelectedSub = null;
+        let linkedContentSelection = null;
+        let externalOnConfirm = typeof options.onConfirm === 'function' ? options.onConfirm : null;
+        let navDropdownSelectionSignature = '';
 
-                const modal = document.getElementById('link-existing-content-modal');
-                const openBtn = document.getElementById('link-existing-content-button');
-                const closeBtn = document.getElementById('link-content-modal-close');
-                const cancelBtn = document.getElementById('link-content-cancel');
-                const confirmBtn = document.getElementById('link-content-confirm');
-                const sortBtn = document.getElementById('link-content-sort-btn');
-                const sortDropdown = document.getElementById('link-content-sort-dropdown');
-                const sortClearBtn = document.getElementById('link-content-sort-clear');
-                const sortValueSpan = sortBtn ? sortBtn.querySelector('.link-content-sort-value') : null;
-                const footerSelection = document.getElementById('link-content-footer-selection');
-                const step1Body = document.getElementById('link-content-step1');
-                const step2Header = document.getElementById('link-content-step2-header');
-                const step2Body = document.getElementById('link-content-step2');
-                const step2Title = document.getElementById('link-content-step2-title');
-                const step2Type = document.getElementById('link-content-step2-type');
-                const step2Count = document.getElementById('link-content-step2-count');
-                const backBtn = document.getElementById('link-content-back-btn');
-                const navPrevBtn = document.getElementById('link-content-nav-prev');
-                const navNextBtn = document.getElementById('link-content-nav-next');
-                const navCurrentLabel = document.getElementById('link-content-nav-current-label');
-                const navDropdownBtn = document.getElementById('link-content-nav-dropdown-btn');
-                const navDropdown = document.getElementById('link-content-nav-dropdown');
+        const escapeHtml = (value) => String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
 
-                let linkContentCurrentTab = 'all';
-                let linkContentSubItems = [];
-                let linkContentCurrentIndex = 1;
-                let linkContentCurrentSort = 'default';
-                let linkContentCurrentView = 'grid';
-                let linkContentSelectedItem = null;
-                let linkContentSelectedSub = null;
-                let linkedContentSelection = null;
-                let externalOnConfirm = typeof options.onConfirm === 'function' ? options.onConfirm : null;
+        function showLinkContentStep(step, direction = 'forward') {
+            const isStep1 = step === 1;
+            if (step1Body) step1Body.classList.toggle('hidden', !isStep1);
+            if (step2Body) step2Body.classList.toggle('hidden', isStep1);
+            if (step2Header) step2Header.classList.toggle('hidden', isStep1);
+            if (modalController) {
+                modalController.animateContent(
+                    isStep1 ? step1Body : step2Body,
+                    direction === 'backward'
+                        ? 'll-modal__body-anim-slide-in-left'
+                        : 'll-modal__body-anim-slide-in-right'
+                );
+            }
+        }
 
-                function showLinkContentStep(step) {
-                    const isStep1 = step === 1;
-                    if (step1Body) step1Body.classList.toggle('hidden', !isStep1);
-                    if (step2Header) step2Header.classList.toggle('hidden', isStep1);
-                    if (step2Body) step2Body.classList.toggle('hidden', isStep1);
+        function selectLinkContentItemFromModel(item) {
+            if (!item) return;
+            linkContentSelectedItem = {
+                type: item.type,
+                id: item.id,
+                name: item.name,
+                sections: item.sections ? parseInt(item.sections, 10) : 0,
+                pages: item.pages ? parseInt(item.pages, 10) : 0
+            };
+            linkContentSubItems = buildSubItemsForContent();
+            linkContentCurrentIndex = 1;
+            linkContentSelectedSub = linkContentSubItems[0]
+                ? { index: linkContentSubItems[0].index, label: linkContentSubItems[0].label }
+                : null;
+            /*
+             * Always reset nav dropdown init cache on new item selection.
+             * Without this, a prior dropdown instance can be reused and become stale
+             * when users go back and pick a different item.
+             */
+            navDropdownSelectionSignature = '';
+            if (navDropdownBtn) {
+                delete navDropdownBtn.dataset.linkContentNavDropdownBound;
+            }
+            if (navDropdown) {
+                navDropdown.innerHTML = '';
+                navDropdown.classList.add('hidden');
+            }
+            if (confirmBtn) confirmBtn.disabled = !linkContentSelectedSub;
+            if (step2Type) step2Type.textContent = linkContentSelectedItem.type === 'story' ? 'Story' : 'Dashboard';
+            if (step2Title) step2Title.textContent = linkContentSelectedItem.name || '';
+            if (step2Count) {
+                const n = linkContentSelectedItem.type === 'story'
+                    ? (linkContentSelectedItem.sections || 0)
+                    : (linkContentSelectedItem.pages || 0);
+                step2Count.textContent = linkContentSelectedItem.type === 'story'
+                    ? `${n} Section${n !== 1 ? 's' : ''}`
+                    : `${n} Page${n !== 1 ? 's' : ''}`;
+            }
+            showLinkContentStep(2, 'forward');
+            updateLinkContentNavDisplay();
+            buildNavDropdown();
+        }
+
+        function ensureListingInitialized() {
+            if (linkContentListingApi || !llComponents || typeof llComponents.initListingModule !== 'function') return;
+            linkContentListingApi = llComponents.initListingModule({
+                rootId: LINK_CONTENT_LISTING_ROOT_ID,
+                allowUnsafeHtml: true,
+                items: linkContentItems.slice(),
+                idKey: 'id',
+                table: {
+                    containerId: 'link-content-table-host',
+                    columns: [
+                        {
+                            property: 'title',
+                            heading: 'Name',
+                            isMain: true,
+                            headerClassName: 'll-listing-table__column-main',
+                            cellClassName: 'll-listing-table__column-main',
+                            renderCell: (item) => `
+                                <div class="ll-listing-table__main">
+                                    <div class="ll-listing-table__main-thumbnail">
+                                        <div class="ll-aspect-box ll-aspect-box--16-9">
+                                            <img src="${escapeHtml(item.thumbnail)}" alt="" class="ll-aspect-box__content ll-listing-table__main-thumbnail-image">
+                                        </div>
+                                    </div>
+                                    <div class="ll-listing-table__main-body">
+                                        <div class="ll-listing-table__main-heading">${escapeHtml(item.title)}</div>
+                                    </div>
+                                </div>
+                            `
+                        },
+                        {
+                            property: 'type',
+                            heading: 'Type',
+                            renderCell: (item) => `<span>${item.type === 'story' ? 'Story' : 'Dashboard'}</span>`
+                        },
+                        {
+                            property: 'contentCount',
+                            heading: 'Content',
+                            renderCell: (item) => item.type === 'story'
+                                ? `<span>${escapeHtml(String(item.sections || 0))} Sections</span>`
+                                : `<span>${escapeHtml(String(item.pages || 0))} Pages</span>`
+                        }
+                    ]
+                },
+                grid: {
+                    enabled: true,
+                    containerId: 'link-content-grid-host',
+                    columns: 4,
+                    gap: 6,
+                    defaultView: 'grid',
+                    renderCard: (item) => `
+                        <div class="ll-aspect-box ll-aspect-box--16-9">
+                            <img src="${escapeHtml(item.thumbnail)}" alt="" class="ll-aspect-box__content ll-card__thumbnail">
+                        </div>
+                        <div class="ll-card__content">
+                            <div class="ll-card__content-heading">${escapeHtml(item.title)}</div>
+                            <div class="ll-card__meta-row">
+                                <div class="ll-card__meta-group">
+                                        <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${item.type === 'story' ? 'Story' : 'Dashboard'}</span></span>
+                                </div>
+                                <div class="ll-card__meta-group">
+                                    <span class="ll-card__meta-item">${item.type === 'story' ? `${escapeHtml(String(item.sections || 0))} Sections` : `${escapeHtml(String(item.pages || 0))} Pages`}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                },
+                controls: {
+                    searchInputId: 'link-content-search-input',
+                    sortDropdown: {
+                        buttonId: 'link-content-sort-btn',
+                        menuId: 'link-content-sort-menu',
+                        selectedValueSelector: '.ll-dropdown__selected-value',
+                        align: 'right',
+                        dropdownIcon: 'sort',
+                        showLabel: false,
+                        dropdownLabel: 'Sort',
+                        emptySelectionLabel: 'Sort'
+                    },
+                    viewToggle: {
+                        listButtonId: 'link-content-view-list-btn',
+                        gridButtonId: 'link-content-view-grid-btn'
+                    },
+                    emptyStateText: {
+                        text: 'No matching content found.',
+                        icon: 'search_off'
+                    }
+                },
+                search: {
+                    fields: ['name', 'title', 'type']
+                },
+                filters: [
+                    {
+                        key: 'content-type',
+                        label: 'Content type',
+                        type: 'toggle',
+                        property: 'type',
+                        predicate: (item, value) => {
+                            const selected = String(value || '').trim();
+                            if (!selected || selected === 'all') return true;
+                            return String(item && item.type ? item.type : '').trim() === selected;
+                        },
+                        options: [
+                            { value: 'all', label: 'All' },
+                            { value: 'story', label: 'Stories' },
+                            { value: 'dashboard', label: 'Dashboards' }
+                        ],
+                        toggle: {
+                            buttonIdsByValue: {
+                                all: 'link-content-filter-all-btn',
+                                story: 'link-content-filter-stories-btn',
+                                dashboard: 'link-content-filter-dashboards-btn'
+                            },
+                            activeClassName: 'll-btn--primary',
+                            inactiveClassName: 'll-btn--outline-default'
+                        },
+                        defaultValue: 'all'
+                    }
+                ],
+                sorts: [
+                    { value: 'last-updated', label: 'Last Updated', property: 'updatedRank', propertyType: 'number', order: 'desc' },
+                    { value: 'title-asc', label: 'Title', property: 'title', propertyType: 'string', order: 'asc', description: 'A-Z' },
+                    { value: 'title-desc', label: 'Title', property: 'title', propertyType: 'string', order: 'desc', description: 'Z-A' }
+                ],
+                itemClick: {
+                    type: 'selection',
+                    onSelectionChange: ({ selectedItem } = {}) => {
+                        if (!selectedItem) return;
+                        selectLinkContentItemFromModel(selectedItem);
+                    }
                 }
+            });
+        }
 
                 function renderExistingEmptyState() {
                     const contentTabExisting = document.getElementById('content-tab-existing');
@@ -756,6 +937,7 @@
                 }
 
                 function openLinkContentModal(openWithLinkedSelection = false) {
+                    ensureListingInitialized();
                     let openWithExisting = false;
                     if (typeof openWithLinkedSelection === 'object' && openWithLinkedSelection) {
                         openWithExisting = Boolean(openWithLinkedSelection.openWithLinkedSelection);
@@ -768,8 +950,7 @@
                     } else {
                         openWithExisting = Boolean(openWithLinkedSelection);
                     }
-                    if (modal) modal.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
+                    if (modalController) modalController.open();
                     if (openWithExisting && linkedContentSelection && linkedContentSelection.item && linkedContentSelection.sub) {
                         linkContentSelectedItem = {
                             type: linkedContentSelection.item.type,
@@ -783,198 +964,39 @@
                         const boundedIndex = Math.min(Math.max(1, requestedIndex), Math.max(1, linkContentSubItems.length));
                         linkContentCurrentIndex = boundedIndex;
                         linkContentSelectedSub = linkContentSubItems[boundedIndex - 1] || null;
-                        showLinkContentStep(2);
-                        if (step2Title) step2Title.textContent = linkContentSelectedItem.name;
+                        if (linkContentListingApi) {
+                            linkContentListingApi.selectItem(linkContentSelectedItem.id);
+                        }
+                        if (step2Title) step2Title.textContent = linkContentSelectedItem.name || '';
                         if (step2Type) step2Type.textContent = linkContentSelectedItem.type === 'story' ? 'Story' : 'Dashboard';
                         if (step2Count) {
                             const n = linkContentSelectedItem.type === 'story' ? (linkContentSelectedItem.sections || 0) : (linkContentSelectedItem.pages || 0);
                             step2Count.textContent = linkContentSelectedItem.type === 'story' ? (n + ' Section' + (n !== 1 ? 's' : '')) : (n + ' Page' + (n !== 1 ? 's' : ''));
                         }
+                        showLinkContentStep(2, 'forward');
                         if (confirmBtn) confirmBtn.disabled = !linkContentSelectedSub;
                         updateLinkContentNavDisplay();
                         buildNavDropdown();
-                        applySelectionToView();
                     } else {
                         linkContentSelectedItem = null;
                         linkContentSelectedSub = null;
-                        showLinkContentStep(1);
+                        showLinkContentStep(1, 'backward');
                         updateLinkContentFooter();
                         if (confirmBtn) confirmBtn.disabled = true;
-                        applySelectionToView();
+                        if (linkContentListingApi) linkContentListingApi.clearSelection();
                     }
                 }
 
                 function closeLinkContentModal() {
+                    if (modalController) {
+                        modalController.close('programmatic');
+                        return;
+                    }
                     if (modal) modal.classList.add('hidden');
-                    document.body.style.overflow = '';
                 }
 
-                const searchInput = document.getElementById('link-content-search');
-                const searchClearBtn = document.getElementById('link-content-search-clear');
-                function filterLinkContent() {
-                    const q = (searchInput && searchInput.value) ? searchInput.value.trim().toLowerCase() : '';
-                    const typeFilter = linkContentCurrentTab === 'stories' ? 'story' : (linkContentCurrentTab === 'dashboards' ? 'dashboard' : null);
-                    const grid = document.getElementById('link-content-grid');
-                    const tbody = document.getElementById('link-content-tbody');
-                    if (grid) {
-                        grid.querySelectorAll('.link-content-card').forEach(el => {
-                            const matchType = !typeFilter || el.dataset.type === typeFilter;
-                            const name = (el.dataset.name || '').toLowerCase();
-                            const title = (el.querySelector('h3') && el.querySelector('h3').textContent || '').toLowerCase();
-                            const matchSearch = !q || name.includes(q) || title.includes(q);
-                            el.classList.toggle('hidden', !(matchType && matchSearch));
-                        });
-                    }
-                    if (tbody) {
-                        tbody.querySelectorAll('.link-content-list-row').forEach(el => {
-                            const matchType = !typeFilter || el.dataset.type === typeFilter;
-                            const text = (el.textContent || '').toLowerCase();
-                            const matchSearch = !q || text.includes(q);
-                            el.classList.toggle('hidden', !(matchType && matchSearch));
-                        });
-                    }
-                }
-                if (searchInput) {
-                    searchInput.addEventListener('input', () => {
-                        filterLinkContent();
-                        if (searchClearBtn) {
-                            if (searchInput.value.length > 0) {
-                                searchClearBtn.classList.remove('hidden');
-                            } else {
-                                searchClearBtn.classList.add('hidden');
-                            }
-                        }
-                    });
-                }
-                if (searchClearBtn) {
-                    searchClearBtn.addEventListener('click', () => {
-                        if (searchInput) {
-                            searchInput.value = '';
-                            searchInput.focus();
-                        }
-                        searchClearBtn.classList.add('hidden');
-                        filterLinkContent();
-                    });
-                }
-
-                if (openBtn) openBtn.addEventListener('click', openLinkContentModal);
-                if (closeBtn) closeBtn.addEventListener('click', closeLinkContentModal);
                 if (cancelBtn) cancelBtn.addEventListener('click', closeLinkContentModal);
-                if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeLinkContentModal(); });
-
-                document.querySelectorAll('.link-content-tab').forEach(tab => {
-                    tab.addEventListener('click', () => {
-                        linkContentCurrentTab = tab.dataset.tab;
-                        document.querySelectorAll('.link-content-tab').forEach(t => {
-                            t.classList.remove('bg-red-600', 'text-white');
-                            t.classList.add('bg-gray-700', 'text-gray-300');
-                            if (t.dataset.tab === linkContentCurrentTab) {
-                                t.classList.remove('bg-gray-700', 'text-gray-300');
-                                t.classList.add('bg-red-600', 'text-white');
-                            }
-                        });
-                        filterLinkContent();
-                    });
-                });
-
-                if (sortBtn && sortDropdown) {
-                    sortBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        sortDropdown.classList.toggle('hidden');
-                    });
-                    sortDropdown.querySelectorAll('a[data-sort]').forEach(link => {
-                        link.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            linkContentCurrentSort = link.dataset.sort;
-                            sortDropdown.querySelectorAll('a').forEach(l => l.classList.remove('active'));
-                            link.classList.add('active');
-                            if (sortValueSpan) sortValueSpan.textContent = linkContentCurrentSort === 'default' ? 'Sort' : link.textContent.trim();
-                            if (sortClearBtn) sortClearBtn.classList.toggle('hidden', linkContentCurrentSort === 'default');
-                            sortDropdown.classList.add('hidden');
-                        });
-                    });
-                    if (sortClearBtn) {
-                        sortClearBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            linkContentCurrentSort = 'default';
-                            sortDropdown.querySelectorAll('a').forEach(l => l.classList.remove('active'));
-                            const def = sortDropdown.querySelector('a[data-sort="default"]');
-                            if (def) def.classList.add('active');
-                            if (sortValueSpan) sortValueSpan.textContent = 'Sort';
-                            sortClearBtn.classList.add('hidden');
-                        });
-                    }
-                    const defLink = sortDropdown.querySelector('a[data-sort="default"]');
-                    if (defLink) defLink.classList.add('active');
-                }
-                document.addEventListener('click', () => { if (sortDropdown) sortDropdown.classList.add('hidden'); });
-
-                function applySelectionToView() {
-                    document.querySelectorAll('.link-content-card, .link-content-list-row').forEach(e => {
-                        e.classList.remove('border-red-500', 'ring-2', 'ring-red-500/50', 'border-l-red-500', 'bg-red-800/40', 'link-content-row-selected');
-                        e.classList.add('border-transparent');
-                    });
-                    if (!linkContentSelectedItem) return;
-                    const type = linkContentSelectedItem.type;
-                    const id = linkContentSelectedItem.id;
-                    document.querySelectorAll('.link-content-card').forEach(card => {
-                        if (card.dataset.type === type && card.dataset.id === id) {
-                            card.classList.remove('border-transparent');
-                            card.classList.add('border-red-500', 'ring-2', 'ring-red-500/50');
-                        }
-                    });
-                    document.querySelectorAll('.link-content-list-row').forEach(row => {
-                        if (row.dataset.type === type && row.dataset.id === id) {
-                            row.classList.remove('border-transparent');
-                            row.classList.add('bg-red-800/40', 'link-content-row-selected');
-                        }
-                    });
-                }
-
-                function populateListViews() {
-                    const grid = document.getElementById('link-content-grid');
-                    const tbody = document.getElementById('link-content-tbody');
-                    if (!grid || !tbody) return;
-                    tbody.innerHTML = '';
-                    grid.querySelectorAll('.link-content-card').forEach(card => {
-                        const row = document.createElement('tr');
-                        row.className = 'link-content-list-row hover:bg-gray-800 cursor-pointer transition selectable-card';
-                        row.dataset.type = card.dataset.type;
-                        row.dataset.id = card.dataset.id;
-                        row.dataset.name = card.dataset.name;
-                        row.dataset.sections = card.dataset.sections || '';
-                        row.dataset.pages = card.dataset.pages || '';
-                        const title = card.querySelector('h3') ? card.querySelector('h3').textContent : card.dataset.name;
-                        const typeLabel = card.dataset.type === 'story' ? 'Story' : 'Dashboard';
-                        const meta = card.dataset.sections ? card.dataset.sections + ' Sections' : (card.dataset.pages ? card.dataset.pages + ' Pages' : '');
-                        row.innerHTML = '<td class="px-6 py-3 text-white">' + title + '</td><td class="px-6 py-3 text-gray-400 whitespace-nowrap">' + typeLabel + '</td><td class="px-6 py-3 text-gray-400 whitespace-nowrap">' + meta + '</td>';
-                        row.addEventListener('click', () => selectLinkContentItem(row));
-                        tbody.appendChild(row);
-                    });
-                    filterLinkContent();
-                    applySelectionToView();
-                }
-
-                document.querySelectorAll('.link-content-view-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        linkContentCurrentView = btn.dataset.view;
-                        document.querySelectorAll('.link-content-view-btn').forEach(b => {
-                            b.classList.remove('bg-red-600');
-                            b.classList.add('bg-gray-700');
-                            if (b.dataset.view === linkContentCurrentView) {
-                                b.classList.remove('bg-gray-700');
-                                b.classList.add('bg-red-600');
-                            }
-                        });
-                        const isGrid = linkContentCurrentView === 'grid';
-                        const grid = document.getElementById('link-content-grid');
-                        const list = document.getElementById('link-content-list');
-                        if (grid) grid.classList.toggle('hidden', !isGrid);
-                        if (list) list.classList.toggle('hidden', isGrid);
-                        if (!isGrid) populateListViews();
-                        else applySelectionToView();
-                    });
-                });
+                ensureListingInitialized();
 
                 function buildSubItemsForContent() {
                     if (!linkContentSelectedItem) return [];
@@ -1023,6 +1045,9 @@
                     }
                     updateLinkContentFooter();
                     if (confirmBtn) confirmBtn.disabled = !linkContentSelectedSub;
+                    if (navDropdownBtn && typeof navDropdownBtn.__setPortaledDropdownValue === 'function' && item) {
+                        navDropdownBtn.__setPortaledDropdownValue(String(item.index), false);
+                    }
                 }
 
                 function populateSingleNavDropdown(dropdownEl) {
@@ -1076,43 +1101,83 @@
                     }
                 }
 
+                function buildNavGroupedOptions() {
+                    if (!linkContentSelectedItem) return [];
+                    if (linkContentSelectedItem.type === 'story') {
+                        const chapters = buildStoryChapters(linkContentSelectedItem.sections || 1);
+                        return chapters.map((chapter) => ({
+                            heading: `Chapter ${chapter.chapterNum}`,
+                            options: chapter.labels.map(({ index, label }) => ({
+                                value: String(index),
+                                label
+                            }))
+                        }));
+                    }
+                    return [
+                        {
+                            heading: 'Pages',
+                            options: linkContentSubItems.map(({ index, label }) => ({
+                                value: String(index),
+                                label
+                            }))
+                        }
+                    ];
+                }
+
+                function ensureModalNavDropdownInitialized() {
+                    if (!llComponents || typeof llComponents.initializePortaledDropdown !== 'function') return;
+                    if (!navDropdownBtn || !navDropdown || !linkContentSelectedItem) return;
+                    const nextSignature = `${linkContentSelectedItem.type}:${linkContentSubItems.length}`;
+                    if (navDropdownSelectionSignature === nextSignature && navDropdownBtn.dataset.linkContentNavDropdownBound === 'true') {
+                        return;
+                    }
+                    navDropdownSelectionSignature = nextSignature;
+                    /*
+                     * Replacing trigger/menu nodes prevents stacked click listeners when
+                     * switching selections repeatedly (which caused intermittent dropdown failure).
+                     */
+                    const nextBtn = navDropdownBtn.cloneNode(true);
+                    const nextMenu = navDropdown.cloneNode(false);
+                    nextMenu.innerHTML = '';
+                    if (navDropdownBtn.parentNode) {
+                        navDropdownBtn.parentNode.replaceChild(nextBtn, navDropdownBtn);
+                    }
+                    if (navDropdown.parentNode) {
+                        navDropdown.parentNode.replaceChild(nextMenu, navDropdown);
+                    }
+                    navDropdownBtn = nextBtn;
+                    navDropdown = nextMenu;
+                    navCurrentLabel = navDropdownBtn.querySelector('#link-content-nav-current-label');
+
+                    llComponents.initializePortaledDropdown({
+                        buttonId: 'link-content-nav-dropdown-btn',
+                        menuId: 'link-content-nav-dropdown',
+                        selectedValueSelector: '.ll-dropdown__selected-value',
+                        datasetFlag: 'linkContentNavDropdownBound',
+                        menuType: 'selection',
+                        defaultValue: String(Math.max(1, linkContentCurrentIndex || 1)),
+                        matchTriggerWidth: true,
+                        emptySelectionLabel: 'Select section or page',
+                        groupedOptions: buildNavGroupedOptions(),
+                        onValueChange: ({ value }) => {
+                            const parsedIndex = Number.parseInt(String(value || ''), 10);
+                            if (!Number.isFinite(parsedIndex)) return;
+                            if (parsedIndex < 1 || parsedIndex > linkContentSubItems.length) return;
+                            linkContentCurrentIndex = parsedIndex;
+                            updateLinkContentNavDisplay();
+                            const linkedDropdown = document.getElementById('linked-existing-nav-dropdown');
+                            populateSingleNavDropdown(linkedDropdown);
+                        }
+                    });
+                    if (typeof navDropdownBtn.__setPortaledDropdownValue === 'function') {
+                        navDropdownBtn.__setPortaledDropdownValue(String(Math.max(1, linkContentCurrentIndex || 1)), false);
+                    }
+                }
+
                 function buildNavDropdown() {
-                    populateSingleNavDropdown(navDropdown);
+                    ensureModalNavDropdownInitialized();
                     const linkedDropdown = document.getElementById('linked-existing-nav-dropdown');
                     populateSingleNavDropdown(linkedDropdown);
-                }
-
-                function selectLinkContentItem(el) {
-                    linkContentSelectedItem = {
-                        type: el.dataset.type,
-                        id: el.dataset.id,
-                        name: el.dataset.name,
-                        sections: el.dataset.sections ? parseInt(el.dataset.sections, 10) : 0,
-                        pages: el.dataset.pages ? parseInt(el.dataset.pages, 10) : 0
-                    };
-                    linkContentSubItems = buildSubItemsForContent();
-                    linkContentCurrentIndex = 1;
-                    linkContentSelectedSub = linkContentSubItems[0] ? { index: linkContentSubItems[0].index, label: linkContentSubItems[0].label } : null;
-                    if (confirmBtn) confirmBtn.disabled = !linkContentSelectedSub;
-                    showLinkContentStep(2);
-                    if (step2Title) step2Title.textContent = linkContentSelectedItem.name;
-                    if (step2Type) step2Type.textContent = linkContentSelectedItem.type === 'story' ? 'Story' : 'Dashboard';
-                    if (step2Count) {
-                        const n = linkContentSelectedItem.type === 'story' ? (linkContentSelectedItem.sections || 0) : (linkContentSelectedItem.pages || 0);
-                        step2Count.textContent = linkContentSelectedItem.type === 'story' ? (n + ' Section' + (n !== 1 ? 's' : '')) : (n + ' Page' + (n !== 1 ? 's' : ''));
-                    }
-                    updateLinkContentNavDisplay();
-                    buildNavDropdown();
-                    applySelectionToView();
-                }
-
-                if (backBtn) {
-                    backBtn.addEventListener('click', () => {
-                        showLinkContentStep(1);
-                        linkContentSelectedSub = null;
-                        if (confirmBtn) confirmBtn.disabled = true;
-                        updateLinkContentFooter();
-                    });
                 }
 
                 if (navPrevBtn) {
@@ -1133,39 +1198,33 @@
                         }
                     });
                 }
-                if (navDropdownBtn && navDropdown) {
-                    navDropdownBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        navDropdown.classList.toggle('hidden');
+                if (backBtn) {
+                    backBtn.addEventListener('click', () => {
+                        showLinkContentStep(1, 'backward');
+                        linkContentSelectedSub = null;
+                        if (confirmBtn) confirmBtn.disabled = true;
+                        updateLinkContentFooter();
                     });
-                    document.addEventListener('click', () => {
-                        navDropdown.classList.add('hidden');
-                        const linkedDropdown = document.getElementById('linked-existing-nav-dropdown');
-                        if (linkedDropdown) linkedDropdown.classList.add('hidden');
-                        const linkedHeaderMenu = document.getElementById('linked-existing-header-menu');
-                        if (linkedHeaderMenu) linkedHeaderMenu.classList.add('hidden');
-                    });
-                    navDropdown.addEventListener('click', (e) => e.stopPropagation());
                 }
 
                 function updateLinkContentFooter() {
                     if (!footerSelection) return;
                     if (!linkContentSelectedItem) {
-                        footerSelection.textContent = 'No content selected';
+                        footerSelection.innerHTML = `
+                            <div class="text-sm ll-text-muted">No content selected</div>
+                        `;
                         return;
                     }
-                    const sub = linkContentSelectedSub ? linkContentSelectedSub.label : (linkContentSelectedItem.type === 'story' ? '—' : '—');
-                    footerSelection.textContent = linkContentSelectedItem.type === 'story'
-                        ? 'Selection: ' + linkContentSelectedItem.name + ' → ' + sub
-                        : 'Selection: ' + linkContentSelectedItem.name + ' → ' + sub;
+                    const sub = linkContentSelectedSub ? linkContentSelectedSub.label : '—';
+                    footerSelection.innerHTML = `
+                        <div class="text-sm ll-text-muted">Selection:</div>
+                        <div class="flex gap-3">
+                            <span class="font-semibold">${escapeHtml(linkContentSelectedItem.name || '')}</span>
+                            <span>→</span>
+                            <span class="font-semibold">${escapeHtml(sub || '—')}</span>
+                        </div>
+                    `;
                 }
-
-                document.querySelectorAll('.link-content-card').forEach(card => {
-                    card.addEventListener('click', (e) => {
-                        if (e.target.closest('button')) return;
-                        selectLinkContentItem(card);
-                    });
-                });
 
                 if (confirmBtn) {
                     confirmBtn.addEventListener('click', () => {

@@ -117,9 +117,6 @@
             } else {
                 gridTile.remove();
             }
-            if (typeof window.__clDndSyncGridEditGuides === 'function') {
-                window.__clDndSyncGridEditGuides();
-            }
             return;
         }
         const wrap = menuButton.closest('.ll-row-context__unit');
@@ -372,70 +369,6 @@
         });
     }
 
-    /** Resolve a single CSS length (e.g. `1rem`, `96px`) to pixels using the grid surface’s context. */
-    function clDndCssLengthToPx(ctxEl, len) {
-        const v = String(len || '').trim();
-        if (!v) return 0;
-        if (/^-?[\d.]+px$/i.test(v)) return parseFloat(v);
-        const doc = ctxEl.ownerDocument || document;
-        const host = doc.body || doc.documentElement;
-        const p = doc.createElement('div');
-        p.style.cssText = 'position:absolute;left:-99999px;top:0;visibility:hidden;box-sizing:border-box;width:1px;height:0;margin:0;padding:0;border:0;';
-        p.style.height = v;
-        host.appendChild(p);
-        const px = p.getBoundingClientRect().height;
-        p.remove();
-        return px || 0;
-    }
-
-    /** Dashed slot boxes for `#cl-dnd-grid-surface` — see `.ll-grid-edit-guides*` in `css/styles.tailwind.css`. */
-    function syncClDndGridEditGuides() {
-        const surface = document.getElementById('cl-dnd-grid-surface');
-        const guide = document.getElementById('cl-dnd-grid-edit-guides');
-        if (!surface || !guide) return;
-
-        const cs = getComputedStyle(surface);
-        const cols = clDndGetGridColumnCount(surface);
-
-        const gapStr = (cs.columnGap && cs.columnGap !== 'normal') ? cs.columnGap : cs.gap;
-        const gapPx = clDndCssLengthToPx(surface, String(gapStr || '').trim().split(/\s+/)[0] || '0px');
-
-        let rowSpec = (cs.gridAutoRows || '').trim();
-        if (!rowSpec || rowSpec === 'none') {
-            rowSpec = '6rem';
-        } else {
-            const minmaxFirst = rowSpec.match(/minmax\(\s*([^,]+)\s*,/i);
-            if (minmaxFirst) {
-                rowSpec = minmaxFirst[1].trim();
-            }
-        }
-        const rowPx = clDndCssLengthToPx(surface, rowSpec) || clDndCssLengthToPx(surface, '6rem');
-
-        const contentW = surface.clientWidth;
-        if (contentW <= 0 || gapPx < 0 || rowPx <= 0) return;
-
-        const cellW = (contentW - (cols - 1) * gapPx) / cols;
-        if (!(cellW > 0)) return;
-
-        const band = rowPx + gapPx;
-        const rows = Math.max(6, Math.ceil((surface.scrollHeight + gapPx) / band));
-
-        guide.replaceChildren();
-        const frag = surface.ownerDocument.createDocumentFragment();
-        for (let r = 0; r < rows; r += 1) {
-            for (let c = 0; c < cols; c += 1) {
-                const cell = surface.ownerDocument.createElement('div');
-                cell.className = 'll-grid-edit-guides__cell';
-                cell.style.left = `${c * (cellW + gapPx)}px`;
-                cell.style.top = `${r * band}px`;
-                cell.style.width = `${cellW}px`;
-                cell.style.height = `${rowPx}px`;
-                frag.appendChild(cell);
-            }
-        }
-        guide.appendChild(frag);
-    }
-
     function initGridContextDemo(components) {
         const surface = document.getElementById('cl-dnd-grid-surface');
         const btn = document.getElementById('cl-dnd-open-grid-browser');
@@ -540,7 +473,6 @@
             spanCtx = components.initGridDropContext(dropOptsBase);
         }
 
-        window.__clDndSyncGridEditGuides = syncClDndGridEditGuides;
         if (
             spanCtx
             && typeof spanCtx.getGridTilesModel === 'function'
@@ -591,7 +523,6 @@
                 <button type="button" class="ll-resize-handle--se" aria-label="Resize"></button>`;
             surface.appendChild(tile);
             wireTile(tile);
-            syncClDndGridEditGuides();
         };
 
         const sampleBtn = document.getElementById('cl-dnd-grid-load-sample');
@@ -605,14 +536,12 @@
                 sampleBtn.addEventListener('click', () => {
                     syncGridSurfaceTemplateColumns(GRID_SAMPLE_COLUMN_COUNT);
                     spanCtx.applyGridTilesModel(JSON.parse(JSON.stringify(gridSampleModel)));
-                    syncClDndGridEditGuides();
                 });
             }
             if (roundTripBtn) {
                 roundTripBtn.addEventListener('click', () => {
                     const snap = spanCtx.getGridTilesModel();
                     spanCtx.applyGridTilesModel(JSON.parse(JSON.stringify(snap)));
-                    syncClDndGridEditGuides();
                 });
             }
         }
@@ -634,7 +563,6 @@
                 if (adapted && spanCtx && typeof spanCtx.applyGridTilesModel === 'function') {
                     spanCtx.applyGridTilesModel(adapted);
                 }
-                syncClDndGridEditGuides();
             };
             colGroup.querySelectorAll('button[data-cl-grid-cols]').forEach((b) => {
                 b.addEventListener('click', () => {
@@ -646,13 +574,6 @@
         syncClDndGridColCountButtons(clDndGetGridColumnCount(surface));
 
         surface.querySelectorAll('.ll-cl-dnd-grid-tile').forEach((t) => wireTile(t));
-        syncClDndGridEditGuides();
-        if (typeof ResizeObserver !== 'undefined') {
-            const ro = new ResizeObserver(() => {
-                window.requestAnimationFrame(syncClDndGridEditGuides);
-            });
-            ro.observe(surface);
-        }
     }
 
     function initRowContextDemo(components) {
@@ -4781,6 +4702,66 @@
                 multiLevelConfig: components.createOperatorsDropdownConfig({
                     showTopLevelPrefixInSelection: true
                 })
+            });
+
+            const componentLibraryRadioSelectionInfoEl = document.getElementById('component-library-radio-selection-value');
+            const componentLibraryRadioSelectionItems = [
+                { value: 'overview', label: 'Overview', icon: 'space_dashboard' },
+                { value: 'briefings', label: 'Briefings', icon: 'description' },
+                { value: 'stories', label: 'Stories', icon: 'auto_stories' },
+                { value: 'dashboards', label: 'Dashboards', icon: 'insights' }
+            ];
+            components.initializeRadioSelection({
+                rootId: 'component-library-radio-selection-demo',
+                items: componentLibraryRadioSelectionItems,
+                value: 'overview',
+                buttonBaseClassName: 'll-btn ll-radio-selection__btn',
+                buttonInactiveClassName: 'll-btn--outline-default',
+                buttonActiveClassName: 'll-btn--primary',
+                onValueChange: (nextValue, meta = {}) => {
+                    if (!componentLibraryRadioSelectionInfoEl) return;
+                    const selectedItem = meta.item || componentLibraryRadioSelectionItems.find((item) => item.value === nextValue);
+                    const selectedLabel = selectedItem ? selectedItem.label : nextValue;
+                    componentLibraryRadioSelectionInfoEl.textContent = `Selected: ${selectedLabel}`;
+                }
+            });
+
+            const componentLibraryResolutionSelectionInfoEl = document.getElementById('component-library-radio-selection-resolution-value');
+            const componentLibraryResolutionItems = [
+                { value: '8k', label: '8K', meta: '7680 × 4320' },
+                { value: '6k', label: '6K', meta: '6144 × 3456' },
+                { value: '5k', label: '5K', meta: '5120 × 2880' },
+                { value: '4k', label: '4K UHD', meta: '3840 × 2160' },
+                { value: 'qhd', label: 'QHD', meta: '2560 × 1440' },
+                { value: 'fhd', label: 'Full HD', meta: '1920 × 1080' },
+                { value: 'hd', label: 'HD', meta: '1280 × 720' },
+                { value: 'custom', label: 'Custom', meta: 'Manual resolution entry' }
+            ];
+            components.initializeRadioSelection({
+                rootId: 'component-library-radio-selection-resolution-demo',
+                rootClassName: 'll-radio-selection--grid ll-radio-selection--grid-cols-4',
+                items: componentLibraryResolutionItems,
+                value: '8k',
+                buttonBaseClassName: 'll-btn ll-radio-selection__btn ll-btn--auto-height',
+                buttonInactiveClassName: 'll-btn--outline-default',
+                buttonActiveClassName: 'll-btn--primary',
+                itemButtonClassName: 'll-radio-selection__btn--metadata',
+                itemTemplate: (item, context) => {
+                    const escapedLabel = context.escapeHtml(item.label || '');
+                    const escapedMeta = context.escapeHtml(item.meta || '');
+                    return `
+                        <span class="ll-radio-selection__option-content">
+                            <span class="ll-radio-selection__option-title">${escapedLabel}</span>
+                            <span class="ll-radio-selection__option-meta">${escapedMeta}</span>
+                        </span>
+                    `;
+                },
+                onValueChange: (nextValue, meta = {}) => {
+                    if (!componentLibraryResolutionSelectionInfoEl) return;
+                    const selectedItem = meta.item || componentLibraryResolutionItems.find((item) => item.value === nextValue);
+                    const selectedLabel = selectedItem ? `${selectedItem.label} (${selectedItem.meta})` : nextValue;
+                    componentLibraryResolutionSelectionInfoEl.textContent = `Selected: ${selectedLabel}`;
+                }
             });
 
             components.initializePortaledDropdown({
