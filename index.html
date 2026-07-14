@@ -292,12 +292,12 @@
             if (briefingRoot && briefingRoot.dataset.carouselBound !== 'true') {
                 const briefingItems = [
                     { id: 'create', title: 'Create Briefing', meta: 'Start a new briefing', isCreate: true },
-                    { id: 'briefing-operations-alert', title: 'Supply Chain Alert: Critical Component Shortage', meta: 'Operations · 2 hours ago', badge: 'Alert', thumbnailSrc: 'https://placehold.co/192x256/7f1d1d/ffffff?text=Briefing+Thumbnail' },
-                    { id: 'briefing-finance-report', title: 'Market Volatility Impact on Q3 Forecasts', meta: 'Finance · 1 day ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/78350f/ffffff?text=Briefing+Thumbnail' },
-                    { id: 'briefing-hr-feedback', title: 'Employee Feedback: Key Takeaways & Action Plans', meta: 'HR · 3 days ago', badge: 'Feedback', thumbnailSrc: 'https://placehold.co/192x256/065f46/ffffff?text=Briefing+Thumbnail' },
-                    { id: 'briefing-sales-report', title: 'Q1 Lead Generation: Performance & Strategy', meta: 'Sales · 4 days ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/92400e/ffffff?text=Briefing+Thumbnail' },
-                    { id: 'briefing-it-update', title: 'System Upgrade: Upcoming Changes and Benefits', meta: 'IT · 2 days ago', badge: 'Update', thumbnailSrc: 'https://placehold.co/192x256/1e3a8a/ffffff?text=Briefing+Thumbnail' },
-                    { id: 'briefing-marketing-report', title: 'Campaign Performance: Deep Dive into Q1 Results', meta: 'Marketing · 4 days ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/a16207/ffffff?text=Briefing+Thumbnail' }
+                    { id: 'briefing-operations-alert', title: 'Supply Chain Alert: Critical Component Shortage', workspaceName: 'Operations', meta: 'Operations · 2 hours ago', badge: 'Alert', thumbnailSrc: 'https://placehold.co/192x256/7f1d1d/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-finance-report', title: 'Market Volatility Impact on Q3 Forecasts', workspaceName: 'Finance', meta: 'Finance · 1 day ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/78350f/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-hr-feedback', title: 'Employee Feedback: Key Takeaways & Action Plans', workspaceName: 'HR', meta: 'HR · 3 days ago', badge: 'Feedback', thumbnailSrc: 'https://placehold.co/192x256/065f46/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-sales-report', title: 'Q1 Lead Generation: Performance & Strategy', workspaceName: 'Sales', meta: 'Sales · 4 days ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/92400e/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-it-update', title: 'System Upgrade: Upcoming Changes and Benefits', workspaceName: 'IT', meta: 'IT · 2 days ago', badge: 'Update', thumbnailSrc: 'https://placehold.co/192x256/1e3a8a/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-marketing-report', title: 'Campaign Performance: Deep Dive into Q1 Results', workspaceName: 'Marketing', meta: 'Marketing · 4 days ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/a16207/ffffff?text=Briefing+Thumbnail' }
                 ];
                 components.initializeHorizontalCarousel({
                     root: briefingRoot,
@@ -340,6 +340,9 @@
                         const itemToken = sanitizeIdToken(item.id);
                         const buttonId = `index-briefing-actions-btn-${itemToken}`;
                         const menuId = `index-briefing-actions-menu-${itemToken}`;
+                        const ownerWorkspace = String(item.workspaceName || '').trim()
+                            || String(item.meta || '').split('·')[0].trim()
+                            || 'Workspace';
                         return `
                             <article class="ll-card ll-card--linkable" data-index-briefing-open="true" data-briefing-id="${escapeHtml(item.id)}">
                                 <div class="ll-aspect-box">
@@ -371,6 +374,10 @@
                                         </div>
                                     </div>
                                     <div class="ll-card__media-footer">
+                                        <div class="ll-card__content-owner">
+                                            <span class="material-symbols-outlined ll-card__content-owner-icon">workspaces</span>
+                                            <span class="ll-card__content-owner-label">${escapeHtml(ownerWorkspace)}</span>
+                                        </div>
                                         <div class="ll-card__media-title">${escapeHtml(item.title)}</div>
                                         <div class="ll-card__media-meta">${escapeHtml((item.meta || '').split('·').slice(1).join('·').trim() || item.meta || '')}</div>
                                     </div>
@@ -441,12 +448,12 @@
             const continueRoot = document.getElementById('index-continue-viewing-carousel-root');
             if (continueRoot && continueRoot.dataset.carouselBound !== 'true') {
                 const continueItems = [
-                    { id: 'c1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics', meta: 'Story · 75% complete', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section', progressPct: 75, progressText: '75% Complete (Section 12 of 16)' },
-                    { id: 'c2', title: 'Operations Dashboard: Live KPIs and Supply Chain Updates', meta: 'Dashboard · 4 pages', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page', progressPct: 50, progressText: '50% Complete (Page 2 of 4)' },
-                    { id: 'c3', title: 'Employee Engagement Trends 2024', meta: 'Story · In progress', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section', progressPct: 35, progressText: '35% Complete (Section 5 of 14)' },
-                    { id: 'c4', title: 'Monthly Sales Performance by Region', meta: 'Dashboard · 3 pages', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page', progressPct: 67, progressText: '67% Complete (Page 2 of 3)' },
-                    { id: 'c5', title: '2025 Marketing Strategy Overview', meta: 'Story · In progress', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section', progressPct: 58, progressText: '58% Complete (Section 7 of 12)' },
-                    { id: 'c6', title: 'IT Infrastructure Monitoring', meta: 'Dashboard · 5 pages', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page', progressPct: 20, progressText: '20% Complete (Page 1 of 5)' }
+                    { id: 'c1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics', workspaceName: 'Finance', meta: 'Story · 75% complete', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section', progressPct: 75, progressText: '75% Complete (Section 12 of 16)' },
+                    { id: 'c2', title: 'Operations Dashboard: Live KPIs and Supply Chain Updates', workspaceName: 'Operations', meta: 'Dashboard · 4 pages', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page', progressPct: 50, progressText: '50% Complete (Page 2 of 4)' },
+                    { id: 'c3', title: 'Employee Engagement Trends 2024', workspaceName: 'HR', meta: 'Story · In progress', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section', progressPct: 35, progressText: '35% Complete (Section 5 of 14)' },
+                    { id: 'c4', title: 'Monthly Sales Performance by Region', workspaceName: 'Sales', meta: 'Dashboard · 3 pages', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page', progressPct: 67, progressText: '67% Complete (Page 2 of 3)' },
+                    { id: 'c5', title: '2025 Marketing Strategy Overview', workspaceName: 'Marketing', meta: 'Story · In progress', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section', progressPct: 58, progressText: '58% Complete (Section 7 of 12)' },
+                    { id: 'c6', title: 'IT Infrastructure Monitoring', workspaceName: 'IT', meta: 'Dashboard · 5 pages', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page', progressPct: 20, progressText: '20% Complete (Page 1 of 5)' }
                 ];
                 components.initializeHorizontalCarousel({
                     root: continueRoot,
@@ -461,6 +468,7 @@
                         const buttonId = `index-continue-actions-btn-${itemToken}`;
                         const menuId = `index-continue-actions-menu-${itemToken}`;
                         const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Story';
+                        const ownerWorkspace = String(item.workspaceName || '').trim() || 'Workspace';
                         const thumbnailSrc = item.thumbnailSrc || (cardType === 'Dashboard'
                             ? 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page'
                             : 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section');
@@ -492,8 +500,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="ll-card__content">
-                                <div class="ll-card__content-heading">${escapeHtml(item.title)}</div>
+                            <div class="ll-card__content ll-card__content--stacked">
+                                <div class="ll-card__content-owner">
+                                    <span class="material-symbols-outlined ll-card__content-owner-icon">workspaces</span>
+                                    <span class="ll-card__content-owner-label">${escapeHtml(ownerWorkspace)}</span>
+                                </div>
+                                <div class="ll-card__content-heading ll-card__content-heading--grow">${escapeHtml(item.title)}</div>
                                 <div class="ll-card__meta-row">
                                     <div class="ll-card__meta-group">
                                         <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${cardType}</span></span>
@@ -540,18 +552,19 @@
             const recommendedRoot = document.getElementById('index-recommended-grid-root');
             if (recommendedRoot && recommendedRoot.dataset.gridBound !== 'true') {
                 const recommendedItems = [
-                    { id: 'r1', title: 'Customer Churn Signals and Mitigation Plan', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
-                    { id: 'r2', title: 'Supply Chain Risk Heatmap', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page' },
-                    { id: 'r3', title: 'Talent Retention Pulse by Region', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
-                    { id: 'r4', title: 'Revenue Forecast Confidence Tracker', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page' },
-                    { id: 'r5', title: 'Campaign Funnel Benchmark Comparison', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
-                    { id: 'r6', title: 'Infrastructure Cost Optimization', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page' }
+                    { id: 'r1', title: 'Customer Churn Signals and Mitigation Plan', workspaceName: 'Customer Success', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
+                    { id: 'r2', title: 'Supply Chain Risk Heatmap', workspaceName: 'Operations', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page' },
+                    { id: 'r3', title: 'Talent Retention Pulse by Region', workspaceName: 'HR', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
+                    { id: 'r4', title: 'Revenue Forecast Confidence Tracker', workspaceName: 'Finance', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page' },
+                    { id: 'r5', title: 'Campaign Funnel Benchmark Comparison', workspaceName: 'Marketing', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
+                    { id: 'r6', title: 'Infrastructure Cost Optimization', workspaceName: 'IT', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page' }
                 ];
                 recommendedRoot.innerHTML = recommendedItems.map((item) => {
                     const itemToken = sanitizeIdToken(item.id);
                     const buttonId = `index-recommended-actions-btn-${itemToken}`;
                     const menuId = `index-recommended-actions-menu-${itemToken}`;
                     const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Story';
+                    const ownerWorkspace = String(item.workspaceName || '').trim() || 'Workspace';
                     const thumbnailSrc = item.thumbnailSrc || (cardType === 'Dashboard'
                         ? 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page'
                         : 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section');
@@ -580,8 +593,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="ll-card__content">
-                            <div class="ll-card__content-heading">${escapeHtml(item.title)}</div>
+                        <div class="ll-card__content ll-card__content--stacked">
+                            <div class="ll-card__content-owner">
+                                <span class="material-symbols-outlined ll-card__content-owner-icon">workspaces</span>
+                                <span class="ll-card__content-owner-label">${escapeHtml(ownerWorkspace)}</span>
+                            </div>
+                            <div class="ll-card__content-heading ll-card__content-heading--grow">${escapeHtml(item.title)}</div>
                             <div class="ll-card__meta-row">
                                 <div class="ll-card__meta-group">
                                     <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${cardType}</span></span>

@@ -2910,7 +2910,7 @@
     Containers: Card
     ======================================== */
   .ll-card {
-    @apply border rounded-xl backdrop-blur-2xl;
+    @apply flex flex-col border rounded-xl backdrop-blur-2xl;
     background-color: rgb(var(--ll-color-neutral-700));
     border-color: var(--ll-color-divider);
   }
@@ -2925,6 +2925,10 @@
 
   .ll-card__content {
     @apply p-4;
+  }
+
+  .ll-card__content.ll-card__content--stacked {
+    @apply flex-1 flex flex-col;
   }
 
   .ll-card__content.ll-card__content--no-padding {
@@ -3040,8 +3044,28 @@
   }
 
   /* Title inside `.ll-card__content` (not the header chrome). */
+  .ll-card__content-owner {
+    @apply mb-1 flex items-center gap-1.5 text-sm;
+  }
+
+  .ll-card__content-owner-icon {
+    @apply text-base leading-none;
+  }
+
+  .ll-card__content-owner-label {
+    @apply truncate;
+  }
+
+  .ll-card__media-footer .ll-card__content-owner {
+    color: rgb(255 255 255 / 0.9);
+  }
+
   .ll-card__content-heading {
     @apply line-clamp-2 text-lg font-semibold;
+  }
+
+  .ll-card__content-heading.ll-card__content-heading--grow {
+    @apply flex-1;
   }
 
   .ll-card__content-description {
@@ -3050,7 +3074,7 @@
 
   /* Meta row: groups on each side with spacing and wrap behavior. */
   .ll-card__meta-row {
-    @apply mt-3 flex flex-wrap items-center justify-between gap-3;
+    @apply mt-3 flex items-center justify-between gap-3;
   }
 
   .ll-card__meta-group {
