@@ -3845,7 +3845,7 @@
                 const visualGap = 10;
                 const viewportPadding = 8;
                 const buttonRect = dropdownButton.getBoundingClientRect();
-                const shouldMatchTriggerWidth = !isMultiLevel && Boolean(matchTriggerWidth);
+                const shouldMatchTriggerWidth = Boolean(matchTriggerWidth);
                 const isFullWidthMenu = shouldMatchTriggerWidth
                     || dropdownMenu.classList.contains('w-full');
                 const hasInlineMinWidthOverride = typeof minMenuWidthPx === 'number' && Number.isFinite(minMenuWidthPx);

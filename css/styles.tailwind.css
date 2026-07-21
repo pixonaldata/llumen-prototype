@@ -73,6 +73,8 @@
     --ll-modal-content-bg-color: rgb(var(--ll-color-neutral-900));
 
     --ll-app-header-height: 4.25rem;
+    --ll-context-header-height: 0px;
+    --ll-app-sidebar-container-top: var(--ll-app-header-height);
 
     /* Palette ramps (RGB channels): use via `rgb(var(--ll-color-*-*) / <alpha>)` */
     --ll-color-neutral-100: 234 235 236;
@@ -273,13 +275,17 @@
     ======================================== */
 
   .ll-header {
-    @apply py-3.75 px-4 md:px-8 flex items-center justify-between;
-    background-color: var(--ll-body-bg-color);
+    @apply py-3.75 px-4 md:px-8 flex items-center justify-between backdrop-blur-2xl;
+    background-color: var(--ll-bg-neutral-subtle);
     box-shadow: inset 0 -1px 0 0 var(--ll-color-divider);
   }
 
+  .ll-header--has-tabs {
+    @apply pb-0;
+  }
+
   .ll-app-header {
-    @apply sticky top-0 gap-4 z-30 backdrop-blur-2xl;
+    @apply sticky top-0 gap-4 z-30;
     height: var(--ll-app-header-height);
     background-color: rgba(var(--ll-color-neutral-950) / 6%);
   }
@@ -308,9 +314,57 @@
     background-color: rgba(var(--ll-color-neutral-950) / 6%);
   }
 
+  .ll-context-header {
+    @apply sticky z-20 py-3 md:py-4 backdrop-blur-2xl;
+    top: var(--ll-context-header-top, var(--workspace-header-top, var(--ll-app-header-height)));
+    background-color: rgba(var(--ll-color-neutral-950) / 6%);
+  }
+
+  .ll-subcontext-header-sticky-container {
+    @apply sticky px-8 pt-8 z-1;
+    top: var(--ll-app-sidebar-container-top);
+  }
+
+  .ll-subcontext-header {
+    @apply border rounded-lg;
+    border-color: var(--ll-color-divider);
+    box-shadow: none;
+  }
+
+  .ll-context-header__row {
+    @apply flex items-center gap-6;
+  }
+
+  .ll-context-header__title {
+    @apply text-xl md:text-2xl font-bold;
+  }
+
+  .ll-context-header__control {
+    @apply relative;
+  }
+
   .ll-header--hide-with-scroll.ll-hidden {
     @apply opacity-0;
     transform: translateY(-100%);
+  }
+
+  /* ========================================
+    Subcontext
+    ======================================== */
+  .ll-subcontext {
+    @apply p-8;
+  }
+
+  .ll-subcontext-header-sticky-container + .ll-subcontext {
+    @apply pt-6;
+  }
+
+  .ll-subcontext-heading {
+    @apply text-2xl font-semibold;
+  }
+
+  .ll-header--has-tabs .ll-subcontext-heading {
+    @apply mb-2;
   }
 
   /* ========================================
@@ -332,8 +386,12 @@
 
   .ll-app-sidebar-container {
     @apply sticky p-4 md:p-8;
-    top: var(--ll-app-header-height);
-    height: calc(100vh - var(--ll-app-header-height));
+    top: var(--ll-app-sidebar-container-top);
+    height: calc(100vh - var(--ll-app-sidebar-container-top));
+  }
+
+  .ll-page-layout--with-context-header {
+    --ll-app-sidebar-container-top: calc(var(--ll-app-header-height) + var(--ll-context-header-height));
   }
 
   .ll-app-sidebar-container-left {
@@ -2609,11 +2667,72 @@
     Navigation: Vertical Tabs
     ======================================== */
   .ll-tabs-vertical {
-    @apply space-y-3;
+    @apply flex flex-col gap-3;
   }
 
   .ll-tabs-vertical__btn {
     @apply w-full justify-start;
+  }
+
+  .ll-tabs-vertical__divider {
+    @apply w-full border-t my-1;
+    border-color: var(--ll-color-divider);
+  }
+
+  /* ========================================
+    Navigation: List
+    ======================================== */
+  .ll-list {
+    @apply flex flex-col;
+  }
+
+  .ll-list__item {
+    @apply relative border-b;
+    border-bottom-color: var(--ll-color-divider);
+  }
+
+  .ll-list__item-trigger {
+    @apply w-full text-left py-3 px-6 pr-14 transition duration-200 cursor-pointer select-none;
+  }
+
+  .ll-list__item-content {
+    @apply flex items-center gap-3 min-w-0;
+  }
+
+  .ll-list__item-main {
+    @apply flex flex-col min-w-0;
+  }
+
+  .ll-list__item-icon {
+    @apply text-lg;
+  }
+
+  .ll-list__item-trigger:hover:not(.ll-active) {
+    background-color: var(--ll-bg-neutral-subtle-hover);
+  }
+
+  .ll-list__item-trigger.ll-active {
+    background-color: var(--ll-bg-primary-subtle-hover);
+  }
+
+  .ll-list__item-actions {
+    @apply absolute right-3 top-1/2 -translate-y-1/2 z-10;
+  }
+
+  .ll-list__item--child .ll-list__item-trigger {
+    
+  }
+
+  .ll-list__item-heading {
+    @apply text-sm font-medium;
+  }
+
+  .ll-list__item-subtext {
+    @apply text-xs;
+  }
+
+  .ll-list__item-meta {
+    @apply mt-1 inline-flex items-center;
   }
 
   /* ========================================

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Llumen Color Token Hierarchy</title>
+  <style>
+    :root {
+      --page-bg: #0b0d10;
+      --panel-bg: #12161c;
+      --panel-border: #242d38;
+      --text: #e7ebef;
+      --muted: #9fb0c2;
+      --line: #324151;
+      --chip-bg: #1a212a;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--page-bg); color: var(--text); font-family: Arial, Helvetica, sans-serif; }
+    body { padding: 24px; }
+
+    .wrap { max-width: 1440px; margin: 0 auto; display: grid; gap: 20px; }
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    h1, h2, h3 { margin: 0 0 10px; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; margin-bottom: 14px; }
+    h3 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    p { margin: 0; color: var(--muted); line-height: 1.5; }
+
+    .legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .chip {
+      background: var(--chip-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .ramp-card {
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.01);
+    }
+    .ramp-row {
+      display: grid;
+      grid-template-columns: 54px 1fr 74px;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 12px;
+    }
+    .swatch {
+      width: 54px;
+      height: 20px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+    .token { color: var(--text); }
+    .value { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; text-align: right; }
+
+    .hierarchy {
+      overflow-x: auto;
+    }
+    .tree {
+      min-width: 980px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .tree-card {
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.01);
+    }
+    .tree-title { font-size: 13px; color: var(--text); margin-bottom: 8px; font-weight: bold; }
+
+    .branch {
+      list-style: none;
+      margin: 0;
+      padding: 0 0 0 16px;
+      position: relative;
+      font-size: 12px;
+    }
+    .branch::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 1px;
+      bottom: 1px;
+      width: 1px;
+      background: var(--line);
+    }
+    .branch > li {
+      position: relative;
+      margin: 6px 0;
+      padding-left: 12px;
+      line-height: 1.35;
+    }
+    .branch > li::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      top: 0.8em;
+      width: 10px;
+      height: 1px;
+      background: var(--line);
+    }
+    .lhs { color: var(--text); }
+    .rhs { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    .meta-list {
+      display: grid;
+      gap: 8px;
+    }
+    .meta-item {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 10px;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+    .meta-key { color: var(--text); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .meta-val { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1>Llumen Color Token Hierarchy</h1>
+      <p>
+        Standalone diagram of your token hierarchy, based on the color token definitions in
+        <code>css/styles.tailwind.css</code>. This page has no dependency on project files and can be shared directly.
+      </p>
+      <div class="legend">
+        <span class="chip">Layer 1: palette ramps (RGB channels)</span>
+        <span class="chip">Layer 2: semantic tokens (bg, border, text)</span>
+        <span class="chip">Layer 3: global derived tokens</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Layer 1: Palette Ramps</h2>
+      <div id="ramps" class="grid"></div>
+    </section>
+
+    <section class="panel hierarchy">
+      <h2>Layer 2: Semantic Token Mapping</h2>
+      <div id="tree" class="tree"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Layer 3: Global Derived Tokens</h2>
+      <div id="meta" class="meta-list"></div>
+    </section>
+  </div>
+
+  <script>
+    const ramps = {
+      neutral: {
+        100: "234 235 236", 200: "212 213 215", 300: "178 181 184", 400: "147 151 156", 500: "114 119 125",
+        600: "81 87 95", 700: "48 55 64", 800: "36 41 48", 900: "24 28 32", 950: "12 14 16"
+      },
+      primary: {
+        100: "241 247 254", 200: "227 239 253", 300: "199 222 251", 400: "171 206 249", 500: "143 189 247",
+        600: "115 173 245", 700: "92 138 196", 800: "69 104 147", 900: "46 69 98", 950: "23 35 49"
+      },
+      positive: {
+        100: "233 248 239", 200: "211 241 223", 300: "168 227 190", 400: "124 214 158", 500: "81 200 125",
+        600: "37 186 93", 700: "30 149 74", 800: "22 112 56", 900: "15 74 37", 950: "7 37 19"
+      },
+      warning: {
+        100: "254 247 234", 200: "254 239 212", 300: "253 224 170", 400: "252 208 127", 500: "251 193 85",
+        600: "250 177 42", 700: "200 142 34", 800: "150 106 25", 900: "100 71 17", 950: "50 35 8"
+      },
+      negative: {
+        100: "253 238 238", 200: "251 220 220", 300: "248 185 185", 400: "244 151 151", 500: "241 116 116",
+        600: "237 81 81", 700: "190 65 65", 800: "142 49 49", 900: "95 32 32", 950: "47 16 16"
+      }
+    };
+
+    const semantic = {
+      neutral: [
+        ["--ll-bg-neutral", "rgb(var(--ll-color-neutral-600))"],
+        ["--ll-bg-neutral-hover", "rgb(var(--ll-color-neutral-500))"],
+        ["--ll-bg-neutral-subtle", "rgba(var(--ll-color-neutral-900) / 50%)"],
+        ["--ll-bg-neutral-subtle-hover", "rgba(var(--ll-color-neutral-700) / 100%)"],
+        ["--ll-border-neutral", "rgb(var(--ll-color-neutral-600))"],
+        ["--ll-border-neutral-subtle", "rgba(var(--ll-color-neutral-400) / 100%)"],
+        ["--ll-text-neutral", "rgb(var(--ll-color-neutral-200))"]
+      ],
+      primary: [
+        ["--ll-bg-primary", "rgb(var(--ll-color-primary-600))"],
+        ["--ll-bg-primary-hover", "rgb(var(--ll-color-primary-500))"],
+        ["--ll-bg-primary-subtle", "rgba(var(--ll-color-primary-900) / 50%)"],
+        ["--ll-bg-primary-subtle-hover", "rgba(var(--ll-color-primary-900) / 100%)"],
+        ["--ll-border-primary", "rgb(var(--ll-color-primary-600))"],
+        ["--ll-border-primary-subtle", "rgba(var(--ll-color-primary-400) / 100%)"],
+        ["--ll-text-primary", "rgb(var(--ll-color-primary-400))"]
+      ],
+      positive: [
+        ["--ll-bg-positive", "rgb(var(--ll-color-positive-600))"],
+        ["--ll-bg-positive-hover", "rgb(var(--ll-color-positive-500))"],
+        ["--ll-bg-positive-subtle", "rgba(var(--ll-color-positive-900) / 50%)"],
+        ["--ll-bg-positive-subtle-hover", "rgba(var(--ll-color-positive-900) / 100%)"],
+        ["--ll-border-positive", "rgb(var(--ll-color-positive-600))"],
+        ["--ll-border-positive-subtle", "rgba(var(--ll-color-positive-400) / 100%)"],
+        ["--ll-text-positive", "rgb(var(--ll-color-positive-400))"]
+      ],
+      warning: [
+        ["--ll-bg-warning", "rgb(var(--ll-color-warning-600))"],
+        ["--ll-bg-warning-hover", "rgb(var(--ll-color-warning-500))"],
+        ["--ll-bg-warning-subtle", "rgba(var(--ll-color-warning-900) / 50%)"],
+        ["--ll-bg-warning-subtle-hover", "rgba(var(--ll-color-warning-900) / 100%)"],
+        ["--ll-border-warning", "rgb(var(--ll-color-warning-600))"],
+        ["--ll-border-warning-subtle", "rgba(var(--ll-color-warning-400) / 100%)"],
+        ["--ll-text-warning", "rgb(var(--ll-color-warning-400))"]
+      ],
+      negative: [
+        ["--ll-bg-negative", "rgb(var(--ll-color-negative-600))"],
+        ["--ll-bg-negative-hover", "rgb(var(--ll-color-negative-500))"],
+        ["--ll-bg-negative-subtle", "rgba(var(--ll-color-negative-900) / 50%)"],
+        ["--ll-bg-negative-subtle-hover", "rgba(var(--ll-color-negative-900) / 100%)"],
+        ["--ll-border-negative", "rgb(var(--ll-color-negative-600))"],
+        ["--ll-border-negative-subtle", "rgba(var(--ll-color-negative-400) / 100%)"],
+        ["--ll-text-negative", "rgb(var(--ll-color-negative-400))"]
+      ]
+    };
+
+    const globals = [
+      ["--ll-body-color", "rgb(var(--ll-color-neutral-200))"],
+      ["--ll-modal-content-bg-color", "rgb(var(--ll-color-neutral-900))"],
+      ["--ll-color-muted", "rgb(var(--ll-color-neutral-500))"],
+      ["--ll-color-muted-lighter", "rgb(var(--ll-color-neutral-400))"],
+      ["--ll-color-divider", "rgba(var(--ll-color-neutral-100) / 10%)"]
+    ];
+
+    function asRgbChannels(channels) {
+      return "rgb(" + channels + ")";
+    }
+
+    function renderRamps() {
+      const root = document.getElementById("ramps");
+      Object.entries(ramps).forEach(([family, shades]) => {
+        const card = document.createElement("article");
+        card.className = "ramp-card";
+        card.innerHTML = "<h3>" + family + " ramp</h3>";
+
+        Object.entries(shades).forEach(([step, channels]) => {
+          const row = document.createElement("div");
+          row.className = "ramp-row";
+          row.innerHTML =
+            "<span class='swatch' style='background:" + asRgbChannels(channels) + ";'></span>" +
+            "<span class='token'>--ll-color-" + family + "-" + step + "</span>" +
+            "<span class='value'>" + step + "</span>";
+          card.appendChild(row);
+        });
+        root.appendChild(card);
+      });
+    }
+
+    function renderSemanticTree() {
+      const root = document.getElementById("tree");
+      Object.entries(semantic).forEach(([family, defs]) => {
+        const card = document.createElement("article");
+        card.className = "tree-card";
+        const title = document.createElement("div");
+        title.className = "tree-title";
+        title.textContent = family.toUpperCase();
+        card.appendChild(title);
+
+        const ul = document.createElement("ul");
+        ul.className = "branch";
+
+        const base = document.createElement("li");
+        base.innerHTML =
+          "<span class='lhs'>--ll-color-" + family + "-*</span> <span class='rhs'>(foundation ramp)</span>";
+        ul.appendChild(base);
+
+        defs.forEach(([lhs, rhs]) => {
+          const li = document.createElement("li");
+          li.innerHTML = "<span class='lhs'>" + lhs + "</span> <span class='rhs'>&lt;- " + rhs + "</span>";
+          ul.appendChild(li);
+        });
+
+        card.appendChild(ul);
+        root.appendChild(card);
+      });
+    }
+
+    function renderGlobals() {
+      const root = document.getElementById("meta");
+      globals.forEach(([key, value]) => {
+        const row = document.createElement("div");
+        row.className = "meta-item";
+        row.innerHTML = "<div class='meta-key'>" + key + "</div><div class='meta-val'>" + value + "</div>";
+        root.appendChild(row);
+      });
+    }
+
+    renderRamps();
+    renderSemanticTree();
+    renderGlobals();
+  </script>
+</body>
+</html>

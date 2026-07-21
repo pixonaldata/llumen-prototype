@@ -3,7 +3,11 @@
 
     const DEFAULT_OPTIONS = {
         logoText: 'Client Logo',
-        userInitial: 'J'
+        userInitial: 'J',
+        showClientLogo: true,
+        showSearchInput: true,
+        customContentFirstInnerEnd: '',
+        customContentSecondInnerStart: ''
     };
 
     function getPathParts() {
@@ -48,10 +52,22 @@
         `;
     }
 
+    function resolveCustomContentMarkup(customContentOption, options) {
+        if (!customContentOption) return '';
+        if (typeof customContentOption === 'function') {
+            return String(customContentOption(options) || '');
+        }
+        return String(customContentOption || '');
+    }
+
     function getHeaderInnerMarkup(options) {
         const logoHref = withRootPrefix('index.html');
         const userInitial = String(options.userInitial || 'J').trim() || 'J';
         const logoText = String(options.logoText || 'Client Logo').trim() || 'Client Logo';
+        const showClientLogo = options.showClientLogo !== false;
+        const showSearchInput = options.showSearchInput !== false;
+        const customContentFirstInnerEnd = resolveCustomContentMarkup(options.customContentFirstInnerEnd, options);
+        const customContentSecondInnerStart = resolveCustomContentMarkup(options.customContentSecondInnerStart, options);
         return `
             <div class="ll-app-header__inner">
                 <a href="${logoHref}">
@@ -62,20 +78,26 @@
                         </svg>
                     </div>
                 </a>
+                ${showClientLogo ? `
                 <div class="ll-border-divider"></div>
                 <a href="${logoHref}">
                     <div class="ll-client-logo">
                         <span>${logoText}</span>
                     </div>
                 </a>
+                ` : ''}
+                ${showSearchInput ? `
                 <div class="ll-input-with-left-icon ll-listing-module-search-input">
                     <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
                         <span class="material-symbols-outlined">search</span>
                     </div>
                     <input id="app-header-search-input" type="text" placeholder="Search..." class="ll-input ll-input--search ll-input-with-left-icon__input">
                 </div>
+                ` : ''}
+                ${customContentFirstInnerEnd}
             </div>
             <div class="ll-app-header__inner">
+                ${customContentSecondInnerStart}
                 <div class="relative">
                     <button id="create-dropdown-button" type="button" class="ll-btn ll-btn--outline-default ll-dropdown__trigger">
                         <span class="material-symbols-outlined ll-btn__icon">add</span>
@@ -171,9 +193,13 @@
         const hosts = Array.from(document.querySelectorAll('[data-ll-app-header-host]'));
         hosts.forEach((host) => {
             if (host.dataset.llAppHeaderMounted === 'true') return;
+            if (host.dataset.llAppHeaderSkipAuto === 'true') return;
             renderLlumenAppHeader(host, {
                 logoText: host.dataset.logoText || DEFAULT_OPTIONS.logoText,
-                userInitial: host.dataset.userInitial || DEFAULT_OPTIONS.userInitial
+                userInitial: host.dataset.userInitial || DEFAULT_OPTIONS.userInitial,
+                showClientLogo: host.dataset.showClientLogo !== 'false',
+                showSearchInput: host.dataset.showSearchInput !== 'false',
+                customContentSecondInnerStart: host.dataset.customContentSecondInnerStart || ''
             });
             host.dataset.llAppHeaderMounted = 'true';
         });

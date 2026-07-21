@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llumen Prototype</title>
+    <!-- Shared Llumen styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tailwind.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="ll-page-container">
+        <header class="ll-header ll-app-header" data-ll-app-header-host data-ll-app-header-skip-auto="true"></header>
+
+        <nav id="app-nav-bar" class="ll-header ll-app-header-secondary ll-header--hide-with-scroll px-8">
+            <div class="relative">
+                <button id="index-studio-workspace-nav-btn" type="button" class="ll-input ll-dropdown__button" aria-label="Select workspace context">
+                    <span class="ll-dropdown__selected-value">All Content</span>
+                    <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                </button>
+                <div id="index-studio-workspace-nav-menu" class="ll-dropdown__menu hidden"></div>
+            </div>
+        </nav>
+
+        <main class="ll-page-layout">
+            
+            <div class="ll-page-content-outer">
+                <div class="ll-page-content-inner ll-page-content-inner--no-x-padding">
+            
+                    <section class="ll-section">
+                        <div class="ll-section-header">
+                            <h2 class="ll-section-heading">Latest Briefings</h2>
+                        </div>                        
+                        <div class="ll-section-content ll-section-content--no-x-padding">
+                            <div id="index-briefings-carousel-root" class="ll-carousel briefings-carousel"></div>
+                        </div>
+                    </section>
+                    
+                    <!-- NEW: Featured Stories Section (Full-Width Slider) -->
+                    <section class="ll-section featured-stories">
+                        <div class="ll-section-header">
+                            <h2 class="ll-section-heading">Featured Stories</h2>
+                        </div>
+                        <div class="ll-section-content ll-section-content--no-x-padding">
+                            <div id="hero-slider" class="relative w-full overflow-hidden shadow-xl" style="height: 40rem;">
+                                <div id="slider-inner" class="relative w-full h-full">
+                                    <!-- Slider Item 1 -->
+                                    <div class="slider-item bg-slate-900" data-slide-index="0">
+                                        <!-- Animated Background Layer -->
+                                        <div class="animated-background">
+                                            <div class="flex items-start justify-start h-full py-8 px-4">
+                                                <!-- Left one-third column -->
+                                                <div class="flex flex-col items-start gap-y-4 w-1/3 flex-shrink-0">
+                                                    <div class="bg-blue-700 rounded-lg w-full h-32 flex items-center justify-center text-white text-xl">Chart</div>
+                                                    <div class="flex flex-col space-y-4 w-full">
+                                                        <!-- Placeholder text blocks (5 of them) -->
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                    </div>
+                                                </div>
+                                                <!-- Right two-thirds column for the new visual block -->
+                                                <div class="flex items-start justify-center w-2/3 h-full flex-shrink-0">
+                                                    <div class="bg-slate-700 rounded-lg w-96 h-96 flex items-center justify-center text-white text-xl shadow-lg">
+                                                        Background Visual
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                        <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
+                                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                                <span class="font-medium">Marketing</span>
+                                            </div>
+                                            <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">New Campaign Launch: Q3 Strategy & Expected ROI</h3>
+                                            <p class="text-sm text-gray-400 mt-1">10 Sections</p>
+                                            <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting story: New Campaign Launch...', 'info')">
+                                                <span class="material-symbols-outlined ll-btn__icon">play_arrow</span>
+                                                <span>Start</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Slider Item 2 -->
+                                    <div class="slider-item bg-slate-900" data-slide-index="1">
+                                        <!-- Animated Background Layer -->
+                                        <div class="animated-background">
+                                            <div class="flex items-start justify-start h-full py-8 px-4">
+                                                <div class="flex flex-col items-start gap-y-4 w-1/3 flex-shrink-0">
+                                                    <div class="bg-green-700 rounded-lg w-full h-24 flex items-center justify-center text-white text-xl">Chart</div>
+                                                    <div class="flex flex-col space-y-4 w-full">
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-start justify-center w-2/3 h-full flex-shrink-0">
+                                                    <div class="bg-slate-700 rounded-lg w-96 h-96 flex items-center justify-center text-white text-xl shadow-lg">
+                                                        Background Visual
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                        <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
+                                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                                <span class="font-medium">Product</span>
+                                            </div>
+                                            <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">Product Roadmap 2025: Innovations & User Experience</h3>
+                                            <p class="text-sm text-gray-400 mt-1">12 Sections</p>
+                                            <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting story: Product Roadmap...', 'info')">
+                                                <span class="material-symbols-outlined ll-btn__icon">play_arrow</span>
+                                                <span>Start</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Slider Item 3 -->
+                                    <div class="slider-item bg-slate-900" data-slide-index="2">
+                                        <!-- Animated Background Layer -->
+                                        <div class="animated-background">
+                                            <div class="flex items-start justify-start h-full py-8 px-4">
+                                                <div class="flex flex-col items-start gap-y-4 w-1/3 flex-shrink-0">
+                                                    <div class="bg-red-700 rounded-lg w-full h-40 flex items-center justify-center text-white text-xl">Chart</div>
+                                                    <div class="flex flex-col space-y-4 w-full">
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                        <div class="bg-gray-700 rounded-md h-8 placeholder-width"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-start justify-center w-2/3 h-full flex-shrink-0">
+                                                    <div class="bg-slate-700 rounded-lg w-96 h-96 flex items-center justify-center text-white text-xl shadow-lg">
+                                                        Background Visual
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                        <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
+                                            <div class="flex items-center space-x-2 text-sm mb-1">
+                                                <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                                <span class="font-medium">Operations</span>
+                                            </div>
+                                            <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">Optimizing Logistics: Efficiency Gains in Q4 Operations</h3>
+                                            <p class="text-sm text-gray-400 mt-1">8 Sections</p>
+                                            <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting story: Optimizing Logistics...', 'info')">
+                                                <span class="material-symbols-outlined ll-btn__icon">play_arrow</span>
+                                                <span>Start</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Thumbnails below slider -->
+                            <div id="slider-thumbnails" class="flex justify-start space-x-4 mt-4 overflow-x-auto py-2 px-4 md:px-8 scrollbar-hide hidden">
+                                <img src="https://placehold.co/120x67/333/fff?text=Story+1+Thumb" alt="Story 1 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="0">
+                                <img src="https://placehold.co/120x67/555/eee?text=Story+2+Thumb" alt="Story 2 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="1">
+                                <img src="https://placehold.co/120x67/777/ddd?text=Story+3+Thumb" alt="Story 3 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="2">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="ll-section">
+                        <div class="ll-section-header">
+                            <h2 class="text-lg md:text-xl font-bold text-white">Continue Viewing</h2>
+                        </div>
+                        <div class="ll-section-content ll-section-content--no-x-padding">
+                            <div id="index-continue-viewing-carousel-root" class="ll-carousel"></div>
+                        </div>
+                    </section>
+
+                    <section class="ll-section">
+                        <div class="ll-section-header">
+                            <h2 class="text-lg md:text-xl font-bold text-white">Recommended for You</h2>
+                        </div>
+                        <div class="ll-section-content">
+                            <div id="index-recommended-grid-root" class="ll-grid ll-grid--cols-4 ll-grid--gap-6"></div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+            
+        </main>
+
+    </div>
+
+    <!-- Create Content Modal -->
+    <div id="create-content-modal" class="fixed inset-0 bg-black p-10 bg-opacity-50 flex justify-center items-start z-50 hidden">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-h-full max-w-[680px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 id="create-content-modal-title" class="text-xl font-semibold text-white">Create</h2>
+                    <button id="close-create-content-modal" class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div id="create-content-modal-content" class="flex-1 overflow-y-auto p-6">
+                <p id="create-content-modal-description" class="text-gray-300 font-semibold mb-6">Select a Workspace to proceed</p>
+                
+                <!-- Private Section -->
+                <div>
+                    <a href="#" id="private-workspace-link" class="block w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 transition duration-200 text-white flex items-center">
+                        <span class="material-symbols-outlined mr-3" style="font-size: 20px;">lock</span>
+                        <span class="text-sm font-medium">Private</span>
+                    </a>
+                    <div class="border-t border-gray-700 my-4"></div>
+                </div>
+
+                <!-- Workspaces Section -->
+                <div>
+                    <div id="workspaces-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Workspace links will be dynamically generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-700">
+                <div class="flex items-center justify-end space-x-3">
+                    <button type="button" id="cancel-create-content" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ai-chat.js"></script>
+    <script src="js/link-existing-content-modal.js"></script>
+    <script src="js/briefings.js"></script>
+    <script src="js/create-content-modal.js"></script>
+    <script src="js/llumen-sortable-engine.js"></script>
+    <script src="js/llumen-components.js"></script>
+    <script src="js/llumen-app-header.js"></script>
+    <script src="js/llumen-app-nav.js"></script>
+    <script src="js/llumen-shader-background.js"></script>
+
+    <script>
+        console.log("Script loaded and starting..."); // Added for debugging
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function sanitizeIdToken(value) {
+            const normalized = String(value == null ? '' : value)
+                .toLowerCase()
+                .replace(/[^a-z0-9_-]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            return normalized || 'item';
+        }
+
+        function initializeIndexCarousels() {
+            const components = window.LlumenComponents;
+            if (!components || typeof components.initializeHorizontalCarousel !== 'function') return;
+            const initializeCardActionDropdown = ({ buttonId, menuId, onValueChange }) => {
+                if (!buttonId || !menuId || typeof onValueChange !== 'function') return;
+                components.initializePortaledDropdown({
+                    buttonId,
+                    menuId,
+                    align: 'right',
+                    menuType: 'action',
+                    showLabel: false,
+                    dropdownLabel: 'Card actions',
+                    onValueChange
+                });
+            };
+            const createBriefingButton = document.getElementById('index-create-briefing-btn');
+            if (createBriefingButton && createBriefingButton.dataset.bound !== 'true') {
+                createBriefingButton.addEventListener('click', () => {
+                    if (typeof window.openCreateContentModal === 'function') {
+                        window.openCreateContentModal('Briefing');
+                    } else if (window.Briefings && typeof window.Briefings.openCreateModal === 'function') {
+                        window.Briefings.openCreateModal({});
+                    } else {
+                        alertMessage('Create Briefing modal is unavailable.', 'error');
+                    }
+                });
+                createBriefingButton.dataset.bound = 'true';
+            }
+
+            const briefingRoot = document.getElementById('index-briefings-carousel-root');
+            if (briefingRoot && briefingRoot.dataset.carouselBound !== 'true') {
+                const briefingItems = [
+                    { id: 'create', title: 'Create Briefing', meta: 'Start a new briefing', isCreate: true },
+                    { id: 'briefing-operations-alert', title: 'Supply Chain Alert: Critical Component Shortage', workspaceName: 'Operations', meta: 'Operations · 2 hours ago', badge: 'Alert', thumbnailSrc: 'https://placehold.co/192x256/7f1d1d/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-finance-report', title: 'Market Volatility Impact on Q3 Forecasts', workspaceName: 'Finance', meta: 'Finance · 1 day ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/78350f/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-hr-feedback', title: 'Employee Feedback: Key Takeaways & Action Plans', workspaceName: 'HR', meta: 'HR · 3 days ago', badge: 'Feedback', thumbnailSrc: 'https://placehold.co/192x256/065f46/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-sales-report', title: 'Q1 Lead Generation: Performance & Strategy', workspaceName: 'Sales', meta: 'Sales · 4 days ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/92400e/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-it-update', title: 'System Upgrade: Upcoming Changes and Benefits', workspaceName: 'IT', meta: 'IT · 2 days ago', badge: 'Update', thumbnailSrc: 'https://placehold.co/192x256/1e3a8a/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-marketing-report', title: 'Campaign Performance: Deep Dive into Q1 Results', workspaceName: 'Marketing', meta: 'Marketing · 4 days ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/a16207/ffffff?text=Briefing+Thumbnail' }
+                ];
+                components.initializeHorizontalCarousel({
+                    root: briefingRoot,
+                    mode: 'cards',
+                    sizing: 'freeform',
+                    items: briefingItems,
+                    getItemId: (item) => String(item && item.id != null ? item.id : ''),
+                    renderCard: (item) => {
+                        if (item && item.isCreate) {
+                            return `
+                                <article class="ll-card ll-card--linkable ll-create-card">
+                                    <div class="ll-aspect-box">
+                                        <div class="ll-aspect-box__content">
+                                            <span class="material-symbols-outlined ll-create-icon">add</span>
+                                            <div class="ll-create-label">${escapeHtml(item.title)}</div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="ll-card__link-overlay" aria-label="Create briefing" data-index-briefing-create="true"></button>
+                                </article>
+                            `;
+                        }
+                        const badgeLabel = String(item.badge || 'Briefing');
+                        const badgeIcon = badgeLabel.toLowerCase() === 'alert'
+                            ? 'warning'
+                            : badgeLabel.toLowerCase() === 'update'
+                                ? 'notifications'
+                                : badgeLabel.toLowerCase() === 'feedback'
+                                    ? 'feedback'
+                                    : 'description';
+                        const badgeClass = badgeLabel.toLowerCase() === 'alert'
+                            ? 'll-chip ll-chip--outline-negative'
+                            : badgeLabel.toLowerCase() === 'report'
+                                ? 'll-chip ll-chip--outline-warning'
+                                : badgeLabel.toLowerCase() === 'feedback'
+                                    ? 'll-chip ll-chip--outline-positive'
+                                    : badgeLabel.toLowerCase() === 'update'
+                                        ? 'll-chip ll-chip--outline-primary'
+                                        : 'll-chip ll-chip--outline-default';
+                        const itemToken = sanitizeIdToken(item.id);
+                        const buttonId = `index-briefing-actions-btn-${itemToken}`;
+                        const menuId = `index-briefing-actions-menu-${itemToken}`;
+                        const ownerWorkspace = String(item.workspaceName || '').trim()
+                            || String(item.meta || '').split('·')[0].trim()
+                            || 'Workspace';
+                        return `
+                            <article class="ll-card ll-card--linkable" data-index-briefing-open="true" data-briefing-id="${escapeHtml(item.id)}">
+                                <div class="ll-aspect-box">
+                                    <div class="ll-card__media-scrim" aria-hidden="true"></div>
+                                    <div class="ll-card__header ll-card__header--media-overlay">
+                                        <div class="ll-card__header-leading">
+                                            <span class="${badgeClass}">
+                                                <span class="material-symbols-outlined ll-chip__icon">${badgeIcon}</span>
+                                                <span class="ll-chip__label">${escapeHtml(badgeLabel)}</span>
+                                            </span>
+                                        </div>
+                                        <div class="ll-card__header-actions">
+                                            <div class="ll-card__header-action">
+                                                <div class="ll-card__header-action-content">
+                                                    <button
+                                                        id="${buttonId}"
+                                                        type="button"
+                                                        class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                                        aria-label="Briefing card actions">
+                                                        <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
+                                                    </button>
+                                                    <div id="${menuId}" class="ll-dropdown__menu hidden">
+                                                        <button type="button" class="ll-dropdown__item" data-value="view">View Details</button>
+                                                        <button type="button" class="ll-dropdown__item" data-value="share">Share</button>
+                                                        <button type="button" class="ll-dropdown__item" data-value="delete">Delete</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ll-card__media-footer">
+                                        <div class="ll-card__content-owner">
+                                            <span class="material-symbols-outlined ll-card__content-owner-icon">workspaces</span>
+                                            <span class="ll-card__content-owner-label">${escapeHtml(ownerWorkspace)}</span>
+                                        </div>
+                                        <div class="ll-card__media-title">${escapeHtml(item.title)}</div>
+                                        <div class="ll-card__media-meta">${escapeHtml((item.meta || '').split('·').slice(1).join('·').trim() || item.meta || '')}</div>
+                                    </div>
+                                </div>
+                                <button type="button" class="ll-card__link-overlay" aria-label="Open briefing"></button>
+                            </article>
+                        `;
+                    }
+                });
+                if (briefingRoot.dataset.briefingActionsBound !== 'true') {
+                    briefingItems.filter((item) => !item.isCreate).forEach((item) => {
+                        const token = sanitizeIdToken(item.id);
+                        const buttonId = `index-briefing-actions-btn-${token}`;
+                        const menuId = `index-briefing-actions-menu-${token}`;
+                        initializeCardActionDropdown({
+                            buttonId,
+                            menuId,
+                            onValueChange: ({ value }) => {
+                                const action = String(value || '');
+                                if (action === 'view') {
+                                    if (window.Briefings && typeof window.Briefings.openViewer === 'function') {
+                                        window.Briefings.openViewer(item.id);
+                                    } else {
+                                        alertMessage('Briefing viewer is unavailable.', 'error');
+                                    }
+                                    return;
+                                }
+                                if (action === 'share') {
+                                    alertMessage('Share briefing (simulated).', 'info');
+                                    return;
+                                }
+                                if (action === 'delete') {
+                                    alertMessage('Delete briefing (simulated).', 'info');
+                                }
+                            }
+                        });
+                    });
+                    briefingRoot.addEventListener('click', (event) => {
+                        const target = event.target instanceof Element ? event.target : null;
+                        if (!target) return;
+                        if (target.closest('.ll-dropdown__trigger, .ll-dropdown__menu')) return;
+                        const createCard = target.closest('[data-index-briefing-create="true"]');
+                        if (createCard) {
+                            if (typeof window.openCreateContentModal === 'function') {
+                                window.openCreateContentModal('Briefing');
+                            } else if (window.Briefings && typeof window.Briefings.openCreateModal === 'function') {
+                                window.Briefings.openCreateModal({});
+                            } else {
+                                alertMessage('Create Briefing modal is unavailable.', 'error');
+                            }
+                            return;
+                        }
+                        const briefingCard = target.closest('[data-index-briefing-open="true"]');
+                        if (!briefingCard) return;
+                        const briefingId = briefingCard.getAttribute('data-briefing-id');
+                        if (!briefingId) return;
+                        if (window.Briefings && typeof window.Briefings.openViewer === 'function') {
+                            window.Briefings.openViewer(briefingId);
+                        } else {
+                            alertMessage('Briefing viewer is unavailable.', 'error');
+                        }
+                    });
+                    briefingRoot.dataset.briefingActionsBound = 'true';
+                }
+                briefingRoot.dataset.carouselBound = 'true';
+            }
+
+            const continueRoot = document.getElementById('index-continue-viewing-carousel-root');
+            if (continueRoot && continueRoot.dataset.carouselBound !== 'true') {
+                const continueItems = [
+                    { id: 'c1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics', workspaceName: 'Finance', meta: 'Story · 75% complete', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section', progressPct: 75, progressText: '75% Complete (Section 12 of 16)' },
+                    { id: 'c2', title: 'Operations Dashboard: Live KPIs and Supply Chain Updates', workspaceName: 'Operations', meta: 'Dashboard · 4 pages', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page', progressPct: 50, progressText: '50% Complete (Page 2 of 4)' },
+                    { id: 'c3', title: 'Employee Engagement Trends 2024', workspaceName: 'HR', meta: 'Story · In progress', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section', progressPct: 35, progressText: '35% Complete (Section 5 of 14)' },
+                    { id: 'c4', title: 'Monthly Sales Performance by Region', workspaceName: 'Sales', meta: 'Dashboard · 3 pages', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page', progressPct: 67, progressText: '67% Complete (Page 2 of 3)' },
+                    { id: 'c5', title: '2025 Marketing Strategy Overview', workspaceName: 'Marketing', meta: 'Story · In progress', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section', progressPct: 58, progressText: '58% Complete (Section 7 of 12)' },
+                    { id: 'c6', title: 'IT Infrastructure Monitoring', workspaceName: 'IT', meta: 'Dashboard · 5 pages', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page', progressPct: 20, progressText: '20% Complete (Page 1 of 5)' }
+                ];
+                components.initializeHorizontalCarousel({
+                    root: continueRoot,
+                    mode: 'cards',
+                    sizing: 'grid',
+                    gridColumns: 4,
+                    gridGap: 6,
+                    items: continueItems,
+                    getItemId: (item) => String(item && item.id != null ? item.id : ''),
+                    renderCard: (item) => {
+                        const itemToken = sanitizeIdToken(item.id);
+                        const buttonId = `index-continue-actions-btn-${itemToken}`;
+                        const menuId = `index-continue-actions-menu-${itemToken}`;
+                        const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Story';
+                        const ownerWorkspace = String(item.workspaceName || '').trim() || 'Workspace';
+                        const thumbnailSrc = item.thumbnailSrc || (cardType === 'Dashboard'
+                            ? 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page'
+                            : 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section');
+                        const detailMeta = String(item.meta || '').split('·').slice(1).join('·').trim() || '';
+                        const progressPct = Math.max(0, Math.min(100, Number(item.progressPct || 0)));
+                        const progressText = String(item.progressText || '').trim();
+                        return `
+                        <article class="ll-card ll-card--linkable h-full" data-index-content-id="${escapeHtml(item.id)}">
+                            <div class="ll-aspect-box ll-aspect-box--16-9">
+                                <img class="ll-aspect-box__content ll-card__thumbnail" src="${thumbnailSrc}" alt="${cardType} thumbnail" />
+                                <div class="ll-card__header ll-card__header--media-overlay">
+                                    <div class="ll-card__header-actions">
+                                        <div class="ll-card__header-action">
+                                            <div class="ll-card__header-action-content">
+                                                <button
+                                                    id="${buttonId}"
+                                                    type="button"
+                                                    class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                                    aria-label="Card actions">
+                                                    <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
+                                                </button>
+                                                <div id="${menuId}" class="ll-dropdown__menu hidden">
+                                                    <button type="button" class="ll-dropdown__item" data-value="view">View Details</button>
+                                                    <button type="button" class="ll-dropdown__item" data-value="share">Share</button>
+                                                    <button type="button" class="ll-dropdown__item" data-value="delete">Delete</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ll-card__content ll-card__content--stacked">
+                                <div class="ll-card__content-owner">
+                                    <span class="material-symbols-outlined ll-card__content-owner-icon">workspaces</span>
+                                    <span class="ll-card__content-owner-label">${escapeHtml(ownerWorkspace)}</span>
+                                </div>
+                                <div class="ll-card__content-heading ll-card__content-heading--grow">${escapeHtml(item.title)}</div>
+                                <div class="ll-card__meta-row">
+                                    <div class="ll-card__meta-group">
+                                        <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${cardType}</span></span>
+                                    </div>
+                                    <div class="ll-card__meta-group">
+                                        <span class="ll-card__meta-item">${escapeHtml(detailMeta || (cardType === 'Story' ? '12 sections' : '4 pages'))}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 w-full bg-gray-700 rounded-full h-2.5">
+                                    <div class="ll-bg-primary h-2.5 rounded-full" style="width: ${progressPct}%;"></div>
+                                </div>
+                                <p class="text-sm ll-text-primary mt-2">${escapeHtml(progressText || `${progressPct}% Complete`)}</p>
+                            </div>
+                            <button type="button" class="ll-card__link-overlay" aria-label="Open item"></button>
+                        </article>
+                    `;
+                    }
+                });
+                if (continueRoot.dataset.cardMenusBound !== 'true') {
+                    continueItems.forEach((item) => {
+                        const token = sanitizeIdToken(item.id);
+                        const buttonId = `index-continue-actions-btn-${token}`;
+                        const menuId = `index-continue-actions-menu-${token}`;
+                        initializeCardActionDropdown({
+                            buttonId,
+                            menuId,
+                            onValueChange: ({ value }) => {
+                                const action = String(value || '');
+                                if (action === 'view') {
+                                    alertMessage(`Viewing item ${item.id} (simulated).`, 'info');
+                                } else if (action === 'share') {
+                                    alertMessage('Share item (simulated).', 'info');
+                                } else if (action === 'delete') {
+                                    alertMessage('Delete item (simulated).', 'info');
+                                }
+                            }
+                        });
+                    });
+                    continueRoot.dataset.cardMenusBound = 'true';
+                }
+                continueRoot.dataset.carouselBound = 'true';
+            }
+
+            const recommendedRoot = document.getElementById('index-recommended-grid-root');
+            if (recommendedRoot && recommendedRoot.dataset.gridBound !== 'true') {
+                const recommendedItems = [
+                    { id: 'r1', title: 'Customer Churn Signals and Mitigation Plan', workspaceName: 'Customer Success', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
+                    { id: 'r2', title: 'Supply Chain Risk Heatmap', workspaceName: 'Operations', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page' },
+                    { id: 'r3', title: 'Talent Retention Pulse by Region', workspaceName: 'HR', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
+                    { id: 'r4', title: 'Revenue Forecast Confidence Tracker', workspaceName: 'Finance', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page' },
+                    { id: 'r5', title: 'Campaign Funnel Benchmark Comparison', workspaceName: 'Marketing', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
+                    { id: 'r6', title: 'Infrastructure Cost Optimization', workspaceName: 'IT', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page' }
+                ];
+                recommendedRoot.innerHTML = recommendedItems.map((item) => {
+                    const itemToken = sanitizeIdToken(item.id);
+                    const buttonId = `index-recommended-actions-btn-${itemToken}`;
+                    const menuId = `index-recommended-actions-menu-${itemToken}`;
+                    const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Story';
+                    const ownerWorkspace = String(item.workspaceName || '').trim() || 'Workspace';
+                    const thumbnailSrc = item.thumbnailSrc || (cardType === 'Dashboard'
+                        ? 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page'
+                        : 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section');
+                    return `
+                    <article class="ll-card ll-card--linkable h-full" data-index-content-id="${escapeHtml(item.id)}">
+                        <div class="ll-aspect-box ll-aspect-box--16-9">
+                            <img class="ll-aspect-box__content ll-card__thumbnail" src="${thumbnailSrc}" alt="${cardType} thumbnail" />
+                            <div class="ll-card__header ll-card__header--media-overlay">
+                                <div class="ll-card__header-actions">
+                                    <div class="ll-card__header-action">
+                                        <div class="ll-card__header-action-content">
+                                            <button
+                                                id="${buttonId}"
+                                                type="button"
+                                                class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                                aria-label="Card actions">
+                                                <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
+                                            </button>
+                                            <div id="${menuId}" class="ll-dropdown__menu hidden">
+                                                <button type="button" class="ll-dropdown__item" data-value="view">View Details</button>
+                                                <button type="button" class="ll-dropdown__item" data-value="share">Share</button>
+                                                <button type="button" class="ll-dropdown__item" data-value="delete">Delete</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ll-card__content ll-card__content--stacked">
+                            <div class="ll-card__content-owner">
+                                <span class="material-symbols-outlined ll-card__content-owner-icon">workspaces</span>
+                                <span class="ll-card__content-owner-label">${escapeHtml(ownerWorkspace)}</span>
+                            </div>
+                            <div class="ll-card__content-heading ll-card__content-heading--grow">${escapeHtml(item.title)}</div>
+                            <div class="ll-card__meta-row">
+                                <div class="ll-card__meta-group">
+                                    <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${cardType}</span></span>
+                                </div>
+                                <div class="ll-card__meta-group">
+                                    <span class="ll-card__meta-item">${cardType === 'Story' ? '12 sections' : '4 pages'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="ll-card__link-overlay" aria-label="Open item"></button>
+                    </article>
+                `;
+                }).join('');
+                if (recommendedRoot.dataset.cardMenusBound !== 'true') {
+                    recommendedItems.forEach((item) => {
+                        const token = sanitizeIdToken(item.id);
+                        const buttonId = `index-recommended-actions-btn-${token}`;
+                        const menuId = `index-recommended-actions-menu-${token}`;
+                        initializeCardActionDropdown({
+                            buttonId,
+                            menuId,
+                            onValueChange: ({ value }) => {
+                                const action = String(value || '');
+                                if (action === 'view') {
+                                    alertMessage(`Viewing item ${item.id} (simulated).`, 'info');
+                                } else if (action === 'share') {
+                                    alertMessage('Share item (simulated).', 'info');
+                                } else if (action === 'delete') {
+                                    alertMessage('Delete item (simulated).', 'info');
+                                }
+                            }
+                        });
+                    });
+                    recommendedRoot.dataset.cardMenusBound = 'true';
+                }
+                recommendedRoot.dataset.gridBound = 'true';
+            }
+        }
+
+        // Header dropdowns are now handled by ll-app-header + initializePortaledDropdown.
+
+
+        // Simulated feedback helper routed through the reusable Toast pattern.
+        function alertMessage(message, type = "info") {
+            const components = window.LlumenComponents;
+            const toastStateByType = {
+                info: 'info',
+                success: 'positive',
+                error: 'negative',
+                warning: 'warning',
+                positive: 'positive',
+                negative: 'negative',
+                loading: 'loading'
+            };
+            const normalizedType = String(type || 'info').toLowerCase();
+            const toastState = toastStateByType[normalizedType] || 'info';
+            const safeMessage = String(message == null ? '' : message).trim() || 'Action completed.';
+
+            if (components && typeof components.createToast === 'function') {
+                components.createToast({
+                    state: toastState,
+                    message: safeMessage,
+                    position: 'bottom-left',
+                    duration: 4000,
+                    dismissible: true
+                });
+                return;
+            }
+
+            // Fallback for environments where reusable components are unavailable.
+            console.warn('[toast unavailable]', safeMessage);
+        }
+
+
+        // Function to generate a random number between min and max (inclusive)
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getIndexStudioWorkspaceOptions() {
+            const workspaceNames = [];
+            const addName = (name) => {
+                const normalized = String(name || '').trim();
+                if (!normalized) return;
+                if (!workspaceNames.includes(normalized)) workspaceNames.push(normalized);
+            };
+
+            addName('Private');
+
+            if (typeof window.generateWorkspaceList === 'function') {
+                window.generateWorkspaceList();
+            }
+
+            const privateLink = document.querySelector('#private-workspace-link .text-sm.font-medium') || document.getElementById('private-workspace-link');
+            if (privateLink) addName(privateLink.textContent);
+
+            document.querySelectorAll('#workspaces-list .ll-block-link__title, #workspaces-list .text-sm.font-medium').forEach((titleNode) => {
+                addName(titleNode.textContent);
+            });
+
+            return workspaceNames
+                .filter((name) => name.toLowerCase() !== 'private')
+                .sort((a, b) => a.localeCompare(b));
+        }
+
+        function getIndexStudioWorkspaceOptionIcon(valueOrLabel) {
+            const rawValue = String(valueOrLabel || '').trim();
+            if (!rawValue) return 'workspaces';
+            const normalizedValue = rawValue.startsWith('workspace:')
+                ? rawValue.slice('workspace:'.length)
+                : rawValue;
+            const normalizedLower = normalizedValue.toLowerCase();
+            if (normalizedLower === 'all content') return 'menu';
+            if (normalizedLower === 'private') return 'lock';
+            if (normalizedLower === 'shared with me') return 'ios_share';
+            return 'workspaces';
+        }
+
+        function setIndexStudioWorkspaceSelectedValue(label, value) {
+            const selectedValueElement = document.querySelector('#index-studio-workspace-nav-btn .ll-dropdown__selected-value');
+            if (!selectedValueElement) return;
+            const resolvedLabel = String(label || '').trim() || 'All Content';
+            const icon = getIndexStudioWorkspaceOptionIcon(value || resolvedLabel);
+            selectedValueElement.innerHTML = `
+                <span class="material-symbols-outlined ll-dropdown__selection-leading-icon">${icon}</span>
+                <span class="truncate">${resolvedLabel}</span>
+            `;
+        }
+
+        function decorateIndexStudioWorkspaceDropdownMenuIcons() {
+            const menuElement = document.getElementById('index-studio-workspace-nav-menu');
+            if (!menuElement) return;
+
+            menuElement.querySelectorAll('[data-value]').forEach((item) => {
+                const labelElement = item.querySelector('[data-dropdown-label]');
+                if (!labelElement) return;
+
+                let iconElement = item.querySelector('[data-index-studio-workspace-icon]');
+                if (!iconElement) {
+                    iconElement = document.createElement('span');
+                    iconElement.className = 'material-symbols-outlined ll-dropdown__item-icon ll-dropdown__item-icon--prefix';
+                    iconElement.setAttribute('aria-hidden', 'true');
+                    iconElement.dataset.indexStudioWorkspaceIcon = 'true';
+                    labelElement.parentNode.insertBefore(iconElement, labelElement);
+                }
+
+                iconElement.textContent = getIndexStudioWorkspaceOptionIcon(item.dataset.value || labelElement.textContent || '');
+            });
+        }
+
+        // Update all story cards with random sections on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const llComponents = window.LlumenComponents;
+            const appHeaderHost = document.querySelector('[data-ll-app-header-host]');
+            if (appHeaderHost && typeof window.renderLlumenAppHeader === 'function') {
+                window.renderLlumenAppHeader(appHeaderHost, {
+                    customContentSecondInnerStart: `
+                        <a href="studio.html" class="ll-btn ll-btn--outline-default">
+                            <span class="material-symbols-outlined ll-btn__icon">construction</span>
+                            <span>Studio</span>
+                        </a>
+                    `
+                });
+                appHeaderHost.dataset.llAppHeaderMounted = 'true';
+            }
+            if (llComponents && typeof llComponents.initializePortaledDropdown === 'function') {
+                llComponents.initializePortaledDropdown({
+                    buttonId: 'index-studio-workspace-nav-btn',
+                    menuId: 'index-studio-workspace-nav-menu',
+                    align: 'left',
+                    matchTriggerWidth: false,
+                    selectedValueSelector: '.ll-dropdown__selected-value',
+                    menuType: 'selection',
+                    defaultValue: 'All Content',
+                    emptySelectionLabel: 'Select workspace',
+                    groupedOptions: [
+                        {
+                            options: [
+                                { label: 'All Content', value: 'All Content' },
+                                { label: 'Private', value: 'Private' },
+                                { label: 'Shared with Me', value: 'Shared with Me' }
+                            ]
+                        },
+                        {
+                            options: getIndexStudioWorkspaceOptions().map((workspaceName) => ({
+                                label: workspaceName,
+                                value: `workspace:${workspaceName}`
+                            }))
+                        }
+                    ],
+                    onValueChange: ({ label, value }) => {
+                        setIndexStudioWorkspaceSelectedValue(label, value);
+                    }
+                });
+                decorateIndexStudioWorkspaceDropdownMenuIcons();
+                setIndexStudioWorkspaceSelectedValue('All Content', 'All Content');
+            }
+            const appNavBar = document.getElementById('app-nav-bar');
+            if (appNavBar && llComponents && typeof llComponents.initializeHideWithScroll === 'function') {
+                if (appNavBar.__llIndexStudioHideWithScrollController
+                    && typeof appNavBar.__llIndexStudioHideWithScrollController.destroy === 'function') {
+                    appNavBar.__llIndexStudioHideWithScrollController.destroy();
+                }
+                appNavBar.__llIndexStudioHideWithScrollController = llComponents.initializeHideWithScroll({
+                    targetElement: appNavBar,
+                    offsetElement: document.querySelector('.ll-app-header') || document.querySelector('header'),
+                    cssVarName: '--header-height',
+                    cssVarHost: document.documentElement,
+                    hiddenClass: 'll-hidden'
+                });
+            }
+            document.querySelectorAll('.story-card-container .num-sections').forEach(span => {
+                span.textContent = `${getRandomInt(12, 20)} Sections`;
+            });
+            initializeIndexCarousels();
+            updateExpandCollapseButton();
+            sendChatButton.disabled = true;
+        });
+
+        // Tooltip functionality for "Create Workspace" button
+        const createWorkspaceButton = document.getElementById('create-workspace-button');
+        let tooltipElement = null;
+        let tooltipTimeout = null;
+
+        function showTooltip(button, text) {
+            if (tooltipElement) {
+                tooltipElement.remove();
+                tooltipElement = null;
+            }
+
+            tooltipElement = document.createElement('div');
+            tooltipElement.className = 'tooltip';
+            tooltipElement.textContent = text;
+            document.body.appendChild(tooltipElement);
+
+            const rect = button.getBoundingClientRect();
+            const scrollX = window.scrollX || window.pageXOffset;
+            const scrollY = window.scrollY || window.pageYOffset;
+
+            tooltipElement.style.left = `${rect.left + scrollX}px`;
+            tooltipElement.style.top = `${rect.top + scrollY - tooltipElement.offsetHeight - 8}px`;
+            
+            requestAnimationFrame(() => {
+                tooltipElement.classList.add('show');
+            });
+        }
+
+        function hideTooltip() {
+            if (tooltipTimeout) {
+                clearTimeout(tooltipTimeout);
+                tooltipTimeout = null;
+            }
+            if (tooltipElement) {
+                tooltipElement.classList.remove('show');
+                tooltipElement.addEventListener('transitionend', function handler() {
+                    if (tooltipElement && !tooltipElement.classList.contains('show')) {
+                        tooltipElement.remove();
+                        tooltipElement = null;
+                        this.removeEventListener('transitionend', handler);
+                    }
+                });
+            }
+        }
+
+        if (createWorkspaceButton) {
+            createWorkspaceButton.addEventListener('mouseenter', () => {
+                tooltipTimeout = setTimeout(() => {
+                    showTooltip(createWorkspaceButton, createWorkspaceButton.dataset.tooltip);
+                }, 400);
+            });
+            createWorkspaceButton.addEventListener('mouseleave', hideTooltip);
+            createWorkspaceButton.addEventListener('click', () => {
+                alertMessage("Create Workspace functionality not implemented in prototype.", "info");
+            });
+        }
+
+        // Featured Stories Slider Logic
+        const sliderInner = document.getElementById('slider-inner');
+        const sliderItems = document.querySelectorAll('.slider-item');
+        const thumbnailsContainer = document.getElementById('slider-thumbnails');
+        const thumbnailItems = document.querySelectorAll('.thumbnail-item');
+        const heroSlider = document.getElementById('hero-slider');
+
+        let currentSlideIndex = 0;
+        let slideInterval;
+        const slideDuration = 10000; // 10 seconds for each slide display
+
+        // Array of placeholder image URLs for the animated backgrounds (now without text in the URL)
+        const animatedBackgroundImages = [
+            'https://placehold.co/1920x1080/0f172a/64748b',
+            'https://placehold.co/1920x1080/1e293b/94a3b8',
+            'https://placehold.co/1920x1080/0c0a00/fde047'
+        ];
+
+        function getRandomWidthClass() {
+            const widths = ['w-full', 'w-5/6', 'w-4/5', 'w-3/4', 'w-2/3', 'w-1/2', 'w-1/3'];
+            return widths[Math.floor(Math.random() * widths.length)];
+        }
+
+        function populateAnimatedBackgrounds() {
+            document.querySelectorAll('.animated-background').forEach((bgElement, index) => {
+                // The background image will now be determined by the container's background-color or if a class is added to it.
+                // For this prototype, it will effectively be transparent and show the parent's dark background.
+                // No need to set backgroundImage via JS here if it's not meant to be an image.
+
+                // Set dynamic content (existing placeholder structure)
+                const content = `
+                    <div class="flex items-start justify-start h-full py-8 px-4">
+                        <div class="flex flex-col items-start gap-y-4 w-1/3 flex-shrink-0">
+                            <div class="bg-blue-700 rounded-lg w-full h-32 flex items-center justify-center text-white text-xl">Chart</div>
+                            <div class="flex flex-col space-y-4 w-full">
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-start justify-center w-2/3 h-full flex-shrink-0">
+                            <div class="bg-slate-700 rounded-lg w-96 h-96 flex items-center justify-center text-white text-xl shadow-lg">
+                                Background Visual
+                            </div>
+                        </div>
+                    </div>
+                `;
+                bgElement.innerHTML = content;
+            });
+        }
+
+        function showSlide(index) {
+            if (index >= sliderItems.length) {
+                currentSlideIndex = 0;
+            } else if (index < 0) {
+                currentSlideIndex = sliderItems.length - 1;
+            } else {
+                currentSlideIndex = index;
+            }
+
+            sliderItems.forEach((item, i) => {
+                const animatedBg = item.querySelector('.animated-background');
+                if (i === currentSlideIndex) {
+                    item.classList.add('active');
+                    if (animatedBg) {
+                        // Reset animation for the newly active slide to start from the top
+                        // Temporarily set animation to 'none' and reset transform, then reapply animation
+                        animatedBg.style.animation = 'none';
+                        animatedBg.style.transform = 'translateY(0)';
+                        // Force reflow
+                        void animatedBg.offsetHeight; 
+                        // Reapply the animation
+                        animatedBg.style.animation = 'backgroundPan 12s linear infinite';
+                    }
+                } else {
+                    item.classList.remove('active');
+                    // IMPORTANT: Do NOT stop the animation for inactive slides.
+                    // Let them continue animating in the background as they fade out,
+                    // so there's no jump when they become active again.
+                }
+            });
+
+            thumbnailItems.forEach((thumb, i) => {
+                if (i === currentSlideIndex) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            showSlide(currentSlideIndex + 1);
+        }
+
+        function startAutoSlide() {
+            stopAutoSlide();
+            slideInterval = setInterval(nextSlide, slideDuration);
+        }
+
+        function stopAutoSlide() {
+            clearInterval(slideInterval);
+        }
+
+        thumbnailItems.forEach(thumbnail => {
+            thumbnail.addEventListener('click', (event) => {
+                stopAutoSlide();
+                const index = parseInt(event.target.dataset.slideIndex);
+                showSlide(index);
+                startAutoSlide();
+            });
+        });
+
+        heroSlider.addEventListener('mouseenter', stopAutoSlide);
+        heroSlider.addEventListener('mouseleave', startAutoSlide);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            populateAnimatedBackgrounds();
+            showSlide(0); // Show the first slide initially
+            startAutoSlide();
+        });
+
+    </script>
+</body>
+</html>
