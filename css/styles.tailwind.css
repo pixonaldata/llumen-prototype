@@ -3121,7 +3121,7 @@
   .ll-card__link-overlay {
     @apply absolute inset-0 m-0 border-0 bg-transparent p-0 text-left transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
     --tw-ring-offset-color: rgb(17 24 39);
-    --tw-ring-color: var(--ll-bg-primary);
+    --tw-ring-color: var(--ll-bg-primary); 
     border-radius: inherit;
   }
 
