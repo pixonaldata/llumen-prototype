@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Working Create Component Modal</title>
+    <title>Working Create Asset Modal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     
@@ -17,8 +17,8 @@
 </head>
 <body class="bg-gray-900 text-white p-8">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6">Working Create Component Modal</h1>
-        <p class="text-gray-400 mb-8">This is a working implementation of the modular Create Component modal approach.</p>
+        <h1 class="text-3xl font-bold mb-6">Working Create Asset Modal</h1>
+        <p class="text-gray-400 mb-8">This is a working implementation of the modular Create Asset modal approach.</p>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-gray-800 p-6 rounded-lg">
@@ -38,7 +38,7 @@
                 <h2 class="text-xl font-semibold mb-4">Test the Modal</h2>
                 <button id="test-modal-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md transition duration-200 font-medium">
                     <span class="material-symbols-outlined mr-2">add</span>
-                    Open Create Component Modal
+                    Open Create Asset Modal
                 </button>
                 
                 <div class="mt-4 p-4 bg-gray-700 rounded-lg">
@@ -64,7 +64,7 @@
                     <div>
                         <p class="text-green-400">📄 Files</p>
                         <p class="ml-4">├── working-modal.html (This file)</p>
-                        <p class="ml-4">├── components.html (Main components page)</p>
+                        <p class="ml-4">├── assets.html (Main assets page)</p>
                         <p class="ml-4">└── test-modal.html (Simple test)</p>
                     </div>
                 </div>
@@ -80,13 +80,13 @@
             <p>Validation loaded: ${typeof ValidationManager !== 'undefined' ? '✅' : '❌'}</p>
             <p>Chart Mapping loaded: ${typeof ChartMappingManager !== 'undefined' ? '✅' : '❌'}</p>
             <p>Wizard Navigation loaded: ${typeof WizardNavigation !== 'undefined' ? '✅' : '❌'}</p>
-            <p>Create Component Modal loaded: ${typeof CreateComponentModal !== 'undefined' ? '✅' : '❌'}</p>
+            <p>Create Asset Modal loaded: ${typeof CreateComponentModal !== 'undefined' ? '✅' : '❌'}</p>
             <p>Modal Loader loaded: ${typeof CreateComponentLoader !== 'undefined' ? '✅' : '❌'}</p>
             <p>openCreateComponentModal function: ${typeof openCreateComponentModal !== 'undefined' ? '✅' : '❌'}</p>
         `;
 
         document.getElementById('test-modal-btn').addEventListener('click', function() {
-            console.log('Opening Create Component Modal...');
+            console.log('Opening Create Asset Modal...');
             if (typeof openCreateComponentModal === 'function') {
                 openCreateComponentModal();
             } else {

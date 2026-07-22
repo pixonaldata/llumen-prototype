@@ -4,1043 +4,655 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Users - Platform Settings - Crimson</title>
-    <!-- Tailwind CSS CDN for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/tailwind.css">
 </head>
 <body>
-    <div id="crimson-app" class="bg-gray-900">
-        <header class="bg-gray-800 py-4 px-4 md:px-8 flex items-center justify-between shadow-lg sticky top-0 z-30">
-            <!-- Left-aligned group: Logo, divider, client logo, and navigation -->
-            <div class="flex items-center">
-                <a href="../index.html">
-                    <div class="w-9 h-9 flex items-center justify-center rounded-lg overflow-hidden">
-                        <svg viewBox="0 0 32 32" class="w-full h-full">
-                            <circle cx="16" cy="16" r="16" fill="#dc2626" /> <circle cx="16" cy="16" r="8" fill="#ffffff" />
-                        </svg>
-                    </div>
-                </a>
-                <div class="h-9 border-l border-gray-600 ml-4"></div> <!-- Added ml-4 for spacing -->
-                <a href="../index.html">
-                    <div class="flex items-center justify-center px-3 py-1 rounded-lg bg-[#1a1a1a] text-white text-sm font-semibold h-9 ml-4"> <!-- Added ml-4 for spacing -->
-                        <span>Client Logo</span>
-                    </div>
-                </a>
-                <!-- New Navigation Menu - now directly next to client logo with controlled spacing -->
-                <!-- <nav class="flex items-center ml-4">
-                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-bold text-white transition duration-200">My Workspaces</a>
-                    <a href="explore.html" class="px-3 py-2 rounded-md text-sm text-gray-400 hover:text-white transition duration-200">Explore</a>
-                </nav> -->
-                <div class="flex items-center bg-gray-700 rounded-lg w-[20rem] ml-4">
-                    <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <input type="text" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
-                </div>
-            </div>
+    <div class="ll-page-container">
+        <header class="ll-header ll-app-header" data-ll-app-header-host></header>
 
-            <!-- Right-aligned group of icons and user dropdown -->
-            <div class="flex items-center">
-                <!-- Create Dropdown -->
-                <div class="relative mr-4">
-                    <button id="create-dropdown-button" class="flex items-center bg-gray-700 hover:bg-gray-600 text-white transition duration-200 focus:outline-none px-3 pl-2.5 py-2 rounded-md">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        <span class="text-sm font-medium">Create</span>
-                    </button>
-                    <div id="create-dropdown-menu" class="options-dropdown-menu hidden">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Briefing'); return false;">Briefing</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Story'); return false;">Story</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Dashboard'); return false;">Dashboard</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150" onclick="openCreateContentModal('Whiteboard'); return false;">Whiteboard</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Workspace</a>
-                    </div>
-                </div>
-
-                <!-- Replaced original search button with the search container -->
-                <div id="search-container" class="relative flex items-center mr-3 hidden">
-                    <button id="search-icon-button" class="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-400 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 z-10">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </button>
-                    <div id="search-input-wrapper" class="absolute right-0 flex items-center bg-gray-700 rounded-full overflow-hidden transition-all duration-300 ease-in-out">
-                        <svg class="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        <input type="text" id="header-search-input" placeholder="Search..." class="bg-transparent text-white pl-2 pr-4 py-2 w-full focus:outline-none placeholder-gray-400 text-sm">
-                    </div>
-                </div>
-
-                <!-- Notification Icon Button with margin-left for spacing from search -->
-                <button class="notifications-button round-button mr-4">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                </button>
-                
-                <!-- User Dropdown with specific margins -->
-                <div class="relative">
-                    <button id="user-dropdown-button" class="user-dropdown-button round-button bg-gray-600 hover:bg-gray-500">
-                        <span class="">J</span>
-                    </button>
-                    <div id="user-dropdown-menu" class="options-dropdown-menu hidden">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Account Settings</a>
-                        <a href="../platform-settings/overview.html" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Platform Settings</a>
-                        <a href="../component-library.html" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Component Library</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Help</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Logout</a>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Layout with Sidebar and Content -->
-        <div class="flex flex-1">
-            <!-- Vertical Sidebar Navigation -->
-            <aside class="w-56 bg-gray-800 border-r border-gray-700 sidebar-nav">
-                <div class="px-4 py-5">
+        <main class="ll-page-layout">
+            <aside class="ll-app-sidebar-container ll-app-sidebar-container-left">
+                <div class="ll-sidebar ll-sidebar--left">
                     <h1 class="text-xl font-bold text-white mb-5">Platform Settings</h1>
-                    
-                    <!-- Navigation Menu -->
-                    <nav class="space-y-3">
-                        <a href="overview.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 mb-0">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">admin_panel_settings</span>
-                                Overview
-                            </div>
+                    <nav class="ll-tabs-vertical">
+                        <a href="overview.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">admin_panel_settings</span>
+                            Overview
                         </a>
-                        
-                        <a href="components.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">grid_view</span>
-                                Components
-                            </div>
+                        <a href="assets.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">grid_view</span>
+                            Assets
                         </a>
-                        
-                        <a href="filters.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">filter_list</span>
-                                Filters
-                            </div>
+                        <a href="filters.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">filter_list</span>
+                            Filters
                         </a>
-
-                        <a href="data-sources.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">storage</span>
-                                Data Sources
-                            </div>
+                        <a href="sources.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">storage</span>
+                            Sources
                         </a>
-                        
-                        <a href="global-variables.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">tune</span>
-                                Global Variables
-                            </div>
+                        <a href="global-variables.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">tune</span>
+                            Global Variables
                         </a>
-                        
-                        <a href="workspaces.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">workspaces</span>
-                                Workspaces
-                            </div>
+                        <a href="workspaces.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">workspaces</span>
+                            Workspaces
                         </a>
-                        
-                        <a href="users.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200 active">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">group</span>
-                                Users
-                            </div>
+                        <a href="users.html" class="ll-btn ll-tabs-vertical__btn ll-btn--primary ll-active">
+                            <span class="material-symbols-outlined ll-btn__icon">group</span>
+                            Users
                         </a>
-                        
-                        <a href="security.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">security</span>
-                                Security
-                            </div>
+                        <a href="security.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">security</span>
+                            Security
                         </a>
-                        
-                        <a href="reporting.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">analytics</span>
-                                Reporting
-                            </div>
+                        <a href="reporting.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">analytics</span>
+                            Reporting
                         </a>
-                        
-                        <a href="billing.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">receipt_long</span>
-                                Billing
-                            </div>
+                        <a href="theme.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">palette</span>
+                            Theme
                         </a>
-                        
-                        <a href="theme.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">palette</span>
-                                Theme
-                            </div>
-                        </a>
-                            
-                        <a href="organization.html" class="platform-nav-item w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white transition duration-200">
-                            <div class="flex items-center">
-                                <span class="material-symbols-outlined mr-3 text-lg">business</span>
-                                Organization
-                            </div>
+                        <a href="organization.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                            <span class="material-symbols-outlined ll-btn__icon">business</span>
+                            Organization
                         </a>
                     </nav>
                 </div>
             </aside>
 
-            <!-- Main Content Area -->
-            <main class="flex-1 main-content-area">
-                <!-- Users Tab Content -->
-                <div id="users-content" class="tab-content" style="height: calc(100vh - 68px);">
-                    <div class="flex w-full">
-                        <!-- Main Content Area -->
-                        <div class="flex-1 min-w-0 flex justify-center" style="margin-right: 256px;">
-                            <div class="p-10 max-w-7xl w-full">
-                                <h2 class="text-2xl font-bold text-white mb-5">User Management</h2>
-                            
-                            <!-- Internal Tabs -->
-                            <div class="border-b border-gray-700 mb-6">
-                                <nav class="flex space-x-6">
-                                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-red-500 text-white font-medium text-sm" data-internal-tab="users">
-                                        Users
-                                    </button>
-                                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="groups">
-                                        Groups
-                                    </button>
-                                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="organizational-units">
-                                        Organizational Units
-                                    </button>
-                                    <button class="internal-tab-item pb-2 px-1 border-b-2 border-transparent text-gray-400 hover:text-white font-medium text-sm" data-internal-tab="roles">
-                                        Roles
-                                    </button>
-                                </nav>
-                            </div>
-
-                            <!-- User Table -->
-                            <div class="bg-gray-800 rounded-lg overflow-hidden">
-                            <div class="px-6 py-4 border-b border-gray-700">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <button class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                            <span class="material-symbols-outlined mr-1" style="font-size: 20px;">add</span>
-                                            Invite Users
-                                        </button>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <div class="relative">
-                                            <input type="text" id="users-search-input" placeholder="Search users..." class="bg-gray-700 text-white rounded-md p-2 pl-3 focus:outline-none focus:ring-2 focus:ring-red-500 w-64 text-sm" style="padding-right: 5rem;" />
-                                            <button id="users-search-clear" type="button" class="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 focus:outline-none" style="display: none;" data-tooltip="Clear Search">
-                                                <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
-                                            </button>
-                                            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">search</span>
+            <div class="ll-page-content-outer">
+                <div class="ll-page-content-inner ll-page-content-inner--no-x-padding ll-page-content-inner--no-t-padding">
+                            <div class="ll-subcontext-header-sticky-container">
+                                <div class="ll-header ll-header--has-tabs ll-subcontext-header">
+                                    <div>
+                                        <h2 class="ll-subcontext-heading">Users</h2>
+                                        <div class="ll-tab-nav">
+                                            <button class="users-page-tab ll-tab-btn ll-active" data-users-page-tab="users">Users</button>
+                                            <button class="users-page-tab ll-tab-btn" data-users-page-tab="groups">Groups</button>
+                                            <button class="users-page-tab ll-tab-btn" data-users-page-tab="teams">Teams</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Filters Row -->
-                            <div class="px-6 py-4 border-b border-gray-700">
-                                <div class="flex flex-wrap gap-4 justify-between">
-                                    <div class="flex flex-wrap gap-4">
-                                        <!-- Role Filter -->
-                                        <div class="relative">
-                                            <button id="role-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                <span class="mr-1">Role</span>
-                                                <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                <span id="role-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Role Filter">
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                </span>
-                                            </button>
-                                            <div id="role-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="Admin" class="mr-2"> Admin
-                                                </label>
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="Manager" class="mr-2"> Manager
-                                                </label>
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="User" class="mr-2"> User
-                                                </label>
+                            <div class="ll-subcontext">
+                                <section id="users-page-users-content" class="users-page-tab-content">
+                                    <div id="platform-users-listing-root" class="ll-listing-module ll-listing-module--framed">
+                                        <div class="ll-listing-module-header">
+                                            <div class="ll-listing-module-header__top">
+                                                <div class="ll-listing-module-header__title-wrap">
+                                                    <div class="ll-listing-module-header__title">Users</div>
+                                                </div>
+                                                <div class="ll-listing-module-header__actions">
+                                                    <div class="ll-input-with-left-icon ll-listing-module-search-input">
+                                                        <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
+                                                            <span class="material-symbols-outlined">search</span>
+                                                        </div>
+                                                        <input id="platform-users-search-input" type="text" placeholder="Search users..." class="ll-input ll-input--search ll-input-with-left-icon__input">
+                                                    </div>
+                                                    <button id="platform-users-invite-btn" type="button" class="ll-btn ll-btn--outline-default">
+                                                        <span class="material-symbols-outlined ll-btn__icon">add</span>
+                                                        Invite Users
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="ll-listing-module-header__toolbar">
+                                                <div class="ll-listing-module-header__toolbar-start">
+                                                    <button id="platform-users-role-filter-btn" class="ll-btn ll-btn--outline-default">
+                                                        <span class="ll-dropdown__selected-value">Role</span>
+                                                        <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                    </button>
+                                                    <div id="platform-users-role-filter-menu" class="ll-dropdown__menu hidden"></div>
+                                                    <button id="platform-users-status-filter-btn" class="ll-btn ll-btn--outline-default">
+                                                        <span class="ll-dropdown__selected-value">Status</span>
+                                                        <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                    </button>
+                                                    <div id="platform-users-status-filter-menu" class="ll-dropdown__menu hidden"></div>
+                                                    <button id="platform-users-clear-filters-btn" type="button" class="ll-btn ll-btn--outline-negative ll-listing-module__clear-filters hidden">Clear All Filters</button>
+                                                </div>
+                                                <div class="ll-listing-module-header__toolbar-end">
+                                                    <button id="platform-users-sort-btn" class="ll-btn ll-btn--outline-default">
+                                                        <span class="ll-dropdown__selected-value">Sort</span>
+                                                        <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                    </button>
+                                                    <div id="platform-users-sort-menu" class="ll-dropdown__menu hidden"></div>
+                                                </div>
                                             </div>
                                         </div>
-
-                                        <!-- Workspace Filter -->
-                                        <div class="relative">
-                                            <button id="workspace-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                <span class="mr-1">Workspace</span>
-                                                <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                <span id="workspace-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Workspace Filter">
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                </span>
-                                            </button>
-                                            <div id="workspace-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="IT" class="mr-2"> IT
-                                                </label>
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="Sales" class="mr-2"> Sales
-                                                </label>
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="Marketing" class="mr-2"> Marketing
-                                                </label>
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="Finance" class="mr-2"> Finance
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <!-- Status Filter -->
-                                        <div class="relative">
-                                            <button id="status-filter-btn" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md transition duration-200 text-sm flex items-center">
-                                                <span class="mr-1">Status</span>
-                                                <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
-                                                <span id="status-clear-btn" class="ml-2 text-red-400 hover:text-red-300 transition duration-200 hidden cursor-pointer flex items-center" title="Clear Status Filter">
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                                                </span>
-                                            </button>
-                                            <div id="status-filter-dropdown" class="options-dropdown-menu hidden w-34 left">
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="Active" class="mr-2"> Active
-                                                </label>
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="Pending" class="mr-2"> Pending
-                                                </label>
-                                                <label class="flex items-center px-2 py-1 text-sm text-gray-300 hover:bg-gray-600 rounded cursor-pointer">
-                                                    <input type="checkbox" value="Suspended" class="mr-2"> Suspended
-                                                </label>
-                                            </div>
-                                        </div>
+                                        <div id="platform-users-table-host" class="ll-listing-module-content-host ll-listing-module-table-host"></div>
                                     </div>
-                                    
-                                    <!-- Clear All Filters Button -->
-                                    <button id="clear-all-filters-btn" class="text-red-400 hover:text-red-300 transition duration-200 text-sm flex items-center hidden">
-                                        <span class="material-symbols-outlined mr-1 text-sm">clear_all</span>
-                                        Clear All Filters
-                                    </button>
-                                </div>
+                                </section>
+
+                                <section id="users-page-groups-content" class="users-page-tab-content hidden">
+                                    <div id="platform-groups-listing-root" class="ll-listing-module ll-listing-module--framed">
+                                        <div class="ll-listing-module-header">
+                                            <div class="ll-listing-module-header__top">
+                                                <div class="ll-listing-module-header__title-wrap">
+                                                    <div class="ll-listing-module-header__title">Groups</div>
+                                                </div>
+                                                <div class="ll-listing-module-header__actions">
+                                                    <div class="ll-input-with-left-icon ll-listing-module-search-input">
+                                                        <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
+                                                            <span class="material-symbols-outlined">search</span>
+                                                        </div>
+                                                        <input id="platform-groups-search-input" type="text" placeholder="Search groups..." class="ll-input ll-input--search ll-input-with-left-icon__input">
+                                                    </div>
+                                                    <button id="platform-groups-create-btn" type="button" class="ll-btn ll-btn--outline-default">
+                                                        <span class="material-symbols-outlined ll-btn__icon">add</span>
+                                                        Create Group
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="ll-listing-module-header__toolbar">
+                                                <div class="ll-listing-module-header__toolbar-start">
+                                                    <button id="platform-groups-status-filter-btn" class="ll-btn ll-btn--outline-default">
+                                                        <span class="ll-dropdown__selected-value">Status</span>
+                                                        <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                    </button>
+                                                    <div id="platform-groups-status-filter-menu" class="ll-dropdown__menu hidden"></div>
+                                                    <button id="platform-groups-clear-filters-btn" type="button" class="ll-btn ll-btn--outline-negative ll-listing-module__clear-filters hidden">Clear All Filters</button>
+                                                </div>
+                                                <div class="ll-listing-module-header__toolbar-end">
+                                                    <button id="platform-groups-sort-btn" class="ll-btn ll-btn--outline-default">
+                                                        <span class="ll-dropdown__selected-value">Sort</span>
+                                                        <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                    </button>
+                                                    <div id="platform-groups-sort-menu" class="ll-dropdown__menu hidden"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="platform-groups-table-host" class="ll-listing-module-content-host ll-listing-module-table-host"></div>
+                                    </div>
+                                </section>
+
+                                <section id="users-page-teams-content" class="users-page-tab-content hidden">
+                                    <div id="platform-teams-listing-root" class="ll-listing-module ll-listing-module--framed">
+                                        <div class="ll-listing-module-header">
+                                            <div class="ll-listing-module-header__top">
+                                                <div class="ll-listing-module-header__title-wrap">
+                                                    <div class="ll-listing-module-header__title">Teams</div>
+                                                </div>
+                                                <div class="ll-listing-module-header__actions">
+                                                    <div class="ll-input-with-left-icon ll-listing-module-search-input">
+                                                        <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
+                                                            <span class="material-symbols-outlined">search</span>
+                                                        </div>
+                                                        <input id="platform-teams-search-input" type="text" placeholder="Search teams..." class="ll-input ll-input--search ll-input-with-left-icon__input">
+                                                    </div>
+                                                    <button id="platform-teams-create-btn" type="button" class="ll-btn ll-btn--outline-default">
+                                                        <span class="material-symbols-outlined ll-btn__icon">add</span>
+                                                        Create Team
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="ll-listing-module-header__toolbar">
+                                                <div class="ll-listing-module-header__toolbar-start">
+                                                    <button id="platform-teams-status-filter-btn" class="ll-btn ll-btn--outline-default">
+                                                        <span class="ll-dropdown__selected-value">Status</span>
+                                                        <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                    </button>
+                                                    <div id="platform-teams-status-filter-menu" class="ll-dropdown__menu hidden"></div>
+                                                    <button id="platform-teams-clear-filters-btn" type="button" class="ll-btn ll-btn--outline-negative ll-listing-module__clear-filters hidden">Clear All Filters</button>
+                                                </div>
+                                                <div class="ll-listing-module-header__toolbar-end">
+                                                    <button id="platform-teams-sort-btn" class="ll-btn ll-btn--outline-default">
+                                                        <span class="ll-dropdown__selected-value">Sort</span>
+                                                        <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                                    </button>
+                                                    <div id="platform-teams-sort-menu" class="ll-dropdown__menu hidden"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="platform-teams-table-host" class="ll-listing-module-content-host ll-listing-module-table-host"></div>
+                                    </div>
+                                </section>
                             </div>
-                            
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="border-b border-gray-700">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">User</th>
-                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Role</th>
-                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Workspace</th>
-                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Status</th>
-                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider">Last Active</th>
-                                            <th class="px-6 py-3 text-left text-sm font-medium text-gray-300 tracking-wider w-1"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-gray-800 divide-y divide-gray-700">
-                                        <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <img class="h-10 w-10 rounded-full" src="https://placehold.co/40x40/555/fff?text=JD" alt="">
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-white">John Doe</div>
-                                                        <div class="text-sm text-gray-400">john.doe@company.com</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="text-sm text-gray-300">Admin</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="text-sm text-gray-300">IT</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                2 hours ago
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div class="relative">
-                                                    <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('dropdown-1')">
-                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                    </button>
-                                                    <div id="dropdown-1" class="options-dropdown-menu hidden mt-0">
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit User</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add to Groups</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Change Organization Unit</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete User</a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <img class="h-10 w-10 rounded-full" src="https://placehold.co/40x40/555/fff?text=JS" alt="">
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-white">Jane Smith</div>
-                                                        <div class="text-sm text-gray-400">jane.smith@company.com</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="text-sm text-gray-300">Manager</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="text-sm text-gray-300">Sales</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-300">Active</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                1 day ago
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div class="relative">
-                                                    <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('dropdown-2')">
-                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                    </button>
-                                                    <div id="dropdown-2" class="options-dropdown-menu hidden mt-0">
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit User</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add to Groups</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Change Organization Unit</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete User</a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <img class="h-10 w-10 rounded-full" src="https://placehold.co/40x40/555/fff?text=MB" alt="">
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-white">Mike Brown</div>
-                                                        <div class="text-sm text-gray-400">mike.brown@company.com</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="text-sm text-gray-300">User</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="text-sm text-gray-300">Marketing</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-900 text-yellow-300">Pending</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                Never
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div class="relative">
-                                                    <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('dropdown-3')">
-                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                    </button>
-                                                    <div id="dropdown-3" class="options-dropdown-menu hidden mt-0">
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit User</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add to Groups</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Change Organization Unit</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete User</a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr class="hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <img class="h-10 w-10 rounded-full" src="https://placehold.co/40x40/555/fff?text=SW" alt="">
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-white">Sarah Wilson</div>
-                                                        <div class="text-sm text-gray-400">sarah.wilson@company.com</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="text-sm text-gray-300">User</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="text-sm text-gray-300">Finance</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-900 text-red-300">Suspended</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                3 days ago
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div class="relative">
-                                                    <button class="options-dropdown-button" onclick="event.stopPropagation(); toggleDropdown('dropdown-4')">
-                                                        <span class="material-symbols-outlined text-lg">more_vert</span>
-                                                    </button>
-                                                    <div id="dropdown-4" class="options-dropdown-menu hidden mt-0">
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Edit User</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Add to Groups</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-gray-200 transition duration-150">Change Organization Unit</a>
-                                                        <a href="#" class="block px-4 py-2 text-sm text-red-400 transition duration-150">Delete User</a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                    </div>
+                </div>
+
+            <aside class="ll-app-sidebar-container ll-app-sidebar-container-right">
+                <div class="ll-sidebar ll-sidebar--left">
+                    <h3 class="text-md font-semibold mb-4">Quick Stats</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 flex items-center justify-center border ll-border-primary rounded-lg">
+                                <span class="material-symbols-outlined ll-text-primary text-xl">group</span>
                             </div>
-                            
-                            <!-- No matches found message -->
-                            <div id="no-matches-message" class="hidden px-6 py-8 text-center">
-                                <div class="flex flex-col items-center">
-                                    <span class="material-symbols-outlined text-gray-400 text-4xl mb-3">group</span>
-                                    <h3 class="text-lg font-medium text-gray-300 mb-2">No users found</h3>
-                                    <p class="text-gray-400 text-sm">Try adjusting your search terms or filters</p>
-                                </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium">Total Users</p>
+                                <p class="text-lg font-bold">1,247</p>
                             </div>
                         </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 flex items-center justify-center border ll-border-positive rounded-lg">
+                                <span class="material-symbols-outlined ll-text-positive text-xl">check_circle</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium">Active Users</p>
+                                <p class="text-lg font-bold">892</p>
                             </div>
                         </div>
-                        
-                        <!-- Right Column - User Statistics -->
-                        <div class="w-64 bg-gray-800 border-l border-gray-700 h-full fixed right-0 top-0 overflow-y-auto" style="height: calc(100vh - 68px); margin-top: 68px;">
-                            <div class="p-4">
-                                <h3 class="text-md font-semibold text-white mb-4">Quick Stats</h3>
-                                <div class="space-y-4">
-                                    <!-- Total Users -->
-                                    <div class="bg-gray-700 rounded-lg p-4">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 flex items-center justify-center bg-blue-600 rounded-lg">
-                                                <span class="material-symbols-outlined text-white text-xl">group</span>
-                                            </div>
-                                            <div class="ml-4">
-                                                <p class="text-sm font-medium text-gray-400">Total Users</p>
-                                                <p class="text-lg font-bold text-white">1,247</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Active Users -->
-                                    <div class="bg-gray-700 rounded-lg p-4">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 flex items-center justify-center bg-green-600 rounded-lg">
-                                                <span class="material-symbols-outlined text-white text-xl">check_circle</span>
-                                            </div>
-                                            <div class="ml-4">
-                                                <p class="text-sm font-medium text-gray-400">Active Users</p>
-                                                <p class="text-lg font-bold text-white">892</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Pending Users -->
-                                    <div class="bg-gray-700 rounded-lg p-4">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 flex items-center justify-center bg-yellow-600 rounded-lg">
-                                                <span class="material-symbols-outlined text-white text-xl">schedule</span>
-                                            </div>
-                                            <div class="ml-4">
-                                                <p class="text-sm font-medium text-gray-400">Pending</p>
-                                                <p class="text-lg font-bold text-white">23</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Suspended Users -->
-                                    <div class="bg-gray-700 rounded-lg p-4">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 flex items-center justify-center bg-red-600 rounded-lg">
-                                                <span class="material-symbols-outlined text-white text-xl">block</span>
-                                            </div>
-                                            <div class="ml-4">
-                                                <p class="text-sm font-medium text-gray-400">Suspended</p>
-                                                <p class="text-lg font-bold text-white">8</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Recent Activity -->
-                                    <div class="bg-gray-700 rounded-lg p-4">
-                                        <h4 class="text-sm font-medium text-gray-300 mb-3">Recent Activity</h4>
-                                        <div class="space-y-2">
-                                            <div class="flex text-xs">
-                                                <span class="w-2 h-2 bg-green-400 rounded-full mt-1 mr-2"></span>
-                                                <div>
-                                                    <div>John Doe logged in</div>
-                                                    <div class="text-gray-400">2 hours ago</div>
-                                                </div>
-                                            </div>
-                                            <div class="flex text-xs">
-                                                <span class="w-2 h-2 bg-green-400 rounded-full mt-1 mr-2"></span>
-                                                <div>
-                                                    <div>Jane Smith updated profile</div>
-                                                    <div class="text-gray-400">4 hours ago</div>
-                                                </div>
-                                            </div>
-                                            <div class="flex text-xs">
-                                                <span class="w-2 h-2 bg-yellow-400 rounded-full mt-1 mr-2"></span>
-                                                <div>
-                                                    <div>New user invitation sent</div>
-                                                    <div class="text-gray-400">6 hours ago</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 flex items-center justify-center border ll-border-warning rounded-lg">
+                                <span class="material-symbols-outlined ll-text-warning text-xl">schedule</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium">Pending</p>
+                                <p class="text-lg font-bold">23</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 flex items-center justify-center border ll-border-negative rounded-lg">
+                                <span class="material-symbols-outlined ll-text-negative text-xl">block</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium">Suspended</p>
+                                <p class="text-lg font-bold">8</p>
                             </div>
                         </div>
                     </div>
                 </div>
-
-            </main>
-        </div>
-
+            </aside>
+        </main>
     </div>
 
-    <!-- Create Content Modal -->
-    <div id="create-content-modal" class="fixed inset-0 bg-black p-10 bg-opacity-50 flex justify-center items-start z-50 hidden">
-        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-h-full max-w-[680px] flex flex-col">
-            <!-- Modal Header -->
-            <div class="py-4 px-6 border-b border-gray-700">
-                <div class="flex items-center justify-between">
-                    <h2 id="create-content-modal-title" class="text-xl font-semibold text-white">Create</h2>
-                    <button id="close-create-content-modal" class="flex items-center text-gray-400 hover:text-white transition duration-200">
-                        <span class="material-symbols-outlined text-2xl">close</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Modal Content -->
-            <div id="create-content-modal-content" class="flex-1 overflow-y-auto p-6">
-                <p id="create-content-modal-description" class="text-gray-300 font-semibold mb-6">Select a Workspace to proceed</p>
-                
-                <!-- Private Section -->
-                <div>
-                    <a href="#" id="private-workspace-link" class="block w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 transition duration-200 text-white flex items-center">
-                        <span class="material-symbols-outlined mr-3" style="font-size: 20px;">lock</span>
-                        <span class="text-sm font-medium">Private</span>
-                    </a>
-                    <div class="border-t border-gray-700 my-4"></div>
-                </div>
-
-                <!-- Workspaces Section -->
-                <div>
-                    <div id="workspaces-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Workspace links will be dynamically generated here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="p-6 border-t border-gray-700">
-                <div class="flex items-center justify-end space-x-3">
-                    <button type="button" id="cancel-create-content" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="../js/ai-chat.js"></script>
-    <script src="../js/create-content-modal.js"></script>
-
+    <script src="../js/llumen-components.js"></script>
+    <script src="../js/llumen-app-header.js"></script>
+    <script src="../js/llumen-shader-background.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            const appHeaderHost = document.querySelector('[data-ll-app-header-host]');
+            if (appHeaderHost && typeof window.renderLlumenAppHeader === 'function') {
+                window.renderLlumenAppHeader(appHeaderHost);
+            }
 
-            // Search functionality
-            const searchIconButton = document.getElementById('search-icon-button');
-            const searchInputWrapper = document.getElementById('search-input-wrapper');
-            const headerSearchInput = document.getElementById('header-search-input');
+            const llComponents = window.LlumenComponents;
+            if (!llComponents) return;
 
-            searchIconButton.addEventListener('click', () => {
-                searchInputWrapper.classList.toggle('is-active');
-                if (searchInputWrapper.classList.contains('is-active')) {
-                    headerSearchInput.focus();
-                }
-            });
+            if (typeof llComponents.initializeTabs === 'function') {
+                llComponents.initializeTabs({
+                    tabButtonSelector: '.users-page-tab',
+                    tabContentSelector: '.users-page-tab-content',
+                    tabValueDatasetKey: 'usersPageTab',
+                    tabContentIdPrefix: 'users-page-',
+                    tabContentIdSuffix: '-content',
+                    activeClassName: 'll-active'
+                });
+            }
 
-            // Utility for toggling dropdowns with mutual exclusivity
-            function setupDropdown(buttonId, menuId, otherMenuId) {
-                const button = document.getElementById(buttonId);
-                const menu = document.getElementById(menuId);
-                const otherMenu = otherMenuId ? document.getElementById(otherMenuId) : null;
+            if (typeof llComponents.initListingModule === 'function') {
+                const escapeHtmlText = (value) => String(value == null ? '' : value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
 
-                if (button && menu) {
-                    button.addEventListener('click', (event) => {
-                        event.stopPropagation(); // Prevent document click from immediately closing
-                        const wasHidden = menu.classList.contains('hidden');
-                        
-                        // Close the other dropdown if it exists
-                        if (otherMenu && !otherMenu.classList.contains('hidden')) {
-                            otherMenu.classList.add('hidden');
+                const statusChipClassMap = {
+                    Active: 'll-chip--outline-positive',
+                    Pending: 'll-chip--outline-warning',
+                    Suspended: 'll-chip--outline-negative'
+                };
+
+                const usersItems = [
+                    { id: 'user-john-doe', name: 'John Doe', email: 'john.doe@company.com', initials: 'JD', role: 'System Admin', status: 'Active', lastActiveLabel: '2 hours ago', lastActiveSortScore: 1721484000000 },
+                    { id: 'user-jane-smith', name: 'Jane Smith', email: 'jane.smith@company.com', initials: 'JS', role: 'Security Admin', status: 'Active', lastActiveLabel: '1 day ago', lastActiveSortScore: 1721397600000 },
+                    { id: 'user-mike-brown', name: 'Mike Brown', email: 'mike.brown@company.com', initials: 'MB', role: 'Data Admin', status: 'Pending', lastActiveLabel: 'Never', lastActiveSortScore: 0 },
+                    { id: 'user-sarah-wilson', name: 'Sarah Wilson', email: 'sarah.wilson@company.com', initials: 'SW', role: 'User', status: 'Suspended', lastActiveLabel: '3 days ago', lastActiveSortScore: 1721224800000 },
+                    { id: 'user-alex-chen', name: 'Alex Chen', email: 'alex.chen@company.com', initials: 'AC', role: 'System Admin', status: 'Active', lastActiveLabel: '5 hours ago', lastActiveSortScore: 1721473200000 },
+                    { id: 'user-priya-nair', name: 'Priya Nair', email: 'priya.nair@company.com', initials: 'PN', role: 'Security Admin', status: 'Active', lastActiveLabel: '8 hours ago', lastActiveSortScore: 1721462400000 },
+                    { id: 'user-omar-hassan', name: 'Omar Hassan', email: 'omar.hassan@company.com', initials: 'OH', role: 'Data Admin', status: 'Pending', lastActiveLabel: '2 days ago', lastActiveSortScore: 1721311200000 },
+                    { id: 'user-lena-kim', name: 'Lena Kim', email: 'lena.kim@company.com', initials: 'LK', role: 'User', status: 'Active', lastActiveLabel: '4 hours ago', lastActiveSortScore: 1721476800000 },
+                    { id: 'user-carlos-rivera', name: 'Carlos Rivera', email: 'carlos.rivera@company.com', initials: 'CR', role: 'User', status: 'Suspended', lastActiveLabel: '1 week ago', lastActiveSortScore: 1720879200000 },
+                    { id: 'user-emma-davis', name: 'Emma Davis', email: 'emma.davis@company.com', initials: 'ED', role: 'Data Admin', status: 'Active', lastActiveLabel: '6 days ago', lastActiveSortScore: 1720965600000 }
+                ];
+
+                llComponents.initListingModule({
+                    rootId: 'platform-users-listing-root',
+                    allowUnsafeHtml: true,
+                    items: usersItems,
+                    idKey: 'id',
+                    table: {
+                        containerId: 'platform-users-table-host',
+                        columns: [
+                            {
+                                property: 'name',
+                                heading: 'User',
+                                isMain: true,
+                                headerClassName: 'll-listing-table__column-main',
+                                cellClassName: 'll-listing-table__column-main',
+                                renderCell: (item) => `
+                                    <div class="ll-listing-table__main">
+                                        <div class="ll-listing-table__main-icon">
+                                            <span class="text-white font-semibold text-sm">${escapeHtmlText(item.initials || '')}</span>
+                                        </div>
+                                        <div class="ll-listing-table__main-body">
+                                            <div class="ll-listing-table__main-heading">${escapeHtmlText(item.name || '')}</div>
+                                            <div class="ll-listing-table__main-meta-row">
+                                                <span class="ll-listing-table__main-meta-item">${escapeHtmlText(item.email || '')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `
+                            },
+                            { property: 'role', heading: 'Role' },
+                            {
+                                property: 'status',
+                                heading: 'Status',
+                                renderCell: (item) => `
+                                    <span class="ll-chip ${statusChipClassMap[item.status] || 'll-chip--outline-default'}">
+                                        <span class="ll-chip__label">${escapeHtmlText(item.status || '')}</span>
+                                    </span>
+                                `
+                            },
+                            { property: 'lastActiveLabel', heading: 'Last Active' }
+                        ]
+                    },
+                    controls: {
+                        searchInputId: 'platform-users-search-input',
+                        clearAllFiltersButtonId: 'platform-users-clear-filters-btn',
+                        sortDropdown: {
+                            buttonId: 'platform-users-sort-btn',
+                            menuId: 'platform-users-sort-menu',
+                            selectedValueSelector: '.ll-dropdown__selected-value',
+                            align: 'right',
+                            dropdownIcon: 'sort',
+                            showLabel: false,
+                            dropdownLabel: 'Sort',
+                            emptySelectionLabel: 'Sort'
+                        },
+                        emptyStateText: {
+                            text: 'No matching users.',
+                            icon: 'group_off'
                         }
-                        
-                        // Toggle this dropdown
-                        if (wasHidden) {
-                            menu.classList.remove('hidden');
-                        } else {
-                            menu.classList.add('hidden');
+                    },
+                    search: {
+                        fields: ['name', 'email', 'role', 'status']
+                    },
+                    filters: [
+                        {
+                            key: 'role',
+                            label: 'Role',
+                            type: 'multiple',
+                            property: 'role',
+                            dropdown: {
+                                buttonId: 'platform-users-role-filter-btn',
+                                menuId: 'platform-users-role-filter-menu',
+                                selectedValueSelector: '.ll-dropdown__selected-value',
+                                dropdownLabel: 'Role',
+                                emptySelectionLabel: 'Role'
+                            },
+                            options: [
+                                { value: 'System Admin', label: 'System Admin' },
+                                { value: 'Security Admin', label: 'Security Admin' },
+                                { value: 'Data Admin', label: 'Data Admin' },
+                                { value: 'User', label: 'User' }
+                            ]
+                        },
+                        {
+                            key: 'status',
+                            label: 'Status',
+                            type: 'multiple',
+                            property: 'status',
+                            dropdown: {
+                                buttonId: 'platform-users-status-filter-btn',
+                                menuId: 'platform-users-status-filter-menu',
+                                selectedValueSelector: '.ll-dropdown__selected-value',
+                                dropdownLabel: 'Status',
+                                emptySelectionLabel: 'Status'
+                            },
+                            options: [
+                                { value: 'Active', label: 'Active' },
+                                { value: 'Pending', label: 'Pending' },
+                                { value: 'Suspended', label: 'Suspended' }
+                            ]
                         }
-                    });
+                    ],
+                    sorts: [
+                        { value: 'last-active-desc', label: 'Last Active', property: 'lastActiveSortScore', propertyType: 'number', order: 'desc' },
+                        { value: 'name-asc', label: 'Name', property: 'name', propertyType: 'string', order: 'asc', description: 'A-Z' },
+                        { value: 'name-desc', label: 'Name', property: 'name', propertyType: 'string', order: 'desc', description: 'Z-A' }
+                    ],
+                    itemActions: {
+                        items: [
+                            {
+                                type: 'dropdown',
+                                options: [
+                                    { value: 'edit-user', label: 'Edit User' },
+                                    { value: 'add-to-groups', label: 'Add to Groups' },
+                                    { value: 'change-team', label: 'Change Team' },
+                                    { value: 'delete-user', label: 'Delete User', danger: true }
+                                ]
+                            }
+                        ]
+                    }
+                });
 
-                    // Close dropdown if clicked outside
-                    document.addEventListener('click', (event) => {
-                        if (!button.contains(event.target) && !menu.contains(event.target)) {
-                            menu.classList.add('hidden');
+                const groupStatusChipClassMap = {
+                    Active: 'll-chip--outline-positive',
+                    Archived: 'll-chip--outline-default'
+                };
+                const groupsItems = [
+                    { id: 'group-it-admins', name: 'IT Admins', description: 'Infrastructure administrators', status: 'Active', members: 14, updatedLabel: '3 hours ago', updatedSortScore: 1721480400000 },
+                    { id: 'group-sales-leads', name: 'Sales Leads', description: 'Regional sales leadership', status: 'Active', members: 32, updatedLabel: '1 day ago', updatedSortScore: 1721397600000 },
+                    { id: 'group-finance-analysts', name: 'Finance Analysts', description: 'Financial reporting and planning', status: 'Active', members: 18, updatedLabel: '2 days ago', updatedSortScore: 1721311200000 },
+                    { id: 'group-legacy-contractors', name: 'Legacy Contractors', description: 'Retired contractor access group', status: 'Archived', members: 7, updatedLabel: '2 weeks ago', updatedSortScore: 1720274400000 }
+                ];
+
+                llComponents.initListingModule({
+                    rootId: 'platform-groups-listing-root',
+                    allowUnsafeHtml: true,
+                    items: groupsItems,
+                    idKey: 'id',
+                    table: {
+                        containerId: 'platform-groups-table-host',
+                        columns: [
+                            {
+                                property: 'name',
+                                heading: 'Group',
+                                isMain: true,
+                                headerClassName: 'll-listing-table__column-main',
+                                cellClassName: 'll-listing-table__column-main',
+                                renderCell: (item) => `
+                                    <div class="ll-listing-table__main">
+                                        <div class="ll-listing-table__main-icon"><span class="material-symbols-outlined ll-listing-table__main-icon-symbol">groups</span></div>
+                                        <div class="ll-listing-table__main-body">
+                                            <div class="ll-listing-table__main-heading">${escapeHtmlText(item.name || '')}</div>
+                                            <div class="ll-listing-table__main-meta-row">
+                                                <span class="ll-listing-table__main-meta-item">${escapeHtmlText(item.description || '')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `
+                            },
+                            { property: 'members', heading: 'Members' },
+                            {
+                                property: 'status',
+                                heading: 'Status',
+                                renderCell: (item) => `
+                                    <span class="ll-chip ${groupStatusChipClassMap[item.status] || 'll-chip--outline-default'}">
+                                        <span class="ll-chip__label">${escapeHtmlText(item.status || '')}</span>
+                                    </span>
+                                `
+                            },
+                            { property: 'updatedLabel', heading: 'Last Updated' }
+                        ]
+                    },
+                    controls: {
+                        searchInputId: 'platform-groups-search-input',
+                        clearAllFiltersButtonId: 'platform-groups-clear-filters-btn',
+                        sortDropdown: {
+                            buttonId: 'platform-groups-sort-btn',
+                            menuId: 'platform-groups-sort-menu',
+                            selectedValueSelector: '.ll-dropdown__selected-value',
+                            align: 'right',
+                            dropdownIcon: 'sort',
+                            showLabel: false,
+                            dropdownLabel: 'Sort',
+                            emptySelectionLabel: 'Sort'
+                        },
+                        emptyStateText: {
+                            text: 'No matching groups.',
+                            icon: 'groups'
                         }
-                    });
-                }
-            }
-
-            // Setup User Dropdown (with reference to Create dropdown)
-            setupDropdown('user-dropdown-button', 'user-dropdown-menu', 'create-dropdown-menu');
-
-            // Setup Create Dropdown (with reference to User dropdown)
-            setupDropdown('create-dropdown-button', 'create-dropdown-menu', 'user-dropdown-menu');
-
-            // Close search when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!searchIconButton.contains(event.target) && !searchInputWrapper.contains(event.target)) {
-                    searchInputWrapper.classList.remove('is-active');
-                }
-            });
-
-            // Internal tab switching functionality
-            document.querySelectorAll('.internal-tab-item').forEach(button => {
-                button.addEventListener('click', function() {
-                    // Skip if this is a modal tab
-                    if (this.closest('#component-modal')) {
-                        return;
-                    }
-                    
-                    const tabContainer = this.closest('.tab-content');
-                    const tabButtons = tabContainer.querySelectorAll('.internal-tab-item');
-                    
-                    // Remove active class from all internal tabs in this container
-                    tabButtons.forEach(btn => {
-                        btn.classList.remove('active');
-                        btn.classList.remove('border-red-500');
-                        btn.classList.add('border-transparent');
-                        btn.classList.remove('text-white');
-                        btn.classList.add('text-gray-400');
-                    });
-                    
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-                    this.classList.add('border-red-500');
-                    this.classList.remove('border-transparent');
-                    this.classList.add('text-white');
-                    this.classList.remove('text-gray-400');
-                });
-            });
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!event.target.closest('[id^="dropdown-"]') && !event.target.closest('button[onclick*="toggleDropdown"]')) {
-                    document.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
-                }
-            });
-
-            // Close filter dropdowns when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!event.target.closest('[id^="filter-dropdown-"]') && !event.target.closest('button[onclick*="toggleDropdown"]') && !event.target.closest('a[onclick*="openFilterModal"]')) {
-                    document.querySelectorAll('[id^="filter-dropdown-"]').forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
-                }
-            });
-
-            // Filter functionality
-            const filterButtons = ['role-filter-btn', 'workspace-filter-btn', 'status-filter-btn'];
-            const filterDropdowns = ['role-filter-dropdown', 'workspace-filter-dropdown', 'status-filter-dropdown'];
-            
-            // Initialize filter states
-            const filterStates = {
-                role: [],
-                workspace: [],
-                status: []
-            };
-
-            // Toggle filter dropdowns
-            filterButtons.forEach((btnId, index) => {
-                const button = document.getElementById(btnId);
-                const dropdown = document.getElementById(filterDropdowns[index]);
-                
-                button.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    
-                    // Close other dropdowns
-                    filterDropdowns.forEach((dropdownId, i) => {
-                        if (i !== index) {
-                            document.getElementById(dropdownId).classList.add('hidden');
+                    },
+                    search: {
+                        fields: ['name', 'description', 'status']
+                    },
+                    filters: [
+                        {
+                            key: 'status',
+                            label: 'Status',
+                            type: 'multiple',
+                            property: 'status',
+                            dropdown: {
+                                buttonId: 'platform-groups-status-filter-btn',
+                                menuId: 'platform-groups-status-filter-menu',
+                                selectedValueSelector: '.ll-dropdown__selected-value',
+                                dropdownLabel: 'Status',
+                                emptySelectionLabel: 'Status'
+                            },
+                            options: [
+                                { value: 'Active', label: 'Active' },
+                                { value: 'Archived', label: 'Archived' }
+                            ]
                         }
-                    });
-                    
-                    dropdown.classList.toggle('hidden');
-                });
-            });
-
-            // Handle checkbox changes
-            document.querySelectorAll('#role-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    updateFilterState('role', checkbox.value, checkbox.checked);
-                    updateFilterButton('role-filter-btn', filterStates.role);
-                });
-            });
-
-            document.querySelectorAll('#workspace-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    updateFilterState('workspace', checkbox.value, checkbox.checked);
-                    updateFilterButton('workspace-filter-btn', filterStates.workspace);
-                });
-            });
-
-            document.querySelectorAll('#status-filter-dropdown input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    updateFilterState('status', checkbox.value, checkbox.checked);
-                    updateFilterButton('status-filter-btn', filterStates.status);
-                });
-            });
-
-            function updateFilterState(filterType, value, checked) {
-                if (checked) {
-                    if (!filterStates[filterType].includes(value)) {
-                        filterStates[filterType].push(value);
-                    }
-                } else {
-                    filterStates[filterType] = filterStates[filterType].filter(item => item !== value);
-                }
-            }
-
-            function updateFilterButton(buttonId, selectedValues) {
-                const button = document.getElementById(buttonId);
-                const buttonText = button.querySelector('span:first-child');
-                const filterType = buttonId.split('-')[0];
-                const clearBtn = document.getElementById(filterType + '-clear-btn');
-                
-                if (selectedValues.length === 0) {
-                    buttonText.textContent = filterType.charAt(0).toUpperCase() + filterType.slice(1);
-                    clearBtn.classList.add('hidden');
-                } else {
-                    buttonText.textContent = selectedValues.join(', ');
-                    clearBtn.classList.remove('hidden');
-                }
-                
-                // Update "Clear All Filters" button visibility
-                updateClearAllFiltersButton();
-            }
-
-            function updateClearAllFiltersButton() {
-                const clearAllBtn = document.getElementById('clear-all-filters-btn');
-                const hasAnyFilters = filterStates.role.length > 0 || filterStates.workspace.length > 0 || filterStates.status.length > 0;
-                
-                if (hasAnyFilters) {
-                    clearAllBtn.classList.remove('hidden');
-                } else {
-                    clearAllBtn.classList.add('hidden');
-                }
-            }
-
-            // Clear individual filter buttons
-            document.getElementById('role-clear-btn').addEventListener('click', (event) => {
-                event.stopPropagation();
-                clearFilter('role');
-            });
-
-            document.getElementById('workspace-clear-btn').addEventListener('click', (event) => {
-                event.stopPropagation();
-                clearFilter('workspace');
-            });
-
-            document.getElementById('status-clear-btn').addEventListener('click', (event) => {
-                event.stopPropagation();
-                clearFilter('status');
-            });
-
-            // Clear all filters button
-            document.getElementById('clear-all-filters-btn').addEventListener('click', () => {
-                clearAllFilters();
-            });
-
-            function clearFilter(filterType) {
-                // Clear the filter state
-                filterStates[filterType] = [];
-                
-                // Uncheck all checkboxes in the dropdown
-                document.querySelectorAll(`#${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                
-                // Update the button text
-                updateFilterButton(`${filterType}-filter-btn`, []);
-                
-                // Close the dropdown
-                const dropdown = document.getElementById(`${filterType}-filter-dropdown`);
-                if (dropdown) {
-                    dropdown.classList.add('hidden');
-                }
-            }
-
-            function clearAllFilters() {
-                // Clear all filter states
-                Object.keys(filterStates).forEach(filterType => {
-                    filterStates[filterType] = [];
-                    
-                    // Uncheck all checkboxes in each dropdown
-                    document.querySelectorAll(`#${filterType}-filter-dropdown input[type="checkbox"]`).forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
-                    
-                    // Update each button text
-                    updateFilterButton(`${filterType}-filter-btn`, []);
-                });
-                
-                // Close all filter dropdowns
-                filterDropdowns.forEach(dropdownId => {
-                    const dropdown = document.getElementById(dropdownId);
-                    if (dropdown) {
-                        dropdown.classList.add('hidden');
+                    ],
+                    sorts: [
+                        { value: 'updated-desc', label: 'Last Updated', property: 'updatedSortScore', propertyType: 'number', order: 'desc' },
+                        { value: 'name-asc', label: 'Name', property: 'name', propertyType: 'string', order: 'asc', description: 'A-Z' },
+                        { value: 'members-desc', label: 'Members', property: 'members', propertyType: 'number', order: 'desc' }
+                    ],
+                    itemActions: {
+                        items: [
+                            {
+                                type: 'dropdown',
+                                options: [
+                                    { value: 'edit-group', label: 'Edit Group' },
+                                    { value: 'manage-members', label: 'Manage Members' },
+                                    { value: 'archive-group', label: 'Archive Group' },
+                                    { value: 'delete-group', label: 'Delete Group', danger: true }
+                                ]
+                            }
+                        ]
                     }
                 });
-            }
 
-            // Close filter dropdowns when clicking outside
-            document.addEventListener('click', (event) => {
-                // Don't close if clicking on checkboxes or their labels inside filter dropdowns
-                if (event.target.type === 'checkbox' || event.target.closest('label')) {
-                    return;
-                }
-                
-                if (!event.target.closest('[id^="filter-"]') && !event.target.closest('button[id*="filter"]')) {
-                    filterDropdowns.forEach(dropdownId => {
-                        document.getElementById(dropdownId).classList.add('hidden');
-                    });
-                }
-            });
+                const teamStatusChipClassMap = {
+                    Active: 'll-chip--outline-positive',
+                    Archived: 'll-chip--outline-default'
+                };
+                const teamsItems = [
+                    { id: 'team-planning', name: 'Planning', owner: 'John Doe', status: 'Active', members: 58, updatedLabel: '5 hours ago', updatedSortScore: 1721473200000 },
+                    { id: 'team-chairman-office', name: 'Chairman Office', owner: 'Sarah Wilson', status: 'Active', members: 21, updatedLabel: '1 day ago', updatedSortScore: 1721397600000 },
+                    { id: 'team-sales-east', name: 'Sales East', owner: 'Jane Smith', status: 'Active', members: 34, updatedLabel: '2 days ago', updatedSortScore: 1721311200000 },
+                    { id: 'team-finance-core', name: 'Finance Core', owner: 'Mike Brown', status: 'Archived', members: 26, updatedLabel: '4 days ago', updatedSortScore: 1721138400000 }
+                ];
 
-            // Search functionality
-            const usersSearchInput = document.getElementById('users-search-input');
-            const usersSearchClear = document.getElementById('users-search-clear');
-            
-            usersSearchInput.addEventListener('input', (event) => {
-                const searchTerm = event.target.value.toLowerCase();
-                filterUsers();
-                
-                // Show/hide clear button based on input value
-                if (searchTerm.length > 0) {
-                    usersSearchClear.style.display = 'flex';
-                } else {
-                    usersSearchClear.style.display = 'none';
-                }
-            });
-
-            // Clear button functionality
-            usersSearchClear.addEventListener('click', () => {
-                usersSearchInput.value = '';
-                usersSearchClear.style.display = 'none';
-                filterUsers();
-                usersSearchInput.focus();
-            });
-
-            function filterUsers() {
-                const searchTerm = usersSearchInput.value.toLowerCase();
-                const rows = document.querySelectorAll('tbody tr');
-                const noMatchesMessage = document.getElementById('no-matches-message');
-                let visibleCount = 0;
-                
-                rows.forEach(row => {
-                    const userText = row.textContent.toLowerCase();
-                    const matchesSearch = searchTerm === '' || userText.includes(searchTerm);
-                    
-                    // Additional filter logic can be added here
-                    row.style.display = matchesSearch ? '' : 'none';
-                    if (matchesSearch) visibleCount++;
-                });
-                
-                // Show/hide no matches message
-                if (searchTerm.length > 0 && visibleCount === 0) {
-                    noMatchesMessage.classList.remove('hidden');
-                } else {
-                    noMatchesMessage.classList.add('hidden');
-                }
-            }
-
-            const typeClearBtn = document.getElementById('type-clear-btn');
-            if (typeClearBtn) {
-                typeClearBtn.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    clearComponentFilter('type');
-                });
-            }
-            
-            const filterTypeClearBtn = document.getElementById('filter-type-clear-btn');
-            if (filterTypeClearBtn) {
-                filterTypeClearBtn.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    clearFilterFilter('type');
-                });
-            }
-
-
-        });
-
-        // Global dropdown functionality for user table
-        function toggleDropdown(dropdownId) {
-            // Close all other dropdowns (user, component, and filter dropdowns)
-            document.querySelectorAll('[id^="dropdown-"], [id^="component-dropdown-"], [id^="filter-dropdown-"]').forEach(dropdown => {
-                if (dropdown.id !== dropdownId) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-            
-            // Get the dropdown and button
-            const dropdown = document.getElementById(dropdownId);
-            const button = window.event ? window.event.target.closest('button') : event.target.closest('button');
-            
-            if (!dropdown) {
-                return;
-            }
-            
-            // Toggle the clicked dropdown
-            dropdown.classList.toggle('hidden');
-            
-            if (!dropdown.classList.contains('hidden')) {
-                // Ensure dropdown is appended to body if not already
-                if (dropdown.parentElement !== document.body) {
-                    document.body.appendChild(dropdown);
-                }
-                
-                // Position the dropdown relative to the button
-                const buttonRect = button.getBoundingClientRect();
-                dropdown.style.position = 'fixed';
-                dropdown.style.top = (buttonRect.bottom + 8) + 'px';
-                dropdown.style.right = (window.innerWidth - buttonRect.right) + 'px';
-            }
-        }
-
-        // Single-selection dropdown functionality for Data Binding tab
-        document.addEventListener('DOMContentLoaded', function() {
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(e) {
-                const allDropdowns = document.querySelectorAll('[id$="-dropdown"]');
-                const allButtons = document.querySelectorAll('[id$="-btn"]');
-                
-                let clickedInsideDropdown = false;
-                let clickedInsideButton = false;
-                
-                allDropdowns.forEach(dropdown => {
-                    if (dropdown.contains(e.target)) {
-                        clickedInsideDropdown = true;
+                llComponents.initListingModule({
+                    rootId: 'platform-teams-listing-root',
+                    allowUnsafeHtml: true,
+                    items: teamsItems,
+                    idKey: 'id',
+                    table: {
+                        containerId: 'platform-teams-table-host',
+                        columns: [
+                            {
+                                property: 'name',
+                                heading: 'Team',
+                                isMain: true,
+                                headerClassName: 'll-listing-table__column-main',
+                                cellClassName: 'll-listing-table__column-main',
+                                renderCell: (item) => `
+                                    <div class="ll-listing-table__main">
+                                        <div class="ll-listing-table__main-icon"><span class="material-symbols-outlined ll-listing-table__main-icon-symbol">account_tree</span></div>
+                                        <div class="ll-listing-table__main-body">
+                                            <div class="ll-listing-table__main-heading">${escapeHtmlText(item.name || '')}</div>
+                                            <div class="ll-listing-table__main-meta-row">
+                                                <span class="ll-listing-table__main-meta-item">Owner: ${escapeHtmlText(item.owner || '')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `
+                            },
+                            { property: 'members', heading: 'Members' },
+                            {
+                                property: 'status',
+                                heading: 'Status',
+                                renderCell: (item) => `
+                                    <span class="ll-chip ${teamStatusChipClassMap[item.status] || 'll-chip--outline-default'}">
+                                        <span class="ll-chip__label">${escapeHtmlText(item.status || '')}</span>
+                                    </span>
+                                `
+                            },
+                            { property: 'updatedLabel', heading: 'Last Updated' }
+                        ]
+                    },
+                    controls: {
+                        searchInputId: 'platform-teams-search-input',
+                        clearAllFiltersButtonId: 'platform-teams-clear-filters-btn',
+                        sortDropdown: {
+                            buttonId: 'platform-teams-sort-btn',
+                            menuId: 'platform-teams-sort-menu',
+                            selectedValueSelector: '.ll-dropdown__selected-value',
+                            align: 'right',
+                            dropdownIcon: 'sort',
+                            showLabel: false,
+                            dropdownLabel: 'Sort',
+                            emptySelectionLabel: 'Sort'
+                        },
+                        emptyStateText: {
+                            text: 'No matching teams.',
+                            icon: 'account_tree'
+                        }
+                    },
+                    search: {
+                        fields: ['name', 'owner', 'status']
+                    },
+                    filters: [
+                        {
+                            key: 'status',
+                            label: 'Status',
+                            type: 'multiple',
+                            property: 'status',
+                            dropdown: {
+                                buttonId: 'platform-teams-status-filter-btn',
+                                menuId: 'platform-teams-status-filter-menu',
+                                selectedValueSelector: '.ll-dropdown__selected-value',
+                                dropdownLabel: 'Status',
+                                emptySelectionLabel: 'Status'
+                            },
+                            options: [
+                                { value: 'Active', label: 'Active' },
+                                { value: 'Archived', label: 'Archived' }
+                            ]
+                        }
+                    ],
+                    sorts: [
+                        { value: 'updated-desc', label: 'Last Updated', property: 'updatedSortScore', propertyType: 'number', order: 'desc' },
+                        { value: 'name-asc', label: 'Name', property: 'name', propertyType: 'string', order: 'asc', description: 'A-Z' },
+                        { value: 'members-desc', label: 'Members', property: 'members', propertyType: 'number', order: 'desc' }
+                    ],
+                    itemActions: {
+                        items: [
+                            {
+                                type: 'dropdown',
+                                options: [
+                                    { value: 'edit-team', label: 'Edit Team' },
+                                    { value: 'manage-members', label: 'Manage Members' },
+                                    { value: 'archive-team', label: 'Archive Team' },
+                                    { value: 'delete-team', label: 'Delete Team', danger: true }
+                                ]
+                            }
+                        ]
                     }
                 });
-                
-                allButtons.forEach(button => {
-                    if (button.contains(e.target)) {
-                        clickedInsideButton = true;
-                    }
-                });
-                
-                if (!clickedInsideDropdown && !clickedInsideButton) {
-                    allDropdowns.forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                    });
-                }
-            });
-
-            
+            }
         });
     </script>
-
 </body>
-</html> 
+</html>

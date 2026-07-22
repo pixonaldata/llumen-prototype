@@ -326,9 +326,13 @@
   }
 
   .ll-subcontext-header {
-    @apply border rounded-lg;
+    @apply border rounded-lg py-5;
     border-color: var(--ll-color-divider);
     box-shadow: none;
+  }
+
+  .ll-subcontext-header.ll-header--has-tabs {
+    @apply pb-0;
   }
 
   .ll-context-header__row {
@@ -1433,7 +1437,7 @@
   }
 
   .ll-modal__title {
-    @apply text-lg font-semibold min-w-0;
+    @apply text-xl font-semibold min-w-0;
     color: #fff;
   }
 
@@ -1702,7 +1706,7 @@
   }
 
   .ll-field-group__legend {
-    @apply flex items-center justify-between text-xl font-semibold mb-4;
+    @apply flex items-center justify-between text-lg font-semibold mb-4;
   }
 
   .ll-field-group__description {
@@ -2017,6 +2021,10 @@
 
   body .flatpickr-day.today {
     border-color: rgb(var(--ll-color-neutral-300));
+  }
+
+  body .flatpickr-day.inRange {
+    box-shadow: -5px 0 0 rgb(var(--ll-color-neutral-800)), 5px 0 0 rgb(var(--ll-color-neutral-800));
   }
 
   .ll-input-with-left-icon__icon .material-symbols-outlined {
@@ -3029,8 +3037,9 @@
     Containers: Card
     ======================================== */
   .ll-card {
-    @apply flex flex-col border rounded-xl backdrop-blur-2xl;
-    background-color: rgb(var(--ll-color-neutral-700));
+    @apply flex flex-col border rounded-xl;
+    /* background-color: rgb(var(--ll-color-neutral-700)); */
+    background-color: var(--ll-bg-neutral-subtle);
     border-color: var(--ll-color-divider);
   }
 
@@ -4057,7 +4066,7 @@
   }
 
   .ll-listing-module-header__title {
-    @apply text-2xl font-bold;
+    @apply text-xl font-bold;
   }
 
   .ll-listing-module-header__description {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Components - Platform Settings - Crimson</title>
+    <title>Assets - Platform Settings - Crimson</title>
     <!-- Use compiled Tailwind output only (no CDN runtime Tailwind) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
@@ -90,7 +90,7 @@
         <header class="ll-header ll-app-header" data-ll-app-header-host></header>
 
         <!-- Main Layout with Sidebar and Content -->
-        <div class="flex flex-1">
+        <main class="ll-page-layout">
             <!-- Vertical Sidebar Navigation -->
             <aside class=" ll-app-sidebar-container ll-app-sidebar-container-left">
                 <div class="ll-sidebar ll-sidebar--left">
@@ -100,17 +100,17 @@
                             <span class="material-symbols-outlined ll-btn__icon">admin_panel_settings</span>
                             Overview
                         </a>
-                        <a href="components.html" class="ll-btn ll-tabs-vertical__btn ll-btn--primary ll-active">
+                        <a href="assets.html" class="ll-btn ll-tabs-vertical__btn ll-btn--primary ll-active">
                             <span class="material-symbols-outlined ll-btn__icon">grid_view</span>
-                            Components
+                            Assets
                         </a>                        
                         <a href="filters.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
                             <span class="material-symbols-outlined ll-btn__icon">filter_list</span>
                             Filters
                         </a>
-                        <a href="data-sources.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
+                        <a href="sources.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
                             <span class="material-symbols-outlined ll-btn__icon">storage</span>
-                            Data Sources
+                            Sources
                         </a>                        
                         <a href="global-variables.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
                             <span class="material-symbols-outlined ll-btn__icon">tune</span>
@@ -132,10 +132,6 @@
                             <span class="material-symbols-outlined ll-btn__icon">analytics</span>
                             Reporting
                         </a>                        
-                        <a href="billing.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
-                            <span class="material-symbols-outlined ll-btn__icon">receipt_long</span>
-                            Billing
-                        </a>                        
                         <a href="theme.html" class="ll-btn ll-tabs-vertical__btn ll-btn--flat-default">
                             <span class="material-symbols-outlined ll-btn__icon">palette</span>
                             Theme
@@ -148,30 +144,26 @@
                 </div>
             </aside>
 
-            <!-- Main Content Area -->
-            <main class="flex-1">
-                <!-- Components Tab Content -->
-                <div id="components-content">
-                    <div class="flex w-full">
-                        <!-- Main Content Area -->
-                        <div class="flex-1 min-w-0 flex justify-center">
-                            <div class="p-8 max-w-7xl w-full">
+            <div class="ll-page-content-outer">
+                <div class="ll-page-content-inner ll-page-content-inner--no-x-padding ll-page-content-inner--no-t-padding">
+                    <!-- Assets Tab Content -->
+                    <div class="ll-subcontext">
                                 <div id="components-listing-root" class="ll-listing-module ll-listing-module--framed">
                                     <div class="ll-listing-module-header">
                                         <div class="ll-listing-module-header__top">
                                             <div class="ll-listing-module-header__title-wrap">
-                                                <div class="ll-listing-module-header__title">Component Management</div>
+                                                <div class="ll-listing-module-header__title">Assets</div>
                                             </div>
                                             <div class="ll-listing-module-header__actions">
                                                 <div class="ll-input-with-left-icon ll-listing-module-search-input">
                                                     <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
                                                         <span class="material-symbols-outlined">search</span>
                                                     </div>
-                                                    <input id="components-search-input" type="text" placeholder="Search components..." class="ll-input ll-input--search ll-input-with-left-icon__input">
+                                                    <input id="components-search-input" type="text" placeholder="Search assets..." class="ll-input ll-input--search ll-input-with-left-icon__input">
                                                 </div>
                                                 <button id="create-component-btn" type="button" class="ll-btn ll-btn--outline-default">
                                                     <span class="material-symbols-outlined ll-btn__icon">add</span>
-                                                    Create Component
+                                                    Create Asset
                                                 </button>
                                             </div>
                                         </div>
@@ -208,7 +200,7 @@
 
 
 
-    <!-- Component Details Modal -->
+    <!-- Asset Details Modal -->
     <template id="component-modal-template">
                                 <div class="fixed inset-0 p-10 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
                                     <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 h-full max-w-[1520px] flex flex-col">
@@ -224,9 +216,9 @@
                                                 <div class="flex items-center space-x-4">
                                                     <button type="button" data-open-edit-component-modal class="ll-btn ll-btn--outline-default">
                                                         <span class="material-symbols-outlined ll-btn__icon">edit</span>
-                                                        Edit Component
+                                                        Edit Asset
                                                     </button>
-                                                    <!-- Component Dropdown -->
+                                                    <!-- Asset Dropdown -->
                                                     <div class="relative">
                                                         <button id="component-actions-dropdown-btn" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Component actions">
                                                             <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
@@ -239,7 +231,7 @@
                                         
                                         <!-- Modal Content -->
                                         <div class="flex flex-1 overflow-hidden">
-                                            <!-- Left Column - Component Data -->
+                                            <!-- Left Column - Asset Data -->
                                             <div class="w-7/12 flex flex-col border-r ll-border-divider">
                                                 <!-- Fixed Content (Description, Metadata, Tabs) -->
                                                 <div class="flex-shrink-0">
@@ -258,7 +250,7 @@
                                                     <!-- Metadata -->
                                                     <div class="pb-4 px-6">
                                                         <div class="ll-field-group">
-                                                            <div class="flex items-start justify-between">
+                                                            <div class="flex items-start justify-between gap-4">
                                                                 <div class="ll-field--grid ll-field--grid-cols-3 flex-1">
                                                                     <div class="ll-field">
                                                                         <div class="ll-form-control__label-row">
@@ -270,7 +262,7 @@
                                                                         <div class="ll-form-control__label-row">
                                                                             <span class="ll-form-control__label">Type</span>
                                                                         </div>
-                                                                            <div class="ll-form-control__text-value">Chart <span class="text-gray-500">(Line)</span></div>
+                                                                            <div class="ll-form-control__text-value">Chart <span class="ll-text-muted">(Line)</span></div>
                                                                     </div>
                                                                     <div class="ll-field">
                                                                         <div class="ll-form-control__label-row">
@@ -282,13 +274,13 @@
                                                                         <div class="ll-form-control__label-row">
                                                                             <span class="ll-form-control__label">Created</span>
                                                                         </div>
-                                                                        <div class="ll-form-control__text-value">May 15, 2024 <span class="text-gray-500">(John Doe)</span></div>
+                                                                        <div class="ll-form-control__text-value">May 15, 2024 <span class="ll-text-muted">(John Doe)</span></div>
                                                                     </div>
                                                                         <div class="ll-field metadata-extra hidden">
                                                                         <div class="ll-form-control__label-row">
                                                                             <span class="ll-form-control__label">Last Updated</span>
                                                                         </div>
-                                                                        <div class="ll-form-control__text-value">Aug 23, 2024 <span class="text-gray-500">(John Doe)</span></div>
+                                                                        <div class="ll-form-control__text-value">Aug 23, 2024 <span class="ll-text-muted">(John Doe)</span></div>
                                                                     </div>
                                                                 </div>
                                                                 <button id="expand-metadata-btn" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-expanded="false" aria-label="Toggle metadata details">
@@ -300,7 +292,7 @@
                                                     
                                                     <!-- Navigation Tabs -->
                                                     <div class="border-b ll-border-divider px-6 mt-2">
-                                                        <nav class="ll-tab-nav" role="tablist" aria-label="Component details sections">
+                                                        <nav class="ll-tab-nav" role="tablist" aria-label="Asset details sections">
                                                             <button type="button" class="internal-tab-item ll-tab-btn ll-active" data-tab="data-source">Data Source</button>
                                                             <button type="button" class="internal-tab-item ll-tab-btn" data-tab="mapping-customization">Mapping & Customization</button>
                                                             <button type="button" class="internal-tab-item ll-tab-btn" data-tab="filters">Filters</button>
@@ -316,7 +308,9 @@
                                                     <div id="data-source-tab" class="component-tab-content">
                                                         <div class="px-6 pt-4">
 
-                                                            <h4 class="text-sm font-medium text-white mb-4">API Request</h4>
+                                                            <div class="ll-field-group__legend">
+                                                                <span>API Request</span>
+                                                            </div>
 
                                                             <div class="ll-card">
                                                                 <div class="ll-card__content flex items-center justify-between">
@@ -363,9 +357,9 @@
                                                             
                                                             <!-- Request Tabs Navigation -->
                                                             <div class="px-6">
-                                                                <div class="mb-4">
-                                                                    <h3 class="font-medium text-gray-300">Request</h3>
-                                                                            </div>
+                                                                <div class="ll-field-group__legend">
+                                                                    <span>Request</span>
+                                                                </div>
                                                                 <nav class="ll-tab-nav border-b ll-border-divider" role="tablist" aria-label="Request details sections">
                                                                     <button type="button" class="test-request-tab ll-tab-btn ll-active" data-test-request-tab="params">
                                                                         Parameters
@@ -542,34 +536,34 @@
                                                                     
                                                             <!-- Response Section -->
                                                             <div class="border-t ll-border-divider h-[40%] flex flex-col overflow-hidden">
-                                                                <div class="flex items-center justify-between px-6 py-4">
-                                                                    <h3 class="font-medium text-gray-300">Response</h3>
-                                                                    
-                                                                    <!-- Response Metadata -->
-                                                                    <div class="flex items-center space-x-6 text-xs">
-                                                                        <div class="flex items-center space-x-1">
-                                                                            <span class="text-gray-500">Status:</span>
-                                                                            <span class="ll-chip ll-chip--positive">
-                                                                                <span class="ll-chip__label">200 OK</span>
-                                                                            </span>
-                                                                            </div>
-                                                                        <div class="flex items-center space-x-1">
-                                                                            <span class="text-gray-500">Time:</span>
-                                                                            <span class="ll-chip ll-chip--outline-default">
-                                                                                <span class="ll-chip__label">245ms</span>
-                                                                            </span>
-                                                                            </div>
-                                                                        <div class="flex items-center space-x-1">
-                                                                            <span class="text-gray-500">Size:</span>
-                                                                            <span class="ll-chip ll-chip--outline-default">
-                                                                                <span class="ll-chip__label">1.2 KB</span>
-                                                                            </span>
-                                                                            </div>
-                                                                            </div>
-                                                                            </div>
                                                                 
                                                                 <!-- Response Body -->
-                                                                <div class="px-6 pb-4 flex-1 flex flex-col overflow-hidden">
+                                                                <div class="px-6 pt-4 pb-6 flex-1 flex flex-col overflow-hidden">
+
+                                                                    <div class="ll-field-group__legend">
+                                                                        <span>Response</span>
+                                                                        <div class="ll-form-control__info">
+                                                                            <div class="flex items-center gap-2">
+                                                                                <span>Status:</span>
+                                                                                <span class="ll-chip ll-chip--outline-positive">
+                                                                                    <span class="ll-chip__label">200 OK</span>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="flex items-center gap-2">
+                                                                                <span>Time:</span>
+                                                                                <span class="ll-chip ll-chip--outline-default">
+                                                                                    <span class="ll-chip__label">245ms</span>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="flex items-center gap-2">
+                                                                                <span>Size:</span>
+                                                                                <span class="ll-chip ll-chip--outline-default">
+                                                                                    <span class="ll-chip__label">1.2 KB</span>
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    
                                                                     <div class="ll-card ll-card--transparent">
                                                                         <div class="ll-card__content">
 <pre class="ll-code-highlight"><code class="language-json">{
@@ -594,7 +588,9 @@
 
                                                             <div>
 
-                                                                <h4 class="text-sm font-medium text-white mb-4">Mapping &amp; Customization</h4>
+                                                                <div class="ll-field-group__legend">
+                                                                    <span>Mapping &amp; Customization</span>
+                                                                </div>
 
                                                                 <div class="space-y-4">
                                                                     <div class="flex border ll-border-divider rounded-lg h-full overflow-hidden" style="min-height: 400px;">
@@ -803,7 +799,9 @@
                                                                 <!-- Create the Add Filter field structure -->
                                                                 <div class="relative">
 
-                                                                    <h4 class="text-sm font-semibold text-white mb-4">Filters</h4>
+                                                                    <div class="ll-field-group__legend">
+                                                                        <span>Filters</span>
+                                                                    </div>
                                                         
                                                                     <!-- Filter list container -->
                                                                     <div class="space-y-2 mb-3">
@@ -842,7 +840,9 @@
 
                                                         <div class="p-6 pt-4">
 
-                                                            <h4 class="text-sm font-semibold text-white mb-4">Usage Analytics</h4>
+                                                            <div class="ll-field-group__legend">
+                                                                <span>Usage Analytics</span>
+                                                            </div>
 
                                                         <div class="space-y-4">
                                                             <!-- Key Metrics -->
@@ -942,7 +942,9 @@
 
                                                         <div class="p-6 pt-4">
 
-                                                            <h4 class="text-sm font-semibold text-white mb-4">Access</h4>
+                                                            <div class="ll-field-group__legend">
+                                                                <span>Access</span>
+                                                            </div>
 
                                                             <!-- Add People/Workspaces Input and Invite Button -->
                                                             <div class="flex items-center space-x-3 mb-6">
@@ -1059,9 +1061,9 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Right Column - Component Preview -->
+                                            <!-- Right Column - Asset Preview -->
                                             <div class="w-5/12 p-6">
-                                                <h3 class="text-md font-semibold text-white mb-4">Component Preview</h3>
+                                                <h3 class="text-md font-semibold text-white mb-4">Asset Preview</h3>
                                                 <div id="create-component-preview-surface" class="ll-card ll-create-component-preview-surface">
                                                     <div class="ll-aspect-box ll-aspect-box--21-9 p-4">
                                                         <div class="ll-aspect-box__content relative">
@@ -1086,40 +1088,37 @@
                                         </div>
                                         
                                     </div>
-                                </div><!-- CLOSING Components Details Modal -->
+                                </div><!-- CLOSING Assets Details Modal -->
     </template>
-
-                            </div>
-                        </div>
 
                     </div>
                 </div>
-            </main>
+            </div>
 
-            <!-- Right Column - Component Statistics -->
-            <aside class=" ll-app-sidebar-container ll-app-sidebar-container-right">
+            <!-- Right Column - Asset Statistics -->
+            <aside class="ll-app-sidebar-container ll-app-sidebar-container-right">
                 <div class="ll-sidebar ll-sidebar--left">
-                    <h3 class="text-md font-semibold text-white mb-4">Quick Stats</h3>
+                    <h3 class="text-md font-semibold mb-4">Quick Stats</h3>
                     <div class="space-y-4">
-                        <!-- Total Components -->
+                        <!-- Total Assets -->
                         <div class="flex items-center">
                             <div class="w-10 h-10 flex items-center justify-center border ll-border-primary rounded-lg">
                                 <span class="material-symbols-outlined ll-text-primary text-xl">grid_view</span>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-400">Total Components</p>
-                                <p class="text-lg font-bold text-white">67</p>
+                                <p class="text-sm font-medium">Total Assets</p>
+                                <p class="text-lg font-bold">67</p>
                             </div>
                         </div>
                 
-                        <!-- Active Components -->
+                        <!-- Active Assets -->
                         <div class="flex items-center">
                             <div class="w-10 h-10 flex items-center justify-center border ll-border-positive rounded-lg">
                                 <span class="material-symbols-outlined ll-text-positive text-xl">check_circle</span>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-400">Active Components</p>
-                                <p class="text-lg font-bold text-white">54</p>
+                                <p class="text-sm font-medium">Active Assets</p>
+                                <p class="text-lg font-bold">54</p>
                             </div>
                         </div>
                 
@@ -1129,15 +1128,14 @@
                                 <span class="material-symbols-outlined ll-text-warning text-xl">schedule</span>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-400">Pending Review</p>
-                                <p class="text-lg font-bold text-white">13</p>
+                                <p class="text-sm font-medium">Pending Review</p>
+                                <p class="text-lg font-bold">13</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-        </div>
+            </aside>
+        </main>
 
     </div>
 
@@ -1165,7 +1163,7 @@
                 }
             });
 
-            // Component Management listing (list-only view via reusable listing module)
+            // Asset Management listing (list-only view via reusable listing module)
             const llComponents = window.LlumenComponents;
             if (llComponents && typeof llComponents.initListingModule === 'function') {
                 const escapeHtmlText = (value) => String(value == null ? '' : value)
@@ -1201,7 +1199,7 @@
                         columns: [
                             {
                                 property: 'name',
-                                heading: 'Component',
+                                heading: 'Asset',
                                 isMain: true,
                                 headerClassName: 'll-listing-table__column-main',
                                 cellClassName: 'll-listing-table__column-main',
@@ -1345,11 +1343,11 @@
                 });
             }
 
-            // Component Modal Functionality
+            // Asset Modal Functionality
             ensureComponentDetailsModal();
 
 
-            // Add event listeners for Edit Component links
+            // Add event listeners for Edit Asset links
             document.addEventListener('click', function(event) {
                 if (event.target.classList.contains('edit-component-link')) {
                     event.preventDefault();
@@ -1583,7 +1581,7 @@
         let selectedAiModel = null;
         let selectedDatabase = null;
         
-        // Component Details Modal Visual Property Tab Switching
+        // Asset Details Modal Visual Property Tab Switching
         let componentVisualTabsInitialized = false;
         function initializeComponentVisualPropertyTabs() {
             if (componentVisualTabsInitialized) return;
@@ -1610,7 +1608,7 @@
             }
         }
         
-        // Component Modal Tab Switching
+        // Asset Modal Tab Switching
         let componentModalTabsInitialized = false;
         function initializeComponentModalTabs() {
             if (componentModalTabsInitialized) return;
@@ -1727,7 +1725,7 @@
                 `
                     <button type="button" data-open-edit-component-modal class="ll-btn ll-btn--sm ll-btn--outline-default">
                         <span class="material-symbols-outlined ll-btn__icon">edit</span>
-                        Edit Component
+                        Edit Asset
                     </button>
                 `,
                 `
@@ -2556,7 +2554,7 @@
         }
 
         function updateMappingValidationIcons() {
-            // Update Create Component modal icons
+            // Update Create Asset modal icons
             const createHorizontalYAxisIcon = document.getElementById('create-horizontal-y-axis-validation-icon');
             const createHorizontalSeriesIcon = document.getElementById('create-horizontal-series-validation-icon');
             const createVerticalXAxisIcon = document.getElementById('create-vertical-x-axis-validation-icon');
@@ -2612,13 +2610,13 @@
             if (selectedChartSubtype === 'vertical-bar') {
                 const xAxisValid = selectedXAxisField && selectedXAxisField !== '';
                 updateIcon(createHorizontalYAxisIcon, false, false); // No Y-Axis for vertical bar
-                updateIcon(createVerticalXAxisIcon, xAxisValid, true); // Create Component modal has separate X-Axis icon
+                updateIcon(createVerticalXAxisIcon, xAxisValid, true); // Create Asset modal has separate X-Axis icon
                 updateIcon(createLineXAxisIcon, false, false); // Not line chart
             } else if (selectedChartSubtype === 'line' || selectedChartSubtype === 'area' || selectedChartSubtype === 'scatter-plot') {
                 const xAxisValid = selectedXAxisField && selectedXAxisField !== '';
                 updateIcon(createHorizontalYAxisIcon, false, false); // No Y-Axis for these charts
                 updateIcon(createVerticalXAxisIcon, false, false); // Not vertical bar
-                updateIcon(createLineXAxisIcon, xAxisValid, true); // Create Component modal has separate X-Axis icon
+                updateIcon(createLineXAxisIcon, xAxisValid, true); // Create Asset modal has separate X-Axis icon
             }
             
             // Check Series validation (for all chart types except donut/radial)
@@ -2652,7 +2650,7 @@
             }
             
             // If filters are added, check that all have mappings
-            // Only check filter items in the Create Component modal (step 4)
+            // Only check filter items in the Create Asset modal (step 4)
             const filterListContainer = document.getElementById('filter-field-list');
             if (!filterListContainer) {
                 return true; // No filter container found, consider valid
@@ -5433,7 +5431,7 @@
             }
         }
 
-        // Create Component Modal Functionality
+        // Create Asset Modal Functionality
         document.addEventListener('DOMContentLoaded', function() {
             const llComponents = window.LlumenComponents;
             let createComponentModalController = null;
@@ -5460,7 +5458,7 @@
 
                 createComponentModalController = llComponents.initializeModal({
                     id: 'create-component-modal',
-                    title: 'Create Component',
+                    title: 'Create Asset',
                     width: '95rem',
                     fullHeight: true,
                     bodyPadding: false,
@@ -6346,7 +6344,7 @@
                     if (!hasDeepDiveTabs()) return;
                     const modalTitle = componentNameInput && componentNameInput.value.trim()
                         ? componentNameInput.value.trim()
-                        : 'Component Preview';
+                        : 'Asset Preview';
                     const previewTabsRootId = `create-deep-dive-preview-tabs-${Date.now()}`;
                     const previewPanelsRootId = `create-deep-dive-preview-panels-${Date.now()}`;
 
@@ -6659,7 +6657,7 @@
                         selectedLabel.textContent = labelText;
                     }
                     
-                    // Show appropriate configuration (only within Create Component modal)
+                    // Show appropriate configuration (only within Create Asset modal)
                     document.querySelectorAll('#create-component-modal .data-source-config').forEach(config => {
                         config.classList.add('hidden');
                     });
@@ -6816,7 +6814,7 @@
                         selectedLabel.textContent = labelText;
                     }
                     
-                    // Show appropriate configuration (only within Create Component modal)
+                    // Show appropriate configuration (only within Create Asset modal)
                     document.querySelectorAll('#create-component-modal .visualization-config').forEach(config => {
                         config.classList.add('hidden');
                     });
@@ -7322,7 +7320,7 @@
                     if (createComponentModal) {
                         createComponentModal.close('finish');
                         
-                        // Clear all global variables to prevent interference with Component Details modal
+                        // Clear all global variables to prevent interference with Asset Details modal
                         selectedXAxisField = null;
                         selectedYAxisField = null;
                         selectedValueField = null;
@@ -7332,7 +7330,7 @@
                         selectedYAxisFields = [];
                         selectedLabelField = null;
                         
-                        // Open Component Details modal after a short delay
+                        // Open Asset Details modal after a short delay
                         setTimeout(() => {
                             openComponentModal();
                         }, 100);
@@ -8269,9 +8267,9 @@
             if (createApiBtnStatic) createApiBtnStatic.addEventListener('click', openCreateApiModal);
         });
 
-        // Edit Component Modal Function (placeholder)
+        // Edit Asset Modal Function (placeholder)
         function openEditComponentModal() {
-            // TODO: Implement Edit Component modal
+            // TODO: Implement Edit Asset modal
         }
 
         // Component Actions Dropdown Function
@@ -8317,13 +8315,13 @@
         window.initializeComponentActionDropdown = initializeComponentActionDropdown;
     </script>
 
-    <!-- Create Component Modal Template -->
+    <!-- Create Asset Modal Template -->
     <template id="create-component-modal-template">
         <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 h-full max-w-[1520px] flex flex-col">
             <!-- Modal Header -->
             <div class="py-4 px-6 border-b ll-border-divider">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-semibold text-white">Create Component</h2>
+                    <h2 class="text-xl font-semibold text-white">Create Asset</h2>
                     <button class="flex items-center text-gray-400 hover:text-white transition duration-200">
                         <span class="material-symbols-outlined text-2xl">close</span>
                     </button>
@@ -9038,17 +9036,23 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                         <div class="ll-field-group__legend">
                                             <span>Response</span>
                                             <div class="ll-form-control__info">
-                                                <div class="flex items-center gap-1">
-                                                    <span class="text-gray-500">Status:</span>
-                                                    <span class="text-green-400 font-medium">200 OK</span>
-                                            </div>
-                                                <div class="flex items-center gap-1">
-                                                    <span class="text-gray-500">Time:</span>
-                                                    <span class="text-gray-300">245ms</span>
+                                                <div class="flex items-center gap-2">
+                                                    <span>Status:</span>
+                                                    <span class="ll-chip ll-chip--outline-positive">
+                                                        <span class="ll-chip__label">200 OK</span>
+                                                    </span>
                                                 </div>
-                                                <div class="flex items-center gap-1">
-                                                    <span class="text-gray-500">Size:</span>
-                                                    <span class="text-gray-300">1.2 KB</span>
+                                                <div class="flex items-center gap-2">
+                                                    <span>Time:</span>
+                                                    <span class="ll-chip ll-chip--outline-default">
+                                                        <span class="ll-chip__label">245ms</span>
+                                                    </span>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span>Size:</span>
+                                                    <span class="ll-chip ll-chip--outline-default">
+                                                        <span class="ll-chip__label">1.2 KB</span>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -9517,9 +9521,9 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                     </div>
                 </div>
 
-                <!-- Right Column - Component Preview -->
+                <!-- Right Column - Asset Preview -->
                 <div class="w-5/12 border-l ll-border-divider p-6">
-                    <h3 class="text-md font-semibold text-white mb-4">Component Preview</h3>
+                    <h3 class="text-md font-semibold text-white mb-4">Asset Preview</h3>
                     <div id="create-component-preview-surface" class="ll-card ll-create-component-preview-surface">
                         <div class="ll-aspect-box ll-aspect-box--21-9 p-4">
                             <div class="ll-aspect-box__content relative">
@@ -9564,7 +9568,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                             Next
                         </button>
                         <button id="finish-btn" type="button" class="ll-btn ll-btn--primary hidden">
-                            Create Component
+                            Create Asset
                         </button>
                     </div>
                 </div>
