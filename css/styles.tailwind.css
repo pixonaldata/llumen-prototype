@@ -321,7 +321,7 @@
   }
 
   .ll-subcontext-header-sticky-container {
-    @apply sticky px-8 pt-8 z-1;
+    @apply sticky px-8 pt-8 z-2;
     top: var(--ll-app-sidebar-container-top);
   }
 
@@ -3119,7 +3119,7 @@
   }
 
   .ll-card__link-overlay {
-    @apply absolute inset-0 z-10 m-0 border-0 bg-transparent p-0 text-left transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    @apply absolute inset-0 m-0 border-0 bg-transparent p-0 text-left transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
     --tw-ring-offset-color: rgb(17 24 39);
     --tw-ring-color: var(--ll-bg-primary);
     border-radius: inherit;
@@ -3143,7 +3143,7 @@
 
   /* `ll-card__header` layered over media: transparent shell, no border. */
   .ll-card__header--media-overlay {
-    @apply absolute left-0 right-0 top-0 z-20 gap-2 border-0 bg-transparent py-2.5 px-3 shadow-none;
+    @apply absolute left-0 right-0 top-0 z-1 gap-2 border-0 bg-transparent py-2.5 px-3 shadow-none;
     border-radius: 0;
   }
 
