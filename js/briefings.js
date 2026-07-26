@@ -3686,7 +3686,7 @@
                             <label class="ll-form-control__label">External URL</label>
                         </div>
                         <div class="ll-form-control__text-value flex items-center gap-2">
-                            <span class="material-symbols-outlined ll-btn__icon">link</span>
+                            <span class="material-symbols-outlined text-base">link</span>
                             <span class="truncate">${sanitize(truncateMiddle(link.url, 38))}</span>
                         </div>
                     </div>
