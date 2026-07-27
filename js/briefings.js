@@ -1059,7 +1059,7 @@
                 position: static;
                 display: flex;
                 flex-direction: row;
-                gap: 0.45rem;
+                gap: 0.5rem;
             }
             .briefing-editor-bottombar {
                 display: flex;
@@ -1887,7 +1887,7 @@
             stepHeader.innerHTML = `
                 <div class="ll-modal__title-section">
                     <div class="ll-modal__back-slot ll-active">
-                        <button type="button" data-bg-action="step-back" class="ll-icon-btn ll-icon-btn--circle ll-modal__back-btn" aria-label="Back">
+                        <button type="button" data-bg-action="step-back" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-modal__back-btn" aria-label="Back">
                             <span class="material-symbols-outlined ll-icon-btn__icon">arrow_back_ios_new</span>
                         </button>
                     </div>
@@ -3931,10 +3931,10 @@
                                 ${slide.hasConfiguredBackground && selectedBackground
                         ? `<div class="briefing-bg-topbar-actions border-r ll-border-divider">
                                         <span class="briefing-bg-pill">${sanitize(getBackgroundLabel(selectedBackground))}</span>
-                                        <button type="button" data-action="configure-bg" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" title="Configure Background">
+                                        <button type="button" data-action="configure-bg" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--square ll-icon-btn--outline" title="Configure Background">
                                             <span class="material-symbols-outlined">settings</span>
                                         </button>
-                                        <button type="button" data-action="remove-bg" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" title="Remove Background">
+                                        <button type="button" data-action="remove-bg" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--square ll-icon-btn--outline ll-icon-btn--outline-negative" title="Remove Background">
                                             <span class="material-symbols-outlined">delete</span>
                                         </button>
                                    </div>`
@@ -3945,10 +3945,10 @@
                     }
                             </div>
                             <div class="briefing-editor-addtools">
-                                <button type="button" class="ll-icon-btn ll-icon-btn--circle ${hasTextBlock ? 'll-icon-btn--circle-primary' : 'll-icon-btn--outline'}" data-action="toggle-text-block">
+                                <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--square ${hasTextBlock ? 'll-icon-btn--circle-primary' : 'll-icon-btn--outline'}" data-action="toggle-text-block">
                                     <span class="material-symbols-outlined">text_fields</span>
                                 </button>
-                                <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-action="add-component-block">
+                                <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--square ll-icon-btn--outline" data-action="add-component-block">
                                     <span class="material-symbols-outlined">widgets</span>
                                 </button>
                             </div>
@@ -4010,13 +4010,13 @@
                             `).join('')}
                         </div>` : ''}
                         ${hasTextBlock ? `<div class="briefing-editor-bottombar ${showTextAdjustUi ? '' : 'briefing-control-hidden'}">
-                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-action="toggle-color-palette" title="Colors">
+                            <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" data-action="toggle-color-palette" title="Colors">
                                 <span class="material-symbols-outlined">palette</span>
                             </button>
-                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-action="toggle-color-target" title="Text/Background Color">
+                            <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" data-action="toggle-color-target" title="Text/Background Color">
                                 <span class="material-symbols-outlined">format_color_fill</span>
                             </button>
-                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-action="cycle-alignment" title="Cycle Alignment">
+                            <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" data-action="cycle-alignment" title="Cycle Alignment">
                                 <span class="material-symbols-outlined">${alignmentIcon}</span>
                             </button>
                         </div>` : ''}

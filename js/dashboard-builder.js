@@ -31,7 +31,7 @@
         model: {
             mode: 'edit',
             content: {
-                title: 'Global Operations Dashboard',
+                title: 'Global Operations',
                 ownerWorkspace: 'Finance',
                 statusLabel: 'Draft',
                 statusVariant: 'outline-default'
@@ -150,14 +150,14 @@
                 <div class="ll-card__header-actions" data-dashboard-tile-actions>
                     <div class="ll-card__header-action">
                         <div class="ll-card__header-action-content">
-                            <button type="button" class="ll-icon-btn" data-dashboard-grid-drag-handle aria-label="Drag component">
+                            <button type="button" class="ll-icon-btn ll-icon-btn--sm" data-dashboard-grid-drag-handle aria-label="Drag component">
                                 <span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>
                             </button>
                         </div>
                     </div>
                     <div class="ll-card__header-action">
                         <div class="ll-card__header-action-content">
-                            <button type="button" class="ll-icon-btn" id="${menuButtonId}" data-dashboard-tile-menu-trigger aria-label="Component actions">
+                            <button type="button" class="ll-icon-btn ll-icon-btn--sm" id="${menuButtonId}" data-dashboard-tile-menu-trigger aria-label="Component actions">
                                 <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                             </button>
                             <div id="${menuId}" class="hidden" data-dashboard-tile-menu data-dashboard-tile-id="${tileId}">

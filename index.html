@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Llumen Prototype</title>
+    <title>Home - Llumen Prototype</title>
     <!-- Shared Llumen styles -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/tailwind.css">
@@ -29,10 +29,10 @@
                         </div>
                     </section>
                     
-                    <!-- NEW: Featured Stories Section (Full-Width Slider) -->
+                    <!-- NEW: Featured Slides Section (Full-Width Slider) -->
                     <section class="ll-section featured-stories">
                         <div class="ll-section-header">
-                            <h2 class="ll-section-heading">Featured Stories</h2>
+                            <h2 class="ll-section-heading">Featured Slides</h2>
                         </div>
                         <div class="ll-section-content ll-section-content--no-x-padding">
                             <div id="hero-slider" class="relative w-full overflow-hidden shadow-xl" style="height: 40rem;">
@@ -70,7 +70,7 @@
                                             </div>
                                             <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">New Campaign Launch: Q3 Strategy & Expected ROI</h3>
                                             <p class="text-sm text-gray-400 mt-1">10 Sections</p>
-                                            <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting story: New Campaign Launch...', 'info')">
+                                            <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting slide: New Campaign Launch...', 'info')">
                                                 <span class="material-symbols-outlined ll-btn__icon">play_arrow</span>
                                                 <span>Start</span>
                                             </button>
@@ -106,7 +106,7 @@
                                             </div>
                                             <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">Product Roadmap 2025: Innovations & User Experience</h3>
                                             <p class="text-sm text-gray-400 mt-1">12 Sections</p>
-                                            <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting story: Product Roadmap...', 'info')">
+                                            <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting slide: Product Roadmap...', 'info')">
                                                 <span class="material-symbols-outlined ll-btn__icon">play_arrow</span>
                                                 <span>Start</span>
                                             </button>
@@ -142,7 +142,7 @@
                                             </div>
                                             <h3 class="text-2xl md:text-3xl font-bold line-clamp-2">Optimizing Logistics: Efficiency Gains in Q4 Operations</h3>
                                             <p class="text-sm text-gray-400 mt-1">8 Sections</p>
-                                            <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting story: Optimizing Logistics...', 'info')">
+                                            <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting slide: Optimizing Logistics...', 'info')">
                                                 <span class="material-symbols-outlined ll-btn__icon">play_arrow</span>
                                                 <span>Start</span>
                                             </button>
@@ -152,9 +152,9 @@
                             </div>
                             <!-- Thumbnails below slider -->
                             <div id="slider-thumbnails" class="flex justify-start space-x-4 mt-4 overflow-x-auto py-2 px-4 md:px-8 scrollbar-hide hidden">
-                                <img src="https://placehold.co/120x67/333/fff?text=Story+1+Thumb" alt="Story 1 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="0">
-                                <img src="https://placehold.co/120x67/555/eee?text=Story+2+Thumb" alt="Story 2 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="1">
-                                <img src="https://placehold.co/120x67/777/ddd?text=Story+3+Thumb" alt="Story 3 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="2">
+                                <img src="https://placehold.co/120x67/333/fff?text=Slide+1+Thumb" alt="Slide 1 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="0">
+                                <img src="https://placehold.co/120x67/555/eee?text=Slide+2+Thumb" alt="Slide 2 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="1">
+                                <img src="https://placehold.co/120x67/777/ddd?text=Slide+3+Thumb" alt="Slide 3 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="2">
                             </div>
                         </div>
                     </section>
@@ -360,7 +360,7 @@
                                                     <button
                                                         id="${buttonId}"
                                                         type="button"
-                                                        class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                                        class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline"
                                                         aria-label="Briefing card actions">
                                                         <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                                                     </button>
@@ -448,11 +448,11 @@
             const continueRoot = document.getElementById('index-continue-viewing-carousel-root');
             if (continueRoot && continueRoot.dataset.carouselBound !== 'true') {
                 const continueItems = [
-                    { id: 'c1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics', workspaceName: 'Finance', meta: 'Story · 75% complete', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section', progressPct: 75, progressText: '75% Complete (Section 12 of 16)' },
+                    { id: 'c1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics', workspaceName: 'Finance', meta: 'Slide · 75% complete', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section', progressPct: 75, progressText: '75% Complete (Section 12 of 16)' },
                     { id: 'c2', title: 'Operations Dashboard: Live KPIs and Supply Chain Updates', workspaceName: 'Operations', meta: 'Dashboard · 4 pages', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page', progressPct: 50, progressText: '50% Complete (Page 2 of 4)' },
-                    { id: 'c3', title: 'Employee Engagement Trends 2024', workspaceName: 'HR', meta: 'Story · In progress', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section', progressPct: 35, progressText: '35% Complete (Section 5 of 14)' },
+                    { id: 'c3', title: 'Employee Engagement Trends 2024', workspaceName: 'HR', meta: 'Slide · In progress', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section', progressPct: 35, progressText: '35% Complete (Section 5 of 14)' },
                     { id: 'c4', title: 'Monthly Sales Performance by Region', workspaceName: 'Sales', meta: 'Dashboard · 3 pages', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page', progressPct: 67, progressText: '67% Complete (Page 2 of 3)' },
-                    { id: 'c5', title: '2025 Marketing Strategy Overview', workspaceName: 'Marketing', meta: 'Story · In progress', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section', progressPct: 58, progressText: '58% Complete (Section 7 of 12)' },
+                    { id: 'c5', title: '2025 Marketing Strategy Overview', workspaceName: 'Marketing', meta: 'Slide · In progress', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section', progressPct: 58, progressText: '58% Complete (Section 7 of 12)' },
                     { id: 'c6', title: 'IT Infrastructure Monitoring', workspaceName: 'IT', meta: 'Dashboard · 5 pages', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page', progressPct: 20, progressText: '20% Complete (Page 1 of 5)' }
                 ];
                 components.initializeHorizontalCarousel({
@@ -467,7 +467,7 @@
                         const itemToken = sanitizeIdToken(item.id);
                         const buttonId = `index-continue-actions-btn-${itemToken}`;
                         const menuId = `index-continue-actions-menu-${itemToken}`;
-                        const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Story';
+                        const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Slide';
                         const ownerWorkspace = String(item.workspaceName || '').trim() || 'Workspace';
                         const thumbnailSrc = item.thumbnailSrc || (cardType === 'Dashboard'
                             ? 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page'
@@ -486,7 +486,7 @@
                                                 <button
                                                     id="${buttonId}"
                                                     type="button"
-                                                    class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                                    class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline"
                                                     aria-label="Card actions">
                                                     <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                                                 </button>
@@ -511,7 +511,7 @@
                                         <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${cardType}</span></span>
                                     </div>
                                     <div class="ll-card__meta-group">
-                                        <span class="ll-card__meta-item">${escapeHtml(detailMeta || (cardType === 'Story' ? '12 sections' : '4 pages'))}</span>
+                                        <span class="ll-card__meta-item">${escapeHtml(detailMeta || (cardType === 'Slide' ? '12 sections' : '4 pages'))}</span>
                                     </div>
                                 </div>
                                 <div class="mt-4 w-full bg-gray-700 rounded-full h-2.5">
@@ -552,18 +552,18 @@
             const recommendedRoot = document.getElementById('index-recommended-grid-root');
             if (recommendedRoot && recommendedRoot.dataset.gridBound !== 'true') {
                 const recommendedItems = [
-                    { id: 'r1', title: 'Customer Churn Signals and Mitigation Plan', workspaceName: 'Customer Success', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
+                    { id: 'r1', title: 'Customer Churn Signals and Mitigation Plan', workspaceName: 'Customer Success', meta: 'Slide', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
                     { id: 'r2', title: 'Supply Chain Risk Heatmap', workspaceName: 'Operations', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page' },
-                    { id: 'r3', title: 'Talent Retention Pulse by Region', workspaceName: 'HR', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
+                    { id: 'r3', title: 'Talent Retention Pulse by Region', workspaceName: 'HR', meta: 'Slide', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
                     { id: 'r4', title: 'Revenue Forecast Confidence Tracker', workspaceName: 'Finance', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page' },
-                    { id: 'r5', title: 'Campaign Funnel Benchmark Comparison', workspaceName: 'Marketing', meta: 'Story', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
+                    { id: 'r5', title: 'Campaign Funnel Benchmark Comparison', workspaceName: 'Marketing', meta: 'Slide', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
                     { id: 'r6', title: 'Infrastructure Cost Optimization', workspaceName: 'IT', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page' }
                 ];
                 recommendedRoot.innerHTML = recommendedItems.map((item) => {
                     const itemToken = sanitizeIdToken(item.id);
                     const buttonId = `index-recommended-actions-btn-${itemToken}`;
                     const menuId = `index-recommended-actions-menu-${itemToken}`;
-                    const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Story';
+                    const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Slide';
                     const ownerWorkspace = String(item.workspaceName || '').trim() || 'Workspace';
                     const thumbnailSrc = item.thumbnailSrc || (cardType === 'Dashboard'
                         ? 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page'
@@ -579,7 +579,7 @@
                                             <button
                                                 id="${buttonId}"
                                                 type="button"
-                                                class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                                class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline"
                                                 aria-label="Card actions">
                                                 <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                                             </button>
@@ -604,7 +604,7 @@
                                     <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${cardType}</span></span>
                                 </div>
                                 <div class="ll-card__meta-group">
-                                    <span class="ll-card__meta-item">${cardType === 'Story' ? '12 sections' : '4 pages'}</span>
+                                    <span class="ll-card__meta-item">${cardType === 'Slide' ? '12 sections' : '4 pages'}</span>
                                 </div>
                             </div>
                         </div>
@@ -680,9 +680,9 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        // Update all story cards with random sections on load
+        // Update all slide cards with random sections on load
         document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.story-card-container .num-sections').forEach(span => {
+            document.querySelectorAll('.slide-card-container .num-sections').forEach(span => {
                 span.textContent = `${getRandomInt(12, 20)} Sections`;
             });
             initializeIndexCarousels();
@@ -747,7 +747,7 @@
             });
         }
 
-        // Featured Stories Slider Logic
+        // Featured Slides Slider Logic
         const sliderInner = document.getElementById('slider-inner');
         const sliderItems = document.querySelectorAll('.slider-item');
         const thumbnailsContainer = document.getElementById('slider-thumbnails');

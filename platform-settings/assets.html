@@ -283,7 +283,7 @@
                                                                         <div class="ll-form-control__text-value">Aug 23, 2024 <span class="ll-text-muted">(John Doe)</span></div>
                                                                     </div>
                                                                 </div>
-                                                                <button id="expand-metadata-btn" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-expanded="false" aria-label="Toggle metadata details">
+                                                                <button id="expand-metadata-btn" type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" aria-expanded="false" aria-label="Toggle metadata details">
                                                                     <span class="material-symbols-outlined ll-icon-btn__icon">expand_more</span>
                                                                 </button>
                                                             </div>
@@ -340,7 +340,7 @@
                                                             </div>
                                                         </div>
                                                             <div>
-                                                                    <button type="button" class="see-details-btn ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" data-collection-id="weather-services" aria-label="View collection details">
+                                                                    <button type="button" class="see-details-btn ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" data-collection-id="weather-services" aria-label="View collection details">
                                                                         <span class="material-symbols-outlined ll-icon-btn__icon">visibility</span>
                                                                     </button>
                                                                             </div>
@@ -2306,10 +2306,14 @@
                 if (!row.dataset.sortItemId) {
                     row.dataset.sortItemId = `kv-row-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
                 }
-                if (row.querySelector('[data-sort-drag="true"]')) return;
+                const existingHandle = row.querySelector('[data-sort-drag="true"]');
+                if (existingHandle) {
+                    existingHandle.classList.add('ll-icon-btn--sm');
+                    return;
+                }
                 const handle = document.createElement('button');
                 handle.type = 'button';
-                handle.className = 'll-icon-btn ll-icon-btn--circle';
+                handle.className = 'll-icon-btn ll-icon-btn--sm ll-icon-btn--circle';
                 handle.setAttribute('data-sort-drag', 'true');
                 handle.setAttribute('aria-label', 'Reorder row');
                 handle.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>';
@@ -2571,17 +2575,17 @@
                 if (!isRequired) {
                     // No validation needed for this chart type
                     glyph.textContent = '';
-                    icon.className = 'll-icon-btn ll-icon-btn--outline';
+                    icon.className = 'll-icon-btn ll-icon-btn--xs ll-icon-btn--outline';
                     icon.removeAttribute('data-tooltip');
                     icon.removeAttribute('title');
                 } else if (isValid) {
                     glyph.textContent = 'check_circle';
-                    icon.className = 'll-icon-btn ll-icon-btn--outline ll-icon-btn--outline-positive';
+                    icon.className = 'll-icon-btn ll-icon-btn--xs ll-icon-btn--outline ll-icon-btn--outline-positive';
                     icon.setAttribute('data-tooltip', 'All required fields are filled');
                     icon.setAttribute('title', 'All required fields are filled');
                 } else {
                     glyph.textContent = 'error';
-                    icon.className = 'll-icon-btn ll-icon-btn--outline ll-icon-btn--outline-negative';
+                    icon.className = 'll-icon-btn ll-icon-btn--xs ll-icon-btn--outline ll-icon-btn--outline-negative';
                     icon.setAttribute('data-tooltip', 'There are required fields that are empty');
                     icon.setAttribute('title', 'There are required fields that are empty');
                 }
@@ -2773,7 +2777,7 @@
             
             const gripIcon = document.createElement('button');
             gripIcon.type = 'button';
-            gripIcon.className = 'll-icon-btn ll-icon-btn--circle mr-2';
+            gripIcon.className = 'll-icon-btn ll-icon-btn--sm ll-icon-btn--circle mr-2';
             gripIcon.setAttribute('aria-label', 'Reorder filter');
             gripIcon.setAttribute('data-sort-drag', 'true');
             gripIcon.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>';
@@ -3287,7 +3291,7 @@
                 yAxisTab.setAttribute('data-visual-tab', 'y-axis');
                 yAxisTab.innerHTML = `
                     <span class="text-sm font-medium">Y-Axis</span>
-                    <span id="create-horizontal-y-axis-validation-icon" class="ll-icon-btn ll-icon-btn--outline" title="">
+                    <span id="create-horizontal-y-axis-validation-icon" class="ll-icon-btn ll-icon-btn--xs ll-icon-btn--outline" title="">
                         <span class="material-symbols-outlined ll-icon-btn__icon"></span>
                     </span>
                 `;
@@ -3300,7 +3304,7 @@
                 seriesTab.setAttribute('data-visual-tab', 'series');
                 seriesTab.innerHTML = `
                     <span class="text-sm font-medium">Series</span>
-                    <span id="create-horizontal-series-validation-icon" class="ll-icon-btn ll-icon-btn--outline" title="">
+                    <span id="create-horizontal-series-validation-icon" class="ll-icon-btn ll-icon-btn--xs ll-icon-btn--outline" title="">
                         <span class="material-symbols-outlined ll-icon-btn__icon"></span>
                     </span>
                 `;
@@ -3712,7 +3716,7 @@
                 xAxisTab.setAttribute('data-visual-tab', 'x-axis');
                 xAxisTab.innerHTML = `
                     <span class="text-sm font-medium">X-Axis</span>
-                    <span id="create-vertical-x-axis-validation-icon" class="ll-icon-btn ll-icon-btn--outline" title="">
+                    <span id="create-vertical-x-axis-validation-icon" class="ll-icon-btn ll-icon-btn--xs ll-icon-btn--outline" title="">
                         <span class="material-symbols-outlined ll-icon-btn__icon"></span>
                     </span>
                 `;
@@ -3725,7 +3729,7 @@
                 seriesTab.setAttribute('data-visual-tab', 'series');
                 seriesTab.innerHTML = `
                     <span class="text-sm font-medium">Series</span>
-                    <span id="create-vertical-series-validation-icon" class="ll-icon-btn ll-icon-btn--outline" title="">
+                    <span id="create-vertical-series-validation-icon" class="ll-icon-btn ll-icon-btn--xs ll-icon-btn--outline" title="">
                         <span class="material-symbols-outlined ll-icon-btn__icon"></span>
                     </span>
                 `;
@@ -4136,7 +4140,7 @@
                 xAxisTab.setAttribute('data-visual-tab', 'x-axis');
                 xAxisTab.innerHTML = `
                     <span class="text-sm font-medium">X-Axis</span>
-                    <span id="create-line-x-axis-validation-icon" class="ll-icon-btn ll-icon-btn--outline" title="">
+                    <span id="create-line-x-axis-validation-icon" class="ll-icon-btn ll-icon-btn--xs ll-icon-btn--outline" title="">
                         <span class="material-symbols-outlined ll-icon-btn__icon"></span>
                     </span>
                 `;
@@ -4149,7 +4153,7 @@
                 seriesTab.setAttribute('data-visual-tab', 'series');
                 seriesTab.innerHTML = `
                     <span class="text-sm font-medium">Series</span>
-                    <span id="create-line-series-validation-icon" class="ll-icon-btn ll-icon-btn--outline" title="">
+                    <span id="create-line-series-validation-icon" class="ll-icon-btn ll-icon-btn--xs ll-icon-btn--outline" title="">
                         <span class="material-symbols-outlined ll-icon-btn__icon"></span>
                     </span>
                 `;
@@ -4919,7 +4923,7 @@
 
             const dragHandle = document.createElement('button');
             dragHandle.type = 'button';
-            dragHandle.className = 'll-icon-btn ll-icon-btn--circle mr-2';
+            dragHandle.className = 'll-icon-btn ll-icon-btn--sm ll-icon-btn--circle mr-2';
             dragHandle.setAttribute('aria-label', 'Reorder series field');
             dragHandle.setAttribute('data-sort-drag', 'true');
             dragHandle.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>';
@@ -5892,7 +5896,7 @@
                             <div class="ll-card__header-actions">
                                 <div class="ll-card__header-action">
                                     <div class="ll-card__header-action-content" data-create-deep-dive-tile-dropdown-root>
-                                        <button type="button" class="ll-icon-btn" id="${actionIds.buttonId}" data-create-deep-dive-tile-more-trigger aria-label="Component actions">
+                                        <button type="button" class="ll-icon-btn ll-icon-btn--sm" id="${actionIds.buttonId}" data-create-deep-dive-tile-more-trigger aria-label="Component actions">
                                             <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                                         </button>
                                         <div id="${actionIds.menuId}" class="hidden" data-create-deep-dive-tile-more-menu>
@@ -5903,7 +5907,7 @@
                                 </div>
                                 <div class="ll-card__header-action">
                                     <div class="ll-card__header-action-content">
-                                        <button type="button" class="ll-icon-btn ll-row-context__tile-drag-handle" aria-label="Drag">
+                                        <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-row-context__tile-drag-handle" aria-label="Drag">
                                             <span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>
                                         </button>
                                     </div>
@@ -6151,7 +6155,7 @@
                         if (!rowEl.querySelector(':scope > .ll-row-context__row-drag-handle')) {
                             const rowDrag = document.createElement('button');
                             rowDrag.type = 'button';
-                            rowDrag.className = 'll-icon-btn ll-row-context__row-drag-handle';
+                            rowDrag.className = 'll-icon-btn ll-icon-btn--sm ll-row-context__row-drag-handle';
                             rowDrag.setAttribute('aria-label', 'Reorder row');
                             rowDrag.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon ll-row-context__row-drag-icon">drag_handle</span>';
                             rowEl.insertBefore(rowDrag, rowEl.firstChild);
@@ -8731,7 +8735,7 @@ ORDER BY population_density DESC;</code></pre>
                                                         <input type="text" placeholder="Key" value="location" class="ll-input ll-kv-row__field">
                                                         <input type="text" placeholder="Value" value="New York" class="ll-input ll-kv-row__field">
                                                         <div class="ll-kv-row__actions">
-                                                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-text-negative">
+                                                            <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-text-negative">
                                                                 <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
                                                             </button>
                                                         </div>
@@ -8747,7 +8751,7 @@ ORDER BY population_density DESC;</code></pre>
                                                         <input type="text" placeholder="Key" value="units" class="ll-input ll-kv-row__field">
                                                         <input type="text" placeholder="Value" value="metric" class="ll-input ll-kv-row__field">
                                                         <div class="ll-kv-row__actions">
-                                                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-text-negative">
+                                                            <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-text-negative">
                                                                 <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
                                                             </button>
                                                         </div>
@@ -8766,7 +8770,7 @@ ORDER BY population_density DESC;</code></pre>
                                                         <input type="text" placeholder="Key" value="" class="ll-input ll-kv-row__field">
                                                         <input type="text" placeholder="Value" value="" class="ll-input ll-kv-row__field">
                                                         <div class="ll-kv-row__actions">
-                                                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-text-negative hidden">
+                                                            <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-text-negative hidden">
                                                                 <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
                                                             </button>
                                                         </div>
@@ -8793,7 +8797,7 @@ ORDER BY population_density DESC;</code></pre>
                                                                 <input type="text" placeholder="Key" value="" class="ll-input ll-kv-row__field">
                                                                 <input type="text" placeholder="Value" value="" class="ll-input ll-kv-row__field">
                                                                 <div class="ll-kv-row__actions">
-                                                                    <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-text-negative hidden">
+                                                                    <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-text-negative hidden">
                                                                         <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
                                                                     </button>
                                                                 </div>
@@ -8850,7 +8854,7 @@ ORDER BY population_density DESC;</code></pre>
                                                         <input type="text" placeholder="Key" value="User-Agent" class="ll-input ll-kv-row__field">
                                                         <input type="text" placeholder="Value" value="Llumen-API-Client/1.0" class="ll-input ll-kv-row__field">
                                                         <div class="ll-kv-row__actions">
-                                                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-text-negative">
+                                                            <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-text-negative">
                                                                 <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
                                                             </button>
                                                         </div>
@@ -8869,7 +8873,7 @@ ORDER BY population_density DESC;</code></pre>
                                                         <input type="text" placeholder="Key" value="" class="ll-input ll-kv-row__field">
                                                         <input type="text" placeholder="Value" value="" class="ll-input ll-kv-row__field">
                                                         <div class="ll-kv-row__actions">
-                                                            <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-text-negative hidden">
+                                                            <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-text-negative hidden">
                                                                 <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
                                                             </button>
                                                         </div>
@@ -8928,7 +8932,7 @@ ORDER BY population_density DESC;</code></pre>
                                                                 <input type="text" placeholder="Value" value="New York" class="ll-input">
                                                             </div>
                                                             <div class="ll-kv-row__actions">
-                                                                <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-text-negative">
+                                                                <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-text-negative">
                                                                     <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
                                                                 </button>
                                                             </div>
@@ -8959,7 +8963,7 @@ ORDER BY population_density DESC;</code></pre>
                                                                 <input type="text" placeholder="Value" value="" class="ll-input">
                                                             </div>
                                                             <div class="ll-kv-row__actions">
-                                                                <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-text-negative hidden">
+                                                                <button type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-text-negative hidden">
                                                                     <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
                                                                 </button>
                                                             </div>
@@ -9317,7 +9321,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                                 <span id="selected-visualization-icon" class="material-symbols-outlined mr-3 text-xl"></span>
                                                 <span id="selected-visualization-label" class="text-white font-medium"></span>
                                             </div>
-                                            <button id="change-visualization-btn" type="button" class="ll-btn ll-btn--sm ll-btn--flat-primary">
+                                            <button id="change-visualization-btn" type="button" class="ll-btn ll-btn--flat-primary">
                                                 Change
                                             </button>
                                         </div>
@@ -9396,7 +9400,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                     <div class="p-6">
                         <div class="ll-field-group">
                             <div class="ll-field-group__legend">Deep Dive</div>
-                            <div id="create-deep-dive-tabs-carousel" class="ll-carousel ps-deep-dive-tabs-carousel-root"></div>
+                            <div id="create-deep-dive-tabs-carousel" class="ll-carousel ll-carousel--no-x-padding ps-deep-dive-tabs-carousel-root"></div>
                             <div id="create-deep-dive-tab-panels" class="ps-deep-dive-tab-panels-root"></div>
                         </div>
                     </div>
@@ -9545,7 +9549,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                 <div class="ll-card__header-actions">
                                     <div class="ll-card__header-action">
                                         <div class="ll-card__header-action-content">
-                                            <button id="create-deep-dive-preview-button" type="button" class="ll-icon-btn ll-icon-btn--circle" aria-label="Open Deep Dive preview">
+                                            <button id="create-deep-dive-preview-button" type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle" aria-label="Open Deep Dive preview">
                                                 <span class="material-symbols-outlined ll-icon-btn__icon">info</span>
                                             </button>
                                         </div>

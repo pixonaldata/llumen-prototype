@@ -35,7 +35,7 @@
     function getCreateDropdownMarkup() {
         return `
             <button type="button" class="ll-dropdown__item" data-value="Briefing" data-create-content-type="Briefing">Briefing</button>
-            <button type="button" class="ll-dropdown__item" data-value="Story" data-create-content-type="Story">Story</button>
+            <button type="button" class="ll-dropdown__item" data-value="Slide" data-create-content-type="Slide">Slide</button>
             <button type="button" class="ll-dropdown__item" data-value="Dashboard" data-create-content-type="Dashboard">Dashboard</button>
             <button type="button" class="ll-dropdown__item" data-value="Whiteboard" data-create-content-type="Whiteboard">Whiteboard</button>
             <button type="button" class="ll-dropdown__item" data-value="Workspace" data-ui-action="create-workspace">Workspace</button>
@@ -69,12 +69,12 @@
         const customContentFirstInnerEnd = resolveCustomContentMarkup(options.customContentFirstInnerEnd, options);
         const customContentSecondInnerStart = resolveCustomContentMarkup(options.customContentSecondInnerStart, options);
         return `
-            <div class="ll-app-header__inner">
+            <div class="ll-app-header__inner ll-app-header__left">
                 <a href="${logoHref}">
                     <div class="ll-app-logo">
                         <svg viewBox="0 0 32 32" class="w-full h-full">
-                            <circle cx="16" cy="16" r="16" fill="rgb(115,173,245)"></circle>
-                            <circle cx="16" cy="16" r="8" fill="rgb(238 238 238)"></circle>
+                            <circle cx="16" cy="16" r="16" fill="rgb(115, 173, 245)"></circle>
+                            <circle cx="16" cy="16" r="8" fill="rgb(12, 14, 16)"></circle>
                         </svg>
                     </div>
                 </a>
@@ -85,20 +85,22 @@
                         <span>${logoText}</span>
                     </div>
                 </a>
-                ` : ''}
-                ${showSearchInput ? `
-                <div class="ll-input-with-left-icon ll-listing-module-search-input">
+                ${customContentFirstInnerEnd}
+            </div>
+            ` : ''}
+            ${showSearchInput ? `
+            <div class="ll-app-header__inner ll-app-header__center">
+                <div class="ll-input-with-left-icon ll-app-header__search-input">
                     <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
                         <span class="material-symbols-outlined">search</span>
                     </div>
                     <input id="app-header-search-input" type="text" placeholder="Search..." class="ll-input ll-input--search ll-input-with-left-icon__input">
                 </div>
-                ` : ''}
-                ${customContentFirstInnerEnd}
             </div>
-            <div class="ll-app-header__inner">
+            ` : ''}
+            <div class="ll-app-header__inner ll-app-header__right">
                 ${customContentSecondInnerStart}
-                <div class="relative">
+                <div>
                     <button id="create-dropdown-button" type="button" class="ll-btn ll-btn--outline-default ll-dropdown__trigger">
                         <span class="material-symbols-outlined ll-btn__icon">add</span>
                         <span>Create</span>
@@ -107,11 +109,11 @@
                         ${getCreateDropdownMarkup()}
                     </div>
                 </div>
-                <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline ll-icon-btn--lg" aria-label="Notifications">
+                <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Notifications">
                     <span class="material-symbols-outlined ll-icon-btn__icon">notifications</span>
                 </button>
-                <div class="relative">
-                    <button id="user-dropdown-button" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline ll-icon-btn--lg ll-dropdown__trigger" aria-label="User menu">
+                <div>
+                    <button id="user-dropdown-button" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline ll-dropdown__trigger" aria-label="User menu">
                         <span class="text-lg font-medium">${userInitial}</span>
                     </button>
                     <div id="user-dropdown-menu" class="ll-dropdown__menu hidden">

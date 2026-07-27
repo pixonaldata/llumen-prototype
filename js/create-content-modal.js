@@ -1,6 +1,35 @@
 // Create Content Modal functionality
 let selectedContentType = '';
 let createContentModalController = null;
+
+function normalizeContentTypeName(contentType) {
+    const raw = String(contentType || '').trim();
+    if (!raw) return '';
+    const lower = raw.toLowerCase();
+    if (lower === 'story') return 'Slide';
+    if (lower === 'stories') return 'Slides';
+    return raw;
+}
+
+function showCreateContentToast(message, state = 'info') {
+    const components = window.LlumenComponents;
+    const safeMessage = String(message == null ? '' : message).trim();
+    if (!safeMessage) return;
+
+    if (components && typeof components.createToast === 'function') {
+        components.createToast({
+            state: String(state || 'info'),
+            message: safeMessage,
+            position: 'bottom-left',
+            duration: 4000,
+            dismissible: true
+        });
+        return;
+    }
+
+    // Fallback for environments where reusable components are unavailable.
+    console.warn('[toast unavailable]', safeMessage);
+}
 const createContentModalBodyMarkup = `
     <div id="create-content-modal-content">
         <p id="create-content-modal-description" class="font-semibold mb-4">Select a Workspace to proceed</p>
@@ -85,7 +114,7 @@ function updatePrivateWorkspaceVisibility() {
 }
 
 function openCreateContentModal(contentType) {
-    selectedContentType = contentType;
+    selectedContentType = normalizeContentTypeName(contentType);
     const modal = ensureCreateContentModal();
     if (!modal) return;
     
@@ -96,7 +125,7 @@ function openCreateContentModal(contentType) {
     }
     
     // Update modal title
-    modal.setTitle(`Create ${contentType}`);
+    modal.setTitle(`Create ${selectedContentType}`);
 
     // Briefings skip the Private workspace option in this picker.
     updatePrivateWorkspaceVisibility();
@@ -202,9 +231,7 @@ function handleWorkspaceSelection(workspaceName) {
     }
     
     // Handle other content types
-    if (typeof alertMessage === 'function') {
-        alertMessage(`Creating ${selectedContentType} in ${workspaceName}...`, 'info');
-    }
+    showCreateContentToast(`Creating ${selectedContentType} in ${workspaceName}...`, 'info');
     closeCreateContentModal();
 }
 

@@ -2939,7 +2939,7 @@
     --ll-body-bg-color: #0d0d0d;
     --ll-body-color: rgb(var(--ll-color-neutral-200));
     --ll-modal-content-bg-color: rgb(var(--ll-color-neutral-900));
-    --ll-app-header-height: 4.25rem;
+    --ll-app-header-height: 4.125rem;
     --ll-context-header-height: 0px;
     --ll-app-sidebar-container-top: var(--ll-app-header-height);
     --ll-color-neutral-100: 234 235 236;
@@ -3147,6 +3147,9 @@
     position: sticky;
     top: calc(var(--spacing) * 0);
     z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: calc(var(--spacing) * 4);
     height: var(--ll-app-header-height);
     background-color: rgba(var(--ll-color-neutral-950) / 6%);
@@ -3156,18 +3159,29 @@
     align-items: center;
     gap: calc(var(--spacing) * 4);
   }
+  .ll-app-header__left, .ll-app-header__right {
+    flex: 1;
+  }
+  .ll-app-header__center {
+    max-width: calc(var(--spacing) * 90);
+    flex: 2;
+    justify-content: center;
+  }
+  .ll-app-header__right {
+    justify-content: flex-end;
+  }
   .ll-app-header .ll-border-divider {
-    height: 2.375rem;
+    height: 2.25rem;
     border-left-style: var(--tw-border-style);
     border-left-width: 1px;
   }
   .ll-app-logo {
-    height: 2.375rem;
-    width: 2.375rem;
+    height: 2.25rem;
+    width: 2.25rem;
   }
   .ll-client-logo {
     display: flex;
-    height: 2.375rem;
+    height: 2.25rem;
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-lg);
@@ -3177,8 +3191,12 @@
     line-height: var(--tw-leading, var(--text-sm--line-height));
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
+    text-wrap: nowrap;
     background-color: rgb(var(--ll-color-neutral-950));
     color: rgb(var(--ll-color-neutral-100));
+  }
+  .ll-app-header__search-input {
+    width: 100%;
   }
   .ll-app-header-secondary {
     position: sticky;
@@ -3327,6 +3345,7 @@
   }
   .ll-btn {
     display: inline-flex;
+    height: calc(var(--spacing) * 9);
     cursor: pointer;
     align-items: center;
     justify-content: center;
@@ -3352,19 +3371,18 @@
     &:disabled {
       opacity: 50%;
     }
-    height: 2.375rem;
   }
   .ll-btn--sm {
+    height: calc(var(--spacing) * 7);
     padding-inline: calc(var(--spacing) * 3);
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
-    height: 2rem;
   }
   .ll-btn--lg {
+    height: calc(var(--spacing) * 11);
     padding-inline: calc(var(--spacing) * 5);
     font-size: var(--text-base);
     line-height: var(--tw-leading, var(--text-base--line-height));
-    height: 3rem;
   }
   .ll-btn--auto-height {
     height: auto;
@@ -3547,8 +3565,8 @@
   }
   .ll-icon-btn {
     display: inline-flex;
-    height: calc(var(--spacing) * 7);
-    width: calc(var(--spacing) * 7);
+    height: calc(var(--spacing) * 9);
+    width: calc(var(--spacing) * 9);
     cursor: pointer;
     align-items: center;
     justify-content: center;
@@ -3578,16 +3596,23 @@
     --tw-leading: 1;
     line-height: 1;
   }
-  .ll-icon-btn--sm {
-    width: calc(var(--spacing) * 6);
+  .ll-icon-btn--xs {
     height: calc(var(--spacing) * 6);
+    width: calc(var(--spacing) * 6);
   }
-  .ll-icon-btn--sm .ll-icon-btn__icon {
-    font-size: 1rem;
+  .ll-icon-btn--sm {
+    height: calc(var(--spacing) * 7);
+    width: calc(var(--spacing) * 7);
   }
   .ll-icon-btn--lg {
-    width: 2.375rem;
-    height: 2.375rem;
+    height: calc(var(--spacing) * 11);
+    width: calc(var(--spacing) * 11);
+  }
+  .ll-icon-btn--xs .ll-icon-btn__icon {
+    font-size: 1rem;
+  }
+  .ll-icon-btn--sm .ll-icon-btn__icon {
+    font-size: 1.25rem;
   }
   .ll-icon-btn--lg .ll-icon-btn__icon {
     font-size: 1.5rem;
@@ -4712,13 +4737,13 @@
     color: rgb(var(--ll-color-neutral-950));
   }
   .ll-input {
-    min-height: 2.375rem;
+    min-height: 2.25rem;
     width: 100%;
     border-radius: var(--radius-xl);
     border-style: var(--tw-border-style);
     border-width: 1px;
     padding-inline: calc(var(--spacing) * 3);
-    padding-block: calc(var(--spacing) * 1.5);
+    padding-block: calc(var(--spacing) * 1.25);
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
@@ -4766,7 +4791,7 @@
   .ll-input-with-left-icon__icon {
     pointer-events: none;
     display: flex;
-    min-height: 2.375rem;
+    min-height: 2.25rem;
     align-items: center;
     justify-content: center;
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
@@ -4976,7 +5001,7 @@
     width: 100%;
   }
   .ll-dropdown__trigger--clear-visible, .ll-expression-editor__input.ll-dropdown__trigger--clear-visible {
-    padding-right: calc(var(--spacing) * 10);
+    padding-right: calc(var(--spacing) * 9);
   }
   .ll-dropdown__selected-value--placeholder {
     color: var(--ll-color-muted);
@@ -5139,7 +5164,7 @@
   }
   .ll-expression-field {
     position: relative;
-    min-height: 2.375rem;
+    min-height: 2.25rem;
     overflow: hidden;
     padding: calc(var(--spacing) * 0);
   }
@@ -6505,7 +6530,7 @@
     --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
-  .ll-row-context__row-drag-icon {
+  .ll-icon-btn__icon.ll-row-context__row-drag-icon {
     font-size: var(--text-base);
     line-height: var(--tw-leading, var(--text-base--line-height));
   }
@@ -6995,6 +7020,7 @@
     color: var(--ll-color-muted);
   }
   .ll-empty__text {
+    text-align: center;
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
     color: var(--ll-color-muted);

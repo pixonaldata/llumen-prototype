@@ -131,7 +131,7 @@
                 clearButton = document.createElement('button');
                 clearButton.type = 'button';
                 clearButton.id = clearButtonId || `${inputId}-clear`;
-                clearButton.className = 'll-icon-btn ll-clear-btn hidden';
+                clearButton.className = 'll-icon-btn ll-icon-btn--xs ll-clear-btn hidden';
                 clearButton.setAttribute('aria-label', 'Clear search');
                 clearButton.setAttribute('data-tooltip', 'Clear Search');
                 clearButton.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>';
@@ -147,7 +147,7 @@
                     && token !== 'll-search-clear-btn'
                     && token !== 'll-datetime-clear-btn'
                     && token !== 'll-dropdown__selection-clear');
-            clearButton.className = ['ll-icon-btn', 'll-clear-btn', ...normalizedClearButtonClasses].join(' ');
+            clearButton.className = ['ll-icon-btn', 'll-icon-btn--xs', 'll-clear-btn', ...normalizedClearButtonClasses].join(' ');
             const clearIcon = clearButton.querySelector('.material-symbols-outlined');
             if (clearIcon) {
                 clearIcon.classList.add('ll-icon-btn__icon');
@@ -336,7 +336,7 @@
                 clearButton = document.createElement('button');
                 clearButton.type = 'button';
                 clearButton.id = `${inputId}-clear`;
-                clearButton.className = 'll-icon-btn ll-clear-btn hidden';
+                clearButton.className = 'll-icon-btn ll-icon-btn--xs ll-clear-btn hidden';
                 clearButton.setAttribute('aria-label', 'Clear date and time');
                 clearButton.setAttribute('data-tooltip', 'Clear date and time');
                 clearButton.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>';
@@ -350,7 +350,7 @@
                     && token !== 'll-search-clear-btn'
                     && token !== 'll-datetime-clear-btn'
                     && token !== 'll-dropdown__selection-clear');
-            clearButton.className = ['ll-icon-btn', 'll-clear-btn', ...normalizedClearButtonClasses].join(' ');
+            clearButton.className = ['ll-icon-btn', 'll-icon-btn--xs', 'll-clear-btn', ...normalizedClearButtonClasses].join(' ');
         }
 
         const runFlatpickrHook = (hook, selectedDates, dateStr, instance) => {
@@ -4036,7 +4036,7 @@
                 triggerShell.classList.toggle('ll-dropdown__trigger-shell--fill', shouldFillTriggerShell);
                 clearSelectionButton = document.createElement('button');
                 clearSelectionButton.type = 'button';
-                clearSelectionButton.className = 'll-icon-btn ll-clear-btn hidden';
+                clearSelectionButton.className = 'll-icon-btn ll-icon-btn--xs ll-clear-btn hidden';
                 clearSelectionButton.setAttribute('aria-label', 'Clear selections');
                 clearSelectionButton.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>';
                 clearSelectionButton.addEventListener('click', (event) => {
@@ -4537,7 +4537,7 @@
                             <input id="${searchInputId}" type="text" placeholder="${escapeHtml(searchPlaceholder)}"
                                 class="ll-input ll-input--search ll-input-with-left-icon__input">
                             <button id="${searchClearId}" type="button"
-                                class="ll-icon-btn ll-clear-btn hidden"
+                                class="ll-icon-btn ll-icon-btn--xs ll-clear-btn hidden"
                                 data-tooltip="Clear Search">
                                 <span class="material-symbols-outlined ll-icon-btn__icon">close</span>
                             </button>
@@ -9392,7 +9392,7 @@
                                     <div class="ll-card__header-action">
                                         <div class="ll-card__header-action-content">
                                             <button type="button"
-                                                class="ll-icon-btn node-config-card-delete"
+                                                class="ll-icon-btn ll-icon-btn--sm node-config-card-delete"
                                                 data-delete-card-item-id="${escapeHtml(itemId)}">
                                                 <span class="material-symbols-outlined ll-icon-btn__icon">delete</span>
                                             </button>
@@ -9403,7 +9403,7 @@
                                     <div class="ll-card__header-action">
                                         <div class="ll-card__header-action-content">
                                             <button type="button"
-                                                class="ll-icon-btn ll-dragdrop-card-list__drag-handle"
+                                                class="ll-icon-btn ll-icon-btn--sm ll-dragdrop-card-list__drag-handle"
                                                 data-drag-card-item-id="${escapeHtml(itemId)}">
                                                 <span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>
                                             </button>
@@ -9499,7 +9499,7 @@
                 tooltip.classList.add('ll-tooltip--interactive', 'll-tooltip--with-close');
                 const closeButton = document.createElement('button');
                 closeButton.type = 'button';
-                closeButton.className = 'll-icon-btn ll-icon-btn--sm ll-tooltip__close';
+                closeButton.className = 'll-icon-btn ll-icon-btn--xs ll-tooltip__close';
                 closeButton.setAttribute('aria-label', 'Close tooltip');
                 closeButton.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>';
                 closeButton.addEventListener('click', (event) => {
@@ -9959,7 +9959,7 @@
                 : `<div class="ll-alert__content">${escapeHtml(message)}</div>`;
 
             const closeButtonMarkup = dismissible
-                ? '<button type="button" class="ll-icon-btn ll-icon-btn--sm ll-alert__close" aria-label="Dismiss toast"><span class="material-symbols-outlined ll-icon-btn__icon">close</span></button>'
+                ? '<button type="button" class="ll-icon-btn ll-icon-btn--xs ll-alert__close" aria-label="Dismiss toast"><span class="material-symbols-outlined ll-icon-btn__icon">close</span></button>'
                 : '';
 
             const toastItem = document.createElement('div');
@@ -10318,6 +10318,9 @@
                 actionContent.className = 'll-modal__header-action-content';
                 appendModalContent(actionContent, actionItem);
                 if (!actionContent.hasChildNodes()) return;
+                actionContent.querySelectorAll('.ll-icon-btn').forEach((buttonEl) => {
+                    buttonEl.classList.add('ll-icon-btn--sm');
+                });
                 actionWrapper.appendChild(actionContent);
                 target.appendChild(actionWrapper);
             });
@@ -10888,7 +10891,7 @@
                 backSlotElement.className = 'll-modal__back-slot';
                 backButtonElement = document.createElement('button');
                 backButtonElement.type = 'button';
-                backButtonElement.className = 'll-icon-btn ll-icon-btn--circle ll-modal__back-btn';
+                backButtonElement.className = 'll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-modal__back-btn';
                 backButtonElement.setAttribute('aria-label', 'Back');
                 backButtonElement.setAttribute('aria-hidden', 'true');
                 backButtonElement.setAttribute('tabindex', '-1');
@@ -10926,7 +10929,7 @@
                 if (options.closeButton) {
                     const closeButton = document.createElement('button');
                     closeButton.type = 'button';
-                    closeButton.className = 'll-icon-btn ll-modal__close';
+                    closeButton.className = 'll-icon-btn ll-icon-btn--sm ll-modal__close';
                     closeButton.setAttribute('aria-label', 'Close modal');
                     closeButton.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>';
                     headerRight.appendChild(closeButton);
@@ -12219,6 +12222,16 @@
                 return found;
             };
 
+            const ensureRowVerticalDragHandleSizeClass = () => {
+                rowsHost.querySelectorAll(`:scope > ${filledRowSelector}`).forEach((rowEl) => {
+                    if (!rowEl || typeof rowEl.querySelector !== 'function') return;
+                    const handle = rowEl.querySelector(rowVerticalHandleSelector);
+                    if (!handle || !handle.classList) return;
+                    if (!handle.classList.contains('ll-icon-btn')) return;
+                    handle.classList.add('ll-icon-btn--sm');
+                });
+            };
+
             const syncGapRows = () => {
                 clearRowBandGapSqueeze();
                 teardownRowHorizontalSortables();
@@ -12229,6 +12242,7 @@
                     filledRowContentSelector: `:scope > ${bandShellSelector}`
                 });
                 rowsHost.querySelectorAll(`:scope > ${filledRowSelector}`).forEach(decorateFilledRow);
+                ensureRowVerticalDragHandleSizeClass();
                 rowsHost.querySelectorAll(':scope > .ll-row-band-row').forEach(mountRowBandHorizontalSortable);
             };
 
@@ -12644,7 +12658,7 @@
                     triggerIcon: String(action && action.triggerIcon ? action.triggerIcon : 'more_vert').trim(),
                     triggerLabel: String(action && action.triggerLabel ? action.triggerLabel : '').trim(),
                     triggerAriaLabel: String(action && action.triggerAriaLabel ? action.triggerAriaLabel : 'Item actions').trim(),
-                    triggerClassName: String(action && action.triggerClassName ? action.triggerClassName : 'll-icon-btn ll-icon-btn--circle').trim(),
+                    triggerClassName: String(action && action.triggerClassName ? action.triggerClassName : 'll-icon-btn ll-icon-btn--circle ll-icon-btn--sm').trim(),
                     when: typeof (action && action.when) === 'function' ? action.when : null,
                     align: String(action && action.align ? action.align : 'right').trim() || 'right',
                     matchTriggerWidth: Boolean(action && action.matchTriggerWidth),
@@ -13095,6 +13109,13 @@
                 return { actionElement, actionContentElement };
             };
 
+            const ensureItemActionIconButtonSizeClass = (className) => {
+                const raw = String(className || '').trim();
+                if (!/\bll-icon-btn\b/.test(raw)) return raw;
+                if (/\bll-icon-btn--(?:xs|sm|lg)\b/.test(raw)) return raw;
+                return `${raw} ll-icon-btn--sm`.trim();
+            };
+
             const appendCustomActionContent = (host, output) => {
                 if (!host || output == null) return;
                 if (output && output.nodeType === 1) {
@@ -13121,7 +13142,8 @@
                     if (actionConfig.type === 'button') {
                         const actionButton = document.createElement('button');
                         actionButton.type = 'button';
-                        actionButton.className = actionConfig.className || 'll-btn ll-btn--outline-default';
+                        const baseActionClassName = actionConfig.className || 'll-btn ll-btn--outline-default';
+                        actionButton.className = ensureItemActionIconButtonSizeClass(baseActionClassName);
                         actionButton.dataset.listingAction = 'button';
                         actionButton.setAttribute('aria-label', actionConfig.ariaLabel || actionConfig.label || 'Action');
                         if (actionConfig.icon) {
@@ -13155,10 +13177,11 @@
                         const triggerButton = document.createElement('button');
                         triggerButton.id = `${actionId}-btn`;
                         triggerButton.type = 'button';
-                        const baseTriggerClassName = String(actionConfig.triggerClassName || 'll-icon-btn ll-icon-btn--circle').trim();
-                        triggerButton.className = /\bll-icon-btn--outline\b/.test(baseTriggerClassName)
+                        const baseTriggerClassName = String(actionConfig.triggerClassName || 'll-icon-btn ll-icon-btn--circle ll-icon-btn--sm').trim();
+                        const resolvedTriggerClassName = /\bll-icon-btn--outline\b/.test(baseTriggerClassName)
                             ? baseTriggerClassName
                             : `${baseTriggerClassName} ll-icon-btn--outline`;
+                        triggerButton.className = ensureItemActionIconButtonSizeClass(resolvedTriggerClassName);
                         triggerButton.dataset.listingAction = 'dropdown';
                         triggerButton.setAttribute('aria-label', actionConfig.triggerAriaLabel || 'Item actions');
                         if (actionConfig.triggerIcon) {
@@ -14872,7 +14895,7 @@
             leftOverlay.className = 'll-carousel__overlay ll-carousel__overlay--left ll-carousel__overlay--hidden';
             const leftBtn = document.createElement('button');
             leftBtn.type = 'button';
-            leftBtn.className = 'll-icon-btn ll-icon-btn--circle ll-icon-btn--lg ll-carousel__scroll-btn';
+            leftBtn.className = 'll-icon-btn ll-icon-btn--circle ll-carousel__scroll-btn';
             leftBtn.setAttribute('aria-label', 'Scroll left');
             leftBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">chevron_left</span>';
             leftOverlay.appendChild(leftBtn);
@@ -14912,7 +14935,7 @@
             rightOverlay.className = 'll-carousel__overlay ll-carousel__overlay--right ll-carousel__overlay--hidden';
             const rightBtn = document.createElement('button');
             rightBtn.type = 'button';
-            rightBtn.className = 'll-icon-btn ll-icon-btn--circle ll-icon-btn--lg ll-carousel__scroll-btn';
+            rightBtn.className = 'll-icon-btn ll-icon-btn--circle ll-carousel__scroll-btn';
             rightBtn.setAttribute('aria-label', 'Scroll right');
             rightBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">chevron_right</span>';
             rightOverlay.appendChild(rightBtn);
@@ -15137,7 +15160,7 @@
                 if (shouldRenderTabControls && canReorderTabs) {
                     dragBtn = document.createElement('button');
                     dragBtn.type = 'button';
-                    dragBtn.className = 'll-carousel__tab-drag ll-icon-btn ll-icon-btn--sm';
+                    dragBtn.className = 'll-carousel__tab-drag ll-icon-btn ll-icon-btn--xs';
                     dragBtn.setAttribute('aria-label', 'Reorder tab');
                     dragBtn.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>';
                 }
@@ -15160,7 +15183,7 @@
                     if (tabsRenameEnabled) {
                         editBtn = document.createElement('button');
                         editBtn.type = 'button';
-                        editBtn.className = 'll-carousel__tab-edit ll-icon-btn ll-icon-btn--sm';
+                        editBtn.className = 'll-carousel__tab-edit ll-icon-btn ll-icon-btn--xs';
                         editBtn.setAttribute('aria-label', isEditing ? 'Apply tab title' : 'Edit tab title');
                         editBtn.innerHTML = isEditing
                             ? '<span class="material-symbols-outlined ll-icon-btn__icon">check</span>'
@@ -15171,7 +15194,7 @@
 
                     delBtn = document.createElement('button');
                     delBtn.type = 'button';
-                    delBtn.className = 'll-carousel__tab-delete ll-icon-btn ll-icon-btn--sm';
+                    delBtn.className = 'll-carousel__tab-delete ll-icon-btn ll-icon-btn--xs';
                     delBtn.setAttribute('aria-label', isEditing ? 'Cancel tab edit' : 'Delete tab');
                     delBtn.innerHTML = isEditing
                         ? '<span class="material-symbols-outlined ll-icon-btn__icon">close</span>'

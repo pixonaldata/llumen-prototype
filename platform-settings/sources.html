@@ -331,7 +331,7 @@
                             <button
                                 id="nav-collection-dropdown-btn"
                                 type="button"
-                                class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline"
                                 data-api-nav-action-trigger="true"
                                 data-api-nav-action-type="collection"
                                 data-api-nav-menu-id="nav-collection-dropdown"
@@ -365,7 +365,7 @@
                                  <button
                                      id="nav-request-1-1-dropdown-btn"
                                      type="button"
-                                     class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                     class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline"
                                      data-api-nav-action-trigger="true"
                                      data-api-nav-action-type="request"
                                      data-api-nav-menu-id="nav-request-1.1-dropdown"
@@ -394,7 +394,7 @@
                                  <button
                                      id="nav-request-1-2-dropdown-btn"
                                      type="button"
-                                     class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                     class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline"
                                      data-api-nav-action-trigger="true"
                                      data-api-nav-action-type="request"
                                      data-api-nav-menu-id="nav-request-1.2-dropdown"
@@ -448,7 +448,7 @@
                                         </div>
                                         <div class="ll-modal__header-action">
                                             <div class="ll-modal__header-action-content">
-                                                <button id="collection-actions-dropdown-btn" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Collection actions">
+                                                <button id="collection-actions-dropdown-btn" type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" aria-label="Collection actions">
                                                     <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                                                 </button>
                                                 <div id="collection-actions-dropdown" class="ll-dropdown__menu hidden"></div>
@@ -660,7 +660,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                                         </div>
                                         <div class="ll-modal__header-action">
                                             <div class="ll-modal__header-action-content">
-                                                <button id="request-actions-dropdown-btn" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Request actions">
+                                                <button id="request-actions-dropdown-btn" type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" aria-label="Request actions">
                                                     <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                                                 </button>
                                                 <div id="request-actions-dropdown" class="ll-dropdown__menu hidden"></div>
@@ -1068,6 +1068,10 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
             const container = document.querySelector(containerSelector);
             if (!container) return;
 
+            container.querySelectorAll('.ll-kv-row__actions .ll-icon-btn').forEach((button) => {
+                button.classList.add('ll-icon-btn--sm');
+            });
+
             const llComponents = window.LlumenComponents;
             if (!llComponents || typeof llComponents.initVerticalSortableList !== 'function') return;
 
@@ -1084,11 +1088,15 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                 }
 
                 // For ll-kv-row instances, ensure a reusable sortable handle exists.
-                if (row.querySelector('[data-sort-drag="true"]')) return;
+                const existingHandle = row.querySelector('[data-sort-drag="true"]');
+                if (existingHandle) {
+                    existingHandle.classList.add('ll-icon-btn--sm');
+                    return;
+                }
 
                 const handle = document.createElement('button');
                 handle.type = 'button';
-                handle.className = 'll-icon-btn ll-icon-btn--circle';
+                handle.className = 'll-icon-btn ll-icon-btn--sm ll-icon-btn--circle';
                 handle.setAttribute('data-sort-drag', 'true');
                 handle.setAttribute('aria-label', 'Reorder row');
                 handle.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>';
@@ -4923,7 +4931,7 @@ llumen.log('Post-request script executed. Response time: ' + responseTime + 'ms'
                         </div>
                         
                         <!-- Send Request Button -->
-                        <button class="ll-btn ll-btn--sm ll-btn--primary whitespace-nowrap">
+                        <button class="ll-btn ll-btn--primary whitespace-nowrap">
                             <span class="material-symbols-outlined ll-btn__icon">send</span>
                             Send
                         </button>

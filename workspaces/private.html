@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Llumen Prototype</title>
+    <title>Private - Llumen Prototype</title>
     <!-- Shared Llumen styles -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/tailwind.css">
@@ -30,7 +30,7 @@
                 <button class="internal-tab-item ll-tab-btn ll-active"
                     data-internal-tab="overview">Overview</button>
                 <button class="internal-tab-item ll-tab-btn"
-                    data-internal-tab="stories">Stories</button>
+                    data-internal-tab="slides">Slides</button>
                 <button class="internal-tab-item ll-tab-btn"
                     data-internal-tab="dashboards">Dashboards</button>
                 <button class="internal-tab-item ll-tab-btn"
@@ -48,20 +48,20 @@
                         <div id="finance-overview-v2" class="pt-3 md:pt-6">
                             <section class="ll-section" >
                                 <div class="ll-section-header">
-                                    <h2 class="ll-section-heading">Latest Stories</h2>
+                                    <h2 class="ll-section-heading">Latest Slides</h2>
                                     <div class="flex items-center space-x-4">
-                                        <button type="button" id="finance-overview-create-story-btn" class="ll-btn ll-btn--outline-default">
+                                        <button type="button" id="finance-overview-create-slide-btn" class="ll-btn ll-btn--outline-default">
                                             <span class="material-symbols-outlined ll-btn__icon">add</span>
-                                            Story
+                                            Slide
                                         </button>
-                                        <button type="button" class="ll-btn ll-btn--outline-default" data-internal-tab="stories">
+                                        <button type="button" class="ll-btn ll-btn--outline-default" data-internal-tab="slides">
                                             <span class="material-symbols-outlined ll-btn__icon">visibility</span>
-                                            All Stories
+                                            All Slides
                                         </button>
                                     </div>
                                 </div>
                                 <div class="ll-section-content ll-section-content--no-x-padding">
-                                    <div id="finance-overview-stories-carousel-root" class="ll-carousel"></div>
+                                    <div id="finance-overview-slides-carousel-root" class="ll-carousel"></div>
                                 </div>
                             </section>
 
@@ -106,52 +106,52 @@
 
                     </div>
 
-                    <div id="stories-tab-content" class="workspace-tab-content ll-tab-panel hidden">
-                        <div id="finance-stories-v4" class="ll-listing-module">
+                    <div id="slides-tab-content" class="workspace-tab-content ll-tab-panel hidden">
+                        <div id="finance-slides-v4" class="ll-listing-module">
                             <div class="ll-listing-module-header">
                                 <div class="ll-listing-module-header__top">
                                     <div class="ll-listing-module-header__title-wrap">
-                                        <div class="ll-listing-module-header__title">Stories</div>
+                                        <div class="ll-listing-module-header__title">Slides</div>
                                     </div>
                                     <div class="ll-listing-module-header__actions">
                                         <div class="ll-input-with-left-icon ll-listing-module-search-input">
                                             <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon"><span class="material-symbols-outlined">search</span></div>
-                                            <input id="finance-stories-v4-search-input" type="text" class="ll-input ll-input--search ll-input-with-left-icon__input" placeholder="Search stories...">
+                                            <input id="finance-slides-v4-search-input" type="text" class="ll-input ll-input--search ll-input-with-left-icon__input" placeholder="Search slides...">
                                         </div>
-                                        <button id="finance-stories-v4-create-btn" type="button" class="ll-btn ll-btn--outline-default">
+                                        <button id="finance-slides-v4-create-btn" type="button" class="ll-btn ll-btn--outline-default">
                                             <span class="material-symbols-outlined ll-btn__icon">add</span>
-                                            Create Story
+                                            Create Slide
                                         </button>
                                     </div>
                                 </div>
                                 <div class="ll-listing-module-header__toolbar">
                                     <div class="ll-listing-module-header__toolbar-start">
-                                        <button id="finance-stories-v4-status-filter-btn" class="ll-btn ll-btn--outline-default">
+                                        <button id="finance-slides-v4-status-filter-btn" class="ll-btn ll-btn--outline-default">
                                             <span class="ll-dropdown__selected-value">Status</span>
                                             <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
                                         </button>
-                                        <div id="finance-stories-v4-status-filter-menu" class="ll-dropdown__menu hidden right-auto overflow-y-auto"></div>
-                                        <button id="finance-stories-v4-clear-filters-btn" type="button" class="ll-btn ll-btn--outline-negative ll-listing-module__clear-filters hidden">Clear All Filters</button>
+                                        <div id="finance-slides-v4-status-filter-menu" class="ll-dropdown__menu hidden right-auto overflow-y-auto"></div>
+                                        <button id="finance-slides-v4-clear-filters-btn" type="button" class="ll-btn ll-btn--outline-negative ll-listing-module__clear-filters hidden">Clear All Filters</button>
                                     </div>
                                     <div class="ll-listing-module-header__toolbar-end">
-                                        <div class="ll-btn-group" role="group" aria-label="Story listing view toggle">
-                                            <button id="finance-stories-v4-view-list-btn" type="button" class="ll-btn ll-btn--outline-default ll-btn--icon-only" title="List View" aria-label="List View">
+                                        <div class="ll-btn-group" role="group" aria-label="Slide listing view toggle">
+                                            <button id="finance-slides-v4-view-list-btn" type="button" class="ll-btn ll-btn--outline-default ll-btn--icon-only" title="List View" aria-label="List View">
                                                 <span class="material-symbols-outlined ll-btn__icon">menu</span>
                                             </button>
-                                            <button id="finance-stories-v4-view-grid-btn" type="button" class="ll-btn ll-btn--outline-default ll-btn--icon-only" title="Grid View" aria-label="Grid View">
+                                            <button id="finance-slides-v4-view-grid-btn" type="button" class="ll-btn ll-btn--outline-default ll-btn--icon-only" title="Grid View" aria-label="Grid View">
                                                 <span class="material-symbols-outlined ll-btn__icon">grid_view</span>
                                             </button>
                                         </div>
-                                        <button id="finance-stories-v4-sort-btn" class="ll-btn ll-btn--outline-default">
+                                        <button id="finance-slides-v4-sort-btn" class="ll-btn ll-btn--outline-default">
                                             <span class="ll-dropdown__selected-value">Sort</span>
                                             <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
                                         </button>
-                                        <div id="finance-stories-v4-sort-menu" class="ll-dropdown__menu hidden right-auto overflow-y-auto"></div>
+                                        <div id="finance-slides-v4-sort-menu" class="ll-dropdown__menu hidden right-auto overflow-y-auto"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div id="finance-stories-v4-grid-host" class="ll-listing-module-content-host ll-listing-module-grid-host"></div>
-                            <div id="finance-stories-v4-table-host" class="ll-listing-module-content-host ll-listing-module-table-host"></div>
+                            <div id="finance-slides-v4-grid-host" class="ll-listing-module-content-host ll-listing-module-grid-host"></div>
+                            <div id="finance-slides-v4-table-host" class="ll-listing-module-content-host ll-listing-module-table-host"></div>
                         </div>
                     </div>
 
@@ -416,7 +416,7 @@
             if (!components || typeof components.initializeHorizontalCarousel !== 'function') return;
             const singularTypeLabel = (type) => {
                 const map = {
-                    stories: 'Story',
+                    slides: 'Slide',
                     dashboards: 'Dashboard',
                     whiteboards: 'Whiteboard'
                 };
@@ -436,19 +436,19 @@
                 });
             };
 
-            const storiesRoot = document.getElementById('finance-overview-stories-carousel-root');
+            const slidesRoot = document.getElementById('finance-overview-slides-carousel-root');
             const dashboardsRoot = document.getElementById('finance-overview-dashboards-carousel-root');
             const whiteboardsRoot = document.getElementById('finance-overview-whiteboards-carousel-root');
 
-            const overviewStories = [
-                { id: 'story-1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments', meta: 'Story · 14 Sections', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
-                { id: 'story-2', title: 'Employee Engagement Trends 2024: Key Insights and Retention Strategies', meta: 'Story · 17 Sections', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-3', title: '2025 Marketing Strategy Overview: Key Initiatives and Anticipated Impact Analysis', meta: 'Story · 14 Sections', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-4', title: 'Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments', meta: 'Story · 12 Sections', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
-                { id: 'story-5', title: 'Customer Satisfaction Analysis: Q1 Survey Results and Actionable Recommendations', meta: 'Story · 9 Sections', thumbnailSrc: 'https://placehold.co/400x225/7c2d12/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-6', title: 'Technology Infrastructure Modernization: Roadmap and Implementation Timeline', meta: 'Story · 21 Sections', thumbnailSrc: 'https://placehold.co/400x225/1e3a8a/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-7', title: 'Product Launch Strategy: Market Entry Plan and Competitive Positioning', meta: 'Story · 16 Sections', thumbnailSrc: 'https://placehold.co/400x225/065f46/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-8', title: 'Risk Assessment and Mitigation: Comprehensive Analysis of Operational Vulnerabilities', meta: 'Story · 19 Sections', thumbnailSrc: 'https://placehold.co/400x225/4c1d95/ffffff?text=Screenshot+of+first+section' }
+            const overviewSlides = [
+                { id: 'slide-1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments', meta: 'Slide · 14 Sections', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
+                { id: 'slide-2', title: 'Employee Engagement Trends 2024: Key Insights and Retention Strategies', meta: 'Slide · 17 Sections', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-3', title: '2025 Marketing Strategy Overview: Key Initiatives and Anticipated Impact Analysis', meta: 'Slide · 14 Sections', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-4', title: 'Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments', meta: 'Slide · 12 Sections', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
+                { id: 'slide-5', title: 'Customer Satisfaction Analysis: Q1 Survey Results and Actionable Recommendations', meta: 'Slide · 9 Sections', thumbnailSrc: 'https://placehold.co/400x225/7c2d12/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-6', title: 'Technology Infrastructure Modernization: Roadmap and Implementation Timeline', meta: 'Slide · 21 Sections', thumbnailSrc: 'https://placehold.co/400x225/1e3a8a/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-7', title: 'Product Launch Strategy: Market Entry Plan and Competitive Positioning', meta: 'Slide · 16 Sections', thumbnailSrc: 'https://placehold.co/400x225/065f46/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-8', title: 'Risk Assessment and Mitigation: Comprehensive Analysis of Operational Vulnerabilities', meta: 'Slide · 19 Sections', thumbnailSrc: 'https://placehold.co/400x225/4c1d95/ffffff?text=Screenshot+of+first+section' }
             ];
 
             const overviewDashboards = [
@@ -485,7 +485,7 @@
                                 <div class="ll-card__header-actions">
                                     <div class="ll-card__header-action">
                                         <div class="ll-card__header-action-content">
-                                            <button id="${buttonId}" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Card actions">
+                                            <button id="${buttonId}" type="button" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" aria-label="Card actions">
                                                 <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                                             </button>
                                             <div id="${menuId}" class="ll-dropdown__menu hidden">
@@ -561,14 +561,14 @@
                 root.dataset.carouselBound = 'true';
             };
 
-            setupMediaOverviewCarousel(storiesRoot, overviewStories, 'stories');
+            setupMediaOverviewCarousel(slidesRoot, overviewSlides, 'slides');
             setupMediaOverviewCarousel(dashboardsRoot, overviewDashboards, 'dashboards');
             setupMediaOverviewCarousel(whiteboardsRoot, overviewWhiteboards, 'whiteboards');
 
-            const overviewCreateStoryBtn = document.getElementById('finance-overview-create-story-btn');
-            if (overviewCreateStoryBtn && overviewCreateStoryBtn.dataset.bound !== 'true') {
-                overviewCreateStoryBtn.addEventListener('click', () => alertMessage('Create Story (simulated).', 'info'));
-                overviewCreateStoryBtn.dataset.bound = 'true';
+            const overviewCreateSlideBtn = document.getElementById('finance-overview-create-slide-btn');
+            if (overviewCreateSlideBtn && overviewCreateSlideBtn.dataset.bound !== 'true') {
+                overviewCreateSlideBtn.addEventListener('click', () => alertMessage('Create Slide (simulated).', 'info'));
+                overviewCreateSlideBtn.dataset.bound = 'true';
             }
             const overviewCreateDashboardBtn = document.getElementById('finance-overview-create-dashboard-btn');
             if (overviewCreateDashboardBtn && overviewCreateDashboardBtn.dataset.bound !== 'true') {
@@ -591,15 +591,15 @@
                 unpublished: 'll-chip--outline-warning'
             };
 
-            const storyItems = [
-                { id: 'story-1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments', status: 'Published', statusFilter: 'published', contentCount: 14, contentLabel: 'Sections', updatedLabel: '2 hours ago', updatedRank: 8, thumbnail: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
-                { id: 'story-2', title: 'Employee Engagement Trends 2024: Key Insights and Retention Strategies', status: 'Published', statusFilter: 'published', contentCount: 17, contentLabel: 'Sections', updatedLabel: '1 day ago', updatedRank: 7, thumbnail: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-3', title: '2025 Marketing Strategy Overview: Key Initiatives and Anticipated Impact Analysis', status: 'Unpublished', statusFilter: 'unpublished', contentCount: 14, contentLabel: 'Sections', updatedLabel: '3 days ago', updatedRank: 6, thumbnail: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-4', title: 'Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments', status: 'Draft', statusFilter: 'draft', contentCount: 12, contentLabel: 'Sections', updatedLabel: '1 week ago', updatedRank: 4, thumbnail: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
-                { id: 'story-5', title: 'Customer Satisfaction Analysis: Q1 Survey Results and Actionable Recommendations', status: 'Published', statusFilter: 'published', contentCount: 9, contentLabel: 'Sections', updatedLabel: '5 hours ago', updatedRank: 5, thumbnail: 'https://placehold.co/400x225/7c2d12/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-6', title: 'Technology Infrastructure Modernization: Roadmap and Implementation Timeline', status: 'Unpublished', statusFilter: 'unpublished', contentCount: 21, contentLabel: 'Sections', updatedLabel: '2 days ago', updatedRank: 3, thumbnail: 'https://placehold.co/400x225/1e3a8a/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-7', title: 'Product Launch Strategy: Market Entry Plan and Competitive Positioning', status: 'Published', statusFilter: 'published', contentCount: 16, contentLabel: 'Sections', updatedLabel: '4 days ago', updatedRank: 2, thumbnail: 'https://placehold.co/400x225/065f46/ffffff?text=Screenshot+of+first+section' },
-                { id: 'story-8', title: 'Risk Assessment and Mitigation: Comprehensive Analysis of Operational Vulnerabilities', status: 'Draft', statusFilter: 'draft', contentCount: 19, contentLabel: 'Sections', updatedLabel: '5 days ago', updatedRank: 1, thumbnail: 'https://placehold.co/400x225/4c1d95/ffffff?text=Screenshot+of+first+section' }
+            const slideItems = [
+                { id: 'slide-1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments', status: 'Published', statusFilter: 'published', contentCount: 14, contentLabel: 'Sections', updatedLabel: '2 hours ago', updatedRank: 8, thumbnail: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
+                { id: 'slide-2', title: 'Employee Engagement Trends 2024: Key Insights and Retention Strategies', status: 'Published', statusFilter: 'published', contentCount: 17, contentLabel: 'Sections', updatedLabel: '1 day ago', updatedRank: 7, thumbnail: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-3', title: '2025 Marketing Strategy Overview: Key Initiatives and Anticipated Impact Analysis', status: 'Unpublished', statusFilter: 'unpublished', contentCount: 14, contentLabel: 'Sections', updatedLabel: '3 days ago', updatedRank: 6, thumbnail: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-4', title: 'Q2 Performance Review: Deep Dive into Financial Metrics Across All Departments', status: 'Draft', statusFilter: 'draft', contentCount: 12, contentLabel: 'Sections', updatedLabel: '1 week ago', updatedRank: 4, thumbnail: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
+                { id: 'slide-5', title: 'Customer Satisfaction Analysis: Q1 Survey Results and Actionable Recommendations', status: 'Published', statusFilter: 'published', contentCount: 9, contentLabel: 'Sections', updatedLabel: '5 hours ago', updatedRank: 5, thumbnail: 'https://placehold.co/400x225/7c2d12/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-6', title: 'Technology Infrastructure Modernization: Roadmap and Implementation Timeline', status: 'Unpublished', statusFilter: 'unpublished', contentCount: 21, contentLabel: 'Sections', updatedLabel: '2 days ago', updatedRank: 3, thumbnail: 'https://placehold.co/400x225/1e3a8a/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-7', title: 'Product Launch Strategy: Market Entry Plan and Competitive Positioning', status: 'Published', statusFilter: 'published', contentCount: 16, contentLabel: 'Sections', updatedLabel: '4 days ago', updatedRank: 2, thumbnail: 'https://placehold.co/400x225/065f46/ffffff?text=Screenshot+of+first+section' },
+                { id: 'slide-8', title: 'Risk Assessment and Mitigation: Comprehensive Analysis of Operational Vulnerabilities', status: 'Draft', statusFilter: 'draft', contentCount: 19, contentLabel: 'Sections', updatedLabel: '5 days ago', updatedRank: 1, thumbnail: 'https://placehold.co/400x225/4c1d95/ffffff?text=Screenshot+of+first+section' }
             ];
 
             const dashboardItems = [
@@ -717,7 +717,7 @@
                         },
                         emptyStateText: {
                             text: `No matching ${title}.`,
-                            icon: title === 'Stories' ? 'auto_stories' : title === 'Dashboards' ? 'dashboard' : 'draw'
+                            icon: title === 'Slides' ? 'auto_stories' : title === 'Dashboards' ? 'dashboard' : 'draw'
                         }
                     },
                     search: {
@@ -811,20 +811,20 @@
             };
 
             configureListing({
-                rootId: 'finance-stories-v4',
-                title: 'Stories',
-                items: storyItems,
-                createButtonId: 'finance-stories-v4-create-btn',
-                searchInputId: 'finance-stories-v4-search-input',
-                clearFiltersButtonId: 'finance-stories-v4-clear-filters-btn',
-                statusFilterButtonId: 'finance-stories-v4-status-filter-btn',
-                statusFilterMenuId: 'finance-stories-v4-status-filter-menu',
-                sortButtonId: 'finance-stories-v4-sort-btn',
-                sortMenuId: 'finance-stories-v4-sort-menu',
-                listBtnId: 'finance-stories-v4-view-list-btn',
-                gridBtnId: 'finance-stories-v4-view-grid-btn',
-                tableHostId: 'finance-stories-v4-table-host',
-                gridHostId: 'finance-stories-v4-grid-host',
+                rootId: 'finance-slides-v4',
+                title: 'Slides',
+                items: slideItems,
+                createButtonId: 'finance-slides-v4-create-btn',
+                searchInputId: 'finance-slides-v4-search-input',
+                clearFiltersButtonId: 'finance-slides-v4-clear-filters-btn',
+                statusFilterButtonId: 'finance-slides-v4-status-filter-btn',
+                statusFilterMenuId: 'finance-slides-v4-status-filter-menu',
+                sortButtonId: 'finance-slides-v4-sort-btn',
+                sortMenuId: 'finance-slides-v4-sort-menu',
+                listBtnId: 'finance-slides-v4-view-list-btn',
+                gridBtnId: 'finance-slides-v4-view-grid-btn',
+                tableHostId: 'finance-slides-v4-table-host',
+                gridHostId: 'finance-slides-v4-grid-host',
                 contentLabel: 'Sections'
             });
 
@@ -875,7 +875,7 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        // Update all story cards with random sections on load
+        // Update all slide cards with random sections on load
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.story-card-container .num-sections').forEach(span => {
                 span.textContent = `${getRandomInt(12, 20)} Sections`;
@@ -1206,10 +1206,10 @@
             switchAgentsListingView('executions', 'grid');
         });
 
-        // Stories Table Functionality - dropdowns are handled by the existing .options-dropdown-button system above
+        // Slides Table Functionality - dropdowns are handled by the existing .options-dropdown-button system above
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Stories search functionality
+            // Slides search functionality
             const storiesSearchInput = document.getElementById('stories-search-input');
             const storiesSearchClear = document.getElementById('stories-search-clear');
 
@@ -1264,7 +1264,7 @@
                 }
             }
 
-            // Stories filter functionality
+            // Slides filter functionality
             const storyFilterButtons = ['story-status-filter-btn'];
             const storyFilterDropdowns = ['story-status-filter-dropdown'];
 
@@ -1432,7 +1432,7 @@
                 }
             });
 
-            // Story Sort Functionality
+            // Slide Sort Functionality
             const storySortBtn = document.getElementById('story-sort-btn');
             const storySortDropdown = document.getElementById('story-sort-dropdown');
             let currentSort = 'default';
@@ -1615,7 +1615,7 @@
                 return value * (multipliers[unit] || 0);
             }
 
-            // Stories view toggle functionality
+            // Slides view toggle functionality
             let currentStoriesView = 'grid'; // Default to grid view
 
             function switchStoriesView(view) {
@@ -1692,7 +1692,7 @@
             };
 
             // Initialize grid view on page load
-            const storiesTabContent = document.getElementById('stories-tab-content');
+            const storiesTabContent = document.getElementById('slides-tab-content');
             if (storiesTabContent && !storiesTabContent.classList.contains('hidden')) {
                 switchStoriesView('grid');
             }

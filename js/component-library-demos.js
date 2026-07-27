@@ -39,7 +39,9 @@
 
     function buildClDndCardChromeHeaderHtml(meta, ids, rowBandDrag) {
         const { btnId, menuId } = ids;
-        const dragClass = rowBandDrag ? 'll-icon-btn ll-row-context__tile-drag-handle' : 'll-icon-btn';
+        const dragClass = rowBandDrag
+            ? 'll-icon-btn ll-icon-btn--sm ll-row-context__tile-drag-handle'
+            : 'll-icon-btn ll-icon-btn--sm';
         const dragAttr = rowBandDrag ? '' : ' data-cl-dnd-grid-drag-handle';
         return `
                 <div class="ll-card__header">
@@ -52,7 +54,7 @@
                     <div class="ll-card__header-actions">
                         <div class="ll-card__header-action">
                             <div class="ll-card__header-action-content" data-cl-dnd-tile-dropdown-root>
-                                <button type="button" class="ll-icon-btn" id="${btnId}" data-cl-dnd-tile-more-trigger aria-label="Component actions">
+                                <button type="button" class="ll-icon-btn ll-icon-btn--sm" id="${btnId}" data-cl-dnd-tile-more-trigger aria-label="Component actions">
                                     <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                                 </button>
                                 <div id="${menuId}" class="hidden" data-cl-dnd-tile-more-menu>
@@ -628,7 +630,7 @@
             if (!rowEl.querySelector(':scope > .ll-row-context__row-drag-handle')) {
                 const rowDrag = document.createElement('button');
                 rowDrag.type = 'button';
-                rowDrag.className = 'll-icon-btn ll-row-context__row-drag-handle';
+                rowDrag.className = 'll-icon-btn ll-icon-btn--sm ll-row-context__row-drag-handle';
                 rowDrag.setAttribute('aria-label', 'Reorder row');
                 rowDrag.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon ll-row-context__row-drag-icon">drag_handle</span>';
                 rowEl.insertBefore(rowDrag, rowEl.firstChild);
@@ -1402,7 +1404,7 @@
                                 <div class="ll-card__header-actions">
                                     <div class="ll-card__header-action">
                                         <div class="ll-card__header-action-content">
-                                            <button type="button" class="ll-icon-btn cl-dnd-nested-section-drag" aria-label="Drag section">
+                                            <button type="button" class="ll-icon-btn ll-icon-btn--sm cl-dnd-nested-section-drag" aria-label="Drag section">
                                                 <span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>
                                             </button>
                                         </div>
@@ -1468,7 +1470,7 @@
                             <div class="ll-card__header-actions">
                                 <div class="ll-card__header-action">
                                     <div class="ll-card__header-action-content">
-                                        <button type="button" class="ll-icon-btn cl-dnd-nested-chapter-drag" aria-label="Drag chapter">
+                                        <button type="button" class="ll-icon-btn ll-icon-btn--sm cl-dnd-nested-chapter-drag" aria-label="Drag chapter">
                                             <span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>
                                         </button>
                                     </div>
@@ -1576,7 +1578,7 @@
                         <div class="ll-card__header-actions">
                             <div class="ll-card__header-action">
                                 <div class="ll-card__header-action-content">
-                                    <button type="button" class="ll-icon-btn" data-sort-drag aria-label="Drag ${it.label}">
+                                    <button type="button" class="ll-icon-btn ll-icon-btn--sm" data-sort-drag aria-label="Drag ${it.label}">
                                         <span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>
                                     </button>
                                 </div>
@@ -1636,7 +1638,7 @@
                         <div class="ll-card__header-actions">
                             <div class="ll-card__header-action">
                                 <div class="ll-card__header-action-content">
-                                    <button type="button" class="ll-icon-btn" data-sort-h-drag aria-label="Drag ${it.label}">
+                                    <button type="button" class="ll-icon-btn ll-icon-btn--sm" data-sort-h-drag aria-label="Drag ${it.label}">
                                         <span class="material-symbols-outlined ll-icon-btn__icon">drag_indicator</span>
                                     </button>
                                 </div>

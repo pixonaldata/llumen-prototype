@@ -72,7 +72,7 @@
     --ll-body-color: rgb(var(--ll-color-neutral-200));
     --ll-modal-content-bg-color: rgb(var(--ll-color-neutral-900));
 
-    --ll-app-header-height: 4.25rem;
+    --ll-app-header-height: 4.125rem;
     --ll-context-header-height: 0px;
     --ll-app-sidebar-container-top: var(--ll-app-header-height);
 
@@ -285,27 +285,44 @@
   }
 
   .ll-app-header {
-    @apply sticky top-0 gap-4 z-30;
+    @apply flex justify-between items-center sticky top-0 gap-4 z-30;
     height: var(--ll-app-header-height);
     background-color: rgba(var(--ll-color-neutral-950) / 6%);
   }
 
-    .ll-app-header__inner {
-      @apply flex items-center gap-4;
+  .ll-app-header__inner {
+    @apply flex items-center gap-4;
+  }
+
+    .ll-app-header__left,
+    .ll-app-header__right {
+      @apply flex-1;
+    }
+
+    .ll-app-header__center {
+      @apply flex-2 justify-center max-w-90;
+    }
+
+    .ll-app-header__right {
+      @apply justify-end;
     }
 
     .ll-app-header .ll-border-divider {
-      @apply h-[2.375rem] border-l;
+      @apply h-[2.25rem] border-l;
     }
 
     .ll-app-logo {
-      @apply w-[2.375rem] h-[2.375rem];
+      @apply w-[2.25rem] h-[2.25rem];
     }
 
     .ll-client-logo {
-      @apply flex items-center justify-center px-3 py-1 rounded-lg text-sm font-semibold h-[2.375rem];
+      @apply flex items-center justify-center px-3 py-1 rounded-lg text-sm font-semibold h-[2.25rem] text-nowrap;
       background-color: rgb(var(--ll-color-neutral-950));
       color: rgb(var(--ll-color-neutral-100));
+    }
+
+    .ll-app-header__search-input {
+      @apply w-full;
     }
 
   .ll-app-header-secondary {
@@ -425,18 +442,15 @@
     Buttons: Base
     ======================================== */
   .ll-btn {
-    @apply inline-flex items-center justify-center border rounded-xl px-4 text-sm font-medium whitespace-nowrap transition duration-200 cursor-pointer select-none disabled:opacity-50 disabled:cursor-default;
-    height: 2.375rem;
+    @apply h-9 inline-flex items-center justify-center border rounded-xl px-4 text-sm font-medium whitespace-nowrap transition duration-200 cursor-pointer select-none disabled:opacity-50 disabled:cursor-default;
   }
 
   .ll-btn--sm {
-    @apply text-xs px-3;
-    height: 2rem;
+    @apply h-7 text-xs px-3;
   }
 
   .ll-btn--lg {
-    @apply text-base px-5;
-    height: 3rem;
+    @apply h-11 text-base px-5;
   }
 
   .ll-btn--auto-height {
@@ -667,7 +681,7 @@
     Icon Buttons
     ======================================== */
   .ll-icon-btn {
-    @apply inline-flex items-center justify-center w-7 h-7 p-0 rounded-full bg-transparent transition duration-200 cursor-pointer select-none disabled:opacity-50 disabled:cursor-default;
+    @apply inline-flex items-center justify-center w-9 h-9 p-0 rounded-full bg-transparent transition duration-200 cursor-pointer select-none disabled:opacity-50 disabled:cursor-default;
   }
 
   .ll-icon-btn:hover:not(.ll-active):not(:disabled),
@@ -680,22 +694,27 @@
     @apply text-[1.25rem] leading-none;
   }
 
-  .ll-icon-btn--sm {
-    width: calc(var(--spacing) * 6);
-    height: calc(var(--spacing) * 6);
+  .ll-icon-btn--xs {
+    @apply w-6 h-6;
   }
 
-  .ll-icon-btn--sm .ll-icon-btn__icon {
-    font-size: 1rem;
+  .ll-icon-btn--sm {
+    @apply w-7 h-7;
   }
 
   .ll-icon-btn--lg {
-    width: 2.375rem;
-    height: 2.375rem;
+    @apply w-11 h-11;
+  }
+
+  .ll-icon-btn--xs .ll-icon-btn__icon {
+    @apply text-[1rem];
+  }
+  .ll-icon-btn--sm .ll-icon-btn__icon {
+    @apply text-[1.25rem]
   }
 
   .ll-icon-btn--lg .ll-icon-btn__icon {
-    font-size: 1.5rem;
+    @apply text-[1.5rem]
   }
 
   .ll-icon-btn--circle,
@@ -1919,7 +1938,7 @@
     Form Controls: Inputs
     ======================================== */
   .ll-input {
-    @apply w-full border rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 transition duration-200 min-h-[2.375rem];
+    @apply w-full border rounded-xl px-3 py-1.25 text-sm focus:outline-none focus:ring-2 transition duration-200 min-h-[2.25rem];
     line-height: 1.68;
     --tw-ring-color: var(--ll-bg-primary);
   }
@@ -1960,7 +1979,7 @@
   }
 
   .ll-input-with-left-icon__icon {
-    @apply flex items-center justify-center min-h-[2.375rem] pointer-events-none select-none transition duration-200;
+    @apply flex items-center justify-center min-h-[2.25rem] pointer-events-none select-none transition duration-200;
     padding: 0.625rem 0.75rem;
     color: var(--ll-color-muted-lighter);
     border: none;
@@ -2170,7 +2189,7 @@
 
   .ll-dropdown__trigger--clear-visible,
   .ll-expression-editor__input.ll-dropdown__trigger--clear-visible {
-    @apply pr-10;
+    @apply pr-9;
   }
 
   .ll-dropdown__selected-value--placeholder {
@@ -2287,7 +2306,7 @@
     Form Controls: Expression Editor
     ======================================== */
   .ll-expression-field {
-    @apply relative p-0 overflow-hidden min-h-[2.375rem];
+    @apply relative p-0 overflow-hidden min-h-[2.25rem];
   }
 
   .ll-expression-field--focus {
@@ -3488,7 +3507,7 @@
     @apply absolute left-0 top-1/2 z-10 -translate-y-1/2;
   }
 
-  .ll-row-context__row-drag-icon {
+  .ll-icon-btn__icon.ll-row-context__row-drag-icon {
     @apply text-base;
   }
 
@@ -4029,7 +4048,7 @@
   }
 
   .ll-empty__text {
-    @apply text-sm;
+    @apply text-sm text-center;
     color: var(--ll-color-muted);
   }
 
