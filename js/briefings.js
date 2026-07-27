@@ -2369,7 +2369,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button type="button" id="briefing-viewer-menu-btn" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Viewer actions" data-viewer-menu-trigger>
+                            <button type="button" id="briefing-viewer-menu-btn" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" aria-label="Viewer actions" data-viewer-menu-trigger>
                                 <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
                             </button>
                             <div id="briefing-viewer-menu" class="hidden" data-viewer-menu>
@@ -2377,7 +2377,7 @@
                                 <button type="button" class="ll-dropdown__item" data-value="share" data-viewer-menu-action="share">Share</button>
                                 <button type="button" class="ll-dropdown__item" data-value="delete" data-viewer-menu-action="delete">Delete</button>
                             </div>
-                            <button type="button" id="briefing-close-viewer" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Close viewer">
+                            <button type="button" id="briefing-close-viewer" class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline" aria-label="Close viewer">
                                 <span class="material-symbols-outlined ll-icon-btn__icon">close</span>
                             </button>
                         </div>
