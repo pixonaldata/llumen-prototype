@@ -5410,9 +5410,6 @@
       margin-inline-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-x-reverse)));
     }
   }
-  .ll-tab-nav--buttons .ll-btn {
-    border-radius: calc(infinity * 1px);
-  }
   .ll-tab-btn {
     cursor: pointer;
     border-bottom-style: var(--tw-border-style);
@@ -6291,12 +6288,11 @@
     display: flex;
     max-width: 100%;
     min-width: calc(var(--spacing) * 0);
-    flex-wrap: wrap;
     align-items: center;
     gap: calc(var(--spacing) * 3);
   }
   .ll-card__meta-row > .ll-card__meta-group:first-child {
-    flex-grow: 1;
+    flex: 1;
   }
   .ll-card__meta-item {
     overflow: hidden;

@@ -4912,6 +4912,25 @@
                 }
                 return String(item.textContent || '').trim();
             };
+            const resolveSimpleItemSelectionPrefixHtml = (item) => {
+                if (!item) return '';
+                const explicitIcon = String(item.dataset.dropdownSelectionIcon || '').trim();
+                if (explicitIcon) {
+                    const explicitColorClass = resolveDropdownIconColorClass(
+                        item.dataset.dropdownSelectionIconColorClass || '',
+                        'muted'
+                    );
+                    return `<span class="material-symbols-outlined ll-dropdown__item-icon--prefix ${escapeHtml(explicitColorClass)}">${escapeHtml(explicitIcon)}</span>`;
+                }
+                const itemIconElement = item.querySelector('.ll-dropdown__item-icon--prefix, .ll-dropdown__item-icon');
+                if (!itemIconElement) return '';
+                const iconName = String(itemIconElement.textContent || '').trim();
+                if (!iconName) return '';
+                const iconColorClass = Array.from(itemIconElement.classList || [])
+                    .find((className) => String(className || '').startsWith('ll-dropdown__icon-color-')) || '';
+                const iconColorClassSuffix = iconColorClass ? ` ${escapeHtml(iconColorClass)}` : '';
+                return `<span class="material-symbols-outlined ll-dropdown__item-icon--prefix${iconColorClassSuffix}">${escapeHtml(iconName)}</span>`;
+            };
 
             const getSimpleMenuItems = () => Array.from(dropdownMenu.querySelectorAll('[data-value]'));
             const parseIncomingValues = (value) => {
@@ -4965,7 +4984,7 @@
                 setSelectedPlaceholderState(!hasSelection && !shouldShowDropdownLabel && Boolean(resolvedEmptySelectionLabel));
                 syncSimpleClearButtonVisibility();
             };
-            const renderSimpleSingleSelectedValue = (label, isPlaceholder = false) => {
+            const renderSimpleSingleSelectedValue = (label, isPlaceholder = false, selectionPrefixHtml = '') => {
                 if (!selectedValueSpan || !isSelectionMenuType || isMultiSelection) return;
                 const normalizedLabel = String(label || '').trim();
                 const textValue = isPlaceholder
@@ -4973,9 +4992,15 @@
                     : (shouldShowDropdownLabel
                         ? `${resolvedDropdownLabel}: ${normalizedLabel}`
                         : normalizedLabel);
-                if (resolvedDropdownIcon) {
+                const resolvedSelectionPrefixHtml = String(selectionPrefixHtml || '').trim();
+                const iconHtml = (!isPlaceholder && resolvedSelectionPrefixHtml)
+                    ? `<span class="selection-icon ll-dropdown__selection-prefix ${escapeHtml(selectedPrefixWrapperClassName)}">${resolvedSelectionPrefixHtml}</span>`
+                    : (resolvedDropdownIcon
+                        ? `<span class="material-symbols-outlined ll-dropdown__selection-leading-icon">${escapeHtml(resolvedDropdownIcon)}</span>`
+                        : '');
+                if (iconHtml) {
                     selectedValueSpan.innerHTML = `
-                        <span class="material-symbols-outlined ll-dropdown__selection-leading-icon">${escapeHtml(resolvedDropdownIcon)}</span>
+                        ${iconHtml}
                         <span class="truncate">${escapeHtml(textValue)}</span>
                     `;
                 } else {
@@ -5036,6 +5061,8 @@
                             label: optionLabel,
                             value: optionValue,
                             description: String(rawOption.description || rawOption.hint || '').trim(),
+                            icon: String(rawOption.icon || '').trim(),
+                            iconColorClass: String(rawOption.iconColorClass || '').trim(),
                             active: Boolean(rawOption.active)
                         };
                     }
@@ -5044,6 +5071,8 @@
                         label: optionLabel,
                         value: optionLabel,
                         description: '',
+                        icon: '',
+                        iconColorClass: '',
                         active: false
                     };
                 };
@@ -5082,11 +5111,19 @@
                             const optionElement = document.createElement('button');
                             optionElement.type = 'button';
                             const hasDescription = Boolean(option.description);
+                            const iconColorClass = resolveDropdownIconColorClass(option.iconColorClass, 'muted');
+                            const iconHtml = option.icon
+                                ? `<span class="material-symbols-outlined ll-dropdown__item-icon ${escapeHtml(iconColorClass)}">${escapeHtml(option.icon)}</span>`
+                                : '';
                             optionElement.className = `ll-dropdown__item${hasDescription ? ' ll-dropdown__item--with-description' : ''}${option.active && isSelectionMenuType ? ' ll-active' : ''}`;
                             optionElement.dataset.value = option.value;
+                            if (option.icon) {
+                                optionElement.dataset.dropdownSelectionIcon = option.icon;
+                                optionElement.dataset.dropdownSelectionIconColorClass = iconColorClass;
+                            }
                             optionElement.innerHTML = hasDescription
-                                ? `<div data-dropdown-label>${escapeHtml(option.label)}</div><div class="ll-dropdown__item-description">${escapeHtml(option.description)}</div>`
-                                : `<span data-dropdown-label>${escapeHtml(option.label)}</span>`;
+                                ? `${iconHtml}<div data-dropdown-label>${escapeHtml(option.label)}</div><div class="ll-dropdown__item-description">${escapeHtml(option.description)}</div>`
+                                : `${iconHtml}<span data-dropdown-label>${escapeHtml(option.label)}</span>`;
                             groupElement.appendChild(optionElement);
                         });
                         dropdownMenu.appendChild(groupElement);
@@ -5136,8 +5173,9 @@
                     }
                 }
                 const selectedLabel = resolveSimpleItemLabel(item);
+                const selectedItemPrefixHtml = resolveSimpleItemSelectionPrefixHtml(item);
                 if (selectedValueSpan && isSelectionMenuType && !isMultiSelection) {
-                    renderSimpleSingleSelectedValue(selectedLabel, false);
+                    renderSimpleSingleSelectedValue(selectedLabel, false, selectedItemPrefixHtml);
                 }
                 if (isSelectionMenuType) {
                     if (isMultiSelection) {
@@ -5145,6 +5183,7 @@
                     } else {
                         selectedLeafValue = String(item.dataset.value || selectedLabel || '');
                         selectedLeafLabel = selectedLabel;
+                        selectedPrefixHtml = selectedItemPrefixHtml || '';
                         syncSimpleClearButtonVisibility();
                     }
                 }
@@ -5166,7 +5205,7 @@
                         onValueChange({
                             label: selectedLabel,
                             value: item.dataset.value || selectedLabel,
-                            prefixHtml: ''
+                            prefixHtml: selectedItemPrefixHtml || ''
                         });
                     }
                 }
@@ -5226,6 +5265,7 @@
                     }
                     selectedLeafValue = '';
                     selectedLeafLabel = '';
+                    selectedPrefixHtml = '';
                     syncSimpleClearButtonVisibility();
                     return true;
                 }
@@ -5241,17 +5281,19 @@
                     targetItem.classList.add('ll-active');
                 }
                 const selectedLabel = resolveSimpleItemLabel(targetItem);
+                const selectedItemPrefixHtml = resolveSimpleItemSelectionPrefixHtml(targetItem);
                 if (selectedValueSpan && isSelectionMenuType) {
-                    renderSimpleSingleSelectedValue(selectedLabel, false);
+                    renderSimpleSingleSelectedValue(selectedLabel, false, selectedItemPrefixHtml);
                 }
                 selectedLeafValue = String(targetItem.dataset.value || selectedLabel || '');
                 selectedLeafLabel = selectedLabel;
+                selectedPrefixHtml = selectedItemPrefixHtml || '';
                 syncSimpleClearButtonVisibility();
                 if (emitChange && typeof onValueChange === 'function') {
                     onValueChange({
                         label: selectedLabel,
                         value: targetItem.dataset.value || selectedLabel,
-                        prefixHtml: ''
+                        prefixHtml: selectedItemPrefixHtml || ''
                     });
                 }
                 return true;
@@ -5278,6 +5320,7 @@
                 }
                 selectedLeafValue = '';
                 selectedLeafLabel = '';
+                selectedPrefixHtml = '';
                 syncSimpleClearButtonVisibility();
             };
             const initialActiveItem = dropdownMenu.querySelector('[data-value].ll-active');
@@ -5294,7 +5337,8 @@
                     dropdownButton.__clearPortaledDropdownSelection();
                 }
             } else if (isSelectionMenuType && initialActiveItem && selectedValueSpan) {
-                renderSimpleSingleSelectedValue(resolveSimpleItemLabel(initialActiveItem), false);
+                const initialSelectedItemPrefixHtml = resolveSimpleItemSelectionPrefixHtml(initialActiveItem);
+                renderSimpleSingleSelectedValue(resolveSimpleItemLabel(initialActiveItem), false, initialSelectedItemPrefixHtml);
             } else if (selectedValueSpan && resolvedEmptySelectionLabel) {
                 renderSimpleSingleSelectedValue('', true);
             }

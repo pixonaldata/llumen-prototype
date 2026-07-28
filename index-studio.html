@@ -13,14 +13,8 @@
     <div class="ll-page-container">
         <header class="ll-header ll-app-header" data-ll-app-header-host data-ll-app-header-skip-auto="true"></header>
 
-        <nav id="app-nav-bar" class="ll-header ll-app-header-secondary ll-header--hide-with-scroll px-8">
-            <div class="relative">
-                <button id="index-studio-workspace-nav-btn" type="button" class="ll-input ll-dropdown__button" aria-label="Select workspace context">
-                    <span class="ll-dropdown__selected-value">All Content</span>
-                    <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
-                </button>
-                <div id="index-studio-workspace-nav-menu" class="ll-dropdown__menu hidden"></div>
-            </div>
+        <nav id="app-nav-bar" class="ll-header ll-app-header-secondary ll-header--hide-with-scroll">
+            <div id="index-studio-app-nav-carousel-root" class="ll-carousel" aria-label="Main app navigation"></div>
         </nav>
 
         <main class="ll-page-layout">
@@ -688,126 +682,42 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        function getIndexStudioWorkspaceOptions() {
-            const workspaceNames = [];
-            const addName = (name) => {
-                const normalized = String(name || '').trim();
-                if (!normalized) return;
-                if (!workspaceNames.includes(normalized)) workspaceNames.push(normalized);
-            };
-
-            addName('Private');
-
-            if (typeof window.generateWorkspaceList === 'function') {
-                window.generateWorkspaceList();
-            }
-
-            const privateLink = document.querySelector('#private-workspace-link .text-sm.font-medium') || document.getElementById('private-workspace-link');
-            if (privateLink) addName(privateLink.textContent);
-
-            document.querySelectorAll('#workspaces-list .ll-block-link__title, #workspaces-list .text-sm.font-medium').forEach((titleNode) => {
-                addName(titleNode.textContent);
-            });
-
-            return workspaceNames
-                .filter((name) => name.toLowerCase() !== 'private')
-                .sort((a, b) => a.localeCompare(b));
-        }
-
-        function getIndexStudioWorkspaceOptionIcon(valueOrLabel) {
-            const rawValue = String(valueOrLabel || '').trim();
-            if (!rawValue) return 'workspaces';
-            const normalizedValue = rawValue.startsWith('workspace:')
-                ? rawValue.slice('workspace:'.length)
-                : rawValue;
-            const normalizedLower = normalizedValue.toLowerCase();
-            if (normalizedLower === 'all content') return 'menu';
-            if (normalizedLower === 'private') return 'lock';
-            if (normalizedLower === 'shared with me') return 'ios_share';
-            return 'workspaces';
-        }
-
-        function setIndexStudioWorkspaceSelectedValue(label, value) {
-            const selectedValueElement = document.querySelector('#index-studio-workspace-nav-btn .ll-dropdown__selected-value');
-            if (!selectedValueElement) return;
-            const resolvedLabel = String(label || '').trim() || 'All Content';
-            const icon = getIndexStudioWorkspaceOptionIcon(value || resolvedLabel);
-            selectedValueElement.innerHTML = `
-                <span class="material-symbols-outlined ll-dropdown__selection-leading-icon">${icon}</span>
-                <span class="truncate">${resolvedLabel}</span>
-            `;
-        }
-
-        function decorateIndexStudioWorkspaceDropdownMenuIcons() {
-            const menuElement = document.getElementById('index-studio-workspace-nav-menu');
-            if (!menuElement) return;
-
-            menuElement.querySelectorAll('[data-value]').forEach((item) => {
-                const labelElement = item.querySelector('[data-dropdown-label]');
-                if (!labelElement) return;
-
-                let iconElement = item.querySelector('[data-index-studio-workspace-icon]');
-                if (!iconElement) {
-                    iconElement = document.createElement('span');
-                    iconElement.className = 'material-symbols-outlined ll-dropdown__item-icon ll-dropdown__item-icon--prefix';
-                    iconElement.setAttribute('aria-hidden', 'true');
-                    iconElement.dataset.indexStudioWorkspaceIcon = 'true';
-                    labelElement.parentNode.insertBefore(iconElement, labelElement);
-                }
-
-                iconElement.textContent = getIndexStudioWorkspaceOptionIcon(item.dataset.value || labelElement.textContent || '');
-            });
-        }
-
-        // Update all slide cards with random sections on load
-        document.addEventListener('DOMContentLoaded', () => {
+        function initializeIndexStudioAppNavTabs() {
             const llComponents = window.LlumenComponents;
-            const appHeaderHost = document.querySelector('[data-ll-app-header-host]');
-            if (appHeaderHost && typeof window.renderLlumenAppHeader === 'function') {
-                window.renderLlumenAppHeader(appHeaderHost, {
-                    customContentSecondInnerStart: `
-                        <a href="studio.html" class="ll-btn ll-btn--outline-default">
-                            <span class="material-symbols-outlined ll-btn__icon">construction</span>
-                            <span>Studio</span>
-                        </a>
-                    `
-                });
-                appHeaderHost.dataset.llAppHeaderMounted = 'true';
-            }
-            if (llComponents && typeof llComponents.initializePortaledDropdown === 'function') {
-                llComponents.initializePortaledDropdown({
-                    buttonId: 'index-studio-workspace-nav-btn',
-                    menuId: 'index-studio-workspace-nav-menu',
-                    align: 'left',
-                    matchTriggerWidth: false,
-                    selectedValueSelector: '.ll-dropdown__selected-value',
-                    menuType: 'selection',
-                    defaultValue: 'All Content',
-                    emptySelectionLabel: 'Select workspace',
-                    groupedOptions: [
-                        {
-                            options: [
-                                { label: 'All Content', value: 'All Content' },
-                                { label: 'Private', value: 'Private' },
-                                { label: 'Shared with Me', value: 'Shared with Me' }
-                            ]
-                        },
-                        {
-                            options: getIndexStudioWorkspaceOptions().map((workspaceName) => ({
-                                label: workspaceName,
-                                value: `workspace:${workspaceName}`
-                            }))
-                        }
-                    ],
-                    onValueChange: ({ label, value }) => {
-                        setIndexStudioWorkspaceSelectedValue(label, value);
-                    }
-                });
-                decorateIndexStudioWorkspaceDropdownMenuIcons();
-                setIndexStudioWorkspaceSelectedValue('All Content', 'All Content');
-            }
             const appNavBar = document.getElementById('app-nav-bar');
-            if (appNavBar && llComponents && typeof llComponents.initializeHideWithScroll === 'function') {
+            const navCarouselRoot = document.getElementById('index-studio-app-nav-carousel-root');
+            if (!llComponents || !appNavBar || !navCarouselRoot) return;
+            if (navCarouselRoot.dataset.carouselBound === 'true') return;
+            if (typeof llComponents.initializeHorizontalCarousel !== 'function') return;
+
+            const navItems = [
+                { id: 'all', label: 'All' },
+                { id: 'private', label: 'Private' },
+                { id: 'shared-with-me', label: 'Shared with Me' },
+                { id: 'finance', label: 'Finance' },
+                { id: 'operations', label: 'Operations' },
+                { id: 'hr', label: 'HR' },
+                { id: 'sales', label: 'Sales' },
+                { id: 'marketing', label: 'Marketing' },
+                { id: 'it', label: 'IT' },
+                { id: 'product', label: 'Product' },
+                { id: 'engineering', label: 'Engineering' },
+                { id: 'customer-success', label: 'Customer Success' }
+            ];
+
+            llComponents.initializeHorizontalCarousel({
+                root: navCarouselRoot,
+                mode: 'tabs',
+                items: navItems,
+                getItemId: (item) => String(item && item.id != null ? item.id : ''),
+                tabLabelKey: 'label',
+                tabsAsLinks: false,
+                tabSeparatorsAfter: ['shared-with-me'],
+                initialActiveId: 'all'
+            });
+            navCarouselRoot.dataset.carouselBound = 'true';
+
+            if (typeof llComponents.initializeHideWithScroll === 'function') {
                 if (appNavBar.__llIndexStudioHideWithScrollController
                     && typeof appNavBar.__llIndexStudioHideWithScrollController.destroy === 'function') {
                     appNavBar.__llIndexStudioHideWithScrollController.destroy();
@@ -820,6 +730,23 @@
                     hiddenClass: 'll-hidden'
                 });
             }
+        }
+
+        // Update all slide cards with random sections on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const appHeaderHost = document.querySelector('[data-ll-app-header-host]');
+            if (appHeaderHost && typeof window.renderLlumenAppHeader === 'function') {
+                window.renderLlumenAppHeader(appHeaderHost, {
+                    customContentSecondInnerStart: `
+                        <a href="studio.html" class="ll-btn ll-btn--outline-default">
+                            <span class="material-symbols-outlined ll-btn__icon">construction</span>
+                            <span>Studio</span>
+                        </a>
+                    `
+                });
+                appHeaderHost.dataset.llAppHeaderMounted = 'true';
+            }
+            initializeIndexStudioAppNavTabs();
             document.querySelectorAll('.slide-card-container .num-sections').forEach(span => {
                 span.textContent = `${getRandomInt(12, 20)} Sections`;
             });

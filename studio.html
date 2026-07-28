@@ -22,39 +22,35 @@
                     </h1>
                     <div>
                         <button id="studio-workspace-selector-btn" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger" aria-label="Select workspace">
-                            <span class="ll-dropdown__selected-value">Private</span>
+                            <span class="ll-dropdown__selected-value">Finance</span>
                             <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
                         </button>
                         <div id="studio-workspace-selector-menu" class="ll-dropdown__menu hidden"></div>
                     </div>
                     <div class="ll-tabs-vertical__divider my-4" role="separator" aria-hidden="true"></div>
                     <nav id="studio-workspace-tabs" class="ll-tabs-vertical">
-                        <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-internal-tab="overview">
-                            <span class="material-symbols-outlined ll-btn__icon">overview</span>
-                            Overview
+                        <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-internal-tab="assets">
+                            <span class="material-symbols-outlined ll-btn__icon">grid_view</span>
+                            Assets
+                        </button>
+                        <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-internal-tab="filters">
+                            <span class="material-symbols-outlined ll-btn__icon">filter_list</span>
+                            Filters
+                        </button>
+                        <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-internal-tab="sources">
+                            <span class="material-symbols-outlined ll-btn__icon">storage</span>
+                            Sources
                         </button>
                         <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-internal-tab="content">
                             <span class="material-symbols-outlined ll-btn__icon">description</span>
                             Content
                         </button>
-                        <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn hidden" data-internal-tab="members" data-studio-workspace-scoped-nav-item="true">
+                        <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-internal-tab="members" data-studio-workspace-scoped-nav-item="true">
                             <span class="material-symbols-outlined ll-btn__icon">people</span>
                             Members
                         </button>
-                        <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn hidden" data-internal-tab="assets" data-studio-workspace-scoped-nav-item="true">
-                            <span class="material-symbols-outlined ll-btn__icon">grid_view</span>
-                            Assets
-                        </button>
-                        <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn hidden" data-internal-tab="filters" data-studio-workspace-scoped-nav-item="true">
-                            <span class="material-symbols-outlined ll-btn__icon">filter_list</span>
-                            Filters
-                        </button>
-                        <button type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn hidden" data-internal-tab="sources" data-studio-workspace-scoped-nav-item="true">
-                            <span class="material-symbols-outlined ll-btn__icon">storage</span>
-                            Sources
-                        </button>
-                        <div class="ll-tabs-vertical__divider hidden" role="separator" aria-hidden="true" data-studio-workspace-scoped-nav-item="true"></div>
-                        <button id="studio-open-settings-btn" type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn hidden" data-studio-workspace-scoped-nav-item="true">
+                        <div class="ll-tabs-vertical__divider" role="separator" aria-hidden="true" data-studio-workspace-scoped-nav-item="true"></div>
+                        <button id="studio-open-settings-btn" type="button" class="ll-btn ll-btn--flat-default ll-tabs-vertical__btn" data-studio-workspace-scoped-nav-item="true">
                             <span class="material-symbols-outlined ll-btn__icon">settings</span>
                             Settings
                         </button>
@@ -64,166 +60,6 @@
 
             <div class="ll-page-content-outer">
                 <div class="ll-page-content-inner ll-page-content-inner--no-x-padding ll-page-content-inner--no-t-padding">
-
-                    <div id="overview-tab-content" class="workspace-tab-content ll-tab-panel">
-                        <div id="finance-overview-v2" class="pt-3 md:pt-6">
-                            <section class="ll-section">
-                                <div class="ll-section-header">
-                                    <h2 class="ll-section-heading">Latest Briefings</h2>
-                                    <div class="flex items-center space-x-4">
-                                        <button type="button" id="finance-overview-create-briefing-btn" class="ll-btn ll-btn--outline-default">
-                                            <span class="material-symbols-outlined ll-btn__icon">add</span>
-                                            Briefing
-                                        </button>
-                                        <button type="button" class="ll-btn ll-btn--outline-default" data-content-subtab="briefings">
-                                            <span class="material-symbols-outlined ll-btn__icon">visibility</span>
-                                            All Briefings
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="ll-section-content ll-section-content--no-x-padding">
-                                    <div id="finance-overview-briefings-carousel-root" class="ll-carousel briefings-carousel"></div>
-                                </div>
-                            </section>
-
-                            <section class="ll-section" >
-                                <div class="ll-section-header">
-                                    <h2 class="ll-section-heading">Latest Slides</h2>
-                                    <div class="flex items-center space-x-4">
-                                        <button type="button" id="finance-overview-create-story-btn" class="ll-btn ll-btn--outline-default">
-                                            <span class="material-symbols-outlined ll-btn__icon">add</span>
-                                            Slide
-                                        </button>
-                                        <button type="button" class="ll-btn ll-btn--outline-default" data-content-subtab="slides">
-                                            <span class="material-symbols-outlined ll-btn__icon">visibility</span>
-                                            All Slides
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="ll-section-content ll-section-content--no-x-padding">
-                                    <div id="finance-overview-stories-carousel-root" class="ll-carousel"></div>
-                                </div>
-                            </section>
-
-                            <section class="ll-section" >
-                                <div class="ll-section-header">
-                                    <h2 class="ll-section-heading">Latest Dashboards</h2>
-                                    <div class="flex items-center space-x-4">
-                                        <button type="button" id="finance-overview-create-dashboard-btn" class="ll-btn ll-btn--outline-default">
-                                            <span class="material-symbols-outlined ll-btn__icon">add</span>
-                                            Dashboard
-                                        </button>
-                                        <button type="button" class="ll-btn ll-btn--outline-default" data-content-subtab="dashboards">
-                                            <span class="material-symbols-outlined ll-btn__icon">visibility</span>
-                                            All Dashboards
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="ll-section-content ll-section-content--no-x-padding">
-                                    <div id="finance-overview-dashboards-carousel-root" class="ll-carousel"></div>
-                                </div>
-                            </section>
-
-                            <section class="ll-section">
-                                <div class="ll-section-header">
-                                    <h2 class="ll-section-heading">Latest Whiteboards</h2>
-                                    <div class="flex items-center space-x-4">
-                                        <button type="button" id="finance-overview-create-whiteboard-btn" class="ll-btn ll-btn--outline-default">
-                                            <span class="material-symbols-outlined ll-btn__icon">add</span>
-                                            Whiteboard
-                                        </button>
-                                        <button type="button" class="ll-btn ll-btn--outline-default" data-content-subtab="whiteboards">
-                                            <span class="material-symbols-outlined ll-btn__icon">visibility</span>
-                                            All Whiteboards
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="ll-section-content ll-section-content--no-x-padding">
-                                    <div id="finance-overview-whiteboards-carousel-root" class="ll-carousel"></div>
-                                </div>
-                            </section>
-                        </div>
-
-                    </div>
-
-                    <div id="members-tab-content" class="workspace-tab-content ll-tab-panel hidden">
-                        <div class="ll-subcontext-header-sticky-container">
-                            <div class="ll-header ll-subcontext-header">
-                                <div>
-                                    <h2 class="ll-subcontext-heading">Members</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="ll-subcontext">
-                            <div class="flex items-center space-x-3 mb-6">
-                                <div class="flex-1">
-                                    <input type="text" placeholder="Add people" class="ll-input" />
-                                </div>
-                                <button type="button" class="ll-btn ll-btn--outline-default">
-                                    <span class="material-symbols-outlined ll-btn__icon">add</span>
-                                    Invite
-                                </button>
-                            </div>
-                            <div class="space-y-3">
-                                <div class="ll-card">
-                                    <div class="ll-card__content flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JD" alt="">
-                                            <div><div class="text-sm font-medium text-white">John Doe</div><div class="text-xs text-gray-400">john.doe@company.com</div></div>
-                                        </div>
-                                        <div>
-                                            <button id="workspace-config-v2-member-john-role-btn" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
-                                                <span class="ll-dropdown__selected-value">Admin</span><span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
-                                            </button>
-                                            <div id="workspace-config-v2-member-john-role-menu" class="ll-dropdown__menu hidden"><a href="#" class="ll-dropdown__item ll-active" data-value="Admin">Admin</a><a href="#" class="ll-dropdown__item" data-value="Editor">Editor</a><a href="#" class="ll-dropdown__item" data-value="Viewer">Viewer</a><a href="#" class="ll-dropdown__item" data-value="Guest">Guest</a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="ll-card">
-                                    <div class="ll-card__content flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=JS" alt="">
-                                            <div><div class="text-sm font-medium text-white">Jane Smith</div><div class="text-xs text-gray-400">jane.smith@company.com</div></div>
-                                        </div>
-                                        <div>
-                                            <button id="workspace-config-v2-member-jane-role-btn" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
-                                                <span class="ll-dropdown__selected-value">Editor</span><span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
-                                            </button>
-                                            <div id="workspace-config-v2-member-jane-role-menu" class="ll-dropdown__menu hidden"><a href="#" class="ll-dropdown__item" data-value="Admin">Admin</a><a href="#" class="ll-dropdown__item ll-active" data-value="Editor">Editor</a><a href="#" class="ll-dropdown__item" data-value="Viewer">Viewer</a><a href="#" class="ll-dropdown__item" data-value="Guest">Guest</a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="ll-card">
-                                    <div class="ll-card__content flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=MB" alt="">
-                                            <div><div class="text-sm font-medium text-white">Mike Brown</div><div class="text-xs text-gray-400">mike.brown@company.com</div></div>
-                                        </div>
-                                        <div>
-                                            <button id="workspace-config-v2-member-mike-role-btn" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
-                                                <span class="ll-dropdown__selected-value">Viewer</span><span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
-                                            </button>
-                                            <div id="workspace-config-v2-member-mike-role-menu" class="ll-dropdown__menu hidden"><a href="#" class="ll-dropdown__item" data-value="Admin">Admin</a><a href="#" class="ll-dropdown__item" data-value="Editor">Editor</a><a href="#" class="ll-dropdown__item ll-active" data-value="Viewer">Viewer</a><a href="#" class="ll-dropdown__item" data-value="Guest">Guest</a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="ll-card">
-                                    <div class="ll-card__content flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <img class="h-8 w-8 rounded-full" src="https://placehold.co/32x32/555/fff?text=SW" alt="">
-                                            <div><div class="text-sm font-medium text-white">Sarah Wilson</div><div class="text-xs text-gray-400">sarah.wilson@company.com</div></div>
-                                        </div>
-                                        <div>
-                                            <button id="workspace-config-v2-member-sarah-role-btn" type="button" class="ll-input ll-dropdown__button ll-dropdown__trigger">
-                                                <span class="ll-dropdown__selected-value">Guest</span><span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
-                                            </button>
-                                            <div id="workspace-config-v2-member-sarah-role-menu" class="ll-dropdown__menu hidden"><a href="#" class="ll-dropdown__item" data-value="Admin">Admin</a><a href="#" class="ll-dropdown__item" data-value="Editor">Editor</a><a href="#" class="ll-dropdown__item" data-value="Viewer">Viewer</a><a href="#" class="ll-dropdown__item ll-active" data-value="Guest">Guest</a></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <div id="assets-tab-content" class="workspace-tab-content ll-tab-panel hidden">
                         <div class="ll-subcontext">
@@ -251,12 +87,21 @@
                                             <button id="workspace-config-v2-component-clear-filters-btn" type="button" class="ll-btn ll-btn--outline-negative ll-listing-module__clear-filters hidden">Clear All Filters</button>
                                         </div>
                                         <div class="ll-listing-module-header__toolbar-end">
+                                            <div class="ll-btn-group" role="group" aria-label="Asset listing view toggle">
+                                                <button id="workspace-config-v2-components-view-list-btn" type="button" class="ll-btn ll-btn--outline-default ll-btn--icon-only" title="List View" aria-label="List View">
+                                                    <span class="material-symbols-outlined ll-btn__icon">menu</span>
+                                                </button>
+                                                <button id="workspace-config-v2-components-view-grid-btn" type="button" class="ll-btn ll-btn--outline-default ll-btn--icon-only" title="Grid View" aria-label="Grid View">
+                                                    <span class="material-symbols-outlined ll-btn__icon">grid_view</span>
+                                                </button>
+                                            </div>
                                             <button id="workspace-config-v2-components-sort-btn" type="button" class="ll-btn ll-btn--outline-default"><span class="ll-dropdown__selected-value">Sort</span><span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span></button>
                                             <div id="workspace-config-v2-components-sort-menu" class="ll-dropdown__menu hidden"></div>
                                         </div>
                                     </div>
                                 </div>
                                 <div id="workspace-config-v2-components-table-host" class="ll-listing-module-content-host ll-listing-module-table-host"></div>
+                                <div id="workspace-config-v2-components-grid-host" class="ll-listing-module-content-host ll-listing-module-grid-host"></div>
                             </div>
                         </div>
                     </div>
@@ -760,6 +605,49 @@
                     </div>
                     </div>
                     </div>
+                    <div id="members-tab-content" class="workspace-tab-content ll-tab-panel hidden">
+                        <div class="ll-subcontext">
+                            <div id="workspace-config-v2-members-listing-root" class="ll-listing-module ll-listing-module--framed">
+                                <div class="ll-listing-module-header">
+                                    <div class="ll-listing-module-header__top">
+                                        <div class="ll-listing-module-header__title-wrap">
+                                            <div class="ll-listing-module-header__title">Members</div>
+                                        </div>
+                                        <div class="ll-listing-module-header__actions">
+                                            <div class="ll-input-with-left-icon ll-listing-module-search-input">
+                                                <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
+                                                    <span class="material-symbols-outlined">search</span>
+                                                </div>
+                                                <input id="workspace-config-v2-members-search-input" type="text" placeholder="Search members..." class="ll-input ll-input--search ll-input-with-left-icon__input">
+                                            </div>
+                                            <button id="workspace-config-v2-members-invite-btn" type="button" class="ll-btn ll-btn--outline-default">
+                                                <span class="material-symbols-outlined ll-btn__icon">add</span>
+                                                Invite Members
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="ll-listing-module-header__toolbar">
+                                        <div class="ll-listing-module-header__toolbar-start">
+                                            <button id="workspace-config-v2-members-role-filter-btn" class="ll-btn ll-btn--outline-default">
+                                                <span class="ll-dropdown__selected-value">Role</span>
+                                                <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                            </button>
+                                            <div id="workspace-config-v2-members-role-filter-menu" class="ll-dropdown__menu hidden"></div>
+                                            <button id="workspace-config-v2-members-clear-filters-btn" type="button" class="ll-btn ll-btn--outline-negative ll-listing-module__clear-filters hidden">Clear All Filters</button>
+                                        </div>
+                                        <div class="ll-listing-module-header__toolbar-end">
+                                            <button id="workspace-config-v2-members-sort-btn" class="ll-btn ll-btn--outline-default">
+                                                <span class="ll-dropdown__selected-value">Sort</span>
+                                                <span class="material-symbols-outlined ll-dropdown__button-chevron">expand_more</span>
+                                            </button>
+                                            <div id="workspace-config-v2-members-sort-menu" class="ll-dropdown__menu hidden"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="workspace-config-v2-members-table-host" class="ll-listing-module-content-host ll-listing-module-table-host"></div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -922,6 +810,7 @@
             return normalized || 'item';
         }
 
+        /* Removed with Overview top-level tab:
         function initializeFinanceOverviewPhase2(components) {
             if (!components || typeof components.initializeHorizontalCarousel !== 'function') return;
             const singularTypeLabel = (type) => {
@@ -1240,6 +1129,7 @@
             }
         }
 
+        */
         function initializeFinanceBriefingsPhase3(components) {
             if (!components || typeof components.initListingModule !== 'function') return;
             const rootId = 'finance-briefings-v3';
@@ -2568,16 +2458,16 @@
         }
 
         function getStudioTopLevelTabValues() {
-            return ['overview', 'content', 'members', 'assets', 'filters', 'sources'];
+            return ['assets', 'filters', 'sources', 'content', 'members'];
         }
 
         function buildStudioHashValue(topLevelTab, contentSubtab) {
-            const resolvedTopLevelTab = String(topLevelTab || '').trim() || 'overview';
+            const resolvedTopLevelTab = String(topLevelTab || '').trim() || 'assets';
             if (resolvedTopLevelTab === 'content') {
                 const resolvedSubtab = resolveStudioContentSubtab(contentSubtab) || 'briefings';
                 return `content/${resolvedSubtab}`;
             }
-            return getStudioTopLevelTabValues().includes(resolvedTopLevelTab) ? resolvedTopLevelTab : 'overview';
+            return getStudioTopLevelTabValues().includes(resolvedTopLevelTab) ? resolvedTopLevelTab : 'assets';
         }
 
         function parseStudioHashState() {
@@ -2585,10 +2475,6 @@
             const [topSegment = '', nestedSegment = ''] = hashValue.split('/');
             const normalizedTopSegment = String(topSegment || '').trim();
             const normalizedNestedSegment = String(nestedSegment || '').trim();
-
-            if (normalizedTopSegment === 'overview') {
-                return { topLevelTab: 'overview', contentSubtab: resolveStudioContentSubtab(studioActiveContentSubtab) || 'briefings' };
-            }
 
             if (normalizedTopSegment === 'content') {
                 const resolvedSubtab = resolveStudioContentSubtab(normalizedNestedSegment)
@@ -2607,7 +2493,7 @@
                 return { topLevelTab: 'content', contentSubtab: legacySubtab };
             }
 
-            return { topLevelTab: 'overview', contentSubtab: resolveStudioContentSubtab(studioActiveContentSubtab) || 'briefings' };
+            return { topLevelTab: 'assets', contentSubtab: resolveStudioContentSubtab(studioActiveContentSubtab) || 'briefings' };
         }
 
         function updateStudioHash(topLevelTab, contentSubtab, { replace = true } = {}) {
@@ -2686,28 +2572,65 @@
                 addName(titleNode.textContent);
             });
 
-            const others = workspaceNames.filter((name) => name.toLowerCase() !== 'private').sort((a, b) => a.localeCompare(b));
+            const preferredWorkspaceOrder = [
+                'Finance',
+                'Operations',
+                'HR',
+                'Sales',
+                'Marketing',
+                'IT',
+                'Product',
+                'Engineering',
+                'Customer Success'
+            ];
+            const discoveredOthers = workspaceNames.filter((name) => name.toLowerCase() !== 'private');
+            const discoveredByKey = new Map();
+            discoveredOthers.forEach((name) => {
+                const key = String(name || '').trim().toLowerCase();
+                if (!key || discoveredByKey.has(key)) return;
+                discoveredByKey.set(key, name);
+            });
+            const orderedOthers = preferredWorkspaceOrder.map((workspaceName) => {
+                const key = workspaceName.toLowerCase();
+                return discoveredByKey.get(key) || workspaceName;
+            });
+            const preferredKeys = new Set(preferredWorkspaceOrder.map((workspaceName) => workspaceName.toLowerCase()));
+            const trailingOthers = discoveredOthers.filter((name) => !preferredKeys.has(String(name || '').trim().toLowerCase()));
+            const others = [...orderedOthers, ...trailingOthers];
             return ['Private', ...others];
         }
 
-        function getStudioWorkspaceDropdownItems() {
-            return getStudioWorkspaceOptions().map((workspaceName) => ({
-                label: workspaceName,
-                value: workspaceName,
-                icon: workspaceName === 'Private' ? 'lock' : 'workspaces'
-            }));
+        function getStudioWorkspaceDropdownGroups() {
+            const options = getStudioWorkspaceOptions();
+            const privateOption = options.find((workspaceName) => String(workspaceName).toLowerCase() === 'private') || 'Private';
+            const workspaceOptions = options.filter((workspaceName) => String(workspaceName).toLowerCase() !== 'private');
+            return [
+                {
+                    options: [
+                        { label: privateOption, value: privateOption, icon: 'lock' }
+                    ]
+                },
+                {
+                    heading: 'Workspaces',
+                    options: workspaceOptions.map((workspaceName) => ({
+                        label: workspaceName,
+                        value: workspaceName,
+                        icon: 'workspaces'
+                    }))
+                }
+            ];
         }
 
         function getSelectedStudioWorkspaceName() {
             const selectedValueElement = document.querySelector('#studio-workspace-selector-btn .ll-dropdown__selected-value');
-            if (!selectedValueElement) return 'Private';
+            if (!selectedValueElement) return 'Finance';
             const valueTextNode = selectedValueElement.querySelector('.truncate');
             const selectedName = String(
                 valueTextNode
                     ? valueTextNode.textContent
                     : selectedValueElement.textContent
             ).trim();
-            return selectedName || 'Private';
+            return selectedName || 'Finance';
         }
 
         function syncStudioWorkspaceScopedSidebarItems(selectedWorkspaceName) {
@@ -2721,7 +2644,7 @@
                     '#studio-workspace-tabs [data-studio-workspace-scoped-nav-item="true"][data-internal-tab].ll-btn--primary'
                 );
                 if (activeScopedTabButton) {
-                    switchInternalTab('overview');
+                    switchInternalTab('assets');
                 }
             }
         }
@@ -2792,7 +2715,6 @@
                 appHeaderHost.dataset.llAppHeaderMounted = 'true';
             }
             studioActiveContentSubtab = resolveInitialStudioContentSubtabFromHash();
-            initializeFinanceOverviewPhase2(llComponents);
             initializeFinanceBriefingsPhase3(llComponents);
             initializeFinancePhase4Listings(llComponents);
             initializeFinanceCommandRoomsPhase5(llComponents);
@@ -2857,12 +2779,9 @@
                     matchTriggerWidth: true,
                     selectedValueSelector: '.ll-dropdown__selected-value',
                     menuType: 'selection',
-                    defaultValue: 'Private',
+                    defaultValue: 'Finance',
                     emptySelectionLabel: 'Select workspace',
-                    multiLevelConfig: {
-                        showTopLevelPrefixInSelection: true,
-                        items: getStudioWorkspaceDropdownItems()
-                    },
+                    groupedOptions: getStudioWorkspaceDropdownGroups(),
                     onValueChange: ({ value, label }) => {
                         syncStudioWorkspaceScopedSidebarItems(value || label || '');
                         if (typeof window.syncWorkspaceConfigModalTitleFromSelectedWorkspace === 'function') {
@@ -2871,7 +2790,7 @@
                     }
                 });
             }
-            syncStudioWorkspaceScopedSidebarItems('Private');
+            syncStudioWorkspaceScopedSidebarItems('Finance');
             if (window.__studioHashSyncBound !== true) {
                 window.addEventListener('hashchange', syncStudioTabFromHash);
                 window.addEventListener('popstate', syncStudioTabFromHash);
@@ -2936,7 +2855,7 @@
             const initialHashState = parseStudioHashState();
             const initialRawHash = String(window.location.hash || '').replace(/^#/, '').trim();
             const shouldCanonicalizeInitialHash = Boolean(initialRawHash)
-                || initialHashState.topLevelTab !== 'overview';
+                || initialHashState.topLevelTab !== 'assets';
             if (shouldCanonicalizeInitialHash) {
                 updateStudioHash(initialHashState.topLevelTab, initialHashState.contentSubtab, { replace: true });
             }
@@ -5718,11 +5637,7 @@
                 const configs = [
                     ['workspace-config-v2-settings-invite-btn', 'workspace-config-v2-settings-invite-menu'],
                     ['workspace-config-v2-settings-create-btn', 'workspace-config-v2-settings-create-menu'],
-                    ['workspace-config-v2-settings-share-btn', 'workspace-config-v2-settings-share-menu'],
-                    ['workspace-config-v2-member-john-role-btn', 'workspace-config-v2-member-john-role-menu'],
-                    ['workspace-config-v2-member-jane-role-btn', 'workspace-config-v2-member-jane-role-menu'],
-                    ['workspace-config-v2-member-mike-role-btn', 'workspace-config-v2-member-mike-role-menu'],
-                    ['workspace-config-v2-member-sarah-role-btn', 'workspace-config-v2-member-sarah-role-menu']
+                    ['workspace-config-v2-settings-share-btn', 'workspace-config-v2-settings-share-menu']
                 ];
                 configs.forEach(([buttonId, menuId]) => {
                     const buttonEl = document.getElementById(buttonId);
@@ -5775,12 +5690,25 @@
                 };
 
                 const componentItems = [
-                    { id: 'component-sales-growth', name: 'Sales Growth', systemName: 'sales-growth-v1', initials: 'SG', category: 'Sales', type: 'Chart', status: 'Active', lastUpdatedLabel: '2 hours ago', updatedAt: '2026-04-16T10:00:00.000Z' },
-                    { id: 'component-sales-team-performance', name: 'Sales Team Performance', systemName: 'sales-team-perf-v2', initials: 'ST', category: 'Sales', type: 'Chart', status: 'Active', lastUpdatedLabel: '1 day ago', updatedAt: '2026-04-15T12:00:00.000Z' },
-                    { id: 'component-lead-quality-metrics', name: 'Lead Quality Metrics', systemName: 'lead-quality-v1', initials: 'LQ', category: 'Sales', type: 'KPI', status: 'Pending Review', lastUpdatedLabel: '3 days ago', updatedAt: '2026-04-13T12:00:00.000Z' },
-                    { id: 'component-campaign-performance', name: 'Campaign Performance', systemName: 'campaign-perf-v1', initials: 'CP', category: 'Marketing', type: 'KPI', status: 'Active', lastUpdatedLabel: '5 hours ago', updatedAt: '2026-04-16T07:00:00.000Z' },
-                    { id: 'component-email-marketing-analytics', name: 'Email Marketing Analytics', systemName: 'email-marketing-v2', initials: 'EM', category: 'Marketing', type: 'Chart', status: 'Inactive', lastUpdatedLabel: '1 week ago', updatedAt: '2026-04-09T12:00:00.000Z' },
-                    { id: 'component-geographic-market-analysis', name: 'Geographic Market Analysis', systemName: 'geo-market-v1', initials: 'GM', category: 'Sales', type: 'Map', status: 'Active', lastUpdatedLabel: '1 day ago', updatedAt: '2026-04-15T08:00:00.000Z' }
+                    { id: 'component-sales-growth', name: 'Sales Growth', description: 'Shows week-over-week sales growth trends.', category: 'Sales', type: 'Chart', status: 'Active', lastUpdatedLabel: '2 hours ago', updatedAt: '2026-04-16T10:00:00.000Z', thumbnail: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Asset+Thumbnail' },
+                    { id: 'component-sales-team-performance', name: 'Sales Team Performance', description: 'Compares quota attainment across sales teams.', category: 'Sales', type: 'Chart', status: 'Active', lastUpdatedLabel: '1 day ago', updatedAt: '2026-04-15T12:00:00.000Z', thumbnail: 'https://placehold.co/400x225/2c5282/ffffff?text=Asset+Thumbnail' },
+                    { id: 'component-lead-quality-metrics', name: 'Lead Quality Metrics', description: 'Tracks lead quality score and conversion readiness.', category: 'Sales', type: 'KPI', status: 'Pending Review', lastUpdatedLabel: '3 days ago', updatedAt: '2026-04-13T12:00:00.000Z', thumbnail: 'https://placehold.co/400x225/065f46/ffffff?text=Asset+Thumbnail' },
+                    { id: 'component-campaign-performance', name: 'Campaign Performance', description: 'Summarizes campaign ROI and engagement performance.', category: 'Marketing', type: 'KPI', status: 'Active', lastUpdatedLabel: '5 hours ago', updatedAt: '2026-04-16T07:00:00.000Z', thumbnail: 'https://placehold.co/400x225/7c2d12/ffffff?text=Asset+Thumbnail' },
+                    { id: 'component-email-marketing-analytics', name: 'Email Marketing Analytics', description: 'Visualizes opens, clicks, and unsubscribe rates.', category: 'Marketing', type: 'Chart', status: 'Inactive', lastUpdatedLabel: '1 week ago', updatedAt: '2026-04-09T12:00:00.000Z', thumbnail: 'https://placehold.co/400x225/1e3a8a/ffffff?text=Asset+Thumbnail' },
+                    { id: 'component-geographic-market-analysis', name: 'Geographic Market Analysis', description: 'Highlights regional demand and market coverage.', category: 'Sales', type: 'Map', status: 'Active', lastUpdatedLabel: '1 day ago', updatedAt: '2026-04-15T08:00:00.000Z', thumbnail: 'https://placehold.co/400x225/4c1d95/ffffff?text=Asset+Thumbnail' }
+                ];
+
+                const membersItems = [
+                    { id: 'member-john-doe', name: 'John Doe', email: 'john.doe@company.com', initials: 'JD', role: 'Editor' },
+                    { id: 'member-jane-smith', name: 'Jane Smith', email: 'jane.smith@company.com', initials: 'JS', role: 'Contributor' },
+                    { id: 'member-mike-brown', name: 'Mike Brown', email: 'mike.brown@company.com', initials: 'MB', role: 'Viewer' },
+                    { id: 'member-sarah-wilson', name: 'Sarah Wilson', email: 'sarah.wilson@company.com', initials: 'SW', role: 'Contributor' },
+                    { id: 'member-alex-chen', name: 'Alex Chen', email: 'alex.chen@company.com', initials: 'AC', role: 'Editor' },
+                    { id: 'member-priya-nair', name: 'Priya Nair', email: 'priya.nair@company.com', initials: 'PN', role: 'Contributor' },
+                    { id: 'member-omar-hassan', name: 'Omar Hassan', email: 'omar.hassan@company.com', initials: 'OH', role: 'Viewer' },
+                    { id: 'member-lena-kim', name: 'Lena Kim', email: 'lena.kim@company.com', initials: 'LK', role: 'Editor' },
+                    { id: 'member-carlos-rivera', name: 'Carlos Rivera', email: 'carlos.rivera@company.com', initials: 'CR', role: 'Contributor' },
+                    { id: 'member-emma-davis', name: 'Emma Davis', email: 'emma.davis@company.com', initials: 'ED', role: 'Viewer' }
                 ];
 
                 const filterItems = [
@@ -5884,24 +5812,77 @@
                     table: {
                         containerId: 'workspace-config-v2-components-table-host',
                         columns: [
-                            { property: 'name', heading: 'Component', isMain: true, headerClassName: 'll-listing-table__column-main', cellClassName: 'll-listing-table__column-main', renderCell: (item) => `<div class="ll-listing-table__main"><div class="ll-listing-table__main-icon"><span class="text-white font-semibold text-sm">${escapeHtmlText(item.initials || '')}</span></div><div class="ll-listing-table__main-body"><div class="ll-listing-table__main-heading">${escapeHtmlText(item.name || '')}</div><div class="ll-listing-table__main-meta-row"><span class="ll-listing-table__main-meta-item">${escapeHtmlText(item.systemName || '')}</span></div></div></div>` },
+                            {
+                                property: 'name',
+                                heading: 'Component',
+                                isMain: true,
+                                headerClassName: 'll-listing-table__column-main',
+                                cellClassName: 'll-listing-table__column-main',
+                                renderCell: (item) => `
+                                    <div class="ll-listing-table__main">
+                                        <div class="ll-listing-table__main-thumbnail">
+                                            <div class="ll-aspect-box ll-aspect-box--16-9">
+                                                <img src="${escapeHtmlText(item.thumbnail || '')}" alt="" class="ll-aspect-box__content ll-listing-table__main-thumbnail-image">
+                                            </div>
+                                        </div>
+                                        <div class="ll-listing-table__main-body">
+                                            <div class="ll-listing-table__main-heading">${escapeHtmlText(item.name || '')}</div>
+                                            <div class="ll-listing-table__main-meta-row">
+                                                <span class="ll-listing-table__main-meta-item">${escapeHtmlText(item.description || '')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `
+                            },
                             { property: 'category', heading: 'Category' },
                             { property: 'type', heading: 'Type' },
                             { property: 'status', heading: 'Status', renderCell: (item) => `<span class="ll-chip ${statusChipClassMap[item.status] || 'll-chip--outline-default'}"><span class="ll-chip__label">${escapeHtmlText(item.status || '')}</span></span>` },
                             { property: 'lastUpdatedLabel', heading: 'Last Updated' }
                         ]
                     },
+                    grid: {
+                        enabled: true,
+                        containerId: 'workspace-config-v2-components-grid-host',
+                        columns: 4,
+                        gap: 6,
+                        defaultView: 'grid',
+                        renderCard: (item) => `
+                            <div class="ll-aspect-box ll-aspect-box--16-9">
+                                <img src="${escapeHtmlText(item.thumbnail || '')}" alt="" class="ll-aspect-box__content ll-card__thumbnail">
+                                <div class="ll-card__header ll-card__header--media-overlay">
+                                    <div class="ll-card__header-actions"></div>
+                                </div>
+                            </div>
+                            <div class="ll-card__content ll-card__content--stacked">
+                                <div class="ll-card__content-heading ll-card__content-heading--grow">${escapeHtmlText(item.name || '')}</div>
+                                <div class="ll-card__content-description">${escapeHtmlText(item.description || '')}</div>
+                                <div class="ll-card__meta-row">
+                                    <div class="ll-card__meta-group">
+                                        <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${escapeHtmlText(item.type || '')}</span></span>
+                                        <span class="ll-card__meta-item">${escapeHtmlText(item.category || '')}</span>
+                                    </div>
+                                    <div class="ll-card__meta-group">
+                                        <span class="ll-chip ${statusChipClassMap[item.status] || 'll-chip--outline-default'}"><span class="ll-chip__label">${escapeHtmlText(item.status || '')}</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    },
                     controls: {
                         searchInputId: 'workspace-config-v2-components-search-input',
                         searchClearButtonId: 'workspace-config-v2-components-search-clear',
                         clearAllFiltersButtonId: 'workspace-config-v2-component-clear-filters-btn',
+                        viewToggle: {
+                            listButtonId: 'workspace-config-v2-components-view-list-btn',
+                            gridButtonId: 'workspace-config-v2-components-view-grid-btn'
+                        },
                         sortDropdown: { buttonId: 'workspace-config-v2-components-sort-btn', menuId: 'workspace-config-v2-components-sort-menu', selectedValueSelector: '.ll-dropdown__selected-value', align: 'right', showLabel: false, dropdownLabel: 'Sort', emptySelectionLabel: 'Sort' }
                     },
-                    search: { fields: ['name', 'systemName', 'category', 'type', 'status', 'lastUpdatedLabel'] },
+                    search: { fields: ['name', 'description', 'category', 'type', 'status', 'lastUpdatedLabel'] },
                     filters: [
                         { key: 'category', label: 'Category', type: 'multiple', property: 'category', dropdown: { buttonId: 'workspace-config-v2-component-category-filter-btn', menuId: 'workspace-config-v2-component-category-filter-menu', selectedValueSelector: '.ll-dropdown__selected-value', dropdownLabel: 'Category', emptySelectionLabel: 'Category' }, options: [{ value: 'Sales', label: 'Sales' }, { value: 'Marketing', label: 'Marketing' }, { value: 'Finance', label: 'Finance' }, { value: 'Operations', label: 'Operations' }, { value: 'HR', label: 'HR' }, { value: 'IT', label: 'IT' }] },
                         { key: 'type', label: 'Type', type: 'multiple', property: 'type', dropdown: { buttonId: 'workspace-config-v2-component-type-filter-btn', menuId: 'workspace-config-v2-component-type-filter-menu', selectedValueSelector: '.ll-dropdown__selected-value', dropdownLabel: 'Type', emptySelectionLabel: 'Type' }, options: [{ value: 'Chart', label: 'Chart' }, { value: 'KPI', label: 'KPI' }, { value: 'Map', label: 'Map' }] },
-                        { key: 'status', label: 'Status', type: 'multiple', property: 'status', dropdown: { buttonId: 'workspace-config-v2-component-status-filter-btn', menuId: 'workspace-config-v2-component-status-filter-menu', selectedValueSelector: '.ll-dropdown__selected-value', dropdownLabel: 'Status', emptySelectionLabel: 'Status' }, options: [{ value: 'Active', label: 'Active' }, { value: 'Pending Review', label: 'Pending Review' }, { value: 'Archived', label: 'Archived' }] }
+                        { key: 'status', label: 'Status', type: 'multiple', property: 'status', dropdown: { buttonId: 'workspace-config-v2-component-status-filter-btn', menuId: 'workspace-config-v2-component-status-filter-menu', selectedValueSelector: '.ll-dropdown__selected-value', dropdownLabel: 'Status', emptySelectionLabel: 'Status' }, options: [{ value: 'Active', label: 'Active' }, { value: 'Pending Review', label: 'Pending Review' }, { value: 'Inactive', label: 'Inactive' }] }
                     ],
                     sorts: [
                         { value: 'updated-desc', label: 'Last Updated', property: 'updatedAt', propertyType: 'date', order: 'desc' },
@@ -5910,6 +5891,78 @@
                     ],
                     itemClick: { type: 'callback', onClick: ({ item }) => item && alertMessage(`Opening component: ${item.name}`, 'info') },
                     itemActions: { items: [{ type: 'dropdown', options: [{ value: 'duplicate', label: 'Duplicate' }, { value: 'activate', label: 'Activate', when: ({ item }) => String(item && item.status || '') === 'Inactive' }, { value: 'deactivate', label: 'Deactivate', when: ({ item }) => String(item && item.status || '') !== 'Inactive' }, { value: 'delete', label: 'Delete', danger: true }], onSelect: ({ value, item }) => item && alertMessage(`${String(value || 'action')} component (simulated): ${item.name}`, 'info') }] }
+                });
+
+                workspaceConfigComponents.initListingModule({
+                    rootId: 'workspace-config-v2-members-listing-root',
+                    allowUnsafeHtml: true,
+                    items: membersItems,
+                    idKey: 'id',
+                    table: {
+                        containerId: 'workspace-config-v2-members-table-host',
+                        columns: [
+                            {
+                                property: 'name',
+                                heading: 'Member',
+                                isMain: true,
+                                headerClassName: 'll-listing-table__column-main',
+                                cellClassName: 'll-listing-table__column-main',
+                                renderCell: (item) => `
+                                    <div class="ll-listing-table__main">
+                                        <div class="ll-listing-table__main-icon">
+                                            <span class="text-white font-semibold text-sm">${escapeHtmlText(item.initials || '')}</span>
+                                        </div>
+                                        <div class="ll-listing-table__main-body">
+                                            <div class="ll-listing-table__main-heading">${escapeHtmlText(item.name || '')}</div>
+                                            <div class="ll-listing-table__main-meta-row">
+                                                <span class="ll-listing-table__main-meta-item">${escapeHtmlText(item.email || '')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `
+                            },
+                            { property: 'role', heading: 'Role' }
+                        ]
+                    },
+                    controls: {
+                        searchInputId: 'workspace-config-v2-members-search-input',
+                        clearAllFiltersButtonId: 'workspace-config-v2-members-clear-filters-btn',
+                        sortDropdown: { buttonId: 'workspace-config-v2-members-sort-btn', menuId: 'workspace-config-v2-members-sort-menu', selectedValueSelector: '.ll-dropdown__selected-value', align: 'right', showLabel: false, dropdownLabel: 'Sort', emptySelectionLabel: 'Sort' }
+                    },
+                    search: { fields: ['name', 'email', 'role'] },
+                    filters: [
+                        {
+                            key: 'role',
+                            label: 'Role',
+                            type: 'multiple',
+                            property: 'role',
+                            dropdown: { buttonId: 'workspace-config-v2-members-role-filter-btn', menuId: 'workspace-config-v2-members-role-filter-menu', selectedValueSelector: '.ll-dropdown__selected-value', dropdownLabel: 'Role', emptySelectionLabel: 'Role' },
+                            options: [
+                                { value: 'Editor', label: 'Editor' },
+                                { value: 'Contributor', label: 'Contributor' },
+                                { value: 'Viewer', label: 'Viewer' },
+                            ]
+                        }
+                    ],
+                    sorts: [
+                        { value: 'name-asc', label: 'Name', property: 'name', propertyType: 'string', order: 'asc', description: 'A-Z' },
+                        { value: 'name-desc', label: 'Name', property: 'name', propertyType: 'string', order: 'desc', description: 'Z-A' },
+                        { value: 'role-asc', label: 'Role', property: 'role', propertyType: 'string', order: 'asc' }
+                    ],
+                    itemActions: {
+                        items: [
+                            {
+                                type: 'dropdown',
+                                options: [
+                                    { value: 'set-admin', label: 'Set as Admin' },
+                                    { value: 'set-editor', label: 'Set as Editor' },
+                                    { value: 'set-viewer', label: 'Set as Viewer' },
+                                    { value: 'set-guest', label: 'Set as Guest' }
+                                ],
+                                onSelect: ({ value, item }) => item && alertMessage(`${String(value || 'action')} (simulated): ${item.name}`, 'info')
+                            }
+                        ]
+                    }
                 });
 
                 workspaceConfigComponents.initListingModule({
@@ -6068,7 +6121,8 @@
                     ['workspace-config-v2-create-component-btn', 'Create Asset (simulated).'],
                     ['workspace-config-v2-create-filter-btn', 'Create Filter (simulated).'],
                     ['workspace-config-v2-create-database-btn', 'Create Connection (simulated).'],
-                    ['workspace-config-v2-create-api-btn', 'Create Collection (simulated).']
+                    ['workspace-config-v2-create-api-btn', 'Create Collection (simulated).'],
+                    ['workspace-config-v2-members-invite-btn', 'Invite member (simulated).']
                 ].forEach(([id, message]) => {
                     const button = document.getElementById(id);
                     if (!button || button.dataset.workspaceConfigActionBound === 'true') return;

@@ -2529,10 +2529,6 @@
     @apply flex space-x-3;
   }
 
-  .ll-tab-nav--buttons .ll-btn {
-    @apply rounded-full;
-  }
-
   .ll-tab-btn {
     @apply py-2 px-1 border-b-2 border-transparent font-medium text-sm transition duration-200 cursor-pointer select-none;
     color: var(--ll-color-muted-lighter);
@@ -3225,11 +3221,11 @@
   }
 
   .ll-card__meta-group {
-    @apply flex min-w-0 max-w-full flex-wrap items-center gap-3;
+    @apply flex min-w-0 max-w-full items-center gap-3;
   }
 
   .ll-card__meta-row > .ll-card__meta-group:first-child {
-    @apply grow;
+    @apply flex-1;
   }
 
   .ll-card__meta-item {
