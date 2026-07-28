@@ -252,6 +252,10 @@
     @apply mt-4 md:mt-8;
   }
 
+  .ll-section--narrow {
+    @apply max-w-[96rem] mx-auto;
+  }
+
   .ll-section-header,
   .ll-section-content {
     @apply px-4 md:px-8;
@@ -2996,11 +3000,11 @@
     Structure: `.ll-aspect-box` + ratio modifier + one child `.ll-aspect-box__content`.
     ======================================== */
   .ll-aspect-box {
-    @apply relative w-full max-w-full overflow-hidden rounded-md;
+    @apply relative w-full max-w-full overflow-hidden rounded-xl;
   }
 
   .ll-aspect-box__content {
-    @apply absolute inset-0 flex flex-col items-center justify-center h-full w-full min-h-0 min-w-0 gap-3 text-center;
+    @apply absolute inset-0 flex flex-col items-center justify-center h-full w-full min-h-0 min-w-0 gap-3;
   }
 
   .ll-aspect-box__content:is(img, video, iframe, canvas, svg) {
@@ -3026,6 +3030,10 @@
 
   .ll-aspect-box--21-9 {
     aspect-ratio: 21 / 9;
+  }
+
+  .ll-aspect-box--3-1 {
+    aspect-ratio: 3 / 1;
   }
 
   .ll-aspect-box--2-1 {
