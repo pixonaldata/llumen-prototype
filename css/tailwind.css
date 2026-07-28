@@ -6110,6 +6110,7 @@
     gap: calc(var(--spacing) * 2.5);
   }
   .ll-card__header--media-overlay .ll-card__header-actions {
+    pointer-events: auto;
     margin-block: calc(var(--spacing) * 0);
     margin-right: calc(var(--spacing) * 0);
   }
@@ -6183,6 +6184,7 @@
     background: linear-gradient(to top, rgb(0 0 0 / 0.78), rgb(0 0 0 / 0.08) 45%, rgb(0 0 0 / 0.42));
   }
   .ll-card__header--media-overlay {
+    pointer-events: none;
     position: absolute;
     top: calc(var(--spacing) * 0);
     right: calc(var(--spacing) * 0);

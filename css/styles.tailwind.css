@@ -3112,7 +3112,7 @@
   }
 
   .ll-card__header--media-overlay .ll-card__header-actions {
-    @apply my-0 mr-0;
+    @apply my-0 mr-0 pointer-events-auto;
   }
 
   .ll-card__header-action {
@@ -3162,7 +3162,7 @@
 
   /* `ll-card__header` layered over media: transparent shell, no border. */
   .ll-card__header--media-overlay {
-    @apply absolute left-0 right-0 top-0 z-1 gap-2 border-0 bg-transparent py-2.5 px-3 shadow-none;
+    @apply absolute left-0 right-0 top-0 z-1 gap-2 border-0 bg-transparent py-2.5 px-3 shadow-none pointer-events-none;
     border-radius: 0;
   }
 

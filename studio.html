@@ -1405,7 +1405,7 @@
                 { id: 'whiteboard-8', title: 'Risk Assessment Framework', status: 'Draft', statusFilter: 'draft', updatedLabel: '1 week ago', updatedRank: 1, thumbnail: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+canvas' }
             ];
 
-            const configureListing = ({ rootId, title, items, createButtonId, searchInputId, clearFiltersButtonId, statusFilterButtonId, statusFilterMenuId, sortButtonId, sortMenuId, listBtnId, gridBtnId, tableHostId, gridHostId, contentLabel, onItemClick = null }) => {
+            const configureListing = ({ rootId, title, items, createButtonId, searchInputId, clearFiltersButtonId, statusFilterButtonId, statusFilterMenuId, sortButtonId, sortMenuId, listBtnId, gridBtnId, tableHostId, gridHostId, contentLabel, onItemClick = null, onCreateClick = null }) => {
                 const root = document.getElementById(rootId);
                 if (!root || root.dataset.phase4Bound === 'true') return;
 
@@ -1579,6 +1579,10 @@
                 const createBtn = document.getElementById(createButtonId);
                 if (createBtn && createBtn.dataset.bound !== 'true') {
                     createBtn.addEventListener('click', () => {
+                        if (typeof onCreateClick === 'function') {
+                            onCreateClick();
+                            return;
+                        }
                         if (typeof window.openCreateContentModal === 'function') {
                             window.openCreateContentModal(title.slice(0, -1));
                             return;
@@ -1626,7 +1630,10 @@
                 gridHostId: 'finance-dashboards-v4-grid-host',
                 contentLabel: 'Pages',
                 onItemClick: () => {
-                    window.location.href = '../dashboard/68ee2d555a24aca8065fbfa1.html';
+                    window.location.href = 'dashboard/68ee2d555a24aca8065fbfa1.html';
+                },
+                onCreateClick: () => {
+                    window.location.href = 'dashboard/68ee2d555a24aca8065fbfa1.html';
                 }
             });
 
@@ -1655,7 +1662,7 @@
             const root = document.getElementById(rootId);
             if (!root || root.dataset.phase5Bound === 'true') return;
 
-            const commandRoomPath = '../command-room/6920f32d91994534c84cd701.html';
+            const commandRoomPath = 'command-room/6920f32d91994534c84cd701.html';
             const statusChipClassMap = {
                 active: 'll-chip--outline-positive',
                 planned: 'll-chip--outline-primary',
@@ -1839,7 +1846,7 @@
             const root = document.getElementById('finance-workflows-v6');
             if (!root || root.dataset.phase6Bound === 'true') return;
 
-            const workflowPath = '../workflow/979669f6a773bc14ee5e3b19.html';
+            const workflowPath = 'workflow/979669f6a773bc14ee5e3b19.html';
             const workflowStatusChipClassMap = {
                 draft: 'll-chip--outline-default',
                 published: 'll-chip--outline-positive',
@@ -2649,6 +2656,24 @@
             }
         }
 
+        function syncStudioWorkspaceScopedContentSubtabs(selectedWorkspaceName) {
+            const normalizedWorkspaceName = String(selectedWorkspaceName || '').trim().toLowerCase();
+            const showCommandRooms = Boolean(normalizedWorkspaceName) && normalizedWorkspaceName !== 'private';
+            const commandRoomsTabButton = document.querySelector('#content-tab-content .ll-tab-btn[data-studio-content-subtab="command-rooms"]');
+            if (commandRoomsTabButton) {
+                commandRoomsTabButton.classList.toggle('hidden', !showCommandRooms);
+            }
+            if (!showCommandRooms) {
+                const commandRoomsPanel = document.getElementById('command-rooms-tab-content');
+                if (commandRoomsPanel) {
+                    commandRoomsPanel.classList.add('hidden');
+                }
+                if (studioActiveContentSubtab === 'command-rooms') {
+                    switchStudioContentSubTab('briefings');
+                }
+            }
+        }
+
         function switchAgentsSubTab(tabName) {
             document.querySelectorAll('.agents-sub-tab-content').forEach(content => {
                 content.classList.add('hidden');
@@ -2784,6 +2809,7 @@
                     groupedOptions: getStudioWorkspaceDropdownGroups(),
                     onValueChange: ({ value, label }) => {
                         syncStudioWorkspaceScopedSidebarItems(value || label || '');
+                        syncStudioWorkspaceScopedContentSubtabs(value || label || '');
                         switchInternalTab('assets');
                         if (typeof window.syncWorkspaceConfigModalTitleFromSelectedWorkspace === 'function') {
                             window.syncWorkspaceConfigModalTitleFromSelectedWorkspace();
@@ -2792,6 +2818,7 @@
                 });
             }
             syncStudioWorkspaceScopedSidebarItems('Finance');
+            syncStudioWorkspaceScopedContentSubtabs('Finance');
             if (window.__studioHashSyncBound !== true) {
                 window.addEventListener('hashchange', syncStudioTabFromHash);
                 window.addEventListener('popstate', syncStudioTabFromHash);
@@ -3376,7 +3403,13 @@
 
             // Initialize grid view on page load
             const storiesTabContent = document.getElementById('slides-tab-content');
-            if (storiesTabContent && !storiesTabContent.classList.contains('hidden')) {
+            const hasLegacyStoriesViewHosts = Boolean(
+                document.getElementById('stories-grid-view')
+                && document.getElementById('stories-list-view')
+                && document.getElementById('stories-grid-view-btn')
+                && document.getElementById('stories-list-view-btn')
+            );
+            if (storiesTabContent && !storiesTabContent.classList.contains('hidden') && hasLegacyStoriesViewHosts) {
                 switchStoriesView('grid');
             }
 
@@ -3844,7 +3877,13 @@
 
             // Initialize grid view on page load
             const dashboardsTabContent = document.getElementById('dashboards-tab-content');
-            if (dashboardsTabContent && !dashboardsTabContent.classList.contains('hidden')) {
+            const hasLegacyDashboardsViewHosts = Boolean(
+                document.getElementById('dashboards-grid-view')
+                && document.getElementById('dashboards-list-view')
+                && document.getElementById('dashboards-grid-view-btn')
+                && document.getElementById('dashboards-list-view-btn')
+            );
+            if (dashboardsTabContent && !dashboardsTabContent.classList.contains('hidden') && hasLegacyDashboardsViewHosts) {
                 switchDashboardsView('grid');
             }
 
@@ -5451,7 +5490,13 @@
 
             // Initialize grid view on page load
             const whiteboardsTabContent = document.getElementById('whiteboards-tab-content');
-            if (whiteboardsTabContent && !whiteboardsTabContent.classList.contains('hidden')) {
+            const hasLegacyWhiteboardsViewHosts = Boolean(
+                document.getElementById('whiteboards-grid-view')
+                && document.getElementById('whiteboards-list-view')
+                && document.getElementById('whiteboards-grid-view-btn')
+                && document.getElementById('whiteboards-list-view-btn')
+            );
+            if (whiteboardsTabContent && !whiteboardsTabContent.classList.contains('hidden') && hasLegacyWhiteboardsViewHosts) {
                 switchWhiteboardsView('grid');
             }
 
