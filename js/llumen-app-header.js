@@ -63,6 +63,7 @@
     function getHeaderInnerMarkup(options) {
         const logoHref = withRootPrefix('index.html');
         const logoImageSrc = withRootPrefix('img/llumen-logo.webp');
+        const studioHref = withRootPrefix('studio.html');
         const userInitial = String(options.userInitial || 'J').trim() || 'J';
         const logoText = String(options.logoText || 'Client Logo').trim() || 'Client Logo';
         const showClientLogo = options.showClientLogo !== false;
@@ -98,6 +99,10 @@
             ` : ''}
             <div class="ll-app-header__inner ll-app-header__right">
                 ${customContentSecondInnerStart}
+                <a href="${studioHref}" class="ll-btn ll-btn--outline-default">
+                    <span class="material-symbols-outlined ll-btn__icon">construction</span>
+                    <span>Studio</span>
+                </a>
                 <div>
                     <button id="create-dropdown-button" type="button" class="ll-btn ll-btn--outline-default ll-dropdown__trigger">
                         <span class="material-symbols-outlined ll-btn__icon">add</span>

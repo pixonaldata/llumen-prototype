@@ -736,14 +736,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const appHeaderHost = document.querySelector('[data-ll-app-header-host]');
             if (appHeaderHost && typeof window.renderLlumenAppHeader === 'function') {
-                window.renderLlumenAppHeader(appHeaderHost, {
-                    customContentSecondInnerStart: `
-                        <a href="studio.html" class="ll-btn ll-btn--outline-default">
-                            <span class="material-symbols-outlined ll-btn__icon">construction</span>
-                            <span>Studio</span>
-                        </a>
-                    `
-                });
+                window.renderLlumenAppHeader(appHeaderHost);
                 appHeaderHost.dataset.llAppHeaderMounted = 'true';
             }
             initializeIndexStudioAppNavTabs();
