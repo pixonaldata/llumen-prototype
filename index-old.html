@@ -11,11 +11,9 @@
 </head>
 <body>
     <div class="ll-page-container">
-        <header class="ll-header ll-app-header" data-ll-app-header-host data-ll-app-header-skip-auto="true"></header>
+        <header class="ll-header ll-app-header" data-ll-app-header-host></header>
 
-        <nav id="app-nav-bar" class="ll-header ll-app-header-secondary ll-header--hide-with-scroll">
-            <div id="index-studio-app-nav-carousel-root" class="ll-carousel" aria-label="Main app navigation"></div>
-        </nav>
+        <nav id="app-nav-bar" class="ll-header ll-app-header-secondary ll-header--hide-with-scroll" data-ll-app-nav-host data-selected-nav-id="all"></nav>
 
         <main class="ll-page-layout">
             
@@ -32,7 +30,7 @@
                     </section>
                     
                     <!-- NEW: Featured Slides Section (Full-Width Slider) -->
-                    <section class="ll-section featured-slides">
+                    <section class="ll-section featured-stories">
                         <div class="ll-section-header">
                             <h2 class="ll-section-heading">Featured Slides</h2>
                         </div>
@@ -682,71 +680,8 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        function initializeIndexStudioAppNavTabs() {
-            const llComponents = window.LlumenComponents;
-            const appNavBar = document.getElementById('app-nav-bar');
-            const navCarouselRoot = document.getElementById('index-studio-app-nav-carousel-root');
-            if (!llComponents || !appNavBar || !navCarouselRoot) return;
-            if (navCarouselRoot.dataset.carouselBound === 'true') return;
-            if (typeof llComponents.initializeHorizontalCarousel !== 'function') return;
-
-            const navItems = [
-                { id: 'all', label: 'All' },
-                { id: 'private', label: 'Private' },
-                { id: 'shared-with-me', label: 'Shared with Me' },
-                { id: 'finance', label: 'Finance' },
-                { id: 'operations', label: 'Operations' },
-                { id: 'hr', label: 'HR' },
-                { id: 'sales', label: 'Sales' },
-                { id: 'marketing', label: 'Marketing' },
-                { id: 'it', label: 'IT' },
-                { id: 'product', label: 'Product' },
-                { id: 'engineering', label: 'Engineering' },
-                { id: 'customer-success', label: 'Customer Success' }
-            ];
-
-            llComponents.initializeHorizontalCarousel({
-                root: navCarouselRoot,
-                mode: 'tabs',
-                items: navItems,
-                getItemId: (item) => String(item && item.id != null ? item.id : ''),
-                tabLabelKey: 'label',
-                tabsAsLinks: false,
-                tabSeparatorsAfter: ['shared-with-me'],
-                initialActiveId: 'all'
-            });
-            navCarouselRoot.dataset.carouselBound = 'true';
-
-            if (typeof llComponents.initializeHideWithScroll === 'function') {
-                if (appNavBar.__llIndexStudioHideWithScrollController
-                    && typeof appNavBar.__llIndexStudioHideWithScrollController.destroy === 'function') {
-                    appNavBar.__llIndexStudioHideWithScrollController.destroy();
-                }
-                appNavBar.__llIndexStudioHideWithScrollController = llComponents.initializeHideWithScroll({
-                    targetElement: appNavBar,
-                    offsetElement: document.querySelector('.ll-app-header') || document.querySelector('header'),
-                    cssVarName: '--header-height',
-                    cssVarHost: document.documentElement,
-                    hiddenClass: 'll-hidden'
-                });
-            }
-        }
-
         // Update all slide cards with random sections on load
         document.addEventListener('DOMContentLoaded', () => {
-            const appHeaderHost = document.querySelector('[data-ll-app-header-host]');
-            if (appHeaderHost && typeof window.renderLlumenAppHeader === 'function') {
-                window.renderLlumenAppHeader(appHeaderHost, {
-                    customContentSecondInnerStart: `
-                        <a href="studio.html" class="ll-btn ll-btn--outline-default">
-                            <span class="material-symbols-outlined ll-btn__icon">construction</span>
-                            <span>Studio</span>
-                        </a>
-                    `
-                });
-                appHeaderHost.dataset.llAppHeaderMounted = 'true';
-            }
-            initializeIndexStudioAppNavTabs();
             document.querySelectorAll('.slide-card-container .num-sections').forEach(span => {
                 span.textContent = `${getRandomInt(12, 20)} Sections`;
             });
