@@ -312,8 +312,12 @@
     }
 
     .ll-app-logo {
-      @apply w-[2.25rem] h-[2.25rem];
+      @apply w-[1.875rem];
     }
+
+      .ll-app-logo img {
+        width: 100%;
+      }
 
     .ll-client-logo {
       @apply flex items-center justify-center px-3 py-1 rounded-lg text-sm font-semibold h-[2.25rem] text-nowrap;

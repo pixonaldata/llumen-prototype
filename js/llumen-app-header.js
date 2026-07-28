@@ -62,6 +62,7 @@
 
     function getHeaderInnerMarkup(options) {
         const logoHref = withRootPrefix('index.html');
+        const logoImageSrc = withRootPrefix('img/llumen-logo.webp');
         const userInitial = String(options.userInitial || 'J').trim() || 'J';
         const logoText = String(options.logoText || 'Client Logo').trim() || 'Client Logo';
         const showClientLogo = options.showClientLogo !== false;
@@ -72,10 +73,7 @@
             <div class="ll-app-header__inner ll-app-header__left">
                 <a href="${logoHref}">
                     <div class="ll-app-logo">
-                        <svg viewBox="0 0 32 32" class="w-full h-full">
-                            <circle cx="16" cy="16" r="16" fill="rgb(115, 173, 245)"></circle>
-                            <circle cx="16" cy="16" r="8" fill="rgb(12, 14, 16)"></circle>
-                        </svg>
+                        <img src="${logoImageSrc}">
                     </div>
                 </a>
                 ${showClientLogo ? `
