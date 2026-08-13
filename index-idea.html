@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Llumen Prototype</title>
+    <!-- Shared Llumen styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tailwind.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        #index-idea-shell {
+            min-height: 100vh;
+        }
+
+        #index-idea-layout {
+            min-height: calc(100vh - var(--ll-app-header-height));
+        }
+
+        .index-idea-sidebar-shell {
+            position: sticky;
+            top: 0;
+            align-self: flex-start;
+            height: 100vh;
+            width: 0;
+            flex: 0 0 0;
+            overflow: hidden;
+            transition: width 0.25s ease, flex-basis 0.25s ease;
+        }
+
+        .index-idea-sidebar-shell.is-open {
+            width: 16rem;
+            flex-basis: 16rem;
+        }
+
+        .index-idea-sidebar-shell.is-open.is-compact {
+            width: 4rem;
+            flex-basis: 4rem;
+        }
+
+        .index-idea-sidebar-shell--ai.is-open {
+            width: 24rem;
+            flex-basis: 24rem;
+        }
+
+        .index-idea-sidebar-container {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            height: 100vh;
+            padding: 0 !important;
+        }
+
+        .index-idea-sidebar {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 0;
+            border-top: 0;
+            padding: 0;
+        }
+
+        .index-idea-sidebar--chat {
+            padding: 0;
+        }
+
+        .index-idea-sidebar__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: var(--ll-app-header-height);
+            gap: 0.75rem;
+            padding-block: calc(var(--spacing) * 3.75);
+            padding-inline: calc(var(--spacing) * 4);
+            border-bottom-style: var(--tw-border-style);
+            border-bottom-width: 1px;
+            border-bottom-color: var(--ll-color-divider);
+        }
+
+        .index-idea-sidebar__title {
+            flex: 1 1 auto;
+        }
+
+        .index-idea-sidebar-shell.is-compact .index-idea-sidebar__title {
+            display: none;
+        }
+
+        .index-idea-sidebar-shell.is-compact .index-idea-sidebar__header {
+            justify-content: center;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        .index-idea-briefings-list {
+            flex: 1 1 auto;
+            overflow-y: auto;
+        }
+
+        .index-idea-briefings-list .ll-list__item-trigger {
+            padding-inline: calc(var(--spacing) * 4);
+        }
+
+        .index-idea-sidebar-shell.is-compact .index-idea-briefings-list .ll-list__item-trigger {
+            padding: 0.5rem;
+        }
+
+        .index-idea-sidebar-shell.is-compact .index-idea-briefings-list .ll-list__item-content {
+            justify-content: center;
+        }
+
+        .index-idea-sidebar-shell.is-compact .index-idea-briefings-list .ll-list__item-main {
+            display: none;
+        }
+
+        .index-idea-sidebar-shell.is-compact .index-idea-briefing-thumb {
+            width: 2.5rem;
+        }
+
+        .index-idea-briefing-thumb {
+            width: 3rem;
+            border-radius: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .index-idea-briefing-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .index-idea-briefing-type {
+            font-size: 0.75rem;
+            line-height: 1rem;
+            font-weight: 600;
+        }
+
+        #index-ai-chat-host {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #index-ai-chat-host #ai-chat-window.chat-window {
+            position: static;
+            inset: auto;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.75rem;
+            transform: none;
+            box-shadow: none;
+            z-index: auto;
+            transform-origin: center;
+        }
+
+        #index-ai-chat-host #ai-chat-window.chat-window.is-minimal,
+        #index-ai-chat-host #ai-chat-window.chat-window.has-interactive-panel {
+            top: auto;
+            right: auto;
+            bottom: auto;
+            left: auto;
+            width: 100%;
+            height: 100%;
+            height: 100vh;
+            border-radius: 0;
+            background-color: transparent;
+        }
+
+        #index-ai-chat-host .send-message-container {
+            background-color: transparent;
+            border-width: 0;
+            border-style: var(--tw-border-style);
+            border-top-width: 1px;
+            border-color: var(--ll-color-divider);
+        }
+
+        #index-ai-chat-host #ai-chat-window.chat-window.is-fullscreen {
+            border-radius: 0.75rem;
+            width: 100%;
+            height: 100%;
+        }
+
+        #index-ai-chat-host #ai-chat-window .chat-content-wrapper {
+            width: 100%;
+            min-width: 0;
+        }
+
+        #index-ai-chat-host #ai-chat-window.has-interactive-panel .chat-content-wrapper {
+            width: 24rem;
+            min-width: 24rem;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="ll-page-container">
+        <div id="index-idea-shell" class="ll-page-layout">
+            <aside id="index-briefings-sidebar-shell" class="index-idea-sidebar-shell is-open" aria-hidden="false">
+                <div class="ll-app-sidebar-container ll-app-sidebar-container-left index-idea-sidebar-container">
+                    <section class="ll-sidebar ll-sidebar--left index-idea-sidebar">
+                        <div class="index-idea-sidebar__header">
+                            <h2 class="ll-section-heading index-idea-sidebar__title">Briefings</h2>
+                            <button
+                                type="button"
+                                id="index-briefings-sidebar-toggle"
+                                class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline"
+                                aria-label="Compact Latest Briefings sidebar"
+                                aria-pressed="false">
+                                <span class="material-symbols-outlined ll-icon-btn__icon">vertical_split</span>
+                            </button>
+                        </div>
+                        <nav id="index-briefings-list-root" class="ll-list index-idea-briefings-list" aria-label="Latest briefings"></nav>
+                    </section>
+                </div>
+            </aside>
+
+            <div class="ll-page-content-outer">
+                <header class="ll-header ll-app-header" data-ll-app-header-host data-ll-app-header-skip-auto="true"></header>
+
+                <nav id="app-nav-bar" class="ll-header ll-app-header-secondary ll-header--hide-with-scroll">
+                    <div id="index-studio-app-nav-carousel-root" class="ll-carousel" aria-label="Main app navigation"></div>
+                </nav>
+
+                <main id="index-idea-layout">
+                    <div class="ll-page-content-inner ll-page-content-inner--no-x-padding">
+                    
+                    <!-- NEW: Featured Slides Section (Full-Width Slider) -->
+                    <section class="ll-section">
+                        <div class="ll-section-content">
+                            <div style="height: 24rem;">
+                                <div id="hero-slider" class="ll-aspect-box__content relative w-full overflow-hidden shadow-xl rounded-xl">
+                                    <div id="slider-inner" class="relative w-full h-full">
+                                        <!-- Slider Item 1 -->
+                                        <div class="slider-item bg-slate-900" data-slide-index="0">
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                            <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
+                                                <div class="flex items-center space-x-2 text-sm mb-1">
+                                                    <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                                    <span class="font-medium">Marketing</span>
+                                                </div>
+                                                <h3 class="text-2xl font-bold line-clamp-2">New Campaign Launch: Q3 Strategy & Expected ROI</h3>
+                                                <p class="text-sm text-gray-400 mt-1">10 Sections</p>
+                                                <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting slide: New Campaign Launch...', 'info')">
+                                                    <span class="material-symbols-outlined ll-btn__icon">play_arrow</span>
+                                                    <span>Start</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Slider Item 2 -->
+                                        <div class="slider-item bg-slate-900" data-slide-index="1">
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                            <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
+                                                <div class="flex items-center space-x-2 text-sm mb-1">
+                                                    <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                                    <span class="font-medium">Product</span>
+                                                </div>
+                                                <h3 class="text-2xl font-bold line-clamp-2">Product Roadmap 2025: Innovations & User Experience</h3>
+                                                <p class="text-sm text-gray-400 mt-1">12 Sections</p>
+                                                <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting slide: Product Roadmap...', 'info')">
+                                                    <span class="material-symbols-outlined ll-btn__icon">play_arrow</span>
+                                                    <span>Start</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Slider Item 3 -->
+                                        <div class="slider-item bg-slate-900" data-slide-index="2">
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
+                                            <div class="absolute bottom-4 left-4 text-white p-2 md:p-4">
+                                                <div class="flex items-center space-x-2 text-sm mb-1">
+                                                    <span class="material-symbols-outlined" style="font-size: 16px;">workspaces</span>
+                                                    <span class="font-medium">Operations</span>
+                                                </div>
+                                                <h3 class="text-2xl font-bold line-clamp-2">Optimizing Logistics: Efficiency Gains in Q4 Operations</h3>
+                                                <p class="text-sm text-gray-400 mt-1">8 Sections</p>
+                                                <button type="button" class="ll-btn ll-btn--primary mt-4" onclick="alertMessage('Starting slide: Optimizing Logistics...', 'info')">
+                                                    <span class="material-symbols-outlined ll-btn__icon">play_arrow</span>
+                                                    <span>Start</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Thumbnails below slider -->
+                                <div id="slider-thumbnails" class="flex justify-start space-x-4 mt-4 overflow-x-auto py-2 px-4 md:px-8 scrollbar-hide hidden">
+                                    <img src="https://placehold.co/120x67/333/fff?text=Slide+1+Thumb" alt="Slide 1 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="0">
+                                    <img src="https://placehold.co/120x67/555/eee?text=Slide+2+Thumb" alt="Slide 2 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="1">
+                                    <img src="https://placehold.co/120x67/777/ddd?text=Slide+3+Thumb" alt="Slide 3 Thumb" class="thumbnail-item w-24 h-14 object-cover rounded-md cursor-pointer transition duration-200" data-slide-index="2">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="ll-section hidden">
+                        <div class="ll-section-header">
+                            <h2 class="text-lg md:text-xl font-bold text-white">Continue Viewing</h2>
+                        </div>
+                        <div class="ll-section-content ll-section-content--no-x-padding">
+                            <div id="index-continue-viewing-carousel-root" class="ll-carousel"></div>
+                        </div>
+                    </section>
+
+                    <section class="ll-section">
+                        <div class="ll-section-header">
+                            <h2 class="text-lg md:text-xl font-bold text-white">Recommended for You</h2>
+                        </div>
+                        <div class="ll-section-content">
+                            <div id="index-recommended-grid-root" class="ll-grid ll-grid--cols-4 ll-grid--gap-6"></div>
+                        </div>
+                    </section>
+
+                    </div>
+                </main>
+            </div>
+
+            <aside id="index-ai-chat-sidebar-shell" class="index-idea-sidebar-shell index-idea-sidebar-shell--ai is-open" aria-hidden="false">
+                <div class="ll-app-sidebar-container ll-app-sidebar-container-right index-idea-sidebar-container">
+                    <section class="ll-sidebar ll-sidebar--right index-idea-sidebar index-idea-sidebar--chat">
+                        <div id="index-ai-chat-host"></div>
+                    </section>
+                </div>
+            </aside>
+        </div>
+
+    </div>
+
+    <!-- Create Content Modal -->
+    <div id="create-content-modal" class="fixed inset-0 bg-black p-10 bg-opacity-50 flex justify-center items-start z-50 hidden">
+        <div class="bg-gray-900 rounded-lg shadow-xl w-11/12 max-h-full max-w-[680px] flex flex-col">
+            <!-- Modal Header -->
+            <div class="py-4 px-6 border-b border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h2 id="create-content-modal-title" class="text-xl font-semibold text-white">Create</h2>
+                    <button id="close-create-content-modal" class="flex items-center text-gray-400 hover:text-white transition duration-200">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div id="create-content-modal-content" class="flex-1 overflow-y-auto p-6">
+                <p id="create-content-modal-description" class="text-gray-300 font-semibold mb-6">Select a Workspace to proceed</p>
+                
+                <!-- Private Section -->
+                <div>
+                    <a href="#" id="private-workspace-link" class="block w-full bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg p-3 transition duration-200 text-white flex items-center">
+                        <span class="material-symbols-outlined mr-3" style="font-size: 20px;">lock</span>
+                        <span class="text-sm font-medium">Private</span>
+                    </a>
+                    <div class="border-t border-gray-700 my-4"></div>
+                </div>
+
+                <!-- Workspaces Section -->
+                <div>
+                    <div id="workspaces-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Workspace links will be dynamically generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-700">
+                <div class="flex items-center justify-end space-x-3">
+                    <button type="button" id="cancel-create-content" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-200">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Local AI chat copy for index-idea experiments.
+        function ensureAiChatMarkup() {
+            if (!document.getElementById('ai-chat-window')) {
+                const chatWindow = document.createElement('div');
+                chatWindow.id = 'ai-chat-window';
+                chatWindow.className = 'chat-window main-chat-window';
+                chatWindow.innerHTML = `
+                    <div id="chat-content-wrapper" class="chat-content-wrapper">
+                        <div class="index-idea-sidebar__header">
+                            <h3 class="text-white font-semibold text-lg">Lumen AI Agent</h3>
+                            <div class="flex space-x-2">
+                                <button id="expand-chat-button"  class="ll-icon-btn ll-icon-btn--sm">
+                                    <span class="material-symbols-outlined ll-icon-btn__icon">open_in_full</span>
+                                </button>
+                                <button id="close-chat-button"  class="ll-icon-btn ll-icon-btn--sm">
+                                    <span class="material-symbols-outlined ll-icon-btn__icon">close</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-grow p-3 overflow-y-auto space-y-3" id="chat-messages">
+                            <div class="flex justify-start">
+                                <div class="bg-gray-600 text-sm text-white px-3 py-2 rounded-lg max-w-[80%]">
+                                    Hello! I'm Lumen. How can I help you today?
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <div class="bg-blue-800 text-sm text-white px-3 py-2 rounded-lg max-w-[80%]">
+                                    Show me the latest Q2 Finance story.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="send-message-container">
+                            <input type="text" id="chat-input" placeholder="Type your message..." class="flex-grow bg-gray-700 text-white rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm placeholder-gray-400">
+                            <button id="send-chat-button" class="ml-3 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400" disabled>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="ai-panel-separator" class="panel-separator hidden"></div>
+
+                    <div id="ai-interactive-panel" class="interactive-panel">
+                        <div class="panel-header">
+                            <h4 id="interactive-panel-title" class="text-white font-semibold text-md">Component View</h4>
+                            <button id="close-interactive-panel-button" class="text-gray-300 hover:text-white p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5" />
+                                    <path d="m17 8-4 4 4 4" />
+                                    <path d="M13 20V4" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="interactive-panel-content" class="interactive-panel-content flex-grow p-3 text-gray-300 flex items-center justify-center text-center">
+                            <p>Interactive content will appear here.</p>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(chatWindow);
+            }
+        }
+
+        ensureAiChatMarkup();
+
+        const aiChatWindow = document.getElementById('ai-chat-window');
+        const closeChatButton = document.getElementById('close-chat-button');
+        const expandChatButton = document.getElementById('expand-chat-button');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatButton = document.getElementById('send-chat-button');
+        const chatMessagesContainer = document.getElementById('chat-messages');
+        const interactivePanel = document.getElementById('ai-interactive-panel');
+        const interactivePanelTitle = document.getElementById('interactive-panel-title');
+        const interactivePanelContent = document.getElementById('interactive-panel-content');
+        const closeInteractivePanelButton = document.getElementById('close-interactive-panel-button');
+        const aiPanelSeparator = document.getElementById('ai-panel-separator');
+
+        let lastToggleButtonElement = null;
+
+        function toggleChatWindowVisibility() {
+            if (aiChatWindow.classList.contains('chat-window-open')) {
+                aiChatWindow.classList.remove('chat-window-open');
+                aiChatWindow.classList.remove('is-minimal');
+                aiChatWindow.classList.remove('is-fullscreen');
+                aiChatWindow.classList.remove('has-interactive-panel');
+                toggleInteractivePanel('hide');
+
+                setTimeout(() => {
+                    if (!aiChatWindow.classList.contains('chat-window-open')) {
+                        aiChatWindow.style.display = 'none';
+                    }
+                }, 300);
+            } else {
+                aiChatWindow.style.display = 'flex';
+                void aiChatWindow.offsetWidth;
+                aiChatWindow.classList.add('chat-window-open', 'is-minimal');
+            }
+        }
+
+        function toggleFullscreen() {
+            if (aiChatWindow.classList.contains('is-fullscreen')) {
+                aiChatWindow.classList.remove('is-fullscreen');
+                aiChatWindow.classList.add('is-minimal');
+            } else {
+                aiChatWindow.classList.remove('is-minimal');
+                aiChatWindow.classList.add('is-fullscreen');
+            }
+        }
+
+        function toggleInteractivePanel(action, componentType = null) {
+            if (action === 'toggle') {
+                action = interactivePanel.classList.contains('is-active') ? 'hide' : 'show';
+                if (lastToggleButtonElement && lastToggleButtonElement.dataset.componentType) {
+                    componentType = lastToggleButtonElement.dataset.componentType;
+                } else if (action === 'show') {
+                    console.warn("Could not determine component type for toggle. Defaulting to chart.");
+                    componentType = 'chart';
+                }
+            }
+
+            if (action === 'show') {
+                interactivePanel.classList.add('is-active');
+                aiPanelSeparator.classList.remove('hidden');
+                setTimeout(() => aiPanelSeparator.classList.add('is-active'), 50);
+
+                aiChatWindow.classList.add('has-interactive-panel');
+
+                if (componentType === 'chart') {
+                    interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-800 rounded-md flex items-center justify-center"><p class="text-white text-lg">📈 Placeholder Chart Data</p></div>`;
+                } else if (componentType === 'map') {
+                    interactivePanelContent.innerHTML = `<div class="w-full h-full bg-gray-800 rounded-md flex items-center justify-center"><p class="text-white text-lg">🗺️ Placeholder Map Data</p></div>`;
+                }
+
+                if (lastToggleButtonElement) {
+                    lastToggleButtonElement.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Hide Component`;
+                    lastToggleButtonElement.dataset.componentType = componentType;
+                }
+            } else if (action === 'hide') {
+                interactivePanel.classList.remove('is-active');
+                aiPanelSeparator.classList.remove('is-active');
+                aiPanelSeparator.classList.add('hidden');
+
+                aiChatWindow.classList.remove('has-interactive-panel');
+                interactivePanelContent.innerHTML = '<p>Interactive content will appear here.</p>';
+
+                if (lastToggleButtonElement) {
+                    lastToggleButtonElement.innerHTML = `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Show Component`;
+                }
+            }
+        }
+
+        closeChatButton.addEventListener('click', toggleChatWindowVisibility);
+        closeInteractivePanelButton.addEventListener('click', () => toggleInteractivePanel('hide'));
+
+        function addChatMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            messageDiv.innerHTML = `
+                <div class="${sender === 'user' ? 'bg-blue-800' : 'bg-gray-600'} text-sm text-white px-3 py-2 rounded-lg max-w-[80%] break-words">
+                    ${message}
+                </div>
+            `;
+            chatMessagesContainer.appendChild(messageDiv);
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }
+
+        sendChatButton.addEventListener('click', async () => {
+            const message = chatInput.value.trim();
+            if (!message) {
+                alertMessage("Please enter a message.", "error");
+                return;
+            }
+
+            addChatMessage(message, 'user');
+            chatInput.value = '';
+            sendChatButton.disabled = true;
+
+            const isShowChart = message.toLowerCase().includes("show chart");
+            const isShowMap = message.toLowerCase().includes("show map");
+            const isGenerateResponse = message.toLowerCase().includes("generate response");
+
+            if (isShowChart || isShowMap) {
+                const componentType = isShowChart ? 'chart' : 'map';
+                toggleInteractivePanel('show', componentType);
+
+                const aiMessageDiv = document.createElement('div');
+                aiMessageDiv.className = `flex justify-start`;
+                aiMessageDiv.innerHTML = `
+                    <div class="bg-gray-600 text-white p-2 rounded-lg max-w-[80%] break-words flex flex-col">
+                        <span>Here's a placeholder ${componentType} for your data!</span>
+                        <button class="toggle-component-button mt-2 bg-gray-700 hover:bg-slate-700 text-white p-2 rounded-md transition duration-200 text-sm flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m17 8-4 4 4 4"/><path d="M13 20V4"/></svg> Hide Component
+                        </button>
+                    </div>
+                `;
+                chatMessagesContainer.appendChild(aiMessageDiv);
+                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+
+                const toggleButton = aiMessageDiv.querySelector('.toggle-component-button');
+                if (toggleButton) {
+                    if (lastToggleButtonElement && lastToggleButtonElement !== toggleButton) {
+                        lastToggleButtonElement.onclick = null;
+                    }
+                    lastToggleButtonElement = toggleButton;
+                    lastToggleButtonElement.dataset.componentType = componentType;
+
+                    lastToggleButtonElement.addEventListener('click', () => {
+                        toggleInteractivePanel('toggle');
+                    });
+                }
+            } else if (isGenerateResponse) {
+                addChatMessage("Generating response...", 'ai');
+                const prompt = "Please provide a concise summary of current global economic trends, including key indicators and potential future outlook.";
+                try {
+                    const chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API error: ${response.status} ${response.statusText} - ${errorData.error.message}`);
+                    }
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0
+                        && result.candidates[0].content && result.candidates[0].content.parts
+                        && result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        addChatMessage(text, 'ai');
+                    } else {
+                        addChatMessage("Sorry, I could not generate a response.", 'ai');
+                        console.error("Gemini API response structure unexpected:", result);
+                    }
+                } catch (error) {
+                    console.error("Error calling Gemini API:", error);
+                    addChatMessage(`Error generating response: ${error.message}`, 'ai');
+                }
+                toggleInteractivePanel('hide');
+                lastToggleButtonElement = null;
+            } else {
+                setTimeout(() => {
+                    addChatMessage("I'm Lumen. In a real app, I would process your request and provide insights. How else can I assist? Try typing 'show chart', 'show map', or 'generate response'!", 'ai');
+                }, 800);
+                toggleInteractivePanel('hide');
+                lastToggleButtonElement = null;
+            }
+        });
+
+        chatInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendChatButton.click();
+            }
+        });
+
+        chatInput.addEventListener('input', () => {
+            sendChatButton.disabled = chatInput.value.trim() === '';
+        });
+    </script>
+    <script src="js/link-existing-content-modal.js"></script>
+    <script src="js/briefings.js"></script>
+    <script src="js/create-content-modal.js"></script>
+    <script src="js/llumen-sortable-engine.js"></script>
+    <script src="js/llumen-components.js"></script>
+    <script>
+        // Local app-header copy for index-idea experiments.
+        (function (windowScope) {
+            'use strict';
+
+            const DEFAULT_OPTIONS = {
+                logoText: 'Client Logo',
+                userInitial: 'J',
+                showClientLogo: true,
+                showSearchInput: true,
+                customContentFirstInnerEnd: '',
+                customContentSecondInnerStart: ''
+            };
+
+            function getPathParts() {
+                return String(windowScope.location && windowScope.location.pathname || '')
+                    .split('/')
+                    .filter(Boolean);
+            }
+
+            function isInSubdirectory() {
+                const pathParts = getPathParts();
+                return pathParts.some((part) =>
+                    part === 'workspaces' || part === 'platform-settings' || part === 'dashboard'
+                );
+            }
+
+            function withRootPrefix(path) {
+                const normalized = String(path || '').trim();
+                if (!normalized) return '';
+                if (/^(https?:)?\/\//.test(normalized)) return normalized;
+                if (normalized.startsWith('/')) return normalized;
+                const prefix = isInSubdirectory() ? '../' : '';
+                return `${prefix}${normalized}`;
+            }
+
+            function getCreateDropdownMarkup() {
+                return `
+                    <button type="button" class="ll-dropdown__item" data-value="Briefing" data-create-content-type="Briefing">Briefing</button>
+                    <button type="button" class="ll-dropdown__item" data-value="Slide" data-create-content-type="Slide">Slide</button>
+                    <button type="button" class="ll-dropdown__item" data-value="Dashboard" data-create-content-type="Dashboard">Dashboard</button>
+                    <button type="button" class="ll-dropdown__item" data-value="Whiteboard" data-create-content-type="Whiteboard">Whiteboard</button>
+                    <button type="button" class="ll-dropdown__item" data-value="Workspace" data-ui-action="create-workspace">Workspace</button>
+                `;
+            }
+
+            function getUserDropdownMarkup() {
+                return `
+                    <button type="button" class="ll-dropdown__item" data-value="account-settings" data-ui-action="account-settings">Account Settings</button>
+                    <a href="${withRootPrefix('platform-settings/overview.html')}" class="ll-dropdown__item">Platform Settings</a>
+                    <a href="${withRootPrefix('component-library.html')}" class="ll-dropdown__item">Component Library</a>
+                    <button type="button" class="ll-dropdown__item" data-value="help" data-ui-action="help">Help</button>
+                    <button type="button" class="ll-dropdown__item" data-value="logout" data-ui-action="logout">Logout</button>
+                `;
+            }
+
+            function resolveCustomContentMarkup(customContentOption, options) {
+                if (!customContentOption) return '';
+                if (typeof customContentOption === 'function') {
+                    return String(customContentOption(options) || '');
+                }
+                return String(customContentOption || '');
+            }
+
+            function getHeaderInnerMarkup(options) {
+                const logoHref = withRootPrefix('index.html');
+                const logoImageSrc = withRootPrefix('img/llumen-logo.webp');
+                const studioHref = withRootPrefix('studio.html');
+                const userInitial = String(options.userInitial || 'J').trim() || 'J';
+                const logoText = String(options.logoText || 'Client Logo').trim() || 'Client Logo';
+                const showClientLogo = options.showClientLogo !== false;
+                const showSearchInput = options.showSearchInput !== false;
+                const customContentFirstInnerEnd = resolveCustomContentMarkup(options.customContentFirstInnerEnd, options);
+                const customContentSecondInnerStart = resolveCustomContentMarkup(options.customContentSecondInnerStart, options);
+                return `
+                    <div class="ll-app-header__inner ll-app-header__left">
+                        <a href="${logoHref}">
+                            <div class="ll-app-logo">
+                                <img src="${logoImageSrc}">
+                            </div>
+                        </a>
+                        ${showClientLogo ? `
+                        <div class="ll-border-divider"></div>
+                        <a href="${logoHref}">
+                            <div class="ll-client-logo">
+                                <span>${logoText}</span>
+                            </div>
+                        </a>
+                        ${customContentFirstInnerEnd}
+                    </div>
+                    ` : ''}
+                    ${showSearchInput ? `
+                    <div class="ll-app-header__inner ll-app-header__center" style="max-width: calc(var(--spacing) * 80)">
+                        <div class="ll-input-with-left-icon ll-app-header__search-input">
+                            <div class="ll-input-with-left-icon__left ll-input-with-left-icon__icon">
+                                <span class="material-symbols-outlined">search</span>
+                            </div>
+                            <input id="app-header-search-input" type="text" placeholder="Search..." class="ll-input ll-input--search ll-input-with-left-icon__input">
+                        </div>
+                    </div>
+                    ` : ''}
+                    <div class="ll-app-header__inner ll-app-header__right">
+                        ${customContentSecondInnerStart}
+                        <a href="${studioHref}" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline">
+                            <span class="material-symbols-outlined ll-icon-btn__icon">construction</span>
+                        </a>
+                        <div>
+                            <button id="create-dropdown-button" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline">
+                                <span class="material-symbols-outlined ll-icon-btn__icon">add</span>
+                            </button>
+                            <div id="create-dropdown-menu" class="ll-dropdown__menu hidden">
+                                ${getCreateDropdownMarkup()}
+                            </div>
+                        </div>
+                        <div class="ll-border-divider"></div>
+                        <button type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline" aria-label="Notifications">
+                            <span class="material-symbols-outlined ll-icon-btn__icon">notifications</span>
+                        </button>
+                        <div>
+                            <button id="user-dropdown-button" type="button" class="ll-icon-btn ll-icon-btn--circle ll-icon-btn--outline ll-dropdown__trigger" aria-label="User menu">
+                                <span class="text-lg font-medium">${userInitial}</span>
+                            </button>
+                            <div id="user-dropdown-menu" class="ll-dropdown__menu hidden">
+                                ${getUserDropdownMarkup()}
+                            </div>
+                        </div>
+                        <div class="ll-border-divider"></div>
+                    </div>
+                `;
+            }
+
+            function initializeHeaderInteractions() {
+                const components = windowScope.LlumenComponents;
+                if (!components) return;
+
+                if (typeof components.initializeSearchInput === 'function') {
+                    const searchInput = document.getElementById('app-header-search-input');
+                    if (searchInput) {
+                        components.initializeSearchInput('app-header-search-input', {
+                            clearButtonId: 'app-header-search-clear',
+                            datasetFlag: 'appHeaderSearchInputBound'
+                        });
+                    }
+                }
+
+                if (typeof components.initializePortaledDropdown === 'function') {
+                    const createButton = document.getElementById('create-dropdown-button');
+                    const createMenu = document.getElementById('create-dropdown-menu');
+                    if (createButton && createMenu) {
+                        components.initializePortaledDropdown({
+                            buttonId: 'create-dropdown-button',
+                            menuId: 'create-dropdown-menu',
+                            align: 'right',
+                            menuType: 'action',
+                            showLabel: false,
+                            dropdownLabel: 'Create',
+                            onValueChange: (payload) => {
+                                const selectedValue = String((payload && payload.value) || '').trim();
+                                if (!selectedValue) return;
+                                if (selectedValue === 'Workspace') return;
+                                if (typeof windowScope.openCreateContentModal === 'function') {
+                                    windowScope.openCreateContentModal(selectedValue);
+                                }
+                            }
+                        });
+                    }
+
+                    const userButton = document.getElementById('user-dropdown-button');
+                    const userMenu = document.getElementById('user-dropdown-menu');
+                    if (userButton && userMenu) {
+                        components.initializePortaledDropdown({
+                            buttonId: 'user-dropdown-button',
+                            menuId: 'user-dropdown-menu',
+                            align: 'right',
+                            menuType: 'action',
+                            showLabel: false,
+                            dropdownLabel: 'User menu'
+                        });
+                    }
+                }
+            }
+
+            function renderLlumenAppHeader(targetOrId, options = {}) {
+                const target = typeof targetOrId === 'string'
+                    ? document.getElementById(targetOrId)
+                    : targetOrId;
+                if (!target) return null;
+                const resolvedOptions = { ...DEFAULT_OPTIONS, ...options };
+                if (target.tagName && target.tagName.toLowerCase() === 'header') {
+                    target.classList.add('ll-header', 'll-app-header');
+                }
+                target.innerHTML = getHeaderInnerMarkup(resolvedOptions);
+                initializeHeaderInteractions();
+                return target.tagName && target.tagName.toLowerCase() === 'header'
+                    ? target
+                    : target.querySelector('header');
+            }
+
+            function autoRenderLlumenAppHeader() {
+                const hosts = Array.from(document.querySelectorAll('[data-ll-app-header-host]'));
+                hosts.forEach((host) => {
+                    if (host.dataset.llAppHeaderMounted === 'true') return;
+                    if (host.dataset.llAppHeaderSkipAuto === 'true') return;
+                    renderLlumenAppHeader(host, {
+                        logoText: host.dataset.logoText || DEFAULT_OPTIONS.logoText,
+                        userInitial: host.dataset.userInitial || DEFAULT_OPTIONS.userInitial,
+                        showClientLogo: host.dataset.showClientLogo !== 'false',
+                        showSearchInput: host.dataset.showSearchInput !== 'false',
+                        customContentSecondInnerStart: host.dataset.customContentSecondInnerStart || ''
+                    });
+                    host.dataset.llAppHeaderMounted = 'true';
+                });
+            }
+
+            windowScope.renderLlumenAppHeader = renderLlumenAppHeader;
+            windowScope.autoRenderLlumenAppHeader = autoRenderLlumenAppHeader;
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', autoRenderLlumenAppHeader, { once: true });
+            } else {
+                autoRenderLlumenAppHeader();
+            }
+        })(window);
+    </script>
+    <script src="js/llumen-app-nav.js"></script>
+    <script src="js/llumen-shader-background.js"></script>
+
+    <script>
+        console.log("Script loaded and starting..."); // Added for debugging
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function sanitizeIdToken(value) {
+            const normalized = String(value == null ? '' : value)
+                .toLowerCase()
+                .replace(/[^a-z0-9_-]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            return normalized || 'item';
+        }
+
+        function initializeIndexCarousels() {
+            const components = window.LlumenComponents;
+            if (!components || typeof components.initializeHorizontalCarousel !== 'function') return;
+            const initializeCardActionDropdown = ({ buttonId, menuId, onValueChange }) => {
+                if (!buttonId || !menuId || typeof onValueChange !== 'function') return;
+                components.initializePortaledDropdown({
+                    buttonId,
+                    menuId,
+                    align: 'right',
+                    menuType: 'action',
+                    showLabel: false,
+                    dropdownLabel: 'Card actions',
+                    onValueChange
+                });
+            };
+            const briefingRoot = document.getElementById('index-briefings-list-root');
+            if (briefingRoot && briefingRoot.dataset.listBound !== 'true') {
+                const briefingItems = [
+                    { id: 'briefing-operations-alert', title: 'Supply Chain Alert: Critical Component Shortage', workspaceName: 'Operations', meta: 'Operations · 2 hours ago', badge: 'Alert', thumbnailSrc: 'https://placehold.co/192x256/7f1d1d/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-finance-report', title: 'Market Volatility Impact on Q3 Forecasts', workspaceName: 'Finance', meta: 'Finance · 1 day ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/78350f/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-hr-feedback', title: 'Employee Feedback: Key Takeaways & Action Plans', workspaceName: 'HR', meta: 'HR · 3 days ago', badge: 'Feedback', thumbnailSrc: 'https://placehold.co/192x256/065f46/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-sales-report', title: 'Q1 Lead Generation: Performance & Strategy', workspaceName: 'Sales', meta: 'Sales · 4 days ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/92400e/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-it-update', title: 'System Upgrade: Upcoming Changes and Benefits', workspaceName: 'IT', meta: 'IT · 2 days ago', badge: 'Update', thumbnailSrc: 'https://placehold.co/192x256/1e3a8a/ffffff?text=Briefing+Thumbnail' },
+                    { id: 'briefing-marketing-report', title: 'Campaign Performance: Deep Dive into Q1 Results', workspaceName: 'Marketing', meta: 'Marketing · 4 days ago', badge: 'Report', thumbnailSrc: 'https://placehold.co/192x256/a16207/ffffff?text=Briefing+Thumbnail' }
+                ];
+                briefingRoot.innerHTML = briefingItems.map((item, index) => {
+                    const badgeLabel = String(item.badge || 'Briefing');
+                    const badgeToneClass = badgeLabel.toLowerCase() === 'alert'
+                        ? 'll-text-negative'
+                        : badgeLabel.toLowerCase() === 'report'
+                            ? 'll-text-warning'
+                            : badgeLabel.toLowerCase() === 'feedback'
+                                ? 'll-text-positive'
+                                : badgeLabel.toLowerCase() === 'update'
+                                    ? 'll-text-primary'
+                                    : 'll-text-neutral';
+                    const ownerWorkspace = String(item.workspaceName || '').trim()
+                        || String(item.meta || '').split('·')[0].trim()
+                        || 'Workspace';
+                    const metaText = escapeHtml((item.meta || '').split('·').slice(1).join('·').trim() || item.meta || '');
+                    return `
+                        <div class="ll-list__item">
+                            <button
+                                type="button"
+                                class="ll-list__item-trigger"
+                                data-index-briefing-open="true"
+                                data-briefing-id="${escapeHtml(item.id)}"
+                                aria-label="Open briefing: ${escapeHtml(item.title)}">
+                                <div class="ll-list__item-content">
+                                    <div class="ll-aspect-box ll-aspect-box--9-16 index-idea-briefing-thumb">
+                                        <img class="ll-aspect-box__content" src="${escapeHtml(item.thumbnailSrc || '')}" alt="Briefing thumbnail">
+                                    </div>
+                                    <div class="ll-list__item-main">
+                                        <div class="index-idea-briefing-type ${badgeToneClass}">${escapeHtml(badgeLabel)}</div>
+                                        <div class="ll-list__item-heading">${escapeHtml(item.title)}</div>
+                                        <div class="ll-list__item-subtext">${escapeHtml(ownerWorkspace)}</div>
+                                        <span class="ll-list__item-meta index-idea-briefing-meta">
+                                            <span class="ll-list__item-subtext ll-text-muted">${metaText}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                if (briefingRoot.dataset.briefingActionsBound !== 'true') {
+                    briefingRoot.addEventListener('click', (event) => {
+                        const target = event.target instanceof Element ? event.target : null;
+                        if (!target) return;
+                        const briefingTrigger = target.closest('[data-index-briefing-open="true"]');
+                        if (!briefingTrigger) return;
+                        const briefingId = briefingTrigger.getAttribute('data-briefing-id');
+                        if (!briefingId) return;
+
+                        if (window.Briefings && typeof window.Briefings.openViewer === 'function') {
+                            window.Briefings.openViewer(briefingId);
+                        } else {
+                            alertMessage('Briefing viewer is unavailable.', 'error');
+                        }
+                    });
+                    briefingRoot.dataset.briefingActionsBound = 'true';
+                }
+                briefingRoot.dataset.listBound = 'true';
+            }
+
+            const continueRoot = document.getElementById('index-continue-viewing-carousel-root');
+            if (continueRoot && continueRoot.dataset.carouselBound !== 'true') {
+                const continueItems = [
+                    { id: 'c1', title: 'Q2 Performance Review: Deep Dive into Financial Metrics', workspaceName: 'Finance', meta: 'Slide · 75% complete', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section', progressPct: 75, progressText: '75% Complete (Section 12 of 16)' },
+                    { id: 'c2', title: 'Operations Dashboard: Live KPIs and Supply Chain Updates', workspaceName: 'Operations', meta: 'Dashboard · 4 pages', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page', progressPct: 50, progressText: '50% Complete (Page 2 of 4)' },
+                    { id: 'c3', title: 'Employee Engagement Trends 2024', workspaceName: 'HR', meta: 'Slide · In progress', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section', progressPct: 35, progressText: '35% Complete (Section 5 of 14)' },
+                    { id: 'c4', title: 'Monthly Sales Performance by Region', workspaceName: 'Sales', meta: 'Dashboard · 3 pages', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page', progressPct: 67, progressText: '67% Complete (Page 2 of 3)' },
+                    { id: 'c5', title: '2025 Marketing Strategy Overview', workspaceName: 'Marketing', meta: 'Slide · In progress', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section', progressPct: 58, progressText: '58% Complete (Section 7 of 12)' },
+                    { id: 'c6', title: 'IT Infrastructure Monitoring', workspaceName: 'IT', meta: 'Dashboard · 5 pages', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page', progressPct: 20, progressText: '20% Complete (Page 1 of 5)' }
+                ];
+                components.initializeHorizontalCarousel({
+                    root: continueRoot,
+                    mode: 'cards',
+                    sizing: 'grid',
+                    gridColumns: 4,
+                    gridGap: 6,
+                    items: continueItems,
+                    getItemId: (item) => String(item && item.id != null ? item.id : ''),
+                    renderCard: (item) => {
+                        const itemToken = sanitizeIdToken(item.id);
+                        const buttonId = `index-continue-actions-btn-${itemToken}`;
+                        const menuId = `index-continue-actions-menu-${itemToken}`;
+                        const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Slide';
+                        const ownerWorkspace = String(item.workspaceName || '').trim() || 'Workspace';
+                        const thumbnailSrc = item.thumbnailSrc || (cardType === 'Dashboard'
+                            ? 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page'
+                            : 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section');
+                        const detailMeta = String(item.meta || '').split('·').slice(1).join('·').trim() || '';
+                        const progressPct = Math.max(0, Math.min(100, Number(item.progressPct || 0)));
+                        const progressText = String(item.progressText || '').trim();
+                        return `
+                        <article class="ll-card ll-card--linkable h-full" data-index-content-id="${escapeHtml(item.id)}">
+                            <div class="ll-aspect-box ll-aspect-box--16-9">
+                                <img class="ll-aspect-box__content ll-card__thumbnail" src="${thumbnailSrc}" alt="${cardType} thumbnail" />
+                                <div class="ll-card__header ll-card__header--media-overlay">
+                                    <div class="ll-card__header-actions">
+                                        <div class="ll-card__header-action">
+                                            <div class="ll-card__header-action-content">
+                                                <button
+                                                    id="${buttonId}"
+                                                    type="button"
+                                                    class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline"
+                                                    aria-label="Card actions">
+                                                    <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
+                                                </button>
+                                                <div id="${menuId}" class="ll-dropdown__menu hidden">
+                                                    <button type="button" class="ll-dropdown__item" data-value="view">View Details</button>
+                                                    <button type="button" class="ll-dropdown__item" data-value="share">Share</button>
+                                                    <button type="button" class="ll-dropdown__item" data-value="delete">Delete</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ll-card__content ll-card__content--stacked">
+                                <div class="ll-card__content-owner">
+                                    <span class="material-symbols-outlined ll-card__content-owner-icon">workspaces</span>
+                                    <span class="ll-card__content-owner-label">${escapeHtml(ownerWorkspace)}</span>
+                                </div>
+                                <div class="ll-card__content-heading ll-card__content-heading--grow">${escapeHtml(item.title)}</div>
+                                <div class="ll-card__meta-row">
+                                    <div class="ll-card__meta-group">
+                                        <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${cardType}</span></span>
+                                    </div>
+                                    <div class="ll-card__meta-group">
+                                        <span class="ll-card__meta-item">${escapeHtml(detailMeta || (cardType === 'Slide' ? '12 sections' : '4 pages'))}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 w-full bg-gray-700 rounded-full h-2.5">
+                                    <div class="ll-bg-primary h-2.5 rounded-full" style="width: ${progressPct}%;"></div>
+                                </div>
+                                <p class="text-sm ll-text-primary mt-2">${escapeHtml(progressText || `${progressPct}% Complete`)}</p>
+                            </div>
+                            <button type="button" class="ll-card__link-overlay" aria-label="Open item"></button>
+                        </article>
+                    `;
+                    }
+                });
+                if (continueRoot.dataset.cardMenusBound !== 'true') {
+                    continueItems.forEach((item) => {
+                        const token = sanitizeIdToken(item.id);
+                        const buttonId = `index-continue-actions-btn-${token}`;
+                        const menuId = `index-continue-actions-menu-${token}`;
+                        initializeCardActionDropdown({
+                            buttonId,
+                            menuId,
+                            onValueChange: ({ value }) => {
+                                const action = String(value || '');
+                                if (action === 'view') {
+                                    alertMessage(`Viewing item ${item.id} (simulated).`, 'info');
+                                } else if (action === 'share') {
+                                    alertMessage('Share item (simulated).', 'info');
+                                } else if (action === 'delete') {
+                                    alertMessage('Delete item (simulated).', 'info');
+                                }
+                            }
+                        });
+                    });
+                    continueRoot.dataset.cardMenusBound = 'true';
+                }
+                continueRoot.dataset.carouselBound = 'true';
+            }
+
+            const recommendedRoot = document.getElementById('index-recommended-grid-root');
+            if (recommendedRoot && recommendedRoot.dataset.gridBound !== 'true') {
+                const recommendedItems = [
+                    { id: 'r1', title: 'Customer Churn Signals and Mitigation Plan', workspaceName: 'Customer Success', meta: 'Slide', thumbnailSrc: 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section' },
+                    { id: 'r2', title: 'Supply Chain Risk Heatmap', workspaceName: 'Operations', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page' },
+                    { id: 'r3', title: 'Talent Retention Pulse by Region', workspaceName: 'HR', meta: 'Slide', thumbnailSrc: 'https://placehold.co/400x225/2c5282/ffffff?text=Screenshot+of+first+section' },
+                    { id: 'r4', title: 'Revenue Forecast Confidence Tracker', workspaceName: 'Finance', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/5f2120/ffffff?text=Screenshot+of+first+page' },
+                    { id: 'r5', title: 'Campaign Funnel Benchmark Comparison', workspaceName: 'Marketing', meta: 'Slide', thumbnailSrc: 'https://placehold.co/400x225/38a169/ffffff?text=Screenshot+of+first+section' },
+                    { id: 'r6', title: 'Infrastructure Cost Optimization', workspaceName: 'IT', meta: 'Dashboard', thumbnailSrc: 'https://placehold.co/400x225/004e64/e0f2f7?text=Screenshot+of+first+page' }
+                ];
+                recommendedRoot.innerHTML = recommendedItems.map((item) => {
+                    const itemToken = sanitizeIdToken(item.id);
+                    const buttonId = `index-recommended-actions-btn-${itemToken}`;
+                    const menuId = `index-recommended-actions-menu-${itemToken}`;
+                    const cardType = String(item.meta || '').toLowerCase().includes('dashboard') ? 'Dashboard' : 'Slide';
+                    const ownerWorkspace = String(item.workspaceName || '').trim() || 'Workspace';
+                    const thumbnailSrc = item.thumbnailSrc || (cardType === 'Dashboard'
+                        ? 'https://placehold.co/400x225/101010/f7fafc?text=Screenshot+of+first+page'
+                        : 'https://placehold.co/400x225/1a202c/e2e8f0?text=Screenshot+of+first+section');
+                    return `
+                    <article class="ll-card ll-card--linkable h-full" data-index-content-id="${escapeHtml(item.id)}">
+                        <div class="ll-aspect-box ll-aspect-box--16-9">
+                            <img class="ll-aspect-box__content ll-card__thumbnail" src="${thumbnailSrc}" alt="${cardType} thumbnail" />
+                            <div class="ll-card__header ll-card__header--media-overlay">
+                                <div class="ll-card__header-actions">
+                                    <div class="ll-card__header-action">
+                                        <div class="ll-card__header-action-content">
+                                            <button
+                                                id="${buttonId}"
+                                                type="button"
+                                                class="ll-icon-btn ll-icon-btn--sm ll-icon-btn--circle ll-icon-btn--outline"
+                                                aria-label="Card actions">
+                                                <span class="material-symbols-outlined ll-icon-btn__icon">more_vert</span>
+                                            </button>
+                                            <div id="${menuId}" class="ll-dropdown__menu hidden">
+                                                <button type="button" class="ll-dropdown__item" data-value="view">View Details</button>
+                                                <button type="button" class="ll-dropdown__item" data-value="share">Share</button>
+                                                <button type="button" class="ll-dropdown__item" data-value="delete">Delete</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ll-card__content ll-card__content--stacked">
+                            <div class="ll-card__content-owner">
+                                <span class="material-symbols-outlined ll-card__content-owner-icon">workspaces</span>
+                                <span class="ll-card__content-owner-label">${escapeHtml(ownerWorkspace)}</span>
+                            </div>
+                            <div class="ll-card__content-heading ll-card__content-heading--grow">${escapeHtml(item.title)}</div>
+                            <div class="ll-card__meta-row">
+                                <div class="ll-card__meta-group">
+                                    <span class="ll-chip ll-chip--outline-default"><span class="ll-chip__label">${cardType}</span></span>
+                                </div>
+                                <div class="ll-card__meta-group">
+                                    <span class="ll-card__meta-item">${cardType === 'Slide' ? '12 sections' : '4 pages'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="ll-card__link-overlay" aria-label="Open item"></button>
+                    </article>
+                `;
+                }).join('');
+                if (recommendedRoot.dataset.cardMenusBound !== 'true') {
+                    recommendedItems.forEach((item) => {
+                        const token = sanitizeIdToken(item.id);
+                        const buttonId = `index-recommended-actions-btn-${token}`;
+                        const menuId = `index-recommended-actions-menu-${token}`;
+                        initializeCardActionDropdown({
+                            buttonId,
+                            menuId,
+                            onValueChange: ({ value }) => {
+                                const action = String(value || '');
+                                if (action === 'view') {
+                                    alertMessage(`Viewing item ${item.id} (simulated).`, 'info');
+                                } else if (action === 'share') {
+                                    alertMessage('Share item (simulated).', 'info');
+                                } else if (action === 'delete') {
+                                    alertMessage('Delete item (simulated).', 'info');
+                                }
+                            }
+                        });
+                    });
+                    recommendedRoot.dataset.cardMenusBound = 'true';
+                }
+                recommendedRoot.dataset.gridBound = 'true';
+            }
+        }
+
+        // Header dropdowns are now handled by ll-app-header + initializePortaledDropdown.
+
+
+        // Simulated feedback helper routed through the reusable Toast pattern.
+        function alertMessage(message, type = "info") {
+            const components = window.LlumenComponents;
+            const toastStateByType = {
+                info: 'info',
+                success: 'positive',
+                error: 'negative',
+                warning: 'warning',
+                positive: 'positive',
+                negative: 'negative',
+                loading: 'loading'
+            };
+            const normalizedType = String(type || 'info').toLowerCase();
+            const toastState = toastStateByType[normalizedType] || 'info';
+            const safeMessage = String(message == null ? '' : message).trim() || 'Action completed.';
+
+            if (components && typeof components.createToast === 'function') {
+                components.createToast({
+                    state: toastState,
+                    message: safeMessage,
+                    position: 'bottom-left',
+                    duration: 4000,
+                    dismissible: true
+                });
+                return;
+            }
+
+            // Fallback for environments where reusable components are unavailable.
+            console.warn('[toast unavailable]', safeMessage);
+        }
+
+
+        // Function to generate a random number between min and max (inclusive)
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function initializeIndexStudioAppNavTabs() {
+            const llComponents = window.LlumenComponents;
+            const appNavBar = document.getElementById('app-nav-bar');
+            const navCarouselRoot = document.getElementById('index-studio-app-nav-carousel-root');
+            if (!llComponents || !appNavBar || !navCarouselRoot) return;
+            if (navCarouselRoot.dataset.carouselBound === 'true') return;
+            if (typeof llComponents.initializeHorizontalCarousel !== 'function') return;
+
+            const navItems = [
+                { id: 'all', label: 'All' },
+                { id: 'private', label: 'Private' },
+                { id: 'shared-with-me', label: 'Shared with Me' },
+                { id: 'finance', label: 'Finance' },
+                { id: 'operations', label: 'Operations' },
+                { id: 'hr', label: 'HR' },
+                { id: 'sales', label: 'Sales' },
+                { id: 'marketing', label: 'Marketing' }
+            ];
+
+            llComponents.initializeHorizontalCarousel({
+                root: navCarouselRoot,
+                mode: 'tabs',
+                items: navItems,
+                getItemId: (item) => String(item && item.id != null ? item.id : ''),
+                tabLabelKey: 'label',
+                tabsAsLinks: false,
+                tabSeparatorsAfter: ['shared-with-me'],
+                initialActiveId: 'all'
+            });
+            navCarouselRoot.dataset.carouselBound = 'true';
+
+            if (typeof llComponents.initializeHideWithScroll === 'function') {
+                if (appNavBar.__llIndexStudioHideWithScrollController
+                    && typeof appNavBar.__llIndexStudioHideWithScrollController.destroy === 'function') {
+                    appNavBar.__llIndexStudioHideWithScrollController.destroy();
+                }
+                appNavBar.__llIndexStudioHideWithScrollController = llComponents.initializeHideWithScroll({
+                    targetElement: appNavBar,
+                    offsetElement: document.querySelector('.ll-app-header') || document.querySelector('header'),
+                    cssVarName: '--header-height',
+                    cssVarHost: document.documentElement,
+                    hiddenClass: 'll-hidden'
+                });
+            }
+        }
+
+        function setSidebarToggleVisualState(button, isOpen) {
+            if (!button) return;
+            button.setAttribute('aria-pressed', isOpen ? 'true' : 'false');
+            button.classList.toggle('ll-active', isOpen);
+        }
+
+        function initializeIndexIdeaLayoutToggles() {
+            const briefingsSidebarShell = document.getElementById('index-briefings-sidebar-shell');
+            const aiChatSidebarShell = document.getElementById('index-ai-chat-sidebar-shell');
+            const aiChatHost = document.getElementById('index-ai-chat-host');
+            const aiChatWindow = document.getElementById('ai-chat-window');
+            if (!briefingsSidebarShell || !aiChatSidebarShell || !aiChatHost) return;
+
+            if (aiChatWindow && !aiChatHost.contains(aiChatWindow)) {
+                aiChatHost.appendChild(aiChatWindow);
+            }
+
+            const briefingsToggleButton = document.getElementById('index-briefings-sidebar-toggle');
+            if (!briefingsToggleButton) return;
+
+            const notificationsButton = document.querySelector('.ll-app-header__right button[aria-label="Notifications"]');
+            const headerActionHost = notificationsButton && notificationsButton.parentElement;
+            if (!headerActionHost || !notificationsButton) return;
+
+            let aiToggleButton = document.getElementById('index-ai-chat-sidebar-toggle');
+            if (!aiToggleButton) {
+                aiToggleButton = document.createElement('button');
+                aiToggleButton.type = 'button';
+                aiToggleButton.id = 'index-ai-chat-sidebar-toggle';
+                aiToggleButton.className = 'll-icon-btn ll-icon-btn--circle ll-icon-btn--outline';
+                aiToggleButton.setAttribute('aria-label', 'Toggle AI Chat sidebar');
+                aiToggleButton.innerHTML = '<span class="material-symbols-outlined ll-icon-btn__icon">auto_awesome</span>';
+            }
+            headerActionHost.appendChild(aiToggleButton);
+
+            const toggleSidebarShell = (shell, shouldOpen) => {
+                shell.classList.toggle('is-open', shouldOpen);
+                shell.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+            };
+
+            const syncAiChatWindowWithSidebar = (shouldOpen, { focusOnOpen = false } = {}) => {
+                if (!aiChatWindow) return;
+                const isOpen = aiChatWindow.classList.contains('chat-window-open');
+                if (shouldOpen && !isOpen) {
+                    toggleChatWindowVisibility();
+                    if (focusOnOpen && chatInput) {
+                        chatInput.focus();
+                    }
+                    return;
+                }
+                if (!shouldOpen && isOpen) {
+                    toggleChatWindowVisibility();
+                }
+            };
+
+            const updateAiButtonStateFromWindow = () => {
+                const isChatSidebarOpen = aiChatSidebarShell.classList.contains('is-open');
+                setSidebarToggleVisualState(aiToggleButton, isChatSidebarOpen);
+            };
+
+            const setBriefingsCompactState = (compact) => {
+                const isCompact = Boolean(compact);
+                briefingsSidebarShell.classList.toggle('is-open', true);
+                briefingsSidebarShell.classList.toggle('is-compact', isCompact);
+                briefingsSidebarShell.setAttribute('aria-hidden', 'false');
+                setSidebarToggleVisualState(briefingsToggleButton, isCompact);
+                briefingsToggleButton.setAttribute(
+                    'aria-label',
+                    isCompact ? 'Expand Latest Briefings sidebar' : 'Compact Latest Briefings sidebar'
+                );
+                const icon = briefingsToggleButton.querySelector('.ll-icon-btn__icon');
+                if (icon) {
+                    icon.textContent = 'vertical_split';
+                }
+            };
+
+            if (briefingsToggleButton.dataset.bound !== 'true') {
+                briefingsToggleButton.addEventListener('click', () => {
+                    const nextCompactState = !briefingsSidebarShell.classList.contains('is-compact');
+                    setBriefingsCompactState(nextCompactState);
+                });
+                briefingsToggleButton.dataset.bound = 'true';
+            }
+
+            if (aiToggleButton.dataset.bound !== 'true') {
+                aiToggleButton.addEventListener('click', () => {
+                    const nextState = !aiChatSidebarShell.classList.contains('is-open');
+                    toggleSidebarShell(aiChatSidebarShell, nextState);
+                    syncAiChatWindowWithSidebar(nextState, { focusOnOpen: true });
+                    setSidebarToggleVisualState(aiToggleButton, nextState);
+                });
+                aiToggleButton.dataset.bound = 'true';
+            }
+
+            const closeChatButton = document.getElementById('close-chat-button');
+            if (closeChatButton && closeChatButton.dataset.indexIdeaBound !== 'true') {
+                closeChatButton.addEventListener('click', () => {
+                    toggleSidebarShell(aiChatSidebarShell, false);
+                    setSidebarToggleVisualState(aiToggleButton, false);
+                });
+                closeChatButton.dataset.indexIdeaBound = 'true';
+            }
+
+            setBriefingsCompactState(false);
+            toggleSidebarShell(aiChatSidebarShell, true);
+            syncAiChatWindowWithSidebar(true, { focusOnOpen: false });
+            updateAiButtonStateFromWindow();
+        }
+
+        // Update all slide cards with random sections on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const appHeaderHost = document.querySelector('[data-ll-app-header-host]');
+            if (appHeaderHost && typeof window.renderLlumenAppHeader === 'function') {
+                window.renderLlumenAppHeader(appHeaderHost);
+                appHeaderHost.dataset.llAppHeaderMounted = 'true';
+            }
+            initializeIndexIdeaLayoutToggles();
+            initializeIndexStudioAppNavTabs();
+            document.querySelectorAll('.slide-card-container .num-sections').forEach(span => {
+                span.textContent = `${getRandomInt(12, 20)} Sections`;
+            });
+            initializeIndexCarousels();
+            const pageChatSendButton = document.getElementById('send-chat-button');
+            if (pageChatSendButton) {
+                pageChatSendButton.disabled = true;
+            }
+        });
+
+        // Tooltip functionality for "Create Workspace" button
+        const createWorkspaceButton = document.getElementById('create-workspace-button');
+        let tooltipElement = null;
+        let tooltipTimeout = null;
+
+        function showTooltip(button, text) {
+            if (tooltipElement) {
+                tooltipElement.remove();
+                tooltipElement = null;
+            }
+
+            tooltipElement = document.createElement('div');
+            tooltipElement.className = 'tooltip';
+            tooltipElement.textContent = text;
+            document.body.appendChild(tooltipElement);
+
+            const rect = button.getBoundingClientRect();
+            const scrollX = window.scrollX || window.pageXOffset;
+            const scrollY = window.scrollY || window.pageYOffset;
+
+            tooltipElement.style.left = `${rect.left + scrollX}px`;
+            tooltipElement.style.top = `${rect.top + scrollY - tooltipElement.offsetHeight - 8}px`;
+            
+            requestAnimationFrame(() => {
+                tooltipElement.classList.add('show');
+            });
+        }
+
+        function hideTooltip() {
+            if (tooltipTimeout) {
+                clearTimeout(tooltipTimeout);
+                tooltipTimeout = null;
+            }
+            if (tooltipElement) {
+                tooltipElement.classList.remove('show');
+                tooltipElement.addEventListener('transitionend', function handler() {
+                    if (tooltipElement && !tooltipElement.classList.contains('show')) {
+                        tooltipElement.remove();
+                        tooltipElement = null;
+                        this.removeEventListener('transitionend', handler);
+                    }
+                });
+            }
+        }
+
+        if (createWorkspaceButton) {
+            createWorkspaceButton.addEventListener('mouseenter', () => {
+                tooltipTimeout = setTimeout(() => {
+                    showTooltip(createWorkspaceButton, createWorkspaceButton.dataset.tooltip);
+                }, 400);
+            });
+            createWorkspaceButton.addEventListener('mouseleave', hideTooltip);
+            createWorkspaceButton.addEventListener('click', () => {
+                alertMessage("Create Workspace functionality not implemented in prototype.", "info");
+            });
+        }
+
+        // Featured Slides Slider Logic
+        const sliderInner = document.getElementById('slider-inner');
+        const sliderItems = document.querySelectorAll('.slider-item');
+        const thumbnailsContainer = document.getElementById('slider-thumbnails');
+        const thumbnailItems = document.querySelectorAll('.thumbnail-item');
+        const heroSlider = document.getElementById('hero-slider');
+
+        let currentSlideIndex = 0;
+        let slideInterval;
+        const slideDuration = 10000; // 10 seconds for each slide display
+
+        // Array of placeholder image URLs for the animated backgrounds (now without text in the URL)
+        const animatedBackgroundImages = [
+            'https://placehold.co/1920x1080/0f172a/64748b',
+            'https://placehold.co/1920x1080/1e293b/94a3b8',
+            'https://placehold.co/1920x1080/0c0a00/fde047'
+        ];
+
+        function getRandomWidthClass() {
+            const widths = ['w-full', 'w-5/6', 'w-4/5', 'w-3/4', 'w-2/3', 'w-1/2', 'w-1/3'];
+            return widths[Math.floor(Math.random() * widths.length)];
+        }
+
+        function populateAnimatedBackgrounds() {
+            document.querySelectorAll('.animated-background').forEach((bgElement, index) => {
+                // The background image will now be determined by the container's background-color or if a class is added to it.
+                // For this prototype, it will effectively be transparent and show the parent's dark background.
+                // No need to set backgroundImage via JS here if it's not meant to be an image.
+
+                // Set dynamic content (existing placeholder structure)
+                const content = `
+                    <div class="flex items-start justify-start h-full py-8 px-4">
+                        <div class="flex flex-col items-start gap-y-4 w-1/3 flex-shrink-0">
+                            <div class="bg-blue-700 rounded-lg w-full h-32 flex items-center justify-center text-white text-xl">Chart</div>
+                            <div class="flex flex-col space-y-4 w-full">
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                                <div class="bg-gray-700 rounded-md h-8 ${getRandomWidthClass()}"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-start justify-center w-2/3 h-full flex-shrink-0">
+                            <div class="bg-slate-700 rounded-lg w-96 h-96 flex items-center justify-center text-white text-xl shadow-lg">
+                                Background Visual
+                            </div>
+                        </div>
+                    </div>
+                `;
+                bgElement.innerHTML = content;
+            });
+        }
+
+        function showSlide(index) {
+            if (index >= sliderItems.length) {
+                currentSlideIndex = 0;
+            } else if (index < 0) {
+                currentSlideIndex = sliderItems.length - 1;
+            } else {
+                currentSlideIndex = index;
+            }
+
+            sliderItems.forEach((item, i) => {
+                const animatedBg = item.querySelector('.animated-background');
+                if (i === currentSlideIndex) {
+                    item.classList.add('active');
+                    if (animatedBg) {
+                        // Reset animation for the newly active slide to start from the top
+                        // Temporarily set animation to 'none' and reset transform, then reapply animation
+                        animatedBg.style.animation = 'none';
+                        animatedBg.style.transform = 'translateY(0)';
+                        // Force reflow
+                        void animatedBg.offsetHeight; 
+                        // Reapply the animation
+                        animatedBg.style.animation = 'backgroundPan 12s linear infinite';
+                    }
+                } else {
+                    item.classList.remove('active');
+                    // IMPORTANT: Do NOT stop the animation for inactive slides.
+                    // Let them continue animating in the background as they fade out,
+                    // so there's no jump when they become active again.
+                }
+            });
+
+            thumbnailItems.forEach((thumb, i) => {
+                if (i === currentSlideIndex) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            showSlide(currentSlideIndex + 1);
+        }
+
+        function startAutoSlide() {
+            stopAutoSlide();
+            slideInterval = setInterval(nextSlide, slideDuration);
+        }
+
+        function stopAutoSlide() {
+            clearInterval(slideInterval);
+        }
+
+        thumbnailItems.forEach(thumbnail => {
+            thumbnail.addEventListener('click', (event) => {
+                stopAutoSlide();
+                const index = parseInt(event.target.dataset.slideIndex);
+                showSlide(index);
+                startAutoSlide();
+            });
+        });
+
+        heroSlider.addEventListener('mouseenter', stopAutoSlide);
+        heroSlider.addEventListener('mouseleave', startAutoSlide);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            populateAnimatedBackgrounds();
+            showSlide(0); // Show the first slide initially
+            startAutoSlide();
+        });
+
+    </script>
+</body>
+</html>
